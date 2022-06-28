@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "downlevelIteration": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "noImplicitAny": false,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "typeRoots": [
+      "./node_modules/@types",
+      "@types",
+      "./src/types/*.ts",
+      "./src/window.d.ts" 
+    ],
+    "baseUrl": "src"
+  },
+  "include": [
+    "src",
+    "src/common/keplrUtils.ts"
+  ],
+  "exclude": ["src/common/staking", "src/common/farming", "src/common/liquidity",  "src/common/crescent"]
+}
