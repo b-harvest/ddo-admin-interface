@@ -6,7 +6,7 @@ import { CRESCENT_LOGO_IMG_URL } from 'constants/resources'
 export default function Header() {
   return (
     <header
-      className={`relative flex items-center justify-between w-full p-4 bg-lightCRE border-b-grayCRE-100 border-b md:shadow-glow-wide-l mainnet:bg-white`}
+      className={`relative flex items-center justify-between w-full p-4 bg-lightCRE border-b-grayCRE-100 border-b md:shadow-glow-wide-l`}
     >
       <div className="flex justify-start items-center space-x-6">
         <div className="flex justify-start items-center space-x-2">

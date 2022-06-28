@@ -1,10 +1,13 @@
 import SelectTab from 'components/SelectTab'
 import MoreWidget, { PopoverPanelItem } from 'components/Widgets/MoreWidget'
+import { useAtom } from 'jotai'
 import { useEffect, useState } from 'react'
+import { ChainName, chainNameAtomRef } from 'state/atoms'
 
-const CHAINS = ['mainnet', 'testnet']
+const CHAINS: ChainName[] = ['mainnet', 'testnet']
 
 export default function AppSettingWidget() {
+  // popover
   const settingsWidgetPanelItems: PopoverPanelItem[] = [
     {
       label: 'Blog',
@@ -22,25 +25,29 @@ export default function AppSettingWidget() {
     // logout proceeds..
   }
 
-  // chain settings → will be refactored to global state using Jotai
+  // tab
   const [chainIndex, setChainIndex] = useState(0)
 
-  const handleSelectChain = (index: number) => {
-    localStorage.setItem('chain-name', CHAINS[index])
+  // chain state
+  const [chainNameAtom, setChainNameAtom] = useAtom(chainNameAtomRef)
 
-    if (CHAINS[index] === 'testnet') {
+  const colorBodyByChain = (chainName: string) => {
+    if (chainName === 'testnet') {
       document.body.classList.add('testnet')
     } else {
       document.body.classList.remove('testnet')
     }
+  }
 
-    setChainIndex(index)
+  const handleSelectChain = (index: number) => {
+    const chainName = CHAINS[index]
+    setChainNameAtom({ chainName })
   }
 
   useEffect(() => {
-    const chainName = localStorage.getItem('chain-name') ?? 'mainnet'
-    setChainIndex(CHAINS.findIndex((item) => item === chainName))
-  }, [])
+    colorBodyByChain(chainNameAtom)
+    setChainIndex(CHAINS.findIndex((item) => item === chainNameAtom))
+  }, [chainNameAtom])
 
   return (
     <MoreWidget panelItems={settingsWidgetPanelItems}>

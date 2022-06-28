@@ -2,27 +2,19 @@ import './index.css'
 import '@reach/dialog/styles.css'
 
 import App from 'App'
+import { Provider } from 'jotai'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { HashRouter } from 'react-router-dom'
 import reportWebVitals from 'reportWebVitals'
-import StateUpdater from 'state/updater'
-
-// No interface change
-function Updaters() {
-  return (
-    <>
-      <StateUpdater />
-    </>
-  )
-}
 
 ReactDOM.render(
   <React.StrictMode>
-    <HashRouter>
-      <Updaters />
-      <App />
-    </HashRouter>
+    <Provider>
+      <HashRouter>
+        <App />
+      </HashRouter>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root') as HTMLElement
 )
