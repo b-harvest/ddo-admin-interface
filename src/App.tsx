@@ -6,7 +6,7 @@ import Accounts from 'pages/Accounts'
 import Asset from 'pages/Asset'
 import { Suspense, useEffect } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
-import StateUpdater from 'state/updater'
+import StateUpdater from 'state/StateUpdater'
 
 // No interface change
 function Updaters() {
