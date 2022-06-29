@@ -20,7 +20,7 @@ const getBaseUrl = (chainName: string): string | undefined => {
   switch (chainName) {
     case 'mainnet':
       return process.env.REACT_APP_MAINNET_API_ENDPOINT
-    case 'testnet':
+    case 'mooncat':
       return process.env.REACT_APP_MOONCAT_API_ENDPOINT
     default:
       return process.env.REACT_APP_MAINNET_API_ENDPOINT

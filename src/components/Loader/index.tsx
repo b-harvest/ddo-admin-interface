@@ -4,7 +4,7 @@ interface LoaderProps {
   [key: string]: any
 }
 
-export default function Loader({ size, stroke, ...rest }: LoaderProps) {
+export default function Loader({ size = '32', stroke, ...rest }: LoaderProps) {
   return (
     // the below svg is for tmp, not to be used actually
     <svg

@@ -1,10 +1,14 @@
 import SelectTab from 'components/SelectTab'
 import MoreWidget, { PopoverPanelItem } from 'components/Widgets/MoreWidget'
+import { MAINNET_CHAIN_NAME, TESTNET_CHAIN_NAME } from 'constants/names'
 import { useAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 import { ChainName, chainNameAtomRef } from 'state/atoms'
 
-const CHAINS: ChainName[] = ['mainnet', 'testnet']
+const CHAINS: { chainName: ChainName; label: string }[] = [
+  { chainName: MAINNET_CHAIN_NAME, label: 'Mainnet' },
+  { chainName: TESTNET_CHAIN_NAME, label: 'Testnet' },
+]
 
 export default function AppSettingWidget() {
   // popover
@@ -31,8 +35,8 @@ export default function AppSettingWidget() {
   // chain state
   const [chainNameAtom, setChainNameAtom] = useAtom(chainNameAtomRef)
 
-  const colorBodyByChain = (chainName: string) => {
-    if (chainName === 'testnet') {
+  const colorBodyByChain = (chainName: ChainName) => {
+    if (chainName === TESTNET_CHAIN_NAME) {
       document.body.classList.add('testnet')
     } else {
       document.body.classList.remove('testnet')
@@ -40,19 +44,23 @@ export default function AppSettingWidget() {
   }
 
   const handleSelectChain = (index: number) => {
-    const chainName = CHAINS[index]
+    const chainName = CHAINS[index].chainName
     setChainNameAtom({ chainName })
   }
 
   useEffect(() => {
     colorBodyByChain(chainNameAtom)
-    setChainIndex(CHAINS.findIndex((item) => item === chainNameAtom))
+    setChainIndex(CHAINS.findIndex((item) => item.chainName === chainNameAtom))
   }, [chainNameAtom])
 
   return (
     <MoreWidget panelItems={settingsWidgetPanelItems}>
       <div className="border-t-[1px] border-[rgba(0,0,0,0.5)] mt-2">
-        <SelectTab tabItems={CHAINS} selectedTabIndex={chainIndex} onChange={handleSelectChain} />
+        <SelectTab
+          tabItems={CHAINS.map((item) => item.label)}
+          selectedTabIndex={chainIndex}
+          onChange={handleSelectChain}
+        />
       </div>
     </MoreWidget>
   )

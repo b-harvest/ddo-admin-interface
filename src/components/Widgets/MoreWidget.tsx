@@ -16,7 +16,7 @@ interface SettingWidgetProps {
 
 export default function SettingWidget({ children, panelItems }: SettingWidgetProps) {
   return (
-    <Popover className="relative z-50 flex items-center justify-center">
+    <Popover className="relative flex items-center justify-center">
       <Popover.Button className="px-4">
         <div className="flex items-center justify-center w-6 h-9 transition-opacity cursor-pointer hover:opacity-50">
           <Icon type="more" className="w-6 h-8 text-black dark:text-white" />

@@ -35,13 +35,13 @@ function App() {
         <Updaters />
       </Suspense>
 
-      <div className="fixed left-0 right-0 top-0 w-full">
+      <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
         <AppHeader />
       </div>
 
       <main
         role="main"
-        className="min-h-screen pt-[calc((1rem*2)+2.25rem+2rem)] px-4 pb-[calc(2.25rem+2rem)] md:pt-[calc((1rem*2)+2.25rem+4rem)] md:px-8"
+        className="relative min-h-screen pt-[calc((1rem*2)+2.25rem+2rem)] px-4 pb-[calc(2.25rem+2rem)] md:pt-[calc((1rem*2)+2.25rem+4rem)] md:px-8"
       >
         <Suspense fallback={<Loader />}>
           <Switch>
