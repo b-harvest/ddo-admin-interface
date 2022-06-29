@@ -40,6 +40,15 @@ module.exports = {
         'glow-wide-d': '0px 0px 60px rgba(127, 71, 0, 0.3)',
         1: '0px 0px 5px 2px rgba(0, 0, 0, 0.03)',
       },
+      keyframes: {
+        'translateY-as-top-banner': {
+          '0%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(1.5rem)' },
+        },
+      },
+      animation: {
+        'translateY-as-top-banner': 'translateY-as-top-banner ease-in 0.4s both',
+      },
     },
   },
   plugins: [require('@tailwindcss/typography')],

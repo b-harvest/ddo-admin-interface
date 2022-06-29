@@ -1,16 +1,6 @@
+import { pages } from 'pages'
 import { NavLink } from 'react-router-dom'
 
-// pages
-const pages: { path: string; label: string }[] = [
-  {
-    path: 'asset',
-    label: '자산 모니터링',
-  },
-  {
-    path: 'accounts',
-    label: '계정 확인',
-  },
-]
 // const getPageLabel = (page: string) => `${page.charAt(0).toUpperCase()}${page.slice(1)}`
 
 // helpers
@@ -27,8 +17,8 @@ export default function NavigationTab({ onClick }: NavigationTabProps) {
         {pages.map((page) => (
           <li className="p-1 md:p-0" key={page.path}>
             <NavLink
-              id={`${page.path}-nav-link`}
-              to={`/${page.path}`}
+              id={`${page.label}-nav-link`}
+              to={`${page.path}`}
               onClick={onClick}
               className={(isActive) =>
                 `TYPO-BODY-M rounded-xl px-4 py-2 md:bg-transparent ${getNavLinkClass(isActive)}`

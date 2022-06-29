@@ -1,22 +1,17 @@
+import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
-import { useAllAssetInfo } from 'hooks/useAPI'
-import type { APIHookReturn } from 'types/api'
-import type { AssetInfo } from 'types/asset'
+import { useAtom } from 'jotai'
+import { assetInfosAtomRef } from 'state/atoms'
 
 export default function Asset() {
-  const {
-    data: allAssetInfoData,
-    isError: allAssetInfoIsError,
-    isLoading: allAssetInfoIsLoading,
-  }: APIHookReturn<AssetInfo[]> = useAllAssetInfo(6000)
-  console.log('useAllAssetInfo', allAssetInfoData)
+  const [assetInfosAtom] = useAtom(assetInfosAtomRef)
 
   return (
-    <div>
+    <AppPage>
       <TableList
         title="All Asset"
         useSearch={true}
-        list={allAssetInfoData.data}
+        list={assetInfosAtom}
         fields={[
           {
             label: 'Logo',
@@ -44,6 +39,6 @@ export default function Asset() {
           },
         ]}
       />
-    </div>
+    </AppPage>
   )
 }

@@ -11,7 +11,7 @@ export default function Header() {
       <div className="flex justify-start items-center space-x-6">
         <div className="flex justify-start items-center space-x-2">
           <Logo className="h-9 py-1" src={CRESCENT_LOGO_IMG_URL} />
-          <h1 className="inline-flex justify-start items-center TYPO-H2">Admin</h1>
+          <h1 className="inline-flex justify-start items-center TYPO-H1">Admin</h1>
         </div>
         <NavigationTab />
       </div>

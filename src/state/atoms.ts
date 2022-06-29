@@ -1,5 +1,6 @@
 import { MAINNET_CHAIN_NAME, TESTNET_CHAIN_NAME } from 'constants/names'
 import { atom } from 'jotai'
+import type { AssetInfo } from 'types/asset'
 
 // chainNameAtom (persisting in localStorage)
 export type ChainName = typeof MAINNET_CHAIN_NAME | typeof TESTNET_CHAIN_NAME
@@ -12,6 +13,9 @@ export const chainNameAtomRef = atom(
     localStorage.setItem('chain-name', chainName)
   }
 )
+
+// assetInfoAtom
+export const assetInfosAtomRef = atom<AssetInfo[]>([])
 
 // balanceAtom
 export const balanceAtom = atom(undefined)

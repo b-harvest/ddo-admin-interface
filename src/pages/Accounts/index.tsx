@@ -1,3 +1,4 @@
+import AppPage from 'components/AppPage'
 import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
 import TableList from 'components/TableList'
@@ -26,6 +27,7 @@ export default function Accounts() {
 
   const balanceList = allBalanceData.data.asset.map((item) => {
     return {
+      // logoUrl:
       denom: item.denom,
       web2Balance: item.amount,
       web3Balance: 'WIP',
@@ -33,9 +35,9 @@ export default function Accounts() {
   })
 
   return (
-    <div className="flex flex-col justify-start items-stretch space-y-8">
-      {/* address sticker */}
-      <div className="fixed top-[calc((1rem*2)+2.25rem)] right-0 z-50 w-full md:top-[calc((1rem*2)+2.25rem+2rem)] md:right-[2rem] md:w-fit">
+    <AppPage className="pt-[calc(2rem+3.25rem)]">
+      {/* address sticker - should try position sticky */}
+      <div className="absolute top-0 right-0 z-50 w-full mt-0 md:top-[calc((1rem*2)+2.25rem+2rem)] md:right-[2rem] md:w-fit">
         <Sticker>
           <div className="flex justify-start items-center space-x-2 p-4">
             <span className="hidden TYPO-BODY-XS text-grayCRE-400 !font-medium md:block">Current Address</span>
@@ -44,33 +46,37 @@ export default function Accounts() {
         </Sticker>
       </div>
 
-      {/* page title */}
-      <h2 className="TYPO-H2 text-black text-left pt-[2rem]">계정 확인</h2>
-
-      <SearchInput placeholder="Address" keyword={searchAddress} onChange={setSearchAddress} onSearch={fetchBalance} />
-
-      <section>
-        <TableList
-          title={`All Balance`}
-          useSearch={false}
-          list={balanceList}
-          fields={[
-            {
-              label: 'Denom',
-              value: 'denom',
-              // widthRatio: 60,
-            },
-            {
-              label: 'Web2 Data',
-              value: 'web2Balance',
-            },
-            {
-              label: 'Chain Data',
-              value: 'web3Balance',
-            },
-          ]}
+      <div className="flex flex-col justify-start items-stretch space-y-8">
+        <SearchInput
+          placeholder="Address"
+          keyword={searchAddress}
+          onChange={setSearchAddress}
+          onSearch={fetchBalance}
         />
-      </section>
-    </div>
+
+        <section>
+          <TableList
+            title={`All Balance`}
+            useSearch={false}
+            list={balanceList}
+            fields={[
+              {
+                label: 'Denom',
+                value: 'denom',
+                // widthRatio: 60,
+              },
+              {
+                label: 'Backend Data',
+                value: 'web2Balance',
+              },
+              {
+                label: 'On-chain Data',
+                value: 'web3Balance',
+              },
+            ]}
+          />
+        </section>
+      </div>
+    </AppPage>
   )
 }
