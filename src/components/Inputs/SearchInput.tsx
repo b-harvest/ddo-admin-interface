@@ -9,9 +9,9 @@ interface SearchInputProps {
 
 export default function SearchInput({ placeholder = 'Search', keyword, onChange, onSearch }: SearchInputProps) {
   return (
-    <div className="relative flex items-center opacity-40">
+    <div className="relative flex items-center w-full min-w-[10.625rem] rounded-[0.625rem] border-[2px] border-gray-500 opacity-40 md:min-w-[16.5625rem]">
       <input
-        className="w-full rounded-[0.625rem] border-[2px] border-gray-500 text-black TYPO-BODY-M bg-transparent min-w-[10.625rem] p-3 pr-[calc(0.75rem*2+1.25rem)] md:min-w-[16.5625rem] outline-none"
+        className="w-full TYPO-BODY-M text-black bg-transparent p-3 mr-[calc(0.75rem*2+1.25rem)] outline-none"
         type="text"
         value={keyword}
         placeholder={placeholder}

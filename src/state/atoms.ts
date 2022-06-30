@@ -1,21 +1,23 @@
-import { MAINNET_CHAIN_NAME, TESTNET_CHAIN_NAME } from 'constants/names'
+import { CHAIN_IDS, CHAIN_NAMES_MAP } from 'constants/chain'
 import { atom } from 'jotai'
 import type { AssetInfo } from 'types/asset'
 
-// chainNameAtom (persisting in localStorage)
-export type ChainName = typeof MAINNET_CHAIN_NAME | typeof TESTNET_CHAIN_NAME
+// chaiIdAtom (persisting in localStorage)
+export type ChainId = CHAIN_IDS
 
-const chainNameAtom = atom<ChainName>((localStorage.getItem('chain-name') as ChainName) ?? MAINNET_CHAIN_NAME)
-export const chainNameAtomRef = atom(
-  (get) => get(chainNameAtom),
-  (_, set, { chainName }: { chainName: ChainName }) => {
-    set(chainNameAtom, chainName)
-    localStorage.setItem('chain-name', chainName)
+const chaiIdAtom = atom<ChainId>((localStorage.getItem('chain-id') as ChainId) ?? CHAIN_NAMES_MAP[CHAIN_IDS.MAINNET])
+export const chainIdAtomRef = atom(
+  (get) => get(chaiIdAtom),
+  (_, set, { chainId }: { chainId: ChainId }) => {
+    set(chaiIdAtom, chainId)
+    localStorage.setItem('chain-id', chainId)
   }
 )
 
+export const isTestnetAtomRef = atom<boolean>(false)
+
 // assetInfoAtom
-export const assetInfosAtomRef = atom<AssetInfo[]>([])
+export const allAssetInfoAtomRef = atom<AssetInfo[]>([])
 
 // balanceAtom
 export const balanceAtom = atom(undefined)

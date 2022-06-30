@@ -1,10 +1,10 @@
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
 import { useAtom } from 'jotai'
-import { assetInfosAtomRef } from 'state/atoms'
+import { allAssetInfoAtomRef } from 'state/atoms'
 
 export default function Asset() {
-  const [assetInfosAtom] = useAtom(assetInfosAtomRef)
+  const [assetInfosAtom] = useAtom(allAssetInfoAtomRef)
 
   return (
     <AppPage>
@@ -17,7 +17,7 @@ export default function Asset() {
             label: 'Logo',
             value: 'logoUrl',
             type: 'imgUrl',
-            size: 32,
+            size: 24,
             widthRatio: 4,
           },
           {
@@ -34,8 +34,8 @@ export default function Asset() {
             value: 'chainId',
           },
           {
-            label: 'chainName',
-            value: 'chainName',
+            label: 'chainId',
+            value: 'chainId',
           },
         ]}
       />
