@@ -39,6 +39,7 @@ interface TableListProps {
   mergedFields?: string[]
   showTitle?: boolean
   showFieldsBar?: boolean
+  useNarrow?: boolean
   emptyListLabel?: string
 }
 
@@ -50,6 +51,7 @@ export default function TableList({
   mergedFields = [],
   showTitle = true,
   showFieldsBar = true,
+  useNarrow = false,
   emptyListLabel = 'No data',
 }: TableListProps) {
   // search input keyword
@@ -76,9 +78,9 @@ export default function TableList({
     return (
       <li className="relative block w-full">
         <ul
-          className={`${
-            data.status ? getListItemClass(data.status) : ''
-          } flex flex-col justify-between items-stretch space-y-2 w-full rounded-xl bg-grayCRE-200 p-4 md:flex-row md:items-start md:space-x-4 md:space-y-0`}
+          className={`${data.status ? getListItemClass(data.status) : ''} ${
+            useNarrow ? 'rounded-lg space-y-1 px-4 py-2 md:space-x-2' : 'rounded-xl space-y-2 p-4 md:space-x-4'
+          } flex flex-col justify-between items-stretch w-full bg-grayCRE-200 transition-all md:flex-row md:items-start md:space-y-0`}
         >
           {nonMerged.map((field, i) => {
             return (
@@ -142,8 +144,12 @@ export default function TableList({
       <div>
         {/* list fields */}
         {showFieldsBar ? (
-          <div aria-hidden="true" className="mb-4">
-            <ul className="flex justify-between items-center bg-grayCRE-200 px-4 py-2 rounded-xl">
+          <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-2' : 'mb-4'}`}>
+            <ul
+              className={`flex justify-between items-center bg-grayCRE-200 px-4 transition-all${
+                useNarrow ? 'py-2 md:py-1 rounded-md' : 'py-2 rounded-lg'
+              }`}
+            >
               {fields.map((field, i) => {
                 return (
                   <li
@@ -162,11 +168,19 @@ export default function TableList({
         {/* data list */}
         <div>
           {list.length <= 0 ? (
-            <div className="w-full rounded-xl bg-grayCRE-200 p-4 TYPO-BODY-S text-grayCRE-400 !font-bold">
+            <div
+              className={`w-full  bg-grayCRE-200 TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${
+                useNarrow ? 'rounded-sm p-2' : 'rounded-xl p-4'
+              }`}
+            >
               {emptyListLabel}
             </div>
           ) : (
-            <ul className="flex flex-col justify-start items-stretch space-y-2">
+            <ul
+              className={`flex flex-col justify-start items-stretch transition-all ${
+                useNarrow ? 'space-y-1' : 'space-y-2'
+              }`}
+            >
               {matchedList.map((item, i) => {
                 return <ListItem key={i} data={item} fields={fields} />
               })}
