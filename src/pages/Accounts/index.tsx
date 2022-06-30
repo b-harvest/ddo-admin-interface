@@ -15,7 +15,6 @@ import type { Balance } from 'types/account'
 import type { APIHookReturn } from 'types/api'
 import type { STATUS } from 'types/status'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
-import { isMobile } from 'utils/userAgent'
 export default function Accounts() {
   // text constants
   const ERROR_MSG_BALANCE_DIFF = 'Balance difference between back-end/on-chain data'
@@ -80,11 +79,11 @@ export default function Accounts() {
     <AppPage className="pt-[calc(2rem+3.25rem)]">
       {/* responsible behavior should be fixed in the future to be not following the isMobile, which is not responsive */}
       <div
-        className="fixed right-0 z-50 w-full md:right-[3rem] md:w-fit"
-        style={{ top: `calc(2.5rem + (1rem * 2)${isTestnetAtom ? (isMobile ? ' + 1.5rem' : ' + 5.5rem') : ''})` }}
+        className="fixed left-0 right-0 z-50 w-full"
+        style={{ top: `calc(2.5rem + (1rem * 2)${isTestnetAtom ? ' + 1.5rem' : ''})` }}
       >
         <Sticker>
-          <div className="flex justify-start items-center space-x-2 p-4">
+          <div className="flex justify-start items-center px-4 py-4 md:justify-end md:space-x-2 md:px-12">
             <span className="hidden TYPO-BODY-XS text-grayCRE-400 !font-medium md:block">Current Address</span>
             <span className="TYPO-BODY-XS !font-black text-left">{address ?? 'No address yet'}</span>
           </div>

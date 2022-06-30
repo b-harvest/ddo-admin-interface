@@ -93,7 +93,7 @@
 
   /* MAIN */
   .MAIN {
-    @apply relative min-h-screen pt-[calc((1rem*2)+2.5rem)] md:pt-[calc((1rem*2)+2.5rem)] md:px-8
+    @apply relative min-h-screen pt-[calc((1rem*2)+2.5rem)] md:pt-[calc((1rem*2)+2.5rem)]
   }
 
   /* TYPOGRAPHY */
