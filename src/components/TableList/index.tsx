@@ -79,8 +79,8 @@ export default function TableList({
       <li className="relative block w-full">
         <ul
           className={`${data.status ? getListItemClass(data.status) : ''} ${
-            useNarrow ? 'rounded-lg space-y-1 px-4 py-2 md:space-x-2' : 'rounded-xl space-y-2 p-4 md:space-x-4'
-          } flex flex-col justify-between items-stretch w-full bg-grayCRE-200 transition-all md:flex-row md:items-start md:space-y-0`}
+            useNarrow ? 'rounded-lg space-y-1 px-4 md:space-x-2' : 'rounded-xl space-y-2 p-4 md:space-x-4'
+          } flex flex-col justify-between items-stretch w-full bg-grayCRE-200 py-3 transition-all md:flex-row md:items-start md:space-y-0`}
         >
           {nonMerged.map((field, i) => {
             return (
@@ -146,8 +146,8 @@ export default function TableList({
         {showFieldsBar ? (
           <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-2' : 'mb-4'}`}>
             <ul
-              className={`flex justify-between items-center bg-grayCRE-200 px-4 transition-all${
-                useNarrow ? 'py-2 md:py-1 rounded-md' : 'py-2 rounded-lg'
+              className={`flex justify-between items-center bg-grayCRE-200 px-4 py-1 transition-all${
+                useNarrow ? 'md:py-1 rounded-md' : 'rounded-lg'
               }`}
             >
               {fields.map((field, i) => {
