@@ -3,22 +3,23 @@ import { CHAIN_IDS } from 'constants/chain'
 import { useAtom } from 'jotai'
 import { chainIdAtomRef } from 'state/atoms'
 import useSWR from 'swr'
-import type { APIHookReturn, ResponseViaSWR } from 'types/api'
+import type { APIHookReturn, LCDHookReturn, LCDResponseViaSWR, ResponseViaSWR } from 'types/api'
 
 type DataType = 'backend' | 'rpc-rest'
 
 // tmp - cosmos rpc url things will be removed
-const CRE_TESTNET_RPC_REST_API_URL = `https://testnet-api.crescent.network`
-const COSMOS_MAINNET_RPC_REST_API_URL = `https://cosmos.crescent.network:1317`
+const CRE_MAINNET_RPC_REST_API_URL = `https://mainnet.crescent.network:1317`
+const CRE_TESTNET_RPC_REST_API_URL = `https://testnet-endpoint.crescent.network/api/crescent`
+// const COSMOS_MAINNET_RPC_REST_API_URL = `https://cosmos.crescent.network:1317`
 
 const getBaseUrl = ({ chainId, type }: { chainId: CHAIN_IDS; type: DataType }): string | undefined => {
   switch (chainId) {
     case CHAIN_IDS.MAINNET:
-      return type === 'backend' ? process.env.REACT_APP_MAINNET_API_ENDPOINT : COSMOS_MAINNET_RPC_REST_API_URL
+      return type === 'backend' ? process.env.REACT_APP_MAINNET_API_ENDPOINT : CRE_MAINNET_RPC_REST_API_URL
     case CHAIN_IDS.MOONCAT:
       return type === 'backend' ? process.env.REACT_APP_MOONCAT_API_ENDPOINT : CRE_TESTNET_RPC_REST_API_URL
     default:
-      return type === 'backend' ? process.env.REACT_APP_MAINNET_API_ENDPOINT : COSMOS_MAINNET_RPC_REST_API_URL
+      return type === 'backend' ? process.env.REACT_APP_MAINNET_API_ENDPOINT : CRE_MAINNET_RPC_REST_API_URL
   }
 }
 
@@ -31,6 +32,18 @@ const fetcher = (url: string) =>
     .catch((e) => e)
 
 export function returnGenerator<T>({ data, error }: ResponseViaSWR<T>): APIHookReturn<T> {
+  if (error) {
+    console.log(error)
+  }
+
+  return {
+    data,
+    error,
+    isLoading: !error && !data,
+  }
+}
+
+export function lcdReturnGenerator<T>({ data, error }: LCDResponseViaSWR<T>): LCDHookReturn<T> {
   if (error) {
     console.log(error)
   }

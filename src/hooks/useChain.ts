@@ -1,7 +1,8 @@
+import { CHAIN_IDS } from 'constants/chain'
 import { useAtom } from 'jotai'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { allChainInfoAtomRef, allChainLiveAtomRef } from 'state/atoms'
-import { Asset } from 'types/asset'
+import { Chain } from 'types/chain'
 
 const useAsset = () => {
   const [allChainLiveAtom] = useAtom(allChainLiveAtomRef)
@@ -13,10 +14,17 @@ const useAsset = () => {
         ...chainInfo,
         live: allChainLiveAtom.find((item) => item.chainId === chainInfo.chainId),
       }
-    }) as Asset[]
+    }) as Chain[]
   }, [allChainInfoAtom, allChainLiveAtom])
 
-  return { allChain }
+  const findChainById = useCallback(
+    (chainId: CHAIN_IDS) => {
+      return allChain.find((item) => item.chainId === chainId)
+    },
+    [allChain]
+  )
+
+  return { allChain, findChainById }
 }
 
 export default useAsset

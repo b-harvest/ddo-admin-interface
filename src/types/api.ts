@@ -1,4 +1,4 @@
-// raw response
+// backend response
 export interface APIResponse<T> {
   readonly result: string
   readonly data: T
@@ -16,9 +16,20 @@ export interface ResponseViaSWR<T> {
   error: any
 }
 
+export interface LCDResponseViaSWR<T> {
+  data: T
+  error: any
+}
+
 // useAPI return
 export interface APIHookReturn<T> {
   data: APIResponse<T>
+  error: any
+  isLoading: boolean
+}
+
+export interface LCDHookReturn<T> {
+  data: T
   error: any
   isLoading: boolean
 }

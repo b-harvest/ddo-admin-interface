@@ -7,15 +7,16 @@ import TableList from 'components/TableList'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { useAllBalance } from 'data/useAPI'
-import useRPC from 'data/useRPC'
-import { useAllBalanceRPC } from 'data/useRPCRest'
+import { useAllBalanceLCD, useLatestBlockLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
+import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import AssetTableCell from 'pages/components/AssetTableCell'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
-import type { Balance } from 'types/account'
-import type { APIHookReturn } from 'types/api'
+import type { Balance, BalanceLCD } from 'types/account'
+import type { APIHookReturn, LCDHookReturn } from 'types/api'
+import type { BlockLCD } from 'types/block'
 import type { STATUS } from 'types/status'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
@@ -37,18 +38,19 @@ export default function Accounts() {
   // assetinfo handler
   const { findAssetByDenom } = useAsset()
 
-  // fetching balance → should be refactored to atom
+  // chain info
+  const { findChainById } = useChain()
+  const backendBlock = useMemo(() => findChainById(chainIdAtom), [chainIdAtom, findChainById])
+
+  // fetching balance → refactor needed for auto update by swr interval ?
   const { data: allBalanceData }: APIHookReturn<Balance> = useAllBalance(address ?? 'x')
   console.log('useAllBalance', allBalanceData)
-  const { data: allBalanceRPCData, error: allBalanceRPCError }: APIHookReturn<Balance> = useAllBalanceRPC(
+
+  const { data: allBalanceLCDData, error: allBalanceLCDError }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD(
     address ?? 'x'
   )
-  console.log('useAllBalanceRPC', allBalanceRPCData, allBalanceRPCError)
-
-  const fetchBalance = () => {
-    console.log('fetchBalance')
-    setAddress(searchAddress)
-  }
+  const { data: latestBlockLCDData, error: latestBlockLCDError }: LCDHookReturn<BlockLCD> = useLatestBlockLCD()
+  console.log('latestBlockLCDData', latestBlockLCDData, latestBlockLCDError)
 
   // table data
   const { balanceTableList, hasBalanceDiff } = useMemo(() => {
@@ -63,7 +65,11 @@ export default function Accounts() {
 
         const asset = AssetTableCell({ logoUrl, ticker })
         const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
-        const onchainBalance = new BigNumber('34000000000000000000').dividedBy(10 ** exponent)
+        const onchainBalance = allBalanceLCDData
+          ? new BigNumber(allBalanceLCDData.balances.find((bal) => bal.denom === item.denom)?.amount ?? 0).dividedBy(
+              10 ** exponent
+            )
+          : new BigNumber(0)
         const status: STATUS | undefined = backendBalance.isEqualTo(onchainBalance) ? undefined : 'error'
 
         return {
@@ -79,7 +85,7 @@ export default function Accounts() {
     const hasBalanceDiff = balanceTableList.findIndex((item) => item.status === 'error') > -1
 
     return { balanceTableList, hasBalanceDiff }
-  }, [allBalanceData, findAssetByDenom])
+  }, [allBalanceData, allBalanceLCDData, findAssetByDenom])
 
   // notiline data
   const { significantTimeGap, isTimeDiff, isAllDataMatched } = useMemo(() => {
@@ -95,12 +101,10 @@ export default function Accounts() {
     }
   }, [allBalanceData, chainIdAtom, hasBalanceDiff])
 
-  // tendermint rpc data
-  const { fetchAllBalance } = useRPC()
-
-  useEffect(() => {
-    if (address) fetchAllBalance({ address })
-  }, [address, fetchAllBalance])
+  const fetchBalance = () => {
+    console.log('fetchBalance')
+    setAddress(searchAddress)
+  }
 
   return (
     <AppPage className="pt-[calc(2rem+3.25rem)]">
@@ -135,6 +139,19 @@ export default function Accounts() {
               balanceTableList.length > 0 ? 'block' : 'hidden opacity-0'
             } flex flex-col justify-start items-start mb-4 transition-opacity`}
           >
+            {/* constant noti */}
+            <NotiLine
+              msg={`On-chain block height: ${latestBlockLCDData.block.header.height}`}
+              color="info"
+              isActive={true}
+            />
+            <NotiLine
+              msg={`Back-end block height: ${backendBlock?.live?.height ?? 'NA'}`}
+              color="info"
+              isActive={true}
+            />
+
+            {/* data error noti */}
             <NotiLine msg={ERROR_MSG_BALANCE_DIFF} color="error" isActive={hasBalanceDiff} />
             <NotiLine
               msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
