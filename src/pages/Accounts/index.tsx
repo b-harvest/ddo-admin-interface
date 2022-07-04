@@ -151,6 +151,7 @@ export default function Accounts() {
             list={balanceTableList}
             mergedFields={['backendBalance', 'onchainBalance']}
             showFieldsBar={false}
+            showItemsVertically={true}
             fields={[
               {
                 label: 'Asset',
