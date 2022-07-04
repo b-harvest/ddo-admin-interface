@@ -37,11 +37,11 @@ export default function Asset() {
     })
   }, [])
 
-  console.log('tvlChartList', tvlChartList)
+  // console.log('tvlChartList', tvlChartList)
 
   // asset table
   const { allAsset } = useAsset()
-  console.log('allAsset', allAsset)
+  // console.log('allAsset', allAsset)
 
   const assetTableList = useMemo(() => {
     return allAsset.map((item, index) => {

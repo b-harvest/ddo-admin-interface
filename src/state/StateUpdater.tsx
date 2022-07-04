@@ -1,5 +1,5 @@
 import { CHAIN_IDS } from 'constants/chain'
-import { useAllAssetInfo, useAllAssetLive, useAllPairInfo, useAllPairLive } from 'hooks/useAPI'
+import { useAllAssetInfo, useAllAssetLive, useAllPairInfo, useAllPairLive } from 'data/useAPI'
 import { useAtom } from 'jotai'
 import { useEffect } from 'react'
 import {

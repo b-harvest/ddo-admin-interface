@@ -19,6 +19,6 @@ export interface ResponseViaSWR<T> {
 // useAPI return
 export interface APIHookReturn<T> {
   data: APIResponse<T>
-  isError: any
+  error: any
   isLoading: boolean
 }
