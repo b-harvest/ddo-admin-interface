@@ -78,7 +78,7 @@ export default function TableList({
       <div>
         {/* list fields */}
         {showFieldsBar ? (
-          <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-2' : 'mb-4'}`}>
+          <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-1' : 'mb-2'}`}>
             <ul
               className={`flex justify-between items-center bg-grayCRE-50 dark:bg-neutral-800 px-4 py-1 hover:shadow-md transition-all ${
                 useNarrow ? 'md:py-1 rounded-md' : 'rounded-lg'
