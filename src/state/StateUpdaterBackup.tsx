@@ -41,6 +41,18 @@ export default function StateUpdater(): null {
   const { data: allChainInfoData, isLoading: allChainInfoIsLoading }: APIHookReturn<ChainInfo[]> = useAllChainInfo(0) // to be 6000
   const { data: allChainLiveData, isLoading: allChainLiveIsLoading }: APIHookReturn<ChainLive[]> = useAllChainLive(0) // to be 6000
 
+  useEffect(() => {
+    if (allChainInfoData && allChainLiveData) {
+      const allChainInfo = allChainInfoData?.data ?? []
+      setAllChainInfoAtom(allChainInfo)
+      console.log('allChainInfo', allChainInfoData)
+
+      const allChainLive = allChainLiveData?.data ?? []
+      setAllChainLiveAtom(allChainLive)
+      console.log('allChainLive', allChainLiveData)
+    }
+  }, [allChainInfoData, setAllChainInfoAtom, allChainLiveData, setAllChainLiveAtom])
+
   // all asset
   const [, setAllAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
   const [, setAllAssetLiveAtom] = useAtom(allAssetLiveAtomRef)
@@ -48,24 +60,7 @@ export default function StateUpdater(): null {
   const { data: allAssetInfoData, isLoading: allAssetInfoIsLoading }: APIHookReturn<AssetInfo[]> = useAllAssetInfo(0) // to be 6000
   const { data: allAssetLiveData, isLoading: allAssetLiveIsLoading }: APIHookReturn<AssetLive[]> = useAllAssetLive(0) // to be 6000
 
-  // all pair
-  const [, setAllPairtInfoAtom] = useAtom(allPairInfoAtomRef)
-  const [, setAllPairLiveAtom] = useAtom(allPairLiveAtomRef)
-
-  const { data: allPairInfoData, isLoading: allPairInfoIsLoading }: APIHookReturn<PairInfo[]> = useAllPairInfo(0) // to be 6000
-  const { data: allPairLiveData, isLoading: allPairLiveIsLoading }: APIHookReturn<PairLive[]> = useAllPairLive(0) // to be 6000
-
   useEffect(() => {
-    if (allChainInfoData && allChainLiveData) {
-      const allChainInfo = allChainInfoData.data ?? []
-      setAllChainInfoAtom(allChainInfo)
-      console.log('allChainInfo', allChainInfoData)
-
-      const allChainLive = allChainLiveData.data ?? []
-      setAllChainLiveAtom(allChainLive)
-      console.log('allChainLive', allChainLiveData)
-    }
-
     if (allAssetInfoData && allAssetLiveData) {
       const allAssetInfo = allAssetInfoData.data ?? []
       setAllAssetInfoAtom(allAssetInfo)
@@ -75,7 +70,16 @@ export default function StateUpdater(): null {
       setAllAssetLiveAtom(allAssetLive)
       console.log('allAssetLive', allAssetLiveData)
     }
+  }, [allAssetInfoData, setAllAssetInfoAtom, allAssetLiveData, setAllAssetLiveAtom])
 
+  // all pair
+  const [, setAllPairtInfoAtom] = useAtom(allPairInfoAtomRef)
+  const [, setAllPairLiveAtom] = useAtom(allPairLiveAtomRef)
+
+  const { data: allPairInfoData, isLoading: allPairInfoIsLoading }: APIHookReturn<PairInfo[]> = useAllPairInfo(0) // to be 6000
+  const { data: allPairLiveData, isLoading: allPairLiveIsLoading }: APIHookReturn<PairLive[]> = useAllPairLive(0) // to be 6000
+
+  useEffect(() => {
     if (allPairInfoData && allPairLiveData) {
       const allPairInfo = allPairInfoData.data ?? []
       setAllPairtInfoAtom(allPairInfo)
@@ -85,20 +89,7 @@ export default function StateUpdater(): null {
       setAllPairLiveAtom(allPairLive)
       console.log('allPairLive', allPairLiveData)
     }
-  }, [
-    allChainInfoData,
-    setAllChainInfoAtom,
-    allChainLiveData,
-    setAllChainLiveAtom,
-    allAssetInfoData,
-    setAllAssetInfoAtom,
-    allAssetLiveData,
-    setAllAssetLiveAtom,
-    allPairInfoData,
-    setAllPairtInfoAtom,
-    allPairLiveData,
-    setAllPairLiveAtom,
-  ])
+  }, [allPairInfoData, setAllPairtInfoAtom, allPairLiveData, setAllPairLiveAtom])
 
   return null
 }
