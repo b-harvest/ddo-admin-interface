@@ -10,6 +10,18 @@ import AssetTableCell from 'pages/components/AssetTableCell'
 import { useMemo, useState } from 'react'
 import { formatUSDAmount } from 'utils/amount'
 
+// filtering
+const ASSET_TABLE_LIST_FILTERS = [
+  {
+    value: 'loop-non',
+    label: 'Non-pool',
+  },
+  {
+    value: 'loop',
+    label: 'Pool',
+  },
+]
+
 export default function Asset() {
   const { tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom } = usePair()
 
@@ -37,11 +49,8 @@ export default function Asset() {
     })
   }, [])
 
-  // console.log('tvlChartList', tvlChartList)
-
   // asset table
   const { allAsset } = useAsset()
-  // console.log('allAsset', allAsset)
 
   const assetTableList = useMemo(() => {
     return allAsset.map((item, index) => {
@@ -49,15 +58,17 @@ export default function Asset() {
       const vol24USD = getVol24USDbyDenom(item.denom, item.exponent)
       const tvlUSD = getTVLUSDbyDenom(item.denom)
       const priceOracle = item.live ? new BigNumber(item.live.priceOracle) : null
-
+      const filter = item.denom.includes('pool') ? ASSET_TABLE_LIST_FILTERS[1].value : ASSET_TABLE_LIST_FILTERS[0].value
       return {
         index,
+        ticker: item.ticker,
         asset,
         chainName: item.chainName,
         priceOracle,
         vol24USD,
         tvlUSD,
         exponent: item.exponent,
+        filter,
       }
     })
   }, [allAsset, getTVLUSDbyDenom, getVol24USDbyDenom])
@@ -92,6 +103,7 @@ export default function Asset() {
           list={assetTableList}
           defaultSortBy="tvlUSD"
           defaultIsSortASC={false}
+          filterOptions={ASSET_TABLE_LIST_FILTERS}
           fields={[
             {
               label: 'Ticker',
