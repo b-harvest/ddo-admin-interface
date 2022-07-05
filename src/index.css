@@ -39,8 +39,13 @@
       @apply bg-white
     }
 
+    body.dark {
+      @apply bg-neutral-900
+      /* bg-neutral-900 */
+    }
+
     body.testnet {
-      @apply bg-grayCRE-100
+      /* @apply bg-grayCRE-100 */
     }
 
     /* Chrome, Safari, Edge, Opera */

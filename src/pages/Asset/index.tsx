@@ -85,6 +85,7 @@ export default function Asset() {
           setValue={setTvlHover}
           label={tvlTimeLabelHover}
           setLabel={setTvlTimeLabelHover}
+          className="dark:shadow-glow-wide-d"
           topLeft={
             <AmountUSD
               className="mb-4"
@@ -155,10 +156,17 @@ function AmountUSD({
 }) {
   return (
     <div className={`${light ? 'text-white' : 'text-black'} text-left ${className}`}>
-      <div className="TYPO-BODY-M !font-medium mb-2">TVL</div>
+      <div
+        className={`${
+          light ? 'text-grayCRE-300 dark:text-grayCRE-400' : 'text-grayCRE-400-o'
+        } TYPO-BODY-M !font-medium mb-2`}
+      >
+        TVL
+      </div>
       <div className="flex flex-col justify-start items-start space-y-2">
         <div className="TYPO-BODY-XL !font-black font-mono">
-          {`$${value.toFormat(0)} (${formatUSDAmount(value, 2)})`}
+          {`$${value.toFormat(0)}`}
+          <span className="hidden ml-2 md:inline-block">{`(${formatUSDAmount(value, 2)})`}</span>
         </div>
         <div className="TYPO-BODY-XS !font-medium">{dateLabel}</div>
       </div>

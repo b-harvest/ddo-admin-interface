@@ -23,7 +23,7 @@ export default function SettingWidget({ children, panelItems }: SettingWidgetPro
         </div>
       </Popover.Button>
 
-      <Popover.Panel className="absolute z-10 w-56 p-4 overflow-hidden bg-white rounded-lg shadow-lg -left-[188px] top-[68px] ring-1 ring-black ring-opacity-5 dark:bg-grayCRE-500-d">
+      <Popover.Panel className="absolute z-10 w-56 p-4 overflow-hidden bg-white rounded-lg shadow-lg -left-[188px] top-[68px] ring-1 ring-black ring-opacity-5 dark:bg-neutral-800 dark:ring-white dark:ring-opacity-[0.04]">
         {panelItems.map((panelItem, index) => (
           <div
             key={index}

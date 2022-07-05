@@ -11,7 +11,7 @@ export default function SearchInput({ placeholder = 'Search', keyword, onChange,
   return (
     <div className="relative flex items-center w-full min-w-[10.625rem] rounded-[0.625rem] border-[2px] border-gray-500 opacity-40 md:min-w-[16.5625rem]">
       <input
-        className="w-full TYPO-BODY-M text-black bg-transparent p-3 mr-[calc(0.75rem*2+1.25rem)] outline-none"
+        className="w-full TYPO-BODY-M text-black bg-transparent p-2 mr-[calc(0.75rem*2+1.25rem)] outline-none dark:text-white"
         type="text"
         value={keyword}
         placeholder={placeholder}
@@ -20,7 +20,12 @@ export default function SearchInput({ placeholder = 'Search', keyword, onChange,
           if (onSearch && evt.key === 'Enter') onSearch()
         }}
       />
-      <IconButton type="search" iconClassName="w-5 h-5" className="absolute right-[0.75rem]" onClick={onSearch} />
+      <IconButton
+        type="search"
+        iconClassName="w-5 h-5 dark:text-white"
+        className="absolute right-[0.75rem]"
+        onClick={onSearch}
+      />
     </div>
   )
 }
