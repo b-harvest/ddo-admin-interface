@@ -1,9 +1,10 @@
 import useAppSWR, { returnGenerator } from 'data/useAppSWR'
 import type { Balance } from 'types/account'
 import type { ResponseViaSWR } from 'types/api'
-import type { AssetInfo, AssetLive } from 'types/asset'
+import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { ChainInfo, ChainLive } from 'types/chain'
-import type { PairInfo, PairLive } from 'types/pair'
+import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
+import type { PoolLiveRaw } from 'types/pool'
 
 // hooks - backend
 export function useAllChainInfo(interval = 0) {
@@ -22,17 +23,22 @@ export function useAllAssetInfo(interval = 0) {
 }
 
 export function useAllAssetLive(interval = 0) {
-  const { data, error }: ResponseViaSWR<AssetLive[]> = useAppSWR('/asset/live', { interval })
+  const { data, error }: ResponseViaSWR<AssetLiveRaw[]> = useAppSWR('/asset/live', { interval })
   return returnGenerator({ data, error })
 }
 
 export function useAllPairInfo(interval = 0) {
-  const { data, error }: ResponseViaSWR<PairInfo[]> = useAppSWR('/pair/info', { interval })
+  const { data, error }: ResponseViaSWR<PairInfoRaw[]> = useAppSWR('/pair/info', { interval })
   return returnGenerator({ data, error })
 }
 
 export function useAllPairLive(interval = 0) {
-  const { data, error }: ResponseViaSWR<PairLive[]> = useAppSWR('/pair/live', { interval })
+  const { data, error }: ResponseViaSWR<PairLiveRaw[]> = useAppSWR('/pair/live', { interval })
+  return returnGenerator({ data, error })
+}
+
+export function useAllPoolLive(interval = 0) {
+  const { data, error }: ResponseViaSWR<PoolLiveRaw[]> = useAppSWR('/pool/live', { interval })
   return returnGenerator({ data, error })
 }
 

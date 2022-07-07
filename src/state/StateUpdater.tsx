@@ -6,6 +6,7 @@ import {
   useAllChainLive,
   useAllPairInfo,
   useAllPairLive,
+  useAllPoolLive,
 } from 'data/useAPI'
 import { useAtom } from 'jotai'
 import { useEffect } from 'react'
@@ -16,13 +17,15 @@ import {
   allChainLiveAtomRef,
   allPairInfoAtomRef,
   allPairLiveAtomRef,
+  allPoolLiveAtomRef,
   chainIdAtomRef,
   isTestnetAtomRef,
 } from 'state/atoms'
 import type { APIHookReturn } from 'types/api'
-import type { AssetInfo, AssetLive } from 'types/asset'
+import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
 import type { ChainInfo, ChainLive } from 'types/chain'
-import type { PairInfo, PairLive } from 'types/pair'
+import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
+import type { PoolLiveRaw } from 'types/pool'
 
 export default function StateUpdater(): null {
   // chain id
@@ -45,15 +48,19 @@ export default function StateUpdater(): null {
   const [, setAllAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
   const [, setAllAssetLiveAtom] = useAtom(allAssetLiveAtomRef)
 
-  const { data: allAssetInfoData, isLoading: allAssetInfoIsLoading }: APIHookReturn<AssetInfo[]> = useAllAssetInfo(0) // to be 6000
-  const { data: allAssetLiveData, isLoading: allAssetLiveIsLoading }: APIHookReturn<AssetLive[]> = useAllAssetLive(0) // to be 6000
+  const { data: allAssetInfoData, isLoading: allAssetInfoIsLoading }: APIHookReturn<AssetInfoRaw[]> = useAllAssetInfo(0) // to be 6000
+  const { data: allAssetLiveData, isLoading: allAssetLiveIsLoading }: APIHookReturn<AssetLiveRaw[]> = useAllAssetLive(0) // to be 6000
 
   // all pair
   const [, setAllPairtInfoAtom] = useAtom(allPairInfoAtomRef)
   const [, setAllPairLiveAtom] = useAtom(allPairLiveAtomRef)
 
-  const { data: allPairInfoData, isLoading: allPairInfoIsLoading }: APIHookReturn<PairInfo[]> = useAllPairInfo(0) // to be 6000
-  const { data: allPairLiveData, isLoading: allPairLiveIsLoading }: APIHookReturn<PairLive[]> = useAllPairLive(0) // to be 6000
+  const { data: allPairInfoData, isLoading: allPairInfoIsLoading }: APIHookReturn<PairInfoRaw[]> = useAllPairInfo(0) // to be 6000
+  const { data: allPairLiveData, isLoading: allPairLiveIsLoading }: APIHookReturn<PairLiveRaw[]> = useAllPairLive(0) // to be 6000
+
+  // all pool
+  const [, setAllPoolLiveAtom] = useAtom(allPoolLiveAtomRef)
+  const { data: allPoolLiveData, isLoading: allPoolLiveIsLoading }: APIHookReturn<PoolLiveRaw[]> = useAllPoolLive(0)
 
   useEffect(() => {
     if (allChainInfoData && allChainLiveData) {
@@ -85,6 +92,12 @@ export default function StateUpdater(): null {
       setAllPairLiveAtom(allPairLive)
       console.log('allPairLive', allPairLiveData)
     }
+
+    if (allPoolLiveData) {
+      const allPoolLive = allPoolLiveData.data ?? []
+      setAllPoolLiveAtom(allPoolLive)
+      console.log('allPoolLive', allPoolLiveData)
+    }
   }, [
     allChainInfoData,
     setAllChainInfoAtom,
@@ -98,6 +111,8 @@ export default function StateUpdater(): null {
     setAllPairtInfoAtom,
     allPairLiveData,
     setAllPairLiveAtom,
+    allPoolLiveData,
+    setAllPoolLiveAtom,
   ])
 
   return null
