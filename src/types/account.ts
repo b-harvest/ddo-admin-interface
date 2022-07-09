@@ -24,12 +24,22 @@ export interface Balance {
 export type BalanceRes = ResponseViaSWR<Balance>
 export type BalanceLCDRes = ResponseViaSWR<BalanceLCD>
 
-// - farm staked amount
+// - staked
 // rpc res
-export interface FarmStakedLCDRaw {
-  readonly staked_coins: any[]
-  readonly queued_coins: any[]
+export interface StakedByPoolLCDRaw {
+  readonly staking_coin_denom: string
+  readonly amount: string
+  readonly starting_epoch: string
 }
+
+export type StakedByPoolLCD = Omit<StakedByPoolLCDRaw, 'amount'> & { readonly amount: BigNumber }
+
+export interface StakedLCDRaw {
+  readonly stakings: StakedByPoolLCDRaw[]
+  pagination: { next_key: any; total: string }
+}
+
+export type StakedLCD = { readonly stakings: StakedByPoolLCD[] }
 
 // backend
 export interface HarvestableStakedRaw {
@@ -39,7 +49,7 @@ export interface HarvestableStakedRaw {
 
 export type HarvestableStaked = Omit<HarvestableStakedRaw, 'rewardAmount'> & { rewardAmount: BigNumber }
 
-export interface FarmStakedRaw {
+export interface StakedRaw {
   readonly denom: string
   readonly queuedAmount: string
   readonly stakedAmount: string
@@ -47,14 +57,14 @@ export interface FarmStakedRaw {
   readonly unharvest: any[]
 }
 
-export type FarmStaked = Omit<FarmStakedRaw, 'queuedAmount' | 'stakedAmount' | 'harvestable'> & {
+export type Staked = Omit<StakedRaw, 'queuedAmount' | 'stakedAmount' | 'harvestable'> & {
   readonly queuedAmount: BigNumber
   readonly stakedAmount: BigNumber
   readonly harvestable: HarvestableStaked[]
 }
 
 // - farm reward
-// rpc res
+// rpc res (mainnet/testnet response format diff currently)
 export interface FarmRewardLCDRaw {
   readonly staking_coin_denom: string
   readonly rewards: {
