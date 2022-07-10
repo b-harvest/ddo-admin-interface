@@ -8,7 +8,7 @@ import dayjs from 'dayjs'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
-import AssetTableCell from 'pages/components/AssetTableCell'
+import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo, useState } from 'react'
 import { formatUSDAmount } from 'utils/amount'
 
@@ -20,12 +20,14 @@ const ASSET_TABLE_LIST_FILTERS = [
   },
   {
     value: 'loop',
-    label: 'Pool',
+    label: 'Pool Token',
   },
 ]
 
 export default function Asset() {
-  const { tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom } = usePair()
+  const { allAsset, isPoolToken } = useAsset()
+  const { tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
+  const { findPoolByDenom } = usePool()
 
   // chart
   const [tvlHover, setTvlHover] = useState<number | undefined>()
@@ -52,14 +54,9 @@ export default function Asset() {
   }, [])
 
   // asset table
-  const { allAsset, isPoolToken } = useAsset()
-  const { findPoolByDenom } = usePool()
-
   const assetTableList = useMemo(() => {
-    console.log('allAsset', allAsset)
-
     return allAsset.map((item, index) => {
-      const asset = AssetTableCell({ logoUrl: item.logoUrl, ticker: item.ticker })
+      const asset = AssetTableLogoCell({ assets: getAssetTickers(item) })
       const vol24USD = getVol24USDbyDenom(item.denom)
       const tvlUSD = getTVLUSDbyDenom(item.denom)
       const priceOracle =
@@ -115,7 +112,7 @@ export default function Asset() {
 
       <section>
         <TableList
-          title="Asset List"
+          title="Token List"
           useSearch={true}
           useNarrow={true}
           list={assetTableList}
@@ -124,10 +121,10 @@ export default function Asset() {
           filterOptions={ASSET_TABLE_LIST_FILTERS}
           fields={[
             {
-              label: 'Ticker',
+              label: 'Token',
               value: 'asset',
               type: 'html',
-              widthRatio: 18,
+              widthRatio: 22,
             },
             {
               label: 'Chain',

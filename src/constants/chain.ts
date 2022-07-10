@@ -13,5 +13,5 @@ export const CHAIN_NAMES_MAP = {
 
 export const CHAINS_VALID_TIME_DIFF_MAP = {
   [CHAIN_IDS.MAINNET]: 12000,
-  [CHAIN_IDS.MOONCAT]: 100, // tmp for ui test
+  [CHAIN_IDS.MOONCAT]: 6000,
 }
