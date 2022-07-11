@@ -166,19 +166,15 @@ export default function Accounts() {
             />
 
             {/* data error noti */}
-            <AlertBox msg={ERROR_MSG_BALANCE_DIFF} status="error" isActive={hasBalanceDiff} />
-            <AlertBox
-              msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
-              status="error"
-              isActive={isTimeDiff}
-            />
-            <AlertInline msg={ERROR_MSG_BALANCE_DIFF} status="error" isActive={hasBalanceDiff} />
-            <AlertInline
-              msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
-              status="error"
-              isActive={isTimeDiff}
-            />
-            <AlertInline msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isAllDataMatched} />
+            <div className="flex flex-col space-y-2 w-full mt-4">
+              <AlertBox msg={ERROR_MSG_BALANCE_DIFF} status="error" isActive={hasBalanceDiff} />
+              <AlertBox
+                msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
+                status="error"
+                isActive={isTimeDiff}
+              />
+              <AlertBox msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isAllDataMatched} />
+            </div>
           </div>
 
           <TableList

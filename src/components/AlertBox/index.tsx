@@ -11,13 +11,34 @@ export default function AlertBox({ msg, status, isActive = true }: AlertBoxProps
   return (
     <div
       className={`${
-        isActive ? 'block' : 'hidden opacity-0'
-      } relative flex justify-start items-start transition-opacity`}
+        isActive ? 'block opacity-1' : 'hidden opacity-0'
+      } w-full relative flex justify-start items-start transition-opacity px-4 py-2 rounded-lg border dark:bg-transparent ${getCSSClassbyStatus(
+        status
+      )}`}
     >
       <AlertIcon size="sm" status={status} />
       <AlertBoxMsg status={status} msg={msg} />
     </div>
   )
+}
+
+function getCSSClassbyStatus(status: AlertStatus) {
+  switch (status) {
+    case 'info':
+      return `bg-[#F3F6FF] border-info`
+      break
+    case 'success':
+      return `bg-[#F5FBF8] border-success`
+      break
+    case 'error':
+      return `bg-[#FDF4F4] border-error`
+      break
+    case 'warning':
+      return `bg-[#FFFAF1] border-warning`
+      break
+    default:
+      return ''
+  }
 }
 
 function AlertBoxMsg({ status, msg }: AlertBoxProps) {
