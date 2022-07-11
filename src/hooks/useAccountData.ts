@@ -93,9 +93,20 @@ const useAccountData = (address: string) => {
     fetch: address !== '',
   })
 
+  console.log('allStaked', allStaked)
+
   console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
 
   // backend
+  const allFarmRewards = useMemo(() => {
+    return (
+      allStaked?.reduce((accm: LCDTokenAmountSet[], pool) => {
+        return accm.concat(
+          pool.harvestable?.map((item) => ({ denom: item.rewardDenom, amount: item.rewardAmount })) ?? []
+        )
+      }, []) ?? []
+    )
+  }, [allStaked])
 
   // onchain
   const allFarmRewardsLCD = useMemo(() => {
@@ -124,23 +135,31 @@ const useAccountData = (address: string) => {
 
   // * rewards total
   // backend
-  const totalFarmRewards = useMemo(() => {
-    return (
-      allStaked?.reduce((accm, pool) => {
-        const totalRewardAmountByPool =
-          pool.harvestable?.reduce((sum, har) => sum.plus(har.rewardAmount), new BigNumber(0)) ?? new BigNumber(0)
-        return accm.plus(totalRewardAmountByPool)
-      }, new BigNumber(0)) ?? new BigNumber(0)
-    )
-  }, [allStaked])
+  // const totalFarmRewards = useMemo(() => {
+  //   return (
+  //     allStaked?.reduce((accm, pool) => {
+  //       const totalRewardAmountByPool =
+  //         pool.harvestable?.reduce((sum, har) => sum.plus(har.rewardAmount), new BigNumber(0)) ?? new BigNumber(0)
+  //       return accm.plus(totalRewardAmountByPool)
+  //     }, new BigNumber(0)) ?? new BigNumber(0)
+  //   )
+  // }, [allStaked])
 
   // onchain
-  const totalFarmRewardsLCD = useMemo(
-    () => allFarmRewardsLCD.reduce((accm, reward) => accm.plus(reward.amount), new BigNumber(0)),
-    [allFarmRewardsLCD]
-  )
+  // const totalFarmRewardsLCD = useMemo(
+  //   () => allFarmRewardsLCD.reduce((accm, reward) => accm.plus(reward.amount), new BigNumber(0)),
+  //   [allFarmRewardsLCD]
+  // )
 
-  return { allStakedDataTimestamp, allStaked, totalFarmRewards, allStakedLCD, allFarmRewardsLCD, totalFarmRewardsLCD }
+  return {
+    allStakedDataTimestamp,
+    allStaked,
+    // totalFarmRewards,
+    allStakedLCD,
+    allFarmRewards,
+    allFarmRewardsLCD,
+    // totalFarmRewardsLCD,
+  }
 }
 
 export default useAccountData

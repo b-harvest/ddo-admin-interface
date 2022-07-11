@@ -1,7 +1,9 @@
 import BigNumber from 'bignumber.js'
 import AlertBox from 'components/AlertBox'
 import AppPage from 'components/AppPage'
+import FoldableSection from 'components/FordableSection'
 import SearchInput from 'components/Inputs/SearchInput'
+// import SelectTab from 'components/SelectTab'
 import Sticker from 'components/Sticker'
 import TableList from 'components/TableList'
 import { toastError } from 'components/Toast/generator'
@@ -28,8 +30,10 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 const ERROR_MSG_BACKEND_TIMESTAMP_DIFF = 'Back-end timestamp different'
 const ERROR_MSG_DATA_DIFF = 'Data difference between on-chain and back-end'
 const SUCCESS_MSG_ALL_DATA_MATCHED = 'All data matched & no significant delay in timestamp'
-// const DUMMY_ADDRESS = 'cre1pc2xjkz28r9744a5d7u3ddqhsw3a9hrf7acccz'
-const DUMMY_ADDRESS = 'cre1le890ld7v2hfsaq7cz5ws8zsdnpmhlysmz8sfc'
+const DUMMY_ADDRESS = 'cre1pc2xjkz28r9744a5d7u3ddqhsw3a9hrf7acccz'
+// const DUMMY_ADDRESS = 'cre1le890ld7v2hfsaq7cz5ws8zsdnpmhlysmz8sfc'
+
+// const TAB_ITEMS = ['Token Balance', 'Farm Staked Amount']
 
 export default function Accounts() {
   // chain atoms
@@ -127,12 +131,46 @@ export default function Accounts() {
   }, [allBalanceData, hasBalanceDiff, significantTimeGap])
 
   // table data - staked amount
-  const { allStakedDataTimestamp, allStaked, totalFarmRewards, allStakedLCD, totalFarmRewardsLCD } = useAccountData(
+  const { allStakedDataTimestamp, allStaked, allStakedLCD, allFarmRewards, allFarmRewardsLCD } = useAccountData(
     address ?? ''
   )
 
-  // console.log('allStaked', allStaked)
-  // console.log('allStakedLCD', allStakedLCD)
+  const { rewardsTableList, hasRewardsDiff } = useMemo(() => {
+    const onchainRewardsMap = allFarmRewardsLCD.reduce((accm, item) => ({ ...accm, [item.denom]: item.amount }), {})
+
+    const rewardsTableList = allFarmRewards
+      .filter((item) => findAssetByDenom(item.denom) !== undefined)
+      .map((item) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const assetInfo = findAssetByDenom(item.denom)!
+        const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo) })
+        const onchainRewardsAmount = onchainRewardsMap[item.denom] ?? new BigNumber(0)
+        const status: AlertStatus | undefined = item.amount.isEqualTo(onchainRewardsAmount) ? undefined : 'error'
+
+        return {
+          asset,
+          denom: item.denom,
+          rewardsAmount: item.amount,
+          onchainRewardsAmount,
+          status,
+        }
+      })
+
+    const hasRewardsDiff = rewardsTableList.findIndex((item) => item.status === 'error') > -1
+
+    return { rewardsTableList, hasRewardsDiff }
+  }, [allFarmRewards, allFarmRewardsLCD, findAssetByDenom, getAssetTickers])
+
+  // alert-inline data - staked amount
+  const { isRewardsDataTimeDiff, isRewardsDataAllMatched } = useMemo(() => {
+    const isRewardsDataTimeDiff = isTimeDiffFromNowMoreThan(allStakedDataTimestamp, significantTimeGap)
+    const isRewardsDataAllMatched = !hasRewardsDiff && !isRewardsDataTimeDiff
+
+    return {
+      isRewardsDataTimeDiff,
+      isRewardsDataAllMatched,
+    }
+  }, [allStakedDataTimestamp, hasRewardsDiff, significantTimeGap])
 
   const { stakedTableList, hasStakedDiff } = useMemo(() => {
     const onchainStakedMap = allStakedLCD
@@ -172,6 +210,9 @@ export default function Accounts() {
     }
   }, [allStakedDataTimestamp, hasStakedDiff, significantTimeGap])
 
+  // tab toggling
+  // const [activeTabIndex, setActiveTabIndex] = useState<number>(0)
+
   return (
     <AppPage className="pt-[calc(2rem+3.25rem)]">
       {/* responsible behavior should be fixed in the future to be not following the isMobile, which is not responsive */}
@@ -191,29 +232,27 @@ export default function Accounts() {
         </Sticker>
       </div>
 
+      <div className="flex flex-col justify-start items-stretch space-y-4 mb-12">
+        <SearchInput
+          placeholder="Address"
+          keyword={searchAddress}
+          onChange={setSearchAddress}
+          onSearch={handleAddressSearch}
+        />
+        {/* constant noti */}
+        <AlertBox
+          msg={`Block height \non-chain ${onchainBlockHeight} \nback-end ${backendBlockHeight}`}
+          status="info"
+          isActive={true}
+        />
+      </div>
+
+      {/* <div>
+        <SelectTab tabItems={TAB_ITEMS} selectedTabIndex={activeTabIndex} onChange={setActiveTabIndex} className="" />
+      </div> */}
+
       <div className="flex flex-col justify-start items-stretch space-y-12">
-        <div className="space-y-4">
-          <SearchInput
-            placeholder="Address"
-            keyword={searchAddress}
-            onChange={setSearchAddress}
-            onSearch={handleAddressSearch}
-          />
-          {/* constant noti */}
-          <AlertBox
-            msg={`Block height \non-chain ${onchainBlockHeight} \nback-end ${backendBlockHeight}`}
-            status="info"
-            isActive={true}
-          />
-        </div>
-
-        <section>
-          <header className="mb-4">
-            <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
-              Token Balance
-            </h3>
-          </header>
-
+        <FoldableSection label="Token Balance" defaultIsOpen={false}>
           <div
             className={`${
               balanceTableList.length > 0 ? 'block' : 'hidden opacity-0'
@@ -262,26 +301,65 @@ export default function Accounts() {
               },
             ]}
           />
-        </section>
+        </FoldableSection>
 
-        <section>
-          Total rewards claimable : {totalFarmRewards.toFormat(6)}
-          Total rewards claimable : {totalFarmRewardsLCD.toFormat(6)}
-        </section>
-
-        <section>
-          <header className="mb-4">
-            <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
-              Farm Staked Amount
-            </h3>
-          </header>
-
+        <FoldableSection label="Claimable Rewards" defaultIsOpen={false}>
           <div
             className={`${
               stakedTableList.length > 0 ? 'block' : 'hidden opacity-0'
             } flex flex-col justify-start items-start mb-4 transition-opacity`}
           >
             {/* data error noti */}
+            <div className="flex flex-col space-y-2 w-full mt-4">
+              <AlertBox msg={ERROR_MSG_DATA_DIFF} status="error" isActive={hasRewardsDiff} />
+              <AlertBox
+                msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
+                status="error"
+                isActive={isRewardsDataTimeDiff}
+              />
+              <AlertBox msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isRewardsDataAllMatched} />
+            </div>
+          </div>
+
+          <TableList
+            title="Claimabale Rewards"
+            showTitle={false}
+            useSearch={false}
+            list={rewardsTableList}
+            mergedFields={['onchainRewardsAmount', 'rewardsAmount']}
+            showFieldsBar={false}
+            showItemsVertically={true}
+            fields={[
+              {
+                label: 'Asset',
+                value: 'asset',
+                type: 'html',
+                widthRatio: 10,
+              },
+              {
+                label: 'Onchain Amount',
+                value: 'onchainRewardsAmount',
+                tag: 'On-chain',
+                type: 'bignumber',
+                toFixedFallback: 6,
+              },
+              {
+                label: 'Backend Amount',
+                value: 'rewardsAmount',
+                tag: 'Back-end',
+                type: 'bignumber',
+                toFixedFallback: 6,
+              },
+            ]}
+          />
+        </FoldableSection>
+
+        <FoldableSection label="Farm Staked Amount" defaultIsOpen={false}>
+          <div
+            className={`${
+              stakedTableList.length > 0 ? 'block' : 'hidden opacity-0'
+            } flex flex-col justify-start items-start mb-4 transition-opacity`}
+          >
             <div className="flex flex-col space-y-2 w-full mt-4">
               <AlertBox msg={ERROR_MSG_DATA_DIFF} status="error" isActive={hasStakedDiff} />
               <AlertBox
@@ -331,7 +409,7 @@ export default function Accounts() {
               },
             ]}
           />
-        </section>
+        </FoldableSection>
       </div>
     </AppPage>
   )

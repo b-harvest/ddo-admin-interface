@@ -3,7 +3,7 @@ import { Tab } from '@headlessui/react'
 export type SelectTabItem = string
 
 interface SelectTabProps {
-  label: string
+  label?: string
   tabItems: SelectTabItem[]
   selectedTabIndex?: number
   onChange?: (index: number) => void
@@ -13,7 +13,7 @@ interface SelectTabProps {
 export default function SelectTab({ label, tabItems, selectedTabIndex = 0, onChange, className = '' }: SelectTabProps) {
   return (
     <div className={`text-[rgba(0,0,0,0.5)] dark:text-[rgba(255,255,255,0.5)] pb-2 ${className}`}>
-      <div className="text-left py-2">{label}</div>
+      {label ? <div className="text-left py-2">{label}</div> : null}
       <Tab.Group selectedIndex={selectedTabIndex} onChange={onChange}>
         <Tab.List className={'flex bg-[#EAEAEA] dark:bg-black rounded-lg p-1'}>
           {tabItems.map((tabItem) => (
