@@ -1,6 +1,6 @@
 import { CHAIN_IDS } from 'constants/chain'
 import { atom } from 'jotai'
-import type { AssetInfo } from 'types/asset'
+import type { AssetInfo, AssetLive } from 'types/asset'
 import type { PairInfo, PairLive } from 'types/pair'
 
 // chaiIdAtom (persisting in localStorage)
@@ -19,6 +19,9 @@ export const isTestnetAtomRef = atom<boolean>(false)
 
 // assetInfoAtom
 export const allAssetInfoAtomRef = atom<AssetInfo[]>([])
+
+// assetInfoAtom
+export const allAssetLiveAtomRef = atom<AssetLive[]>([])
 
 // assetInfoAtom
 export const allPairInfoAtomRef = atom<PairInfo[]>([])

@@ -33,7 +33,7 @@ export default function Accounts() {
   const [address, setAddress] = useState<undefined | string>(undefined)
 
   // assetinfo handler
-  const { findAssetInfoByDenom } = useAsset()
+  const { findAssetByDenom } = useAsset()
 
   // fetching balance → should be refactored to atom
   const { data: allBalanceData }: APIHookReturn<Balance> = useAllBalance(address ?? 'x')
@@ -51,10 +51,10 @@ export default function Accounts() {
 
   // table data
   const balanceTableList = allBalanceData.data.asset
-    .filter((item) => findAssetInfoByDenom(item.denom) !== null)
+    .filter((item) => findAssetByDenom(item.denom) !== null)
     .map((item) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const assetInfo = findAssetInfoByDenom(item.denom)!
+      const assetInfo = findAssetByDenom(item.denom)!
       const logoUrl = assetInfo.logoUrl
       const ticker = assetInfo.ticker
       const exponent = assetInfo.exponent
