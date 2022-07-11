@@ -156,9 +156,9 @@ export default function Accounts() {
 function getAssetTableCell({ ticker, logoUrl }: { ticker: string; logoUrl: string }) {
   return (
     <div className="flex justify-start items-center" title={ticker}>
-      {logoUrl.length > 0 ? (
-        <img src={logoUrl} alt={ticker} style={{ width: '1.5rem', marginRight: '0.5rem' }}></img>
-      ) : null}
+      <div className="flex justify-center items-center w-6 h-6 mr-2">
+        {logoUrl.length > 0 ? <img src={logoUrl} alt={ticker} className="w-full object-contain"></img> : null}
+      </div>
       <span className="TYPO-BODY-XS !font-black">{ticker}</span>
     </div>
   )
