@@ -1,30 +1,15 @@
+import useSignOut from 'components/AppSettingWidget/useSignOut'
 import SelectTab from 'components/SelectTab'
 import MoreWidget, { PopoverPanelItem } from 'components/Widgets/MoreWidget'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
-import { isDarkModeAtomRef } from 'state/atoms'
+import { useHistory } from 'react-router-dom'
+import { isDarkModeAtomRef, userAtomRef } from 'state/atoms'
 
 const DARK_MODE_TAB_ITEMS = ['Light', 'Dark']
+const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
 
 export default function AppSettingWidget() {
-  // popover
-  const settingsWidgetPanelItems: PopoverPanelItem[] = [
-    {
-      label: 'Blog',
-      iconType: 'medium',
-      link: 'https://crescentnetwork.medium.com/',
-    },
-    {
-      label: 'Logout',
-      iconType: 'close',
-      onClick: handleLogoutClick,
-    },
-  ]
-
-  function handleLogoutClick() {
-    // logout proceeds..
-  }
-
   // dark mode
   const [isDarkModeAtom, setIsDarkModeAtom] = useAtom(isDarkModeAtomRef)
 
@@ -42,8 +27,31 @@ export default function AppSettingWidget() {
     colorBodyDarkIf(isDarkModeAtom)
   }, [isDarkModeAtom])
 
+  // auth
+  const [userAtom] = useAtom(userAtomRef)
+
+  const history = useHistory()
+  const goToSignIn = () => history.push('/auth')
+  const { signOut } = useSignOut({ clientId, onComplete: goToSignIn })
+
+  // popover
+  const settingsWidgetPanelItems: PopoverPanelItem[] = [
+    {
+      label: 'Blog',
+      value: 'blog',
+      iconType: 'medium',
+      link: 'https://crescentnetwork.medium.com/',
+    },
+    {
+      label: 'Log out',
+      value: 'logout',
+      iconType: 'close',
+      onClick: signOut,
+    },
+  ]
+
   return (
-    <MoreWidget panelItems={settingsWidgetPanelItems}>
+    <MoreWidget panelItems={settingsWidgetPanelItems} excludedItems={userAtom ? [] : ['logout']}>
       <SelectTab
         label="Theme"
         tabItems={DARK_MODE_TAB_ITEMS}

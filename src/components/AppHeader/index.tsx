@@ -3,9 +3,13 @@ import AppSettingWidget from 'components/AppSettingWidget'
 import Logo from 'components/Logo'
 import NavigationTab from 'components/NavigationTab'
 import { CRESCENT_LOGO_IMG_URL } from 'constants/resources'
+import { useAtom } from 'jotai'
 import { NavLink } from 'react-router-dom'
+import { userAtomRef } from 'state/atoms'
 
 export default function Header() {
+  const [userAtom] = useAtom(userAtomRef)
+
   return (
     <header
       className={`relative flex items-center justify-between w-full p-4 bg-lightCRE dark:bg-neutral-900 border-b border-grayCRE-100 dark:border-grayCRE-400-o shadow-glow-wide-l dark:shadow-none`}
@@ -15,7 +19,7 @@ export default function Header() {
           <Logo className="h-10 py-2" src={CRESCENT_LOGO_IMG_URL} />
           <h1 className="hidden justify-start items-center TYPO-H2 md:inline-flex md:TYPO-H1 dark:text-white">Admin</h1>
         </NavLink>
-        <NavigationTab />
+        {userAtom && <NavigationTab />}
       </div>
 
       <div className="grow shrink flex justify-end items-center space-x-1">
