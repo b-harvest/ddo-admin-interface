@@ -1,43 +1,32 @@
 import BigNumber from 'bignumber.js'
-import { useAllFarmStaked } from 'data/useAPI'
-import { useAllFarmRewardsLCD } from 'data/useLCD'
+import { useAllStaked } from 'data/useAPI'
+import { useAllFarmRewardsLCD, useAllStakedLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useMemo } from 'react'
 import type {
   FarmRewardLCD,
   FarmRewardsLCDRaw,
-  FarmStaked,
-  FarmStakedRaw,
   HarvestableStaked,
   HarvestableStakedRaw,
+  Staked,
+  StakedLCDRaw,
+  StakedRaw,
 } from 'types/account'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
 
 const useAccountData = (address: string) => {
   const { findAssetByDenom } = useAsset()
 
-  // fetching farm stake amount & rewards to claim
-  const { data: allFarmingStakedData, error: allFarmingStakedDataError }: APIHookReturn<FarmStakedRaw[]> =
-    useAllFarmStaked({
-      address,
-      fetch: address !== '',
-    })
+  // backend - staked amount & farm rewards to claim
+  const { data: allStakedData, error: allStakedDataError }: APIHookReturn<StakedRaw[]> = useAllStaked({
+    address,
+    fetch: address !== '',
+  })
 
-  // console.log('allFarmingStakedData', allFarmingStakedData)
-
-  const { data: allFarmRewardsLCDData, error: allFarmingStakedLCDError }: LCDHookReturn<FarmRewardsLCDRaw> =
-    useAllFarmRewardsLCD({
-      address,
-      fetch: address !== '',
-    })
-
-  console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
-
-  // using data
-  // backend - staked amount
-  const allFarmStaked = useMemo(() => {
+  // staked amount
+  const allStaked = useMemo(() => {
     return (
-      (allFarmingStakedData?.data.map((item) => {
+      (allStakedData?.data.map((item) => {
         const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
 
         return {
@@ -53,22 +42,37 @@ const useAccountData = (address: string) => {
             } as HarvestableStaked
           }),
         }
-      }) as FarmStaked[]) ?? ([] as FarmStaked[])
+      }) as Staked[]) ?? ([] as Staked[])
     )
-  }, [allFarmingStakedData, findAssetByDenom])
+  }, [allStakedData, findAssetByDenom])
 
-  // backend - rewards total
+  // rewards total
   const totalFarmRewards = useMemo(() => {
     return (
-      allFarmStaked?.reduce((accm, pool) => {
+      allStaked?.reduce((accm, pool) => {
         const totalRewardAmountByPool =
           pool.harvestable?.reduce((sum, har) => sum.plus(har.rewardAmount), new BigNumber(0)) ?? new BigNumber(0)
         return accm.plus(totalRewardAmountByPool)
       }, new BigNumber(0)) ?? new BigNumber(0)
     )
-  }, [allFarmStaked])
+  }, [allStaked])
 
-  // on-chain - rewards total
+  // on-chain - farm rewards
+  const { data: allStakedLCDData, error: allStakedLCDDataError }: LCDHookReturn<StakedLCDRaw> = useAllStakedLCD({
+    address,
+    fetch: address !== '',
+  })
+
+  const { data: allFarmRewardsLCDData, error: allFarmRewardsLCDDataError }: LCDHookReturn<FarmRewardsLCDRaw> =
+    useAllFarmRewardsLCD({
+      address,
+      fetch: address !== '',
+    })
+
+  console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
+  console.log('allStakedLCDData', allStakedLCDData)
+
+  // all rewards list re-typed
   const allFarmRewardsLCD = useMemo(() => {
     const rewards =
       (allFarmRewardsLCDData?.rewards.map((reward) => {
@@ -87,6 +91,7 @@ const useAccountData = (address: string) => {
     return rewards
   }, [allFarmRewardsLCDData, findAssetByDenom])
 
+  // rewards total
   const totalFarmRewardsLCD = useMemo(() => {
     return (
       allFarmRewardsLCD?.reduce((accm, reward) => {
@@ -96,7 +101,7 @@ const useAccountData = (address: string) => {
     )
   }, [allFarmRewardsLCD])
 
-  return { allFarmStaked, totalFarmRewards, allFarmRewardsLCD, totalFarmRewardsLCD }
+  return { allStaked, totalFarmRewards, allFarmRewardsLCD, totalFarmRewardsLCD }
 }
 
 export default useAccountData
