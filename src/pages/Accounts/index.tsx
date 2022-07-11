@@ -9,12 +9,14 @@ import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { useAllBalance } from 'hooks/useAPI'
 import useAsset from 'hooks/useAsset'
 import { useAtom } from 'jotai'
+import AssetTableCell from 'pages/components/AssetTableCell'
 import { useState } from 'react'
 import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
 import type { Balance } from 'types/account'
 import type { APIHookReturn } from 'types/api'
 import type { STATUS } from 'types/status'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
+
 export default function Accounts() {
   // text constants
   const ERROR_MSG_BALANCE_DIFF = 'Balance difference between on-chain and back-end'
@@ -57,7 +59,7 @@ export default function Accounts() {
       const ticker = assetInfo.ticker
       const exponent = assetInfo.exponent
 
-      const asset = getAssetTableCell({ logoUrl, ticker })
+      const asset = AssetTableCell({ logoUrl, ticker })
       const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
       const onchainBalance = new BigNumber('34000000000000000000').dividedBy(10 ** exponent)
       const status: STATUS | undefined = backendBalance.isEqualTo(onchainBalance) ? undefined : 'error'
@@ -150,18 +152,5 @@ export default function Accounts() {
         </section>
       </div>
     </AppPage>
-  )
-}
-
-function getAssetTableCell({ ticker, logoUrl }: { ticker: string; logoUrl: string }) {
-  return (
-    <div className="flex justify-start items-center" title={ticker}>
-      {logoUrl.length > 0 ? (
-        <div className="flex justify-center items-center w-6 h-6 mr-2">
-          <img src={logoUrl} alt={ticker} className="w-full object-contain"></img>
-        </div>
-      ) : null}
-      <span className="TYPO-BODY-XS !font-black">{ticker}</span>
-    </div>
   )
 }

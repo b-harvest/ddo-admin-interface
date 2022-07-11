@@ -5,10 +5,27 @@ import { chainIdAtomRef } from 'state/atoms'
 import useSWR from 'swr'
 import type { Balance } from 'types/account'
 import type { APIHookReturn, ResponseViaSWR } from 'types/api'
-import type { AssetInfo } from 'types/asset'
+import type { AssetInfo, AssetLive } from 'types/asset'
+import type { PairInfo, PairLive } from 'types/pair'
 
+// hooks
 export function useAllAssetInfo(interval = 0) {
   const { data, error }: ResponseViaSWR<AssetInfo[]> = useAppSWR('/asset/info', interval)
+  return returnGenerator({ data, error })
+}
+
+export function useAllAssetLive(interval = 0) {
+  const { data, error }: ResponseViaSWR<AssetLive[]> = useAppSWR('/asset/live', interval)
+  return returnGenerator({ data, error })
+}
+
+export function useAllPairInfo(interval = 0) {
+  const { data, error }: ResponseViaSWR<PairInfo[]> = useAppSWR('/pair/info', interval)
+  return returnGenerator({ data, error })
+}
+
+export function useAllPairLive(interval = 0) {
+  const { data, error }: ResponseViaSWR<PairLive[]> = useAppSWR('/pair/live', interval)
   return returnGenerator({ data, error })
 }
 
@@ -17,6 +34,7 @@ export function useAllBalance(address: string, interval = 0) {
   return returnGenerator({ data, error })
 }
 
+// functions
 const getBaseUrl = (chainId: CHAIN_IDS): string | undefined => {
   switch (chainId) {
     case CHAIN_IDS.MAINNET:

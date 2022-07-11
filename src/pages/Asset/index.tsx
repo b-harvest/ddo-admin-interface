@@ -1,10 +1,22 @@
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
 import { useAtom } from 'jotai'
+import AssetTableCell from 'pages/components/AssetTableCell'
+import { useMemo } from 'react'
 import { allAssetInfoAtomRef } from 'state/atoms'
 
 export default function Asset() {
-  const [assetInfosAtom] = useAtom(allAssetInfoAtomRef)
+  const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
+
+  const assetTableList = useMemo(() => {
+    return allAssetInfoAtom.map((item) => {
+      const asset = AssetTableCell({ logoUrl: item.logoUrl, ticker: item.ticker })
+      return {
+        asset,
+        chainId: item.chainId,
+      }
+    })
+  }, [allAssetInfoAtom])
 
   return (
     <AppPage>
@@ -12,30 +24,16 @@ export default function Asset() {
         title="All Asset"
         useSearch={true}
         useNarrow={true}
-        list={assetInfosAtom}
+        list={assetTableList}
         fields={[
           {
-            label: 'Logo',
-            value: 'logoUrl',
-            type: 'imgUrl',
-            size: 24,
-            widthRatio: 4,
-          },
-          {
-            label: 'Ticker',
-            value: 'ticker',
+            label: 'Asset',
+            value: 'asset',
+            type: 'html',
             widthRatio: 10,
           },
-          // {
-          //   label: 'Base Denom',
-          //   value: 'baseDenom',
-          // },
           {
-            label: 'chainId',
-            value: 'chainId',
-          },
-          {
-            label: 'chainId',
+            label: 'Chain ID',
             value: 'chainId',
           },
         ]}
