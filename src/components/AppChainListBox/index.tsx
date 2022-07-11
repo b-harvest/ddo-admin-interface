@@ -44,7 +44,7 @@ export default function AppChainListBox() {
       <Listbox value={chainIndex} onChange={onChange}>
         <Listbox.Button
           className={({ open }) =>
-            `w-full rounded-lg bg-grayCRE-200 text-left text-grayCRE-400 px-2 py-2 outline-0 transition-all md:px-4 hover:bg-grayCRE-200 ${
+            `w-full rounded-lg bg-grayCRE-200 text-left text-grayCRE-400 px-4 py-2 outline-0 transition-all hover:bg-grayCRE-200 ${
               open ? '!bg-grayCRE-100 dark:!bg-neutral-600 rounded-b-none' : ''
             } dark:bg-neutral-700 dark:text-grayCRE-200`
           }
@@ -53,7 +53,7 @@ export default function AppChainListBox() {
             return (
               <div className="flex justify-between items-center space-x-4">
                 <div className="grow shrink">
-                  <div className="flex items-center overflow-hidden TYPO-BODY-XS !font-bold whitespace-nowrap md:TYPO-BODY-S">
+                  <div className="flex items-center overflow-hidden TYPO-BODY-S !leading-[1.25rem] !font-bold whitespace-nowrap md:!leading-[1.5rem]">
                     {CHAINS[chainIndex].label}
                   </div>
                 </div>
@@ -73,7 +73,7 @@ export default function AppChainListBox() {
               key={index}
               value={index}
               className={({ active }) =>
-                `TYPO-BODY-XS text-grayCRE-500 dark:text-grayCRE-400 cursor-pointer px-2 py-2 outline-0 md:TYPO-BODY-S md:px-4 ${
+                `TYPO-BODY-XS text-grayCRE-500 dark:text-grayCRE-400 cursor-pointer px-4 py-2 outline-0 md:TYPO-BODY-S ${
                   active ? 'bg-grayCRE-100 dark:bg-grayCRE-400-o dark:!text-grayCRE-200' : ''
                 }`
               }
