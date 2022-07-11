@@ -8,12 +8,12 @@ export const pages: Page[] = [
   {
     path: '/asset',
     label: 'Asset',
-    pageName: 'Asset Data',
+    pageName: 'Asset Data Tracking',
   },
   {
     path: '/accounts',
     label: 'Account',
-    pageName: 'Account Data',
+    pageName: 'Account Data Comparison',
   },
 ]
 
