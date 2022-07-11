@@ -10,8 +10,8 @@ export interface PopoverPanelItem {
 }
 
 interface SettingWidgetProps {
+  children?: ReactNode
   panelItems: PopoverPanelItem[]
-  children: ReactNode
 }
 
 export default function SettingWidget({ children, panelItems }: SettingWidgetProps) {
