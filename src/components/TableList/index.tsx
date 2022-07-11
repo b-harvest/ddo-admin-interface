@@ -1,58 +1,11 @@
 import BigNumber from 'bignumber.js'
+import FilterRadioGroup, { FilterRadioGroupOption, TAB_RADIO_GROUP_DEFAULT_OPTION } from 'components/FilterRadioGroup'
 import SearchInput from 'components/Inputs/SearchInput'
+import { useMatchedTableList } from 'components/TableList/hooks'
+import type { ListField, TableListItem, TableListProps } from 'components/TableList/types'
 import Tag from 'components/Tag'
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import type { AlertStatus } from 'types/alert'
-
-// field  typing
-interface ListFieldHTML {
-  label: string
-  value: string
-  widthRatio?: number
-  responsive?: boolean // default => false
-  tag?: string
-  color?: string
-  type?: 'html'
-}
-
-interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
-  type: 'imgUrl'
-  size?: number
-}
-
-interface ListFieldBignumber extends Omit<ListFieldHTML, 'type'> {
-  type: 'bignumber'
-  toFixedFallback?: number
-}
-
-interface ListFieldUSD extends Omit<ListFieldHTML, 'type'> {
-  type: 'usd'
-  toFixedFallback?: number
-}
-
-type ListField = ListFieldHTML | ListFieldImgUrl | ListFieldBignumber | ListFieldUSD
-
-// item typing
-interface TableListItem {
-  status?: AlertStatus
-  exponent?: number
-  [key: string]: any
-}
-
-interface TableListProps {
-  title?: string
-  list: TableListItem[]
-  fields: ListField[]
-  useSearch?: boolean
-  mergedFields?: string[]
-  showTitle?: boolean
-  showFieldsBar?: boolean
-  useNarrow?: boolean
-  emptyListLabel?: string
-  defaultSortBy?: ListField['value']
-  defaultIsSortASC?: boolean
-  showItemsVertically?: boolean
-}
 
 const IS_SORT_ASC_DEFAULT = false
 
@@ -69,16 +22,19 @@ export default function TableList({
   defaultSortBy,
   defaultIsSortASC,
   showItemsVertically = false,
+  filterOptions,
 }: TableListProps) {
-  // search input keyword
+  // col width ratio
   const [colWidthRatio, setColWidthRatio] = useState(100)
 
   useLayoutEffect(() => {
     setColWidthRatio(100 / fields.length)
   }, [fields])
 
-  // list filtering
-  const [searchKeyword, setSearchKeyword] = useState('')
+  // table search keyword
+  const [searchKeyword, setSearchKeyword] = useState<string>('')
+
+  // table sorting setting
   const [sortBy, setSortBy] = useState<string | undefined>(defaultSortBy)
   const [isSortASC, setIsSortASC] = useState<boolean>(defaultIsSortASC ?? IS_SORT_ASC_DEFAULT)
 
@@ -94,30 +50,28 @@ export default function TableList({
     }
   }
 
-  // mapping table list
-  const matchedList = useMemo(() => {
-    const filteredList = list.filter((listItem) =>
-      Object.values(listItem).toString().toUpperCase().includes(searchKeyword.toUpperCase())
-    ) // tmp
+  // table filter option
+  const [filterOption, setFilterOption] = useState<FilterRadioGroupOption>(TAB_RADIO_GROUP_DEFAULT_OPTION)
 
-    return sortBy
-      ? filteredList.sort((a, b) => {
-          return isSortASC ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]
-        })
-      : filteredList
-  }, [list, searchKeyword, sortBy, isSortASC])
+  // final table list to display
+  const matchedList = useMatchedTableList({ list, searchKeyword, sortBy, isSortASC, filterOption })
 
   return (
     <div>
       {/* list header */}
       {showTitle ? (
-        <header className="flex flex-col justify-between align-start space-y-6 mb-4 md:flex-row md:space-y-0 md:space-x-6">
+        <header className="flex flex-col justify-start align-stretch space-y-6 mb-4">
           <h3 className="flex justify-start items-center TYPO-H3 text-black text-left">{title}</h3>
-          {useSearch ? (
-            <div>
-              <SearchInput keyword={searchKeyword} onChange={setSearchKeyword} />{' '}
-            </div>
-          ) : null}
+          <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-2">
+            {filterOptions ? (
+              <FilterRadioGroup options={filterOptions} defaultIndex={1} onSelect={setFilterOption} />
+            ) : null}
+            {useSearch ? (
+              <div>
+                <SearchInput keyword={searchKeyword} onChange={setSearchKeyword} />{' '}
+              </div>
+            ) : null}
+          </div>
         </header>
       ) : null}
 
@@ -154,10 +108,10 @@ export default function TableList({
 
         {/* data list */}
         <div>
-          {list.length <= 0 ? (
+          {matchedList.length <= 0 ? (
             <div
               className={`w-full  bg-grayCRE-200 TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${
-                useNarrow ? 'rounded-sm p-2' : 'rounded-xl p-4'
+                useNarrow ? 'rounded-lg p-2' : 'rounded-xl p-4'
               }`}
             >
               {emptyListLabel}
