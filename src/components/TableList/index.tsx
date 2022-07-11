@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import SearchInput from 'components/Inputs/SearchInput'
 import Tag from 'components/Tag'
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import type { STATUS } from 'types/status'
 
 // field  typing
@@ -48,7 +48,11 @@ interface TableListProps {
   showFieldsBar?: boolean
   useNarrow?: boolean
   emptyListLabel?: string
+  defaultSortBy?: ListField['value']
+  defaultIsSortASC?: boolean
 }
+
+const IS_SORT_ASC_DEFAULT = false
 
 export default function TableList({
   title,
@@ -60,6 +64,8 @@ export default function TableList({
   showFieldsBar = true,
   useNarrow = false,
   emptyListLabel = 'No data',
+  defaultSortBy,
+  defaultIsSortASC,
 }: TableListProps) {
   // search input keyword
   const [colWidthRatio, setColWidthRatio] = useState(100)
@@ -70,20 +76,22 @@ export default function TableList({
 
   // list filtering
   const [searchKeyword, setSearchKeyword] = useState('')
-  const [sortBy, setSortBy] = useState<string | undefined>(undefined)
-  const [isSortASC, setIsSortASC] = useState<boolean>(true)
+  const [sortBy, setSortBy] = useState<string | undefined>()
+  const [isSortASC, setIsSortASC] = useState<boolean>(IS_SORT_ASC_DEFAULT)
 
-  const onFieldClick = (field: ListField) => {
-    console.log('field', field)
-    const isSameFieldClicked = sortBy === field.value
+  const onFieldClick = (field: ListField) => handleSorting(field.value)
+
+  const handleSorting = (field: ListField['value']) => {
+    const isSameFieldClicked = sortBy === field
     if (isSameFieldClicked) {
       setIsSortASC(!isSortASC)
     } else {
-      setIsSortASC(true)
-      setSortBy(field.value)
+      setIsSortASC(IS_SORT_ASC_DEFAULT)
+      setSortBy(field)
     }
   }
 
+  // mapping table list
   const matchedList = useMemo(() => {
     const filteredList = list.filter((listItem) =>
       Object.values(listItem).toString().toUpperCase().includes(searchKeyword.toUpperCase())
@@ -95,6 +103,15 @@ export default function TableList({
         })
       : filteredList
   }, [list, searchKeyword, sortBy, isSortASC])
+
+  useEffect(() => {
+    if (defaultSortBy) {
+      handleSorting(defaultSortBy)
+    }
+    if (defaultIsSortASC !== undefined && defaultIsSortASC !== isSortASC) {
+      setIsSortASC(defaultIsSortASC)
+    }
+  }, [])
 
   return (
     <div>
