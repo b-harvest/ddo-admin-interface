@@ -8,6 +8,8 @@ const useAsset = () => {
   const [allAssetLiveAtom] = useAtom(allAssetLiveAtomRef)
   const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
 
+  const isPoolToken = useCallback((denom: string) => denom.includes('pool'), [])
+
   const allAssetLive = useMemo(() => {
     return allAssetLiveAtom.map((asset) => ({ ...asset, priceOracle: new BigNumber(asset.priceOracle) })) as AssetLive[]
   }, [allAssetLiveAtom])
@@ -19,18 +21,17 @@ const useAsset = () => {
       return {
         ...assetInfo,
         live,
+        isPoolToken: isPoolToken(assetInfo.denom),
       }
     }) as Asset[]
   }, [allAssetInfoAtom, allAssetLive])
 
   const findAssetByDenom = useCallback(
     (denom: string) => {
-      return allAsset.find((item) => item.denom === denom) ?? null
+      return allAsset.find((item) => item.denom === denom)
     },
     [allAsset]
   )
-
-  const isPoolToken = useCallback((denom: string) => denom.includes('pool'), [])
 
   return { allAssetLive, allAsset, findAssetByDenom, isPoolToken }
 }

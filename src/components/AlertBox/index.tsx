@@ -12,7 +12,7 @@ export default function AlertBox({ msg, status, isActive = true }: AlertBoxProps
     <div
       className={`${
         isActive ? 'block opacity-1' : 'hidden opacity-0'
-      } w-full relative flex justify-start items-start transition-opacity px-4 py-2 rounded-lg border dark:bg-transparent ${getCSSClassbyStatus(
+      } w-full relative flex justify-start items-start transition-opacity px-4 py-2 rounded-lg border ${getCSSClassbyStatus(
         status
       )}`}
     >
@@ -25,16 +25,16 @@ export default function AlertBox({ msg, status, isActive = true }: AlertBoxProps
 function getCSSClassbyStatus(status: AlertStatus) {
   switch (status) {
     case 'info':
-      return `bg-[#F3F6FF] border-info`
+      return `bg-[#F3F6FF] dark:bg-info-o border-info`
       break
     case 'success':
-      return `bg-[#F5FBF8] border-success`
+      return `bg-[#F5FBF8] dark:bg-success-o border-success`
       break
     case 'error':
-      return `bg-[#FDF4F4] border-error`
+      return `bg-[#FDF4F4] dark:bg-error-o border-error`
       break
     case 'warning':
-      return `bg-[#FFFAF1] border-warning`
+      return `bg-[#FFFAF1] dark:bg-warning-o border-warning`
       break
     default:
       return ''
@@ -42,7 +42,7 @@ function getCSSClassbyStatus(status: AlertStatus) {
 }
 
 function AlertBoxMsg({ status, msg }: AlertBoxProps) {
-  const className = `TYPO-BODY-XS !font-bold text-left ml-2`
+  const className = `TYPO-BODY-S !font-mono !font-bold text-left whitespace-pre-line ml-2`
   const style = { wordBreak: 'keep-all' } as CSSProperties
 
   // without returning the JSX element directly, the Tailwind colors dont work

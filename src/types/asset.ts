@@ -27,4 +27,5 @@ export type AssetLive = Omit<AssetLiveRaw, 'priceOracle'> & {
 // union type
 export type Asset = AssetInfo & {
   live?: Omit<AssetLive, 'denom'>
+  isPoolToken: boolean
 }
