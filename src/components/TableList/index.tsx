@@ -234,8 +234,8 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
 
     const valueToFormat: string =
       field.type === 'usd'
-        ? value.toFormat(field.toFixedFallback ?? 0, BigNumber.ROUND_HALF_UP)
-        : value.toFormat(data.exponent ?? field.toFixedFallback ?? 0)
+        ? (value as BigNumber).toFormat(field.toFixedFallback ?? 0, BigNumber.ROUND_HALF_UP)
+        : (value as BigNumber).toFormat(data.exponent ?? field.toFixedFallback ?? 0)
 
     const displayVal = new BigNumber(valueToFormat).isZero() ? '0' : valueToFormat
 

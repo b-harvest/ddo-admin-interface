@@ -1,8 +1,9 @@
 import { CHAIN_IDS } from 'constants/chain'
 import { atom } from 'jotai'
-import type { AssetInfo, AssetLive } from 'types/asset'
+import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
 import type { ChainInfo, ChainLive } from 'types/chain'
-import type { PairInfo, PairLive } from 'types/pair'
+import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
+import type { PoolLiveRaw } from 'types/pool'
 
 // darkmode
 const LOCAL_STORAGE_KEY_IS_DARK_MODE = `is-dark-mode`
@@ -36,13 +37,15 @@ export const allChainInfoAtomRef = atom<ChainInfo[]>([])
 
 export const allChainLiveAtomRef = atom<ChainLive[]>([])
 
-export const allAssetInfoAtomRef = atom<AssetInfo[]>([])
+export const allAssetInfoAtomRef = atom<AssetInfoRaw[]>([])
 
-export const allAssetLiveAtomRef = atom<AssetLive[]>([])
+export const allAssetLiveAtomRef = atom<AssetLiveRaw[]>([])
 
-export const allPairInfoAtomRef = atom<PairInfo[]>([])
+export const allPairInfoAtomRef = atom<PairInfoRaw[]>([])
 
-export const allPairLiveAtomRef = atom<PairLive[]>([])
+export const allPairLiveAtomRef = atom<PairLiveRaw[]>([])
+
+export const allPoolLiveAtomRef = atom<PoolLiveRaw[]>([])
 
 // balanceAtom
 export const balanceAtom = atom(undefined)

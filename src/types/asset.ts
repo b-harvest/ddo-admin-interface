@@ -1,4 +1,7 @@
-export interface AssetInfo {
+import BigNumber from 'bignumber.js'
+
+// info
+export interface AssetInfoRaw {
   readonly denom: string
   readonly ticker: string
   readonly chainName: string
@@ -8,12 +11,20 @@ export interface AssetInfo {
   readonly exponent: number
 }
 
-export interface AssetLive {
+export type AssetInfo = AssetInfoRaw
+
+// live
+export interface AssetLiveRaw {
   readonly denom: string
   readonly priceOracle: number
   readonly updateTimestamp: number
 }
 
-export interface Asset extends AssetInfo {
+export type AssetLive = Omit<AssetLiveRaw, 'priceOracle'> & {
+  priceOracle: BigNumber
+}
+
+// union type
+export type Asset = AssetInfo & {
   live?: Omit<AssetLive, 'denom'>
 }
