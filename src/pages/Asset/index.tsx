@@ -11,6 +11,7 @@ export default function Asset() {
       <TableList
         title="All Asset"
         useSearch={true}
+        useNarrow={true}
         list={assetInfosAtom}
         fields={[
           {
