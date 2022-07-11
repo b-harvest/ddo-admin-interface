@@ -7,7 +7,7 @@ dayjs.extend(utc)
 
 const DEFAULT_HEIGHT = 300
 const LIGHT_CRE = '#FFFAF4'
-const DARK_CRE = '#1E0E0A'
+// const DARK_CRE = '#1E0E0A'
 
 type DataByDay = {
   time: number
