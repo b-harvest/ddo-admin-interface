@@ -207,7 +207,7 @@ export default function Accounts() {
         </div>
 
         <section>
-          <header>
+          <header className="mb-4">
             <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
               Token Balance
             </h3>
@@ -264,7 +264,12 @@ export default function Accounts() {
         </section>
 
         <section>
-          <header>
+          Total rewards claimable : {totalFarmRewards.toFormat(6)}
+          Total rewards claimable : {totalFarmRewardsLCD.toFormat(6)}
+        </section>
+
+        <section>
+          <header className="mb-4">
             <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
               Farm Staked Amount
             </h3>

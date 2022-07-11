@@ -29,6 +29,8 @@ const useAccountData = (address: string) => {
     fetch: address !== '',
   })
 
+  console.log('allStakedData', allStakedData)
+
   const { data: allStakedLCDData, error: allStakedLCDDataError }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> =
     useAllStakedLCD({
       address,
