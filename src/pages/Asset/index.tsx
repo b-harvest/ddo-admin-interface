@@ -1,22 +1,39 @@
+import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
-import { useAtom } from 'jotai'
+import useAsset from 'hooks/useAsset'
+import usePair from 'hooks/usePair'
 import AssetTableCell from 'pages/components/AssetTableCell'
-import { useMemo } from 'react'
-import { allAssetInfoAtomRef } from 'state/atoms'
+import { useEffect, useState } from 'react'
 
 export default function Asset() {
-  const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
+  const { allAsset } = useAsset()
+  console.log('allAsset', allAsset)
+  const { getTVLbyDenom, getVol24USDbyDenom } = usePair()
 
-  const assetTableList = useMemo(() => {
-    return allAssetInfoAtom.map((item) => {
+  const [assetTableList, setAssetTableList] = useState<any>([])
+
+  useEffect(() => {
+    const list = allAsset.map((item, index) => {
       const asset = AssetTableCell({ logoUrl: item.logoUrl, ticker: item.ticker })
+      const vol24USD = getVol24USDbyDenom(item.denom, item.exponent)
+      const tvl = getTVLbyDenom(item.denom).dividedBy(10 ** item.exponent)
+      const tvlUSD = item.live ? tvl.multipliedBy(new BigNumber(item.live.priceOracle)) : null
+      const priceOracle = item.live ? new BigNumber(item.live.priceOracle) : null
+
       return {
+        index,
         asset,
-        chainId: item.chainId,
+        chainName: item.chainName,
+        tvl,
+        priceOracle,
+        vol24USD,
+        tvlUSD,
+        exponent: item.exponent,
       }
     })
-  }, [allAssetInfoAtom])
+    setAssetTableList(list)
+  }, [allAsset, getTVLbyDenom, getVol24USDbyDenom])
 
   return (
     <AppPage>
@@ -27,14 +44,32 @@ export default function Asset() {
         list={assetTableList}
         fields={[
           {
-            label: 'Asset',
+            label: 'Ticker',
             value: 'asset',
             type: 'html',
-            widthRatio: 10,
+            widthRatio: 18,
           },
           {
-            label: 'Chain ID',
-            value: 'chainId',
+            label: 'Chain',
+            value: 'chainName',
+          },
+          {
+            label: 'Price',
+            value: 'priceOracle',
+            type: 'usd',
+            toFixedFallback: 2,
+          },
+          {
+            label: 'Volume 24h',
+            value: 'vol24USD',
+            type: 'usd',
+            toFixedFallback: 2,
+          },
+          {
+            label: 'TVL',
+            value: 'tvlUSD',
+            type: 'usd',
+            toFixedFallback: 2,
           },
         ]}
       />
