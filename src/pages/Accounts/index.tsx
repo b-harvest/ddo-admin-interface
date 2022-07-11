@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
 import AlertBox from 'components/AlertBox'
-import AlertInline from 'components/AlertInline'
 import AppPage from 'components/AppPage'
 import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
@@ -13,8 +12,9 @@ import { useAllBalanceLCD, useLatestBlockLCD } from 'data/useLCD'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
+import usePair from 'hooks/usePair'
 import { useAtom } from 'jotai'
-import AssetTableCell from 'pages/components/AssetTableCell'
+import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useEffect, useMemo, useState } from 'react'
 import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
 import type { Balance, BalanceLCD } from 'types/account'
@@ -23,13 +23,14 @@ import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import type { BlockLCD } from 'types/block'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
-export default function Accounts() {
-  // text constants
-  const ERROR_MSG_BALANCE_DIFF = 'Balance difference between on-chain and back-end'
-  const ERROR_MSG_BACKEND_TIMESTAMP_DIFF = 'Back-end timestamp different'
-  const SUCCESS_MSG_ALL_DATA_MATCHED = 'All data matched, no significant difference'
-  const DUMMY_ADDRESS = 'cre1pc2xjkz28r9744a5d7u3ddqhsw3a9hrf7acccz'
+// text constants
+const ERROR_MSG_BACKEND_TIMESTAMP_DIFF = 'Back-end timestamp different'
+const ERROR_MSG_DATA_DIFF = 'Data difference between on-chain and back-end'
+const SUCCESS_MSG_ALL_DATA_MATCHED = 'All data matched & no significant delay in timestamp'
+// const DUMMY_ADDRESS = 'cre1pc2xjkz28r9744a5d7u3ddqhsw3a9hrf7acccz'
+const DUMMY_ADDRESS = 'cre1le890ld7v2hfsaq7cz5ws8zsdnpmhlysmz8sfc'
 
+export default function Accounts() {
   // chain atoms
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   const [isTestnetAtom] = useAtom(isTestnetAtomRef)
@@ -37,13 +38,24 @@ export default function Accounts() {
   // address
   const [searchAddress, setSearchAddress] = useState(DUMMY_ADDRESS)
   const [address, setAddress] = useState<undefined | string>(undefined)
+  const handleAddressSearch = () => setAddress(searchAddress)
 
   // assetinfo handler
   const { findAssetByDenom } = useAsset()
 
-  // chain info
+  // block
   const { findChainById } = useChain()
-  const backendBlock = useMemo(() => findChainById(chainIdAtom), [chainIdAtom, findChainById])
+  const { data: latestBlockLCDData }: LCDHookReturn<BlockLCD> = useLatestBlockLCD({})
+
+  const { backendBlockHeight, onchainBlockHeight } = useMemo(() => {
+    const backendBlockHeightRaw = findChainById(chainIdAtom)?.live?.height
+    const backendBlockHeight = backendBlockHeightRaw ? new BigNumber(backendBlockHeightRaw).toFormat() : 'NA'
+
+    const onchainBlockHeightRaw = latestBlockLCDData?.block.header.height
+    const onchainBlockHeight = onchainBlockHeightRaw ? new BigNumber(onchainBlockHeightRaw).toFormat() : 'NA'
+
+    return { backendBlockHeight, onchainBlockHeight }
+  }, [chainIdAtom, findChainById, latestBlockLCDData])
 
   // fetching balance
   const { data: allBalanceData, error: allBalanceDataError }: APIHookReturn<Balance> = useAllBalance({
@@ -54,28 +66,26 @@ export default function Accounts() {
     address: address ?? '',
     fetch: address !== undefined,
   })
-  const { data: latestBlockLCDData }: LCDHookReturn<BlockLCD> = useLatestBlockLCD({ fetch: address !== undefined })
 
   // toast
   useEffect(() => {
-    // toast
     if (allBalanceDataError) toastError(allBalanceDataError.msg)
     if (allBalanceLCDError) toastError(allBalanceLCDError.msg)
   }, [allBalanceDataError, allBalanceLCDError])
 
   // table data - balance
+  const { getAssetTickers } = usePair()
+
   const { balanceTableList, hasBalanceDiff } = useMemo(() => {
     const balanceTableList =
       allBalanceData?.data.asset
-        .filter((item) => findAssetByDenom(item.denom) !== null)
+        .filter((item) => findAssetByDenom(item.denom) !== undefined)
         .map((item) => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const assetInfo = findAssetByDenom(item.denom)!
-          const logoUrl = assetInfo.logoUrl
-          const ticker = assetInfo.ticker
           const exponent = assetInfo.exponent
 
-          const asset = AssetTableCell({ logoUrl, ticker })
+          const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo) })
           const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
           const onchainBalance = allBalanceLCDData
             ? new BigNumber(allBalanceLCDData.balances.find((bal) => bal.denom === item.denom)?.amount ?? 0).dividedBy(
@@ -86,8 +96,9 @@ export default function Accounts() {
 
           return {
             denom: item.denom,
-            exponent,
+            ticker: assetInfo.ticker,
             asset,
+            exponent,
             backendBalance,
             onchainBalance,
             status,
@@ -97,39 +108,68 @@ export default function Accounts() {
     const hasBalanceDiff = balanceTableList.findIndex((item) => item.status === 'error') > -1
 
     return { balanceTableList, hasBalanceDiff }
-  }, [allBalanceData, allBalanceLCDData, findAssetByDenom])
-
-  // table data - farming staking
-  const { allStaked, totalFarmRewards, totalFarmRewardsLCD } = useAccountData(address ?? '')
-
-  const { farmingStakedTableList } = useMemo(() => {
-    const farmingStakedTableList = allStaked.map((item) => {
-      const asset = AssetTableCell({ logoUrl: '', ticker: item.denom })
-      // item.harvestable.reduce()
-      return {
-        asset,
-        ...item,
-      }
-    })
-
-    return { farmingStakedTableList }
-  }, [allStaked])
+  }, [allBalanceData, allBalanceLCDData, findAssetByDenom, getAssetTickers])
 
   // alert-inline data
-  const { significantTimeGap, isTimeDiff, isAllDataMatched } = useMemo(() => {
+  const significantTimeGap = useMemo(() => CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom], [chainIdAtom])
+
+  // alert-inline data - balance
+  const { isBalanceDataTimeDiff, isBalanceDataAllMatched } = useMemo(() => {
     const backEndTimestamp = allBalanceData?.curTimestamp * 1000 ?? 0
-    const significantTimeGap = CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom]
-    const isTimeDiff = isTimeDiffFromNowMoreThan(backEndTimestamp, significantTimeGap)
+    const isBalanceDataTimeDiff = isTimeDiffFromNowMoreThan(backEndTimestamp, significantTimeGap)
+    const isBalanceDataAllMatched = !hasBalanceDiff && !isBalanceDataTimeDiff
 
-    const isAllDataMatched = !hasBalanceDiff && !isTimeDiff
     return {
-      significantTimeGap,
-      isTimeDiff,
-      isAllDataMatched,
+      isBalanceDataTimeDiff,
+      isBalanceDataAllMatched,
     }
-  }, [allBalanceData, chainIdAtom, hasBalanceDiff])
+  }, [allBalanceData, hasBalanceDiff, significantTimeGap])
 
-  const handleAddressSearch = () => setAddress(searchAddress)
+  // table data - staked amount
+  const { allStakedDataTimestamp, allStaked, totalFarmRewards, allStakedLCD, totalFarmRewardsLCD } = useAccountData(
+    address ?? ''
+  )
+
+  console.log('allStaked', allStaked)
+  console.log('allStakedLCD', allStakedLCD)
+
+  const { stakedTableList, hasStakedDiff } = useMemo(() => {
+    const onchainStakedMap = allStakedLCD
+      .filter((item) => item.starting_epoch === '4' || item.starting_epoch === undefined) // ?
+      .reduce((accm, item) => ({ ...accm, [item.denom]: item }), {})
+
+    const stakedTableList = allStaked
+      .filter((item) => findAssetByDenom(item.denom) !== undefined)
+      .map((item) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const assetInfo = findAssetByDenom(item.denom)!
+        const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo) })
+        const onchainStakedAmount = onchainStakedMap[item.denom]?.amount ?? new BigNumber(0)
+        const status: AlertStatus | undefined = item.stakedAmount.isEqualTo(onchainStakedAmount) ? undefined : 'error'
+
+        return {
+          asset,
+          ...item,
+          onchainStakedAmount,
+          status,
+        }
+      })
+
+    const hasStakedDiff = stakedTableList.findIndex((item) => item.status === 'error') > -1
+
+    return { stakedTableList, hasStakedDiff }
+  }, [allStaked, allStakedLCD, findAssetByDenom, getAssetTickers])
+
+  // alert-inline data - staked amount
+  const { isStakedDataTimeDiff, isStakedDataAllMatched } = useMemo(() => {
+    const isStakedDataTimeDiff = isTimeDiffFromNowMoreThan(allStakedDataTimestamp, significantTimeGap)
+    const isStakedDataAllMatched = !hasStakedDiff && !isStakedDataTimeDiff
+
+    return {
+      isStakedDataTimeDiff,
+      isStakedDataAllMatched,
+    }
+  }, [allStakedDataTimestamp, hasStakedDiff, significantTimeGap])
 
   return (
     <AppPage className="pt-[calc(2rem+3.25rem)]">
@@ -150,18 +190,26 @@ export default function Accounts() {
         </Sticker>
       </div>
 
-      <div className="flex flex-col justify-start items-stretch space-y-8">
-        <SearchInput
-          placeholder="Address"
-          keyword={searchAddress}
-          onChange={setSearchAddress}
-          onSearch={handleAddressSearch}
-        />
+      <div className="flex flex-col justify-start items-stretch space-y-12">
+        <div className="space-y-4">
+          <SearchInput
+            placeholder="Address"
+            keyword={searchAddress}
+            onChange={setSearchAddress}
+            onSearch={handleAddressSearch}
+          />
+          {/* constant noti */}
+          <AlertBox
+            msg={`Block height \non-chain ${onchainBlockHeight} \nback-end ${backendBlockHeight}`}
+            status="info"
+            isActive={true}
+          />
+        </div>
 
         <section>
-          <header className="mb-4">
+          <header>
             <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
-              All Balance
+              Token Balance
             </h3>
           </header>
 
@@ -170,32 +218,20 @@ export default function Accounts() {
               balanceTableList.length > 0 ? 'block' : 'hidden opacity-0'
             } flex flex-col justify-start items-start mb-4 transition-opacity`}
           >
-            {/* constant noti */}
-            <AlertInline
-              msg={`On-chain block height: ${latestBlockLCDData?.block.header.height ?? 'NA'}`}
-              status="info"
-              isActive={true}
-            />
-            <AlertInline
-              msg={`Back-end block height: ${backendBlock?.live?.height ?? 'NA'}`}
-              status="info"
-              isActive={true}
-            />
-
             {/* data error noti */}
             <div className="flex flex-col space-y-2 w-full mt-4">
-              <AlertBox msg={ERROR_MSG_BALANCE_DIFF} status="error" isActive={hasBalanceDiff} />
+              <AlertBox msg={ERROR_MSG_DATA_DIFF} status="error" isActive={hasBalanceDiff} />
               <AlertBox
                 msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
                 status="error"
-                isActive={isTimeDiff}
+                isActive={isBalanceDataTimeDiff}
               />
-              <AlertBox msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isAllDataMatched} />
+              <AlertBox msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isBalanceDataAllMatched} />
             </div>
           </div>
 
           <TableList
-            title="All Balance"
+            title="Balance by Token"
             showTitle={false}
             useSearch={false}
             list={balanceTableList}
@@ -204,7 +240,7 @@ export default function Accounts() {
             showItemsVertically={true}
             fields={[
               {
-                label: 'Asset',
+                label: 'Token',
                 value: 'asset',
                 type: 'html',
                 widthRatio: 10,
@@ -228,23 +264,35 @@ export default function Accounts() {
         </section>
 
         <section>
-          <header className="mb-4">
+          <header>
             <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
-              All Farm Staked
+              Farm Staked Amount
             </h3>
           </header>
 
-          <div className="flex mb-4 text-white">
-            Backend : {totalFarmRewards.toFormat(2)} <br />
-            Onchain : {totalFarmRewardsLCD.toFormat(2)}
+          <div
+            className={`${
+              stakedTableList.length > 0 ? 'block' : 'hidden opacity-0'
+            } flex flex-col justify-start items-start mb-4 transition-opacity`}
+          >
+            {/* data error noti */}
+            <div className="flex flex-col space-y-2 w-full mt-4">
+              <AlertBox msg={ERROR_MSG_DATA_DIFF} status="error" isActive={hasStakedDiff} />
+              <AlertBox
+                msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
+                status="error"
+                isActive={isStakedDataTimeDiff}
+              />
+              <AlertBox msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isStakedDataAllMatched} />
+            </div>
           </div>
 
           <TableList
-            title="All Farm Staked"
+            title="Farm Staked Amount"
             showTitle={false}
             useSearch={false}
-            list={farmingStakedTableList}
-            mergedFields={['stakedAmount', 'queuedAmount']}
+            list={stakedTableList}
+            mergedFields={['onchainStakedAmount', 'stakedAmount', 'queuedAmount']}
             showFieldsBar={false}
             showItemsVertically={true}
             fields={[
@@ -255,16 +303,23 @@ export default function Accounts() {
                 widthRatio: 10,
               },
               {
-                label: 'Staked Amount',
-                value: 'stakedAmount',
-                tag: 'Stacked',
+                label: 'Onchain Amount',
+                value: 'onchainStakedAmount',
+                tag: 'On-chain',
                 type: 'bignumber',
                 toFixedFallback: 6,
               },
               {
-                label: 'Queued Amount',
+                label: 'Backend Amount',
+                value: 'stakedAmount',
+                tag: 'Back-end',
+                type: 'bignumber',
+                toFixedFallback: 6,
+              },
+              {
+                label: 'Backend Queued Amount',
                 value: 'queuedAmount',
-                tag: '+Queued',
+                tag: '* Queued',
                 type: 'bignumber',
                 toFixedFallback: 6,
               },
