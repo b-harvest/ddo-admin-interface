@@ -1,13 +1,13 @@
 import SelectTab from 'components/SelectTab'
 import MoreWidget, { PopoverPanelItem } from 'components/Widgets/MoreWidget'
-import { MAINNET_CHAIN_NAME, TESTNET_CHAIN_NAME } from 'constants/names'
+import { CHAIN_IDS } from 'constants/chain'
 import { useAtom } from 'jotai'
 import { useEffect, useState } from 'react'
-import { ChainName, chainNameAtomRef } from 'state/atoms'
+import { ChainId, chainIdAtomRef } from 'state/atoms'
 
-const CHAINS: { chainName: ChainName; label: string }[] = [
-  { chainName: MAINNET_CHAIN_NAME, label: 'Mainnet' },
-  { chainName: TESTNET_CHAIN_NAME, label: 'Testnet' },
+const CHAINS: { chainId: ChainId; label: string }[] = [
+  { chainId: CHAIN_IDS.MAINNET, label: 'Mainnet' },
+  { chainId: CHAIN_IDS.MOONCAT, label: 'Testnet' },
 ]
 
 export default function AppSettingWidget() {
@@ -33,10 +33,10 @@ export default function AppSettingWidget() {
   const [chainIndex, setChainIndex] = useState(0)
 
   // chain state
-  const [chainNameAtom, setChainNameAtom] = useAtom(chainNameAtomRef)
+  const [chainIdAtom, setChainIdAtom] = useAtom(chainIdAtomRef)
 
-  const colorBodyByChain = (chainName: ChainName) => {
-    if (chainName === TESTNET_CHAIN_NAME) {
+  const colorBodyByChain = (chainId: ChainId) => {
+    if (chainId === CHAIN_IDS.MOONCAT) {
       document.body.classList.add('testnet')
     } else {
       document.body.classList.remove('testnet')
@@ -44,14 +44,14 @@ export default function AppSettingWidget() {
   }
 
   const handleSelectChain = (index: number) => {
-    const chainName = CHAINS[index].chainName
-    setChainNameAtom({ chainName })
+    const chainId = CHAINS[index].chainId
+    setChainIdAtom({ chainId })
   }
 
   useEffect(() => {
-    colorBodyByChain(chainNameAtom)
-    setChainIndex(CHAINS.findIndex((item) => item.chainName === chainNameAtom))
-  }, [chainNameAtom])
+    colorBodyByChain(chainIdAtom)
+    setChainIndex(CHAINS.findIndex((item) => item.chainId === chainIdAtom))
+  }, [chainIdAtom])
 
   return (
     <MoreWidget panelItems={settingsWidgetPanelItems}>
