@@ -1,36 +1,33 @@
-import Light from 'components/Light'
+import AlertIcon from 'components/AlertIcon'
 import { CSSProperties, ReactElement } from 'react'
-import type { STATUS } from 'types/status'
-
-interface NotiLineProps {
+import type { AlertStatus } from 'types/alert'
+interface AlertInlineProps {
   msg: string
-  color: STATUS
+  status: AlertStatus
   isActive?: boolean
 }
 
-export default function NotiLine({ msg, color, isActive = true }: NotiLineProps) {
+export default function AlertInline({ msg, status, isActive = true }: AlertInlineProps) {
   return (
     <div
       className={`${
         isActive ? 'block' : 'hidden opacity-0'
       } relative flex justify-start items-start transition-opacity`}
     >
-      {/* the below 1px minus is to resolve visual perception issue, 
-      which results that the dot looks in the middle */}
-      <Light color={color} size="sm" className="translate-y-[calc(((1.25rem-0.5rem)/2)-1px)]" />
-      <NotiLineMsg color={color} msg={msg} />
+      <AlertIcon size="sm" status={status} />
+      <AlertInlineMsg status={status} msg={msg} />
     </div>
   )
 }
 
-function NotiLineMsg({ color, msg }: NotiLineProps) {
+function AlertInlineMsg({ status, msg }: AlertInlineProps) {
   const className = `TYPO-BODY-XS !font-bold text-left ml-2`
   const style = { wordBreak: 'keep-all' } as CSSProperties
 
   // without returning the JSX element directly, the Tailwind colors dont work
   let html: ReactElement
 
-  switch (color) {
+  switch (status) {
     case 'error':
       html = (
         <div style={style} className={`${className} !text-error`}>

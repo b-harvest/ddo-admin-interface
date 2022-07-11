@@ -1,9 +1,11 @@
 import BigNumber from 'bignumber.js'
+import AlertBox from 'components/AlertBox'
+import AlertInline from 'components/AlertInline'
 import AppPage from 'components/AppPage'
 import SearchInput from 'components/Inputs/SearchInput'
-import NotiLine from 'components/NotiLine'
 import Sticker from 'components/Sticker'
 import TableList from 'components/TableList'
+import { toastError } from 'components/Toast/generator'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { useAllBalance } from 'data/useAPI'
@@ -12,14 +14,13 @@ import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import AssetTableCell from 'pages/components/AssetTableCell'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
 import type { Balance, BalanceLCD } from 'types/account'
+import type { AlertStatus } from 'types/alert'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import type { BlockLCD } from 'types/block'
-import type { STATUS } from 'types/status'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
-
 export default function Accounts() {
   // text constants
   const ERROR_MSG_BALANCE_DIFF = 'Balance difference between on-chain and back-end'
@@ -42,54 +43,63 @@ export default function Accounts() {
   const { findChainById } = useChain()
   const backendBlock = useMemo(() => findChainById(chainIdAtom), [chainIdAtom, findChainById])
 
-  // fetching balance → refactor needed for auto update by swr interval ?
-  const { data: allBalanceData }: APIHookReturn<Balance> = useAllBalance(address ?? 'x')
-  console.log('useAllBalance', allBalanceData)
+  // fetching balance
+  const { data: allBalanceData, error: allBalanceDataError }: APIHookReturn<Balance> = useAllBalance({
+    address: address ?? '',
+    fetch: address !== undefined,
+  })
+  const { data: allBalanceLCDData, error: allBalanceLCDError }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD({
+    address: address ?? '',
+    fetch: address !== undefined,
+  })
+  const { data: latestBlockLCDData }: LCDHookReturn<BlockLCD> = useLatestBlockLCD({ fetch: address !== undefined })
 
-  const { data: allBalanceLCDData, error: allBalanceLCDError }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD(
-    address ?? 'x'
-  )
-  const { data: latestBlockLCDData, error: latestBlockLCDError }: LCDHookReturn<BlockLCD> = useLatestBlockLCD()
-  console.log('latestBlockLCDData', latestBlockLCDData, latestBlockLCDError)
+  // toast
+  useEffect(() => {
+    // toast
+    if (allBalanceDataError) toastError(allBalanceDataError.msg)
+    if (allBalanceLCDError) toastError(allBalanceLCDError.msg)
+  }, [allBalanceDataError, allBalanceLCDError])
 
   // table data
   const { balanceTableList, hasBalanceDiff } = useMemo(() => {
-    const balanceTableList = allBalanceData.data.asset
-      .filter((item) => findAssetByDenom(item.denom) !== null)
-      .map((item) => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const assetInfo = findAssetByDenom(item.denom)!
-        const logoUrl = assetInfo.logoUrl
-        const ticker = assetInfo.ticker
-        const exponent = assetInfo.exponent
+    const balanceTableList =
+      allBalanceData?.data.asset
+        .filter((item) => findAssetByDenom(item.denom) !== null)
+        .map((item) => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const assetInfo = findAssetByDenom(item.denom)!
+          const logoUrl = assetInfo.logoUrl
+          const ticker = assetInfo.ticker
+          const exponent = assetInfo.exponent
 
-        const asset = AssetTableCell({ logoUrl, ticker })
-        const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
-        const onchainBalance = allBalanceLCDData
-          ? new BigNumber(allBalanceLCDData.balances.find((bal) => bal.denom === item.denom)?.amount ?? 0).dividedBy(
-              10 ** exponent
-            )
-          : new BigNumber(0)
-        const status: STATUS | undefined = backendBalance.isEqualTo(onchainBalance) ? undefined : 'error'
+          const asset = AssetTableCell({ logoUrl, ticker })
+          const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
+          const onchainBalance = allBalanceLCDData
+            ? new BigNumber(allBalanceLCDData.balances.find((bal) => bal.denom === item.denom)?.amount ?? 0).dividedBy(
+                10 ** exponent
+              )
+            : new BigNumber(0)
+          const status: AlertStatus | undefined = backendBalance.isEqualTo(onchainBalance) ? undefined : 'error'
 
-        return {
-          denom: item.denom,
-          exponent,
-          asset,
-          backendBalance,
-          onchainBalance,
-          status,
-        }
-      })
+          return {
+            denom: item.denom,
+            exponent,
+            asset,
+            backendBalance,
+            onchainBalance,
+            status,
+          }
+        }) ?? []
 
     const hasBalanceDiff = balanceTableList.findIndex((item) => item.status === 'error') > -1
 
     return { balanceTableList, hasBalanceDiff }
   }, [allBalanceData, allBalanceLCDData, findAssetByDenom])
 
-  // notiline data
+  // alert-inline data
   const { significantTimeGap, isTimeDiff, isAllDataMatched } = useMemo(() => {
-    const backEndTimestamp = allBalanceData.curTimestamp * 1000
+    const backEndTimestamp = allBalanceData?.curTimestamp * 1000 ?? 0
     const significantTimeGap = CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom]
     const isTimeDiff = isTimeDiffFromNowMoreThan(backEndTimestamp, significantTimeGap)
 
@@ -101,10 +111,7 @@ export default function Accounts() {
     }
   }, [allBalanceData, chainIdAtom, hasBalanceDiff])
 
-  const fetchBalance = () => {
-    console.log('fetchBalance')
-    setAddress(searchAddress)
-  }
+  const handleAddressSearch = () => setAddress(searchAddress)
 
   return (
     <AppPage className="pt-[calc(2rem+3.25rem)]">
@@ -126,7 +133,7 @@ export default function Accounts() {
           placeholder="Address"
           keyword={searchAddress}
           onChange={setSearchAddress}
-          onSearch={fetchBalance}
+          onSearch={handleAddressSearch}
         />
 
         <section>
@@ -140,25 +147,31 @@ export default function Accounts() {
             } flex flex-col justify-start items-start mb-4 transition-opacity`}
           >
             {/* constant noti */}
-            <NotiLine
-              msg={`On-chain block height: ${latestBlockLCDData.block.header.height}`}
-              color="info"
+            <AlertInline
+              msg={`On-chain block height: ${latestBlockLCDData?.block.header.height ?? 'NA'}`}
+              status="info"
               isActive={true}
             />
-            <NotiLine
+            <AlertInline
               msg={`Back-end block height: ${backendBlock?.live?.height ?? 'NA'}`}
-              color="info"
+              status="info"
               isActive={true}
             />
 
             {/* data error noti */}
-            <NotiLine msg={ERROR_MSG_BALANCE_DIFF} color="error" isActive={hasBalanceDiff} />
-            <NotiLine
+            <AlertBox msg={ERROR_MSG_BALANCE_DIFF} status="error" isActive={hasBalanceDiff} />
+            <AlertBox
               msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
-              color="error"
+              status="error"
               isActive={isTimeDiff}
             />
-            <NotiLine msg={SUCCESS_MSG_ALL_DATA_MATCHED} color="success" isActive={isAllDataMatched} />
+            <AlertInline msg={ERROR_MSG_BALANCE_DIFF} status="error" isActive={hasBalanceDiff} />
+            <AlertInline
+              msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
+              status="error"
+              isActive={isTimeDiff}
+            />
+            <AlertInline msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isAllDataMatched} />
           </div>
 
           <TableList

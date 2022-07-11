@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import SearchInput from 'components/Inputs/SearchInput'
 import Tag from 'components/Tag'
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import type { STATUS } from 'types/status'
+import { useLayoutEffect, useMemo, useState } from 'react'
+import type { AlertStatus } from 'types/alert'
 
 // field  typing
 interface ListFieldHTML {
@@ -34,7 +34,7 @@ type ListField = ListFieldHTML | ListFieldImgUrl | ListFieldBignumber | ListFiel
 
 // item typing
 interface TableListItem {
-  status?: STATUS
+  status?: AlertStatus
   exponent?: number
   [key: string]: any
 }
@@ -79,8 +79,8 @@ export default function TableList({
 
   // list filtering
   const [searchKeyword, setSearchKeyword] = useState('')
-  const [sortBy, setSortBy] = useState<string | undefined>()
-  const [isSortASC, setIsSortASC] = useState<boolean>(IS_SORT_ASC_DEFAULT)
+  const [sortBy, setSortBy] = useState<string | undefined>(defaultSortBy)
+  const [isSortASC, setIsSortASC] = useState<boolean>(defaultIsSortASC ?? IS_SORT_ASC_DEFAULT)
 
   const onFieldClick = (field: ListField) => handleSorting(field.value)
 
@@ -106,15 +106,6 @@ export default function TableList({
         })
       : filteredList
   }, [list, searchKeyword, sortBy, isSortASC])
-
-  useEffect(() => {
-    if (defaultSortBy) {
-      handleSorting(defaultSortBy)
-    }
-    if (defaultIsSortASC !== undefined && defaultIsSortASC !== isSortASC) {
-      setIsSortASC(defaultIsSortASC)
-    }
-  }, [])
 
   return (
     <div>
@@ -305,7 +296,7 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
   }
 }
 
-function getListItemClass(status: STATUS): string {
+function getListItemClass(status: AlertStatus): string {
   switch (status) {
     case 'success':
       return 'border border-success'
