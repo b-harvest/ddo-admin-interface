@@ -8,6 +8,7 @@ import Loader from 'components/Loader'
 import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
 import Asset from 'pages/Asset'
+import Validators from 'pages/Validators'
 import { Suspense, useEffect } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
@@ -58,9 +59,10 @@ function App() {
           <Switch>
             <Route exact path="/asset" component={Asset} />
             <Route exact path="/accounts" component={Accounts} />
+            <Route exact path="/validators" component={Validators} />
+
             <Route>
-              {/* tmp */}
-              <Redirect to="/accounts" />
+              <Redirect to="/asset" />
             </Route>
           </Switch>
         </Suspense>
