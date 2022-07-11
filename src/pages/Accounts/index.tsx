@@ -17,7 +17,7 @@ import type { STATUS } from 'types/status'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function Accounts() {
   // text constants
-  const ERROR_MSG_BALANCE_DIFF = 'Balance difference between back-end/on-chain data'
+  const ERROR_MSG_BALANCE_DIFF = 'Balance difference between on-chain and back-end'
   const ERROR_MSG_BACKEND_TIMESTAMP_DIFF = 'Back-end timestamp different'
   const SUCCESS_MSG_ALL_DATA_MATCHED = 'All data matched, no significant difference'
   const DUMMY_ADDRESS = 'cre1pc2xjkz28r9744a5d7u3ddqhsw3a9hrf7acccz'
@@ -156,9 +156,11 @@ export default function Accounts() {
 function getAssetTableCell({ ticker, logoUrl }: { ticker: string; logoUrl: string }) {
   return (
     <div className="flex justify-start items-center" title={ticker}>
-      <div className="flex justify-center items-center w-6 h-6 mr-2">
-        {logoUrl.length > 0 ? <img src={logoUrl} alt={ticker} className="w-full object-contain"></img> : null}
-      </div>
+      {logoUrl.length > 0 ? (
+        <div className="flex justify-center items-center w-6 h-6 mr-2">
+          <img src={logoUrl} alt={ticker} className="w-full object-contain"></img>
+        </div>
+      ) : null}
       <span className="TYPO-BODY-XS !font-black">{ticker}</span>
     </div>
   )

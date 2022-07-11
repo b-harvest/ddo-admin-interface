@@ -3,6 +3,7 @@ import AppSettingWidget from 'components/AppSettingWidget'
 import Logo from 'components/Logo'
 import NavigationTab from 'components/NavigationTab'
 import { CRESCENT_LOGO_IMG_URL } from 'constants/resources'
+import { NavLink } from 'react-router-dom'
 
 export default function Header() {
   return (
@@ -10,10 +11,10 @@ export default function Header() {
       className={`relative flex items-center justify-between w-full p-4 bg-lightCRE border-b-grayCRE-100 border-b md:shadow-glow-wide-l`}
     >
       <div className="grow-0 shrink-0 flex justify-start items-center space-x-6">
-        <div className="flex justify-start items-center space-x-2">
+        <NavLink to="/" className="flex justify-start items-center space-x-2">
           <Logo className="h-10 py-2" src={CRESCENT_LOGO_IMG_URL} />
           <h1 className="hidden inline-flex justify-start items-center TYPO-H2 md:block md:TYPO-H1">Admin</h1>
-        </div>
+        </NavLink>
         <NavigationTab />
       </div>
 
