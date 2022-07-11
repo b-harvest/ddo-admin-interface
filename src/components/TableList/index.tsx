@@ -3,6 +3,7 @@ import Tag from 'components/Tag'
 import React, { useLayoutEffect, useMemo, useState } from 'react'
 import type { STATUS } from 'types/status'
 
+// field  typing
 interface ListFieldHTML {
   label: string
   value: string
@@ -13,7 +14,7 @@ interface ListFieldHTML {
 
 interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
   type: 'imgUrl'
-  size?: number // only for imgUrl type
+  size?: number
 }
 
 interface ListFieldBignumber extends Omit<ListFieldHTML, 'type'> {
@@ -23,6 +24,7 @@ interface ListFieldBignumber extends Omit<ListFieldHTML, 'type'> {
 
 type ListField = ListFieldHTML | ListFieldImgUrl | ListFieldBignumber
 
+// item typing
 interface TableListItem {
   status?: STATUS
   exponent?: number
@@ -141,7 +143,7 @@ export default function TableList({
         {/* list fields */}
         {showFieldsBar ? (
           <div aria-hidden="true" className="mb-4">
-            <ul className="flex justify-between items-center bg-grayCRE-100 px-4 py-2 rounded-xl">
+            <ul className="flex justify-between items-center bg-grayCRE-200 px-4 py-2 rounded-xl">
               {fields.map((field, i) => {
                 return (
                   <li
