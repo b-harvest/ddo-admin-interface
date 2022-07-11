@@ -1,5 +1,5 @@
 import useAppSWR, { returnGenerator } from 'data/useAppSWR'
-import type { Balance } from 'types/account'
+import type { Balance, FarmStakedRaw } from 'types/account'
 import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { ChainInfo, ChainLive } from 'types/chain'
@@ -42,7 +42,16 @@ export function useAllPoolLive(interval = 0) {
   return returnGenerator({ data, error })
 }
 
+// account data
 export function useAllBalance({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
   const { data, error }: ResponseViaSWR<Balance> = useAppSWR(`/acc/${address}/balance/all`, { interval, fetch })
+  return returnGenerator({ data, error })
+}
+
+export function useAllFarmStaked({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+  const { data, error }: ResponseViaSWR<FarmStakedRaw[]> = useAppSWR(`/acc/${address}/farm/staking`, {
+    interval,
+    fetch,
+  })
   return returnGenerator({ data, error })
 }
