@@ -33,9 +33,17 @@ export default function FilterRadioGroup({ defaultIndex = 0, onSelect, options }
               key={option.value}
               value={option}
               className={({ active, checked }) =>
-                `${active ? 'ring-2 ring-darkCRE ring-opacity-60 ring-offset-0 ring-offset-white' : ''}
-                  ${checked ? 'bg-darkCRE bg-opacity-75 text-white' : 'bg-grayCRE-200'}
-                    shrink-0 relative flex px-3 py-1 cursor-pointer rounded-xl focus:outline-none`
+                `${
+                  active
+                    ? 'ring-2 ring-darkCRE dark:ring-neutral-600 ring-opacity-60 ring-offset-0 ring-offset-white'
+                    : ''
+                }
+                  ${
+                    checked
+                      ? 'bg-darkCRE dark:bg-grayCRE-300 bg-opacity-75 text-white !font-medium'
+                      : 'bg-grayCRE-200 dark:bg-neutral-700'
+                  }
+                    shrink-0 relative flex TYPO-BODY-S px-4 py-2 cursor-pointer rounded-xl focus:outline-none`
               }
             >
               {({ active, checked }) => (
@@ -45,7 +53,7 @@ export default function FilterRadioGroup({ defaultIndex = 0, onSelect, options }
                       <div className="TYPO-BODY-S">
                         <RadioGroup.Label
                           as="div"
-                          className={`font-medium  ${checked ? 'text-white' : 'text-gray-900'}`}
+                          className={`font-medium  ${checked ? 'text-white' : 'text-gray-900 dark:text-grayCRE-200'}`}
                         >
                           {option.label}
                         </RadioGroup.Label>

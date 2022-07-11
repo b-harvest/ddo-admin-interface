@@ -47,10 +47,15 @@ export default function LineChart({
 }: LineChartProps) {
   const parsedValue = value
 
+  const onEventLeave = () => {
+    setValue && setValue(undefined)
+    setLabel && setLabel(undefined)
+  }
+
   return (
     <div
       {...rest}
-      className={`${className} flex flex-col w-full bg-darkCRE p-4 rounded-xl`}
+      className={`${className} flex flex-col w-full bg-darkCRE p-4 rounded-xl dark:bg-neutral-900`}
       style={{
         minWidth: '0',
         height: `${minHeight}px`,
@@ -75,10 +80,7 @@ export default function LineChart({
               left: 24,
               bottom: 4,
             }}
-            onMouseLeave={() => {
-              setValue && setValue(undefined)
-              setLabel && setLabel(undefined)
-            }}
+            onMouseLeave={onEventLeave}
           >
             <defs>
               <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">

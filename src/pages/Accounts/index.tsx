@@ -123,8 +123,12 @@ export default function Accounts() {
       >
         <Sticker>
           <div className="flex justify-start items-center px-4 py-4 md:justify-end md:space-x-2 md:px-12">
-            <span className="hidden TYPO-BODY-XS text-grayCRE-400 !font-medium md:block">Current Address</span>
-            <span className="TYPO-BODY-XS !font-black text-left">{address ?? 'No address yet'}</span>
+            <span className="hidden TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium md:block">
+              Current Address
+            </span>
+            <span className="TYPO-BODY-XS text-black dark:text-white !font-black !font-mono text-left">
+              {address ?? 'No address yet'}
+            </span>
           </div>
         </Sticker>
       </div>
@@ -139,7 +143,9 @@ export default function Accounts() {
 
         <section>
           <header className="mb-4">
-            <h3 className="flex justify-start items-center TYPO-H3 text-black text-left">All Balance</h3>
+            <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
+              All Balance
+            </h3>
           </header>
 
           <div
