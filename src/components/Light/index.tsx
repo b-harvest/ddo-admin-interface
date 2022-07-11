@@ -1,7 +1,7 @@
 import { ReactElement } from 'react'
-import type { STATUS } from 'types/status'
+import type { AlertStatus } from 'types/alert'
 
-type LightColor = STATUS
+type LightColor = AlertStatus
 type LightSize = 'sm' | 'md' | 'lg'
 
 interface LightProps {

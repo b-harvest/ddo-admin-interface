@@ -4,16 +4,20 @@ import type { LCDResponseViaSWR } from 'types/api'
 import type { BlockLCD } from 'types/block'
 
 // hooks - rpc rest
-export function useAllBalanceLCD(address: string, interval = 0) {
-  const { data, error }: LCDResponseViaSWR<BalanceLCD> = useAppSWR(
-    `/cosmos/bank/v1beta1/balances/${address}`,
+export function useAllBalanceLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<BalanceLCD> = useAppSWR(`/cosmos/bank/v1beta1/balances/${address}`, {
     interval,
-    'rpc-rest'
-  )
+    type: 'rpc-rest',
+    fetch,
+  })
   return lcdReturnGenerator({ data, error })
 }
 
-export function useLatestBlockLCD(interval = 0) {
-  const { data, error }: LCDResponseViaSWR<BlockLCD> = useAppSWR(`/blocks/latest`, interval, 'rpc-rest')
+export function useLatestBlockLCD({ fetch = true }: { fetch?: boolean }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<BlockLCD> = useAppSWR(`/blocks/latest`, {
+    interval,
+    type: 'rpc-rest',
+    fetch,
+  })
   return lcdReturnGenerator({ data, error })
 }
