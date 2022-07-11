@@ -10,6 +10,8 @@ module.exports = {
       },
       colors: {
         // primary
+        yellowCRE: '#FF940A',
+        'yellowCRE-active': '#FFC77F',
         lightCRE: '#FFFAF4',
         'lightCRE-o': 'rgba(255,250,244, 0.4)',
         darkCRE: '#1E0E0A',

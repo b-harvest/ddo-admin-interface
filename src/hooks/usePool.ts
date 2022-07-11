@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
-import { allAssetInfoAtomRef, allPairInfoAtomRef, allPoolLiveAtomRef } from 'state/atoms'
+import { allAssetInfoAtomRef, allPoolLiveAtomRef } from 'state/atoms'
 import type { PoolLive } from 'types/pool'
 
 BigNumber.config({ RANGE: 500 })
@@ -9,7 +9,7 @@ BigNumber.config({ RANGE: 500 })
 const usePool = () => {
   const [allPoolLiveAtom] = useAtom(allPoolLiveAtomRef)
   const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
-  const [allPairInfoAtom] = useAtom(allPairInfoAtomRef)
+  //   const [allPairInfoAtom] = useAtom(allPairInfoAtomRef)
 
   const allPool = useMemo(() => {
     return allPoolLiveAtom.map((pool) => {
@@ -30,7 +30,7 @@ const usePool = () => {
     }) as PoolLive[]
   }, [allPoolLiveAtom, allAssetInfoAtom])
 
-  const findPoolByDenom = useCallback((denom: string) => allPool.find((pool) => pool.poolDenom === denom), [])
+  const findPoolByDenom = useCallback((denom: string) => allPool.find((pool) => pool.poolDenom === denom), [allPool])
 
   return { allPool, findPoolByDenom }
 }

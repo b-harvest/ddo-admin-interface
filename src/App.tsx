@@ -8,13 +8,14 @@ import Loader from 'components/Loader'
 import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
 import Asset from 'pages/Asset'
+import AuthRoute from 'pages/AuthRoute'
+import SignIn from 'pages/SignIn'
 import Validators from 'pages/Validators'
 import { Suspense, useEffect } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
 import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
-
 // No interface change
 function Updaters() {
   return (
@@ -57,11 +58,13 @@ function App() {
       <main role="main" className="MAIN" style={{ marginTop: isTestnetAtom ? '1.5rem' : '0' }}>
         <Suspense fallback={<Loader />}>
           <Switch>
-            <Route exact path="/asset" component={Asset} />
-            <Route exact path="/accounts" component={Accounts} />
-            <Route exact path="/validators" component={Validators} />
+            <Route exact path="/auth" component={SignIn} />
 
-            <Route>
+            <AuthRoute path="/asset" component={Asset} />
+            <AuthRoute path="/accounts" component={Accounts} />
+            <AuthRoute path="/validators" component={Validators} />
+
+            <Route exact path="/">
               <Redirect to="/asset" />
             </Route>
           </Switch>

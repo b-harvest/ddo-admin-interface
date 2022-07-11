@@ -1,9 +1,10 @@
 import { Popover } from '@headlessui/react'
 import Icon, { IconType } from 'components/Icon'
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 
 export interface PopoverPanelItem {
   label?: string
+  value: string
   iconType: IconType
   link?: string
   onClick?: () => void
@@ -12,9 +13,15 @@ export interface PopoverPanelItem {
 interface SettingWidgetProps {
   children?: ReactNode
   panelItems: PopoverPanelItem[]
+  excludedItems?: string[]
 }
 
-export default function SettingWidget({ children, panelItems }: SettingWidgetProps) {
+export default function SettingWidget({ children, panelItems, excludedItems }: SettingWidgetProps) {
+  const matchedItems = useMemo(
+    () => (excludedItems ? panelItems.filter((item) => !excludedItems.includes(item.value)) : panelItems),
+    [panelItems, excludedItems]
+  )
+
   return (
     <Popover className="relative flex items-center justify-center">
       <Popover.Button className="px-4">
@@ -24,7 +31,7 @@ export default function SettingWidget({ children, panelItems }: SettingWidgetPro
       </Popover.Button>
 
       <Popover.Panel className="absolute z-10 w-56 p-4 overflow-hidden bg-white rounded-lg shadow-lg -left-[188px] top-[68px] ring-1 ring-black ring-opacity-5 dark:bg-neutral-800 dark:ring-white dark:ring-opacity-[0.04]">
-        {panelItems.map((panelItem, index) => (
+        {matchedItems.map((panelItem, index) => (
           <div
             key={index}
             className="text-[rgba(0,0,0,0.5)] dark:text-[rgba(255,255,255,0.5)] hover:text-[rgba(0,0,0,0.8)] dark:hover:text-[rgba(255,255,255,0.8)] transition-colors py-2"
