@@ -102,12 +102,14 @@ export default function Asset() {
             {
               label: 'Chain',
               value: 'chainName',
+              responsive: true,
             },
             {
               label: 'Price',
               value: 'priceOracle',
               type: 'usd',
               toFixedFallback: 2,
+              responsive: true,
             },
             {
               label: 'Volume 24h',

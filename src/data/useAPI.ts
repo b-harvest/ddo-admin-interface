@@ -2,9 +2,20 @@ import useAppSWR, { returnGenerator } from 'data/useAppSWR'
 import type { Balance } from 'types/account'
 import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLive } from 'types/asset'
+import type { ChainInfo, ChainLive } from 'types/chain'
 import type { PairInfo, PairLive } from 'types/pair'
 
 // hooks - backend
+export function useAllChainInfo(interval = 0) {
+  const { data, error }: ResponseViaSWR<ChainInfo[]> = useAppSWR('/chain/info', interval)
+  return returnGenerator({ data, error })
+}
+
+export function useAllChainLive(interval = 0) {
+  const { data, error }: ResponseViaSWR<ChainLive[]> = useAppSWR('/chain/live', interval)
+  return returnGenerator({ data, error })
+}
+
 export function useAllAssetInfo(interval = 0) {
   const { data, error }: ResponseViaSWR<AssetInfo[]> = useAppSWR('/asset/info', interval)
   return returnGenerator({ data, error })
