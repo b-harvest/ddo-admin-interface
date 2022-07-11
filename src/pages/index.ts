@@ -8,12 +8,17 @@ export const pages: Page[] = [
   {
     path: '/asset',
     label: 'Asset',
-    pageName: 'Asset Data Tracking',
+    pageName: 'DEX Asset Tracking',
   },
   {
     path: '/accounts',
     label: 'Account',
-    pageName: 'Account Data Comparison',
+    pageName: 'Account Comparison',
+  },
+  {
+    path: '/validators',
+    label: 'Validators',
+    pageName: 'Validators under 3SO/Kick-out',
   },
 ]
 
