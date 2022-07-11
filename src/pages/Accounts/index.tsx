@@ -10,6 +10,7 @@ import { MAX_AMOUNT_FIXED } from 'constants/asset'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { useAllBalance } from 'data/useAPI'
 import { useAllBalanceLCD, useLatestBlockLCD } from 'data/useLCD'
+import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
@@ -62,7 +63,7 @@ export default function Accounts() {
     if (allBalanceLCDError) toastError(allBalanceLCDError.msg)
   }, [allBalanceDataError, allBalanceLCDError])
 
-  // table data
+  // table data - balance
   const { balanceTableList, hasBalanceDiff } = useMemo(() => {
     const balanceTableList =
       allBalanceData?.data.asset
@@ -97,6 +98,22 @@ export default function Accounts() {
 
     return { balanceTableList, hasBalanceDiff }
   }, [allBalanceData, allBalanceLCDData, findAssetByDenom])
+
+  // table data - farming staking
+  const { allFarmStaked, totalFarmRewards, totalFarmRewardsLCD } = useAccountData(address ?? '')
+
+  const { farmingStakedTableList } = useMemo(() => {
+    const farmingStakedTableList = allFarmStaked.map((item) => {
+      const asset = AssetTableCell({ logoUrl: '', ticker: item.denom })
+      // item.harvestable.reduce()
+      return {
+        asset,
+        ...item,
+      }
+    })
+
+    return { farmingStakedTableList }
+  }, [allFarmStaked])
 
   // alert-inline data
   const { significantTimeGap, isTimeDiff, isAllDataMatched } = useMemo(() => {
@@ -205,6 +222,51 @@ export default function Accounts() {
                 tag: 'Back-end',
                 type: 'bignumber',
                 toFixedFallback: MAX_AMOUNT_FIXED,
+              },
+            ]}
+          />
+        </section>
+
+        <section>
+          <header className="mb-4">
+            <h3 className="flex justify-start items-center TYPO-H3 text-black text-left dark:text-white">
+              All Farm Staked
+            </h3>
+          </header>
+
+          <div className="flex mb-4 text-white">
+            Backend : {totalFarmRewards.toFormat(2)} <br />
+            Onchain : {totalFarmRewardsLCD.toFormat(2)}
+          </div>
+
+          <TableList
+            title="All Farm Staked"
+            showTitle={false}
+            useSearch={false}
+            list={farmingStakedTableList}
+            mergedFields={['stakedAmount', 'queuedAmount']}
+            showFieldsBar={false}
+            showItemsVertically={true}
+            fields={[
+              {
+                label: 'Asset',
+                value: 'asset',
+                type: 'html',
+                widthRatio: 10,
+              },
+              {
+                label: 'Staked Amount',
+                value: 'stakedAmount',
+                tag: 'Stacked',
+                type: 'bignumber',
+                toFixedFallback: 6,
+              },
+              {
+                label: 'Queued Amount',
+                value: 'queuedAmount',
+                tag: '+Queued',
+                type: 'bignumber',
+                toFixedFallback: 6,
               },
             ]}
           />

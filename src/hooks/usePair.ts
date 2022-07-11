@@ -10,23 +10,6 @@ const usePair = () => {
   const [allPairLiveAtom] = useAtom(allPairLiveAtomRef)
   const { allAsset } = useAsset()
 
-  // the below will be removed
-  // const getTVLbyDenom = useCallback(
-  //   (denom: string, isUSD = false) => {
-  //     const tvl = allPairLiveAtom.reduce((accm, pair) => {
-  //       const reserveByPair = pair.totalReserved
-  //         .filter((item) => item.denom === denom)
-  //         .reduce((accm, item) => accm.plus(new BigNumber(item.amount)), new BigNumber(0))
-  //       return accm.plus(reserveByPair)
-  //     }, new BigNumber(0))
-
-  //     const exponent = allAsset.find((item) => item.denom === denom)?.exponent ?? 0
-  //     const priceOracle = isUSD ? allAsset.find((item) => item.denom === denom)?.live?.priceOracle ?? 0 : 1
-  //     return tvl.dividedBy(10 ** exponent).multipliedBy(priceOracle)
-  //   },
-  //   [allPairLiveAtom, allAsset]
-  // )
-
   const allPairLive = useMemo(() => {
     return allPairLiveAtom.map((pair) => {
       const baseDenomExponent = allAsset.find((asset) => asset.denom === pair.baseDenom)?.exponent ?? 0
