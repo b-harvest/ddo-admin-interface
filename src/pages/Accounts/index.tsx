@@ -21,6 +21,7 @@ import type { AlertStatus } from 'types/alert'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import type { BlockLCD } from 'types/block'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
+
 export default function Accounts() {
   // text constants
   const ERROR_MSG_BALANCE_DIFF = 'Balance difference between on-chain and back-end'
