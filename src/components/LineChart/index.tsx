@@ -50,7 +50,7 @@ export default function LineChart({
   return (
     <div
       {...rest}
-      className={`${className} flex flex-col w-full bg-grayCRE-300 p-4 rounded-xl`}
+      className={`${className} flex flex-col w-full bg-darkCRE p-4 rounded-xl`}
       style={{
         minWidth: '0',
         height: `${minHeight}px`,
