@@ -62,9 +62,9 @@ export default function Asset() {
       const asset = AssetTableCell({ logoUrl: item.logoUrl, ticker: item.ticker })
       const vol24USD = getVol24USDbyDenom(item.denom)
       const tvlUSD = getTVLUSDbyDenom(item.denom)
-      const priceOracle = isPoolToken(item.denom)
-        ? findPoolByDenom(item.denom)?.priceOracle
-        : item.live?.priceOracle ?? new BigNumber(0)
+      const priceOracle =
+        (isPoolToken(item.denom) ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle) ??
+        new BigNumber(0)
       const filter = item.denom.includes('pool') ? ASSET_TABLE_LIST_FILTERS[1].value : ASSET_TABLE_LIST_FILTERS[0].value
 
       return {
