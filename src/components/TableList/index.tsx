@@ -9,6 +9,7 @@ interface ListFieldHTML {
   label: string
   value: string
   widthRatio?: number
+  responsive?: boolean // default => false
   tag?: string
   color?: string
   type?: 'html'
@@ -50,6 +51,7 @@ interface TableListProps {
   emptyListLabel?: string
   defaultSortBy?: ListField['value']
   defaultIsSortASC?: boolean
+  showItemsVertically?: boolean
 }
 
 const IS_SORT_ASC_DEFAULT = false
@@ -66,6 +68,7 @@ export default function TableList({
   emptyListLabel = 'No data',
   defaultSortBy,
   defaultIsSortASC,
+  showItemsVertically = false,
 }: TableListProps) {
   // search input keyword
   const [colWidthRatio, setColWidthRatio] = useState(100)
@@ -132,7 +135,7 @@ export default function TableList({
         {showFieldsBar ? (
           <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-2' : 'mb-4'}`}>
             <ul
-              className={`flex justify-between items-center bg-lightCRE px-4 py-1 transition-all ${
+              className={`flex justify-between items-center bg-lightCRE px-4 py-1 hover:shadow-glow-thin-l transition-all ${
                 useNarrow ? 'md:py-1 rounded-md' : 'rounded-lg'
               }`}
             >
@@ -144,7 +147,9 @@ export default function TableList({
                       flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                       justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
                     }}
-                    className="grow shrink flex justify-start items-center TYPO-BODY-XS text-grayCRE-400 !font-medium cursor-pointer md:TYPO-BODY-S"
+                    className={`grow shrink ${
+                      field.responsive ? 'hidden' : 'flex'
+                    } justify-start items-center TYPO-BODY-XS text-grayCRE-400 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`}
                     onClick={() => onFieldClick(field)}
                   >
                     {field.label}
@@ -181,6 +186,7 @@ export default function TableList({
                     mergedFields={mergedFields}
                     useNarrow={useNarrow}
                     colWidthRatio={colWidthRatio}
+                    showItemsVertically={showItemsVertically}
                   />
                 )
               })}
@@ -199,23 +205,30 @@ function ListItem({
   mergedFields,
   useNarrow,
   colWidthRatio,
+  showItemsVertically,
 }: {
   data: TableListItem
   fields: ListField[]
   mergedFields: string[]
   useNarrow?: boolean
   colWidthRatio: number
+  showItemsVertically: boolean
 }) {
   const merged = fields.filter((field) => mergedFields.includes(field.value))
   const nonMerged = fields.filter((field) => !mergedFields.includes(field.value))
-  const cellClass = `grow shrink flex items-center TYPO-BODY-S text-black !font-medium overflow-hidden md:TYPO-BODY-M`
+  const cellClass = (field: ListField) =>
+    `${
+      field.responsive ? 'hidden' : 'flex'
+    } grow shrink items-center TYPO-BODY-S text-black !font-medium overflow-hidden md:flex md:TYPO-BODY-M`
 
   return (
     <li className="relative block w-full">
       <ul
         className={`${data.status ? getListItemClass(data.status) : ''} ${
           useNarrow ? 'rounded-lg space-y-1 px-4 md:space-x-2' : 'rounded-xl space-y-2 p-4 md:space-x-4'
-        } flex flex-col justify-between items-stretch w-full bg-lightCRE py-3 transition-all md:flex-row md:items-start md:space-y-0`}
+        } ${
+          showItemsVertically ? 'flex-col' : 'flex-row'
+        } flex justify-between items-stretch w-full bg-lightCRE py-3 transition-all hover:shadow-glow-thin-l md:space-y-0`}
       >
         {nonMerged.map((field, i) => {
           return (
@@ -227,7 +240,7 @@ function ListItem({
                 justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
                 color: field.color ?? 'inherit',
               }}
-              className={cellClass}
+              className={cellClass(field)}
             >
               {ListItemCell({ data, field })}
               {field.tag ? <Tag>{field.tag}</Tag> : null}
@@ -245,7 +258,7 @@ function ListItem({
               return (
                 <div
                   key={i}
-                  className={`${cellClass} flex space-x-2`}
+                  className={`${cellClass(field)} flex space-x-2`}
                   style={{
                     flexShrink: field.type === 'imgUrl' ? '0' : '1',
                     justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
