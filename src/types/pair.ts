@@ -1,58 +1,51 @@
-export interface PoolRaw {
+import BigNumber from 'bignumber.js'
+
+// info
+interface PoolInPairRaw {
   poolId: number
-  poolType: number
+  // poolType: number
   poolDenom: string
   totalSupply: string
-  reserved: Array<{ denom: string; amount: string }>
+  reserved: { denom: string; amount: string }[]
 }
 
-export interface PairInfo {
+export type PoolInPair = Omit<PoolInPairRaw, 'totalSupply' | 'reserved'> & {
+  totalSupply: BigNumber
+  reserved: { denom: string; amount: BigNumber }[]
+}
+
+export interface PairInfoRaw {
   pairId: number
   baseDenom: string
   quoteDenom: string
-  lastPriceFixed: string
-  pools: Array<PoolRaw>
+  lastPrice: string
+  pools: PoolInPairRaw[]
 }
 
-export interface PairLive {
+export type PairInfo = Omit<PairInfoRaw, 'lastPrice' | 'pools'> & {
+  lastPrice: BigNumber
+  pools: PoolInPair[]
+}
+
+// live
+export interface PairLiveRaw {
   baseDenom: string
   change_24: number
   high_24: number
-  lastPriceFixed: string
+  lastPrice: string
   low_24: number
   open_24: number
   pairId: number
-  predPriceFixed: string
+  predPrice: string
   quoteDenom: string
   ts_24: number
   vol_24: number
-  totalReserved: Array<{ denom: string; priceOracle: number; amount: string; poolId: number }>
+  totalReserved: { denom: string; priceOracle: number; amount: string }[]
 }
 
-// export interface LivePair extends Omit<LivePairRaw, 'totalReserved' | 'lastPriceDec'> {
-//   lastPriceDec: BigNumber
-//   totalReserved: Array<{ denom: string; priceOracle: BigNumber; amount: BigNumber }>
-// }
-// export interface LivePairWithMyAmount extends LivePair {
-//   myAmount: BigNumber
-//   myAmountUsd: BigNumber
-// }
-// export interface LivePairDetail extends LivePair {
-//   assets: [InfoAsset, InfoAsset]
-// }
-// export interface PairDetail extends LivePair {
-//   pools: Array<Pool>
-//   assets: [InfoAsset, InfoAsset]
-//   myBalance?: BigNumber
-//   myRewards?: any[]
-//   myTotalRewardUsd?: BigNumber
-//   staking?: any
-//   tvl?: BigNumber
-// }
-
-// export interface Pool {
-//   poolId: number
-//   reserved: Array<{ denom: string; amount: BigNumber }>
-//   poolDenom: string
-//   totalSupply: BigNumber
-// }
+export type PairLive = Omit<PairLiveRaw, 'lastPrice' | 'predPrice' | 'vol_24' | 'totalReserved'> & {
+  lastPrice: BigNumber
+  predPrice: BigNumber
+  vol_24: BigNumber
+  totalReserved: { denom: string; priceOracle: BigNumber; amount: BigNumber }[]
+}

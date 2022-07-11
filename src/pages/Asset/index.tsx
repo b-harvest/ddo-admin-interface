@@ -7,6 +7,7 @@ import TableList from 'components/TableList'
 import dayjs from 'dayjs'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
+import usePool from 'hooks/usePool'
 import AssetTableCell from 'pages/components/AssetTableCell'
 import { useMemo, useState } from 'react'
 import { formatUSDAmount } from 'utils/amount'
@@ -51,15 +52,21 @@ export default function Asset() {
   }, [])
 
   // asset table
-  const { allAsset } = useAsset()
+  const { allAsset, isPoolToken } = useAsset()
+  const { findPoolByDenom } = usePool()
 
   const assetTableList = useMemo(() => {
+    console.log('allAsset', allAsset)
+
     return allAsset.map((item, index) => {
       const asset = AssetTableCell({ logoUrl: item.logoUrl, ticker: item.ticker })
-      const vol24USD = getVol24USDbyDenom(item.denom, item.exponent)
+      const vol24USD = getVol24USDbyDenom(item.denom)
       const tvlUSD = getTVLUSDbyDenom(item.denom)
-      const priceOracle = item.live ? new BigNumber(item.live.priceOracle) : null
+      const priceOracle = isPoolToken(item.denom)
+        ? findPoolByDenom(item.denom)?.priceOracle
+        : item.live?.priceOracle ?? new BigNumber(0)
       const filter = item.denom.includes('pool') ? ASSET_TABLE_LIST_FILTERS[1].value : ASSET_TABLE_LIST_FILTERS[0].value
+
       return {
         index,
         ticker: item.ticker,
@@ -72,7 +79,7 @@ export default function Asset() {
         filter,
       }
     })
-  }, [allAsset, getTVLUSDbyDenom, getVol24USDbyDenom])
+  }, [allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, isPoolToken, findPoolByDenom])
 
   return (
     <AppPage>
