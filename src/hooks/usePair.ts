@@ -3,12 +3,13 @@ import useAsset from 'hooks/useAsset'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allPairInfoAtomRef, allPairLiveAtomRef } from 'state/atoms'
-import type { PairInfo, PairLive } from 'types/pair'
+import type { Asset } from 'types/asset'
+import type { PairInfo, PairLive, PoolInPair } from 'types/pair'
 
 const usePair = () => {
   const [allPairInfoAtom] = useAtom(allPairInfoAtomRef)
   const [allPairLiveAtom] = useAtom(allPairLiveAtomRef)
-  const { allAsset } = useAsset()
+  const { allAsset, findAssetByDenom } = useAsset()
 
   const allPairLive = useMemo(() => {
     return allPairLiveAtom.map((pair) => {
@@ -40,7 +41,7 @@ const usePair = () => {
             ...item,
             totalSupply: new BigNumber(item.totalSupply),
             reserved: item.reserved.map((reserve) => {
-              const exponent = allAsset.find((asset) => asset.denom === reserve.denom)?.exponent ?? 0
+              const exponent = findAssetByDenom(reserve.denom)?.exponent ?? 0
               return { ...reserve, amount: new BigNumber(reserve.amount).dividedBy(10 ** exponent) }
             }),
           }
@@ -93,6 +94,36 @@ const usePair = () => {
     [allPairLive]
   )
 
+  const allPoolsFromPairs = useMemo(() => {
+    return allPairInfo.reduce((accm: PoolInPair[], pair) => accm.concat(pair.pools), [])
+  }, [allPairInfo])
+
+  const findPoolFromPairsByDenom = useCallback(
+    (denom: string) => allPoolsFromPairs.find((pool) => pool.poolDenom === denom),
+    [allPoolsFromPairs]
+  )
+
+  const getPoolAssets = useCallback(
+    (denom: string) =>
+      findPoolFromPairsByDenom(denom)?.reserved.map((reserve) => {
+        const asset = findAssetByDenom(reserve.denom)
+        return {
+          ...reserve,
+          ...(asset ?? {}),
+        }
+      }) ?? [],
+    [findPoolFromPairsByDenom, findAssetByDenom]
+  )
+
+  const getAssetTickers = useCallback(
+    (item: Asset) => {
+      return item.isPoolToken
+        ? getPoolAssets(item.denom).map((asset) => ({ logoUrl: asset?.logoUrl ?? '', ticker: asset?.ticker ?? '' }))
+        : [{ logoUrl: item.logoUrl, ticker: item.ticker }]
+    },
+    [getPoolAssets]
+  )
+
   // const getPoolTokenPriceOracle = useCallback(
   //   (denom: string) => {
   //     const pools = allPairInfo.reduce((accm: PoolInPair[], pair) => accm.concat(pair.pools), [])
@@ -112,7 +143,17 @@ const usePair = () => {
   //   [allPairInfo, allAsset]
   // )
 
-  return { allPairLive, allPairInfo, tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom }
+  return {
+    allPairLive,
+    allPairInfo,
+    tvlUSD,
+    getTVLUSDbyDenom,
+    getVol24USDbyDenom,
+    allPoolsFromPairs,
+    findPoolFromPairsByDenom,
+    getPoolAssets,
+    getAssetTickers,
+  }
 }
 
 export default usePair
