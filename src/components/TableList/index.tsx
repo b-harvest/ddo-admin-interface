@@ -61,7 +61,7 @@ export default function TableList({
       {/* list header */}
       {showTitle ? (
         <header className="flex flex-col justify-start align-stretch space-y-6 mb-4">
-          <h3 className="flex justify-start items-center TYPO-H3 text-black text-left">{title}</h3>
+          <h3 className="flex justify-start items-center TYPO-H3 text-black dark:text-white text-left">{title}</h3>
           <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-2">
             {filterOptions ? (
               <FilterRadioGroup options={filterOptions} defaultIndex={1} onSelect={setFilterOption} />
@@ -80,7 +80,7 @@ export default function TableList({
         {showFieldsBar ? (
           <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-2' : 'mb-4'}`}>
             <ul
-              className={`flex justify-between items-center bg-lightCRE px-4 py-1 hover:shadow-glow-thin-l transition-all ${
+              className={`flex justify-between items-center bg-grayCRE-50 dark:bg-neutral-800 px-4 py-1 hover:shadow-md transition-all ${
                 useNarrow ? 'md:py-1 rounded-md' : 'rounded-lg'
               }`}
             >
@@ -94,7 +94,7 @@ export default function TableList({
                     }}
                     className={`grow shrink ${
                       field.responsive ? 'hidden' : 'flex'
-                    } justify-start items-center TYPO-BODY-XS text-grayCRE-400 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`}
+                    } justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`}
                     onClick={() => onFieldClick(field)}
                   >
                     {field.label}
@@ -110,7 +110,7 @@ export default function TableList({
         <div>
           {matchedList.length <= 0 ? (
             <div
-              className={`w-full  bg-grayCRE-200 TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${
+              className={`w-full  bg-grayCRE-200 dark:bg-neutral-800 TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${
                 useNarrow ? 'rounded-lg p-2' : 'rounded-xl p-4'
               }`}
             >
@@ -164,7 +164,7 @@ function ListItem({
   const cellClass = (field: ListField) =>
     `${
       field.responsive ? 'hidden' : 'flex'
-    } grow shrink items-center TYPO-BODY-S text-black !font-medium overflow-hidden md:flex md:TYPO-BODY-M`
+    } grow shrink items-center TYPO-BODY-S text-black dark:text-white !font-medium overflow-hidden md:flex md:TYPO-BODY-M`
 
   return (
     <li className="relative block w-full">
@@ -173,7 +173,7 @@ function ListItem({
           useNarrow ? 'rounded-lg space-y-1 px-4 md:space-x-2' : 'rounded-xl space-y-2 p-4 md:space-x-4'
         } ${
           showItemsVertically ? 'flex-col' : 'flex-row'
-        } flex justify-between items-stretch w-full bg-lightCRE py-3 transition-all hover:shadow-glow-thin-l md:space-y-0`}
+        } flex justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0`}
       >
         {nonMerged.map((field, i) => {
           return (
@@ -183,7 +183,7 @@ function ListItem({
                 flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                 flexShrink: field.type === 'imgUrl' ? '0' : '1',
                 justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
-                color: field.color ?? 'inherit',
+                // color: field.color ?? 'inherit',
               }}
               className={cellClass(field)}
             >
@@ -207,7 +207,7 @@ function ListItem({
                   style={{
                     flexShrink: field.type === 'imgUrl' ? '0' : '1',
                     justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
-                    color: field.color ?? 'inherit',
+                    // color: field.color ?? 'inherit',
                   }}
                 >
                   {ListItemCell({ data, field })}
