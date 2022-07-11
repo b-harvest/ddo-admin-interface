@@ -1,20 +1,18 @@
 export interface ChainInfo {
-  readonly denom: string
-  readonly ticker: string
-  readonly chainName: string
-  readonly logoUrl: string
-  readonly baseDenom: string
   readonly chainId: string
-  readonly exponent: number
+  readonly chainLogo: string
+  readonly chainName: string
+  readonly coinType: number
+  readonly currencies: { coinDecimals: number; coinDenom: string; coinMinimalDenom: string }[]
 }
 
 export interface ChainLive {
   readonly chainId: string
-  readonly denom: string
-  readonly priceOracle: number
-  readonly updateTimestamp: number
+  readonly height: string
+  readonly timeout: string
+  readonly updateTimestamp: string
 }
 
-export interface Asset extends ChainInfo {
+export interface Chain extends ChainInfo {
   live?: Omit<ChainLive, 'denom'>
 }

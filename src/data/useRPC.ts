@@ -1,23 +1,38 @@
 import { QueryClient, setupBankExtension } from '@cosmjs/stargate'
 import { Tendermint34Client } from '@cosmjs/tendermint-rpc'
+import { CHAIN_IDS } from 'constants/chain'
+import { useAtom } from 'jotai'
 import { useCallback } from 'react'
+import { useMemo } from 'react'
+import { chainIdAtomRef } from 'state/atoms'
+import type { BalanceRPC } from 'types/account'
 
-const CRE_RPC_API_URL = `https://testnet-rpc.crescent.network`
+const CRE_MAINNET_RPC_ENDPOINT = `https://mainnet.crescent.network:26657/`
+const CRE_TESTNET_RPC_ENDPOINT = `https://testnet-endpoint.crescent.network/rpc/crescent`
 
 const useRPC = () => {
-  const fetchAllBalance = useCallback(async ({ address }: { address: string }) => {
-    const tc = await Tendermint34Client.connect(CRE_RPC_API_URL)
-    const client = QueryClient.withExtensions(tc, setupBankExtension)
-    console.log('client', client)
+  const [chainIdAtom] = useAtom(chainIdAtomRef)
 
-    try {
-      // const DUMMY_ADDRESS = 'cosmos1le890ld7v2hfsaq7cz5ws8zsdnpmhlysl254u4'
-      const res = await client.bank.allBalances(address)
-      console.log('res', res)
-    } catch (e) {
-      console.log('rpc error', e)
-    }
-  }, [])
+  const rpcEndpoint = useMemo(
+    () => (chainIdAtom === CHAIN_IDS.MOONCAT ? CRE_TESTNET_RPC_ENDPOINT : CRE_MAINNET_RPC_ENDPOINT),
+    [chainIdAtom]
+  )
+
+  const fetchAllBalance = useCallback(
+    async ({ address }: { address: string }) => {
+      const tc = await Tendermint34Client.connect(rpcEndpoint)
+      const client = QueryClient.withExtensions(tc, setupBankExtension)
+
+      try {
+        const balanceRPC: BalanceRPC[] = await client.bank.allBalances(address)
+        return balanceRPC
+      } catch (e) {
+        console.log('[ERROR] client.bank.allBalances', e)
+        return null
+      }
+    },
+    [rpcEndpoint]
+  )
 
   return { fetchAllBalance }
 }
