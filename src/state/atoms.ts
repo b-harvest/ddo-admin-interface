@@ -4,6 +4,7 @@ import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
 import type { ChainInfo, ChainLive } from 'types/chain'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
+import type { GoogleUserProfile } from 'types/user'
 
 // darkmode
 const LOCAL_STORAGE_KEY_IS_DARK_MODE = `is-dark-mode`
@@ -13,6 +14,20 @@ export const isDarkModeAtomRef = atom(
   (_, set, { isDarkMode }: { isDarkMode: boolean }) => {
     set(isDarkModeAtom, isDarkMode)
     localStorage.setItem(LOCAL_STORAGE_KEY_IS_DARK_MODE, isDarkMode.toString())
+  }
+)
+
+// user (google auth)
+const LOCAL_STORAGE_KEY_USER = `user`
+const userFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_USER)
+
+const userAtom = atom<any>(userFromLocal ? JSON.parse(userFromLocal) : null)
+export const userAtomRef = atom(
+  (get) => get(userAtom),
+  (_, set, { user }: { user: GoogleUserProfile | null }) => {
+    set(userAtom, user)
+    if (user) localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(user))
+    else localStorage.removeItem(LOCAL_STORAGE_KEY_USER)
   }
 )
 

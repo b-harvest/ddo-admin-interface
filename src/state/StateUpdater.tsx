@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CHAIN_IDS } from 'constants/chain'
 import {
   useAllAssetInfo,
