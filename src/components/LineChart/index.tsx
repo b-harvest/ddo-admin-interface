@@ -8,6 +8,7 @@ dayjs.extend(utc)
 const DEFAULT_HEIGHT = 300
 const LIGHT_CRE = '#FFFAF4'
 // const DARK_CRE = '#1E0E0A'
+const GLOW_CRE = 'rgb(255, 199, 127)'
 
 type DataByDay = {
   time: number
@@ -32,7 +33,7 @@ type LineChartProps = {
 
 export default function LineChart({
   data,
-  color = LIGHT_CRE,
+  color = GLOW_CRE,
   value,
   setValue,
   label,
@@ -55,7 +56,7 @@ export default function LineChart({
   return (
     <div
       {...rest}
-      className={`${className} flex flex-col w-full bg-darkCRE p-4 rounded-xl dark:bg-neutral-900`}
+      className={`${className} flex flex-col w-full bg-neutral-900 p-4 rounded-xl dark:bg-neutral-800`}
       style={{
         minWidth: '0',
         height: `${minHeight}px`,
