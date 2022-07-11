@@ -130,8 +130,8 @@ export default function Accounts() {
     address ?? ''
   )
 
-  console.log('allStaked', allStaked)
-  console.log('allStakedLCD', allStakedLCD)
+  // console.log('allStaked', allStaked)
+  // console.log('allStakedLCD', allStakedLCD)
 
   const { stakedTableList, hasStakedDiff } = useMemo(() => {
     const onchainStakedMap = allStakedLCD
