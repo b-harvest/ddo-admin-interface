@@ -1,5 +1,3 @@
-import type { ResponseViaSWR } from 'types/api'
-
 export interface AssetInfo {
   readonly denom: string
   readonly ticker: string
@@ -10,4 +8,8 @@ export interface AssetInfo {
   readonly exponent: number
 }
 
-export type AssetInfosRes = ResponseViaSWR<AssetInfo[]>
+export interface AssetLive {
+  readonly denom: string
+  readonly priceOracle: number
+  readonly updateTimestamp: number
+}
