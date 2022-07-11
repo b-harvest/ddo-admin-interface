@@ -9,13 +9,15 @@ import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
 import Asset from 'pages/Asset'
 import AuthRoute from 'pages/AuthRoute'
-import SignIn from 'pages/SignIn'
+import SignIn from 'pages/SignIn/index'
 import Validators from 'pages/Validators'
 import { Suspense, useEffect } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
-import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
+import { chainIdAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
+import { isTestnet } from 'utils/chain'
+
 // No interface change
 function Updaters() {
   return (
@@ -28,8 +30,8 @@ function Updaters() {
 function App() {
   // chain
   const [chainIdAtom] = useAtom(chainIdAtomRef)
-  const [isTestnetAtom] = useAtom(isTestnetAtomRef)
-  const topBannerLabel = isTestnetAtom ? `Testnet - ${chainIdAtom}` : `Mainnet`
+  const isOnTestnet = isTestnet(chainIdAtom)
+  const topBannerLabel = isOnTestnet ? `Testnet - ${chainIdAtom}` : `Mainnet`
 
   // scroll behavior by route history
   const history = useHistory()
@@ -51,11 +53,11 @@ function App() {
       </Suspense>
 
       <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
-        {isTestnetAtom ? <AppTopBanner label={topBannerLabel} /> : null}
+        {isOnTestnet ? <AppTopBanner label={topBannerLabel} /> : null}
         <AppHeader />
       </div>
 
-      <main role="main" className="MAIN" style={{ marginTop: isTestnetAtom ? '1.5rem' : '0' }}>
+      <main role="main" className="MAIN" style={{ marginTop: isOnTestnet ? '1.5rem' : '0' }}>
         <Suspense fallback={<Loader />}>
           <Switch>
             <Route exact path="/auth" component={SignIn} />

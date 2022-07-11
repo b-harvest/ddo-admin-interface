@@ -16,11 +16,12 @@ import usePair from 'hooks/usePair'
 import { useAtom } from 'jotai'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useEffect, useMemo, useState } from 'react'
-import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
+import { chainIdAtomRef } from 'state/atoms'
 import type { Balance, BalanceLCD } from 'types/account'
 import type { AlertStatus } from 'types/alert'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import type { BlockLCD } from 'types/block'
+import { isTestnet } from 'utils/chain'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
 // text constants
@@ -33,7 +34,7 @@ const DUMMY_ADDRESS = 'cre1le890ld7v2hfsaq7cz5ws8zsdnpmhlysmz8sfc'
 export default function Accounts() {
   // chain atoms
   const [chainIdAtom] = useAtom(chainIdAtomRef)
-  const [isTestnetAtom] = useAtom(isTestnetAtomRef)
+  const isOnTestnet = isTestnet(chainIdAtom)
 
   // address
   const [searchAddress, setSearchAddress] = useState(DUMMY_ADDRESS)
@@ -176,7 +177,7 @@ export default function Accounts() {
       {/* responsible behavior should be fixed in the future to be not following the isMobile, which is not responsive */}
       <div
         className="fixed left-0 right-0 z-50 w-full"
-        style={{ top: `calc(2.5rem + (1rem * 2)${isTestnetAtom ? ' + 1.5rem' : ''})` }}
+        style={{ top: `calc(2.5rem + (1rem * 2)${isOnTestnet ? ' + 1.5rem' : ''})` }}
       >
         <Sticker>
           <div className="flex justify-start items-center px-4 py-4 md:justify-end md:space-x-2 md:px-12">

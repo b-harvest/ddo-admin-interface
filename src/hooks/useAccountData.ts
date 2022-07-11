@@ -4,7 +4,7 @@ import { useAllFarmRewardsLCD, useAllStakedLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useAtom } from 'jotai'
 import { useMemo } from 'react'
-import { isTestnetAtomRef } from 'state/atoms'
+import { chainIdAtomRef } from 'state/atoms'
 import type {
   FarmRewardLCDMainnetRaw,
   FarmRewardsLCDRaw,
@@ -18,9 +18,11 @@ import type {
   StakedRaw,
 } from 'types/account'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
+import { isTestnet } from 'utils/chain'
 
 const useAccountData = (address: string) => {
-  const [isTestnetAtom] = useAtom(isTestnetAtomRef)
+  const [chainIdAtom] = useAtom(chainIdAtomRef)
+  const isOnTestnet = isTestnet(chainIdAtom)
   const { findAssetByDenom } = useAsset()
 
   // * staked amount
@@ -28,8 +30,6 @@ const useAccountData = (address: string) => {
     address,
     fetch: address !== '',
   })
-
-  console.log('allStakedData', allStakedData)
 
   const { data: allStakedLCDData, error: allStakedLCDDataError }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> =
     useAllStakedLCD({
@@ -64,7 +64,7 @@ const useAccountData = (address: string) => {
 
   // onchain
   const allStakedLCD = useMemo(() => {
-    if (isTestnetAtom) {
+    if (isOnTestnet) {
       return (
         ((allStakedLCDData as StakedLCDRaw)?.stakings.map((item) => {
           const exponent = findAssetByDenom(item.staking_coin_denom)?.exponent ?? 0
@@ -82,7 +82,7 @@ const useAccountData = (address: string) => {
         }
       }) as StakedByPoolLCD[]) ?? []
     )
-  }, [isTestnetAtom, allStakedLCDData, findAssetByDenom])
+  }, [isOnTestnet, allStakedLCDData, findAssetByDenom])
 
   // * rewards by pool
   const {
@@ -93,11 +93,13 @@ const useAccountData = (address: string) => {
     fetch: address !== '',
   })
 
+  console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
+
   // backend
 
   // onchain
   const allFarmRewardsLCD = useMemo(() => {
-    if (isTestnetAtom) {
+    if (isOnTestnet) {
       return (
         ((allFarmRewardsLCDData as FarmRewardsLCDRaw)?.rewards.reduce((accm: LCDTokenAmountSet[], item) => {
           const rewards = item.rewards.map((re) => {
@@ -118,7 +120,7 @@ const useAccountData = (address: string) => {
         }
       }) as LCDTokenAmountSet[]) ?? []
     )
-  }, [isTestnetAtom, allFarmRewardsLCDData, findAssetByDenom])
+  }, [isOnTestnet, allFarmRewardsLCDData, findAssetByDenom])
 
   // * rewards total
   // backend

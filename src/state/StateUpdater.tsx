@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { CHAIN_IDS } from 'constants/chain'
 import {
   useAllAssetInfo,
   useAllAssetLive,
@@ -19,8 +18,7 @@ import {
   allPairInfoAtomRef,
   allPairLiveAtomRef,
   allPoolLiveAtomRef,
-  chainIdAtomRef,
-  isTestnetAtomRef,
+  // chainIdAtomRef,
 } from 'state/atoms'
 import type { APIHookReturn } from 'types/api'
 import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
@@ -30,13 +28,7 @@ import type { PoolLiveRaw } from 'types/pool'
 
 export default function StateUpdater(): null {
   // chain id
-  const [chainIdAtom] = useAtom(chainIdAtomRef)
-  const [, setIsTestnetAtom] = useAtom(isTestnetAtomRef)
-
-  useEffect(() => {
-    setIsTestnetAtom(chainIdAtom === CHAIN_IDS.MOONCAT)
-    console.log('chainIdAtom', chainIdAtom)
-  }, [chainIdAtom, setIsTestnetAtom])
+  // const [chainIdAtom] = useAtom(chainIdAtomRef)
 
   // all chain
   const [, setAllChainInfoAtom] = useAtom(allChainInfoAtomRef)
