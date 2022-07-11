@@ -6,11 +6,13 @@ import Sticker from 'components/Sticker'
 import TableList from 'components/TableList'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
-import { useAllBalance } from 'hooks/useAPI'
+import { useAllBalance } from 'data/useAPI'
+import useRPC from 'data/useRPC'
+import { useAllBalanceRPC } from 'data/useRPCRest'
 import useAsset from 'hooks/useAsset'
 import { useAtom } from 'jotai'
 import AssetTableCell from 'pages/components/AssetTableCell'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { chainIdAtomRef, isTestnetAtomRef } from 'state/atoms'
 import type { Balance } from 'types/account'
 import type { APIHookReturn } from 'types/api'
@@ -24,7 +26,7 @@ export default function Accounts() {
   const SUCCESS_MSG_ALL_DATA_MATCHED = 'All data matched, no significant difference'
   const DUMMY_ADDRESS = 'cre1pc2xjkz28r9744a5d7u3ddqhsw3a9hrf7acccz'
 
-  // css by isTestnet
+  // chain atoms
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   const [isTestnetAtom] = useAtom(isTestnetAtomRef)
 
@@ -38,44 +40,67 @@ export default function Accounts() {
   // fetching balance → should be refactored to atom
   const { data: allBalanceData }: APIHookReturn<Balance> = useAllBalance(address ?? 'x')
   console.log('useAllBalance', allBalanceData)
+  const { data: allBalanceRPCData, error: allBalanceRPCError }: APIHookReturn<Balance> = useAllBalanceRPC(
+    address ?? 'x'
+  )
+  console.log('useAllBalanceRPC', allBalanceRPCData, allBalanceRPCError)
 
   const fetchBalance = () => {
     console.log('fetchBalance')
     setAddress(searchAddress)
   }
 
-  // notiline data
-  const backEndTimestamp = allBalanceData.curTimestamp * 1000
-  const significantTimeGap = CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom]
-  const isTimeDiff = isTimeDiffFromNowMoreThan(backEndTimestamp, significantTimeGap)
-
   // table data
-  const balanceTableList = allBalanceData.data.asset
-    .filter((item) => findAssetByDenom(item.denom) !== null)
-    .map((item) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const assetInfo = findAssetByDenom(item.denom)!
-      const logoUrl = assetInfo.logoUrl
-      const ticker = assetInfo.ticker
-      const exponent = assetInfo.exponent
+  const { balanceTableList, hasBalanceDiff } = useMemo(() => {
+    const balanceTableList = allBalanceData.data.asset
+      .filter((item) => findAssetByDenom(item.denom) !== null)
+      .map((item) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const assetInfo = findAssetByDenom(item.denom)!
+        const logoUrl = assetInfo.logoUrl
+        const ticker = assetInfo.ticker
+        const exponent = assetInfo.exponent
 
-      const asset = AssetTableCell({ logoUrl, ticker })
-      const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
-      const onchainBalance = new BigNumber('34000000000000000000').dividedBy(10 ** exponent)
-      const status: STATUS | undefined = backendBalance.isEqualTo(onchainBalance) ? undefined : 'error'
+        const asset = AssetTableCell({ logoUrl, ticker })
+        const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
+        const onchainBalance = new BigNumber('34000000000000000000').dividedBy(10 ** exponent)
+        const status: STATUS | undefined = backendBalance.isEqualTo(onchainBalance) ? undefined : 'error'
 
-      return {
-        denom: item.denom,
-        exponent,
-        asset,
-        backendBalance,
-        onchainBalance,
-        status,
-      }
-    })
+        return {
+          denom: item.denom,
+          exponent,
+          asset,
+          backendBalance,
+          onchainBalance,
+          status,
+        }
+      })
 
-  const hasBalanceDiff = balanceTableList.findIndex((item) => item.status === 'error') > -1
-  const isAllDataMatched = !hasBalanceDiff && !isTimeDiff
+    const hasBalanceDiff = balanceTableList.findIndex((item) => item.status === 'error') > -1
+
+    return { balanceTableList, hasBalanceDiff }
+  }, [allBalanceData, findAssetByDenom])
+
+  // notiline data
+  const { significantTimeGap, isTimeDiff, isAllDataMatched } = useMemo(() => {
+    const backEndTimestamp = allBalanceData.curTimestamp * 1000
+    const significantTimeGap = CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom]
+    const isTimeDiff = isTimeDiffFromNowMoreThan(backEndTimestamp, significantTimeGap)
+
+    const isAllDataMatched = !hasBalanceDiff && !isTimeDiff
+    return {
+      significantTimeGap,
+      isTimeDiff,
+      isAllDataMatched,
+    }
+  }, [allBalanceData, chainIdAtom, hasBalanceDiff])
+
+  // tendermint rpc data
+  const { fetchAllBalance } = useRPC()
+
+  useEffect(() => {
+    if (address) fetchAllBalance({ address })
+  }, [address, fetchAllBalance])
 
   return (
     <AppPage className="pt-[calc(2rem+3.25rem)]">
