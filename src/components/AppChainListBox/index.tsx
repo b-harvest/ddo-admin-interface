@@ -45,7 +45,7 @@ export default function AppChainListBox() {
         <Listbox.Button
           className={({ open }) =>
             `w-full rounded-lg bg-grayCRE-200 text-left text-grayCRE-400 px-2 py-2 outline-0 transition-all md:px-4 hover:bg-grayCRE-200 ${
-              open ? '!bg-grayCRE-100 dark:!bg-grayCRE-400 rounded-b-none' : ''
+              open ? '!bg-grayCRE-100 dark:!bg-neutral-600 rounded-b-none' : ''
             } dark:bg-neutral-700 dark:text-grayCRE-200`
           }
         >
@@ -66,7 +66,7 @@ export default function AppChainListBox() {
         </Listbox.Button>
 
         <Listbox.Options
-          className={`absolute w-full rounded-lg rounded-t-none bg-white border-2 border-t-0 border-grayCRE-200 max-h-48 overflow-y-auto outline-0 transition-all dark:bg-black dark:border-grayCRE-400`}
+          className={`absolute w-full rounded-lg rounded-t-none bg-white border-2 border-t-0 border-grayCRE-100 max-h-48 overflow-y-auto outline-0 transition-all dark:bg-black dark:border-neutral-600`}
         >
           {CHAINS.map((chain: ChainOption, index) => (
             <Listbox.Option
@@ -74,7 +74,7 @@ export default function AppChainListBox() {
               value={index}
               className={({ active }) =>
                 `TYPO-BODY-XS text-grayCRE-500 dark:text-grayCRE-400 cursor-pointer px-2 py-2 outline-0 md:TYPO-BODY-S md:px-4 ${
-                  active ? 'bg-grayCRE-100 dark:bg-grayCRE-400 dark:text-grayCRE-200' : ''
+                  active ? 'bg-grayCRE-100 dark:bg-grayCRE-400-o dark:!text-grayCRE-200' : ''
                 }`
               }
             >
