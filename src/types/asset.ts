@@ -13,3 +13,7 @@ export interface AssetLive {
   readonly priceOracle: number
   readonly updateTimestamp: number
 }
+
+export interface Asset extends AssetInfo {
+  live?: Omit<AssetLive, 'denom'>
+}

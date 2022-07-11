@@ -1,18 +1,29 @@
 import { useAtom } from 'jotai'
-import { useCallback } from 'react'
-import { allAssetInfoAtomRef } from 'state/atoms'
+import { useCallback, useMemo } from 'react'
+import { allAssetInfoAtomRef, allAssetLiveAtomRef } from 'state/atoms'
+import { Asset } from 'types/asset'
 
 const useAsset = () => {
+  const [allAssetLiveAtom] = useAtom(allAssetLiveAtomRef)
   const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
 
-  const findAssetInfoByDenom = useCallback(
+  const allAsset = useMemo(() => {
+    return allAssetInfoAtom.map((assetInfo) => {
+      return {
+        ...assetInfo,
+        live: allAssetLiveAtom.find((item) => item.denom === assetInfo.denom),
+      }
+    }) as Asset[]
+  }, [allAssetInfoAtom, allAssetLiveAtom])
+
+  const findAssetByDenom = useCallback(
     (denom: string) => {
-      return allAssetInfoAtom.find((item) => item.denom === denom) ?? null
+      return allAsset.find((item) => item.denom === denom) ?? null
     },
-    [allAssetInfoAtom]
+    [allAsset]
   )
 
-  return { findAssetInfoByDenom }
+  return { allAsset, findAssetByDenom }
 }
 
 export default useAsset
