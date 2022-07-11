@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
+import GlowBackground from 'components/GlowBackground'
 import LineChart from 'components/LineChart'
 import chartData from 'components/LineChart/dummy/data.json'
 import TableList from 'components/TableList'
@@ -75,8 +76,18 @@ export default function Asset() {
 
   return (
     <AppPage>
+      <GlowBackground
+        style={{
+          transform: 'translateY(-150vh) translateX(-50vw)',
+        }}
+      />
+      <GlowBackground
+        style={{
+          transform: 'translateY(25vh) translateX(75vw)',
+        }}
+      />
       <section className="flex flex-col justify-between items-center space-y-4 mb-8 md:flex-row md:space-x-4 md:space-y-0">
-        {/* className="shrink grow basis-auto" */}
+        {/* className="dark:shadow-glow-wide-d" */}
         <LineChart
           height={220}
           minHeight={360}
@@ -85,7 +96,6 @@ export default function Asset() {
           setValue={setTvlHover}
           label={tvlTimeLabelHover}
           setLabel={setTvlTimeLabelHover}
-          className="dark:shadow-glow-wide-d"
           topLeft={
             <AmountUSD
               className="mb-4"
