@@ -11,7 +11,7 @@ const usePool = () => {
   const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
   //   const [allPairInfoAtom] = useAtom(allPairInfoAtomRef)
 
-  const allPool = useMemo(() => {
+  const allPoolLive = useMemo(() => {
     return allPoolLiveAtom.map((pool) => {
       const exponent = allAssetInfoAtom.find((assetInfo) => assetInfo.denom === pool.poolDenom)?.exponent ?? 0
 
@@ -30,9 +30,12 @@ const usePool = () => {
     }) as PoolLive[]
   }, [allPoolLiveAtom, allAssetInfoAtom])
 
-  const findPoolByDenom = useCallback((denom: string) => allPool.find((pool) => pool.poolDenom === denom), [allPool])
+  const findPoolByDenom = useCallback(
+    (denom: string) => allPoolLive.find((pool) => pool.poolDenom === denom),
+    [allPoolLive]
+  )
 
-  return { allPool, findPoolByDenom }
+  return { allPoolLive, findPoolByDenom }
 }
 
 export default usePool
