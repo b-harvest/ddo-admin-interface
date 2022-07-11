@@ -100,10 +100,10 @@ export default function Accounts() {
   }, [allBalanceData, allBalanceLCDData, findAssetByDenom])
 
   // table data - farming staking
-  const { allFarmStaked, totalFarmRewards, totalFarmRewardsLCD } = useAccountData(address ?? '')
+  const { allStaked, totalFarmRewards, totalFarmRewardsLCD } = useAccountData(address ?? '')
 
   const { farmingStakedTableList } = useMemo(() => {
-    const farmingStakedTableList = allFarmStaked.map((item) => {
+    const farmingStakedTableList = allStaked.map((item) => {
       const asset = AssetTableCell({ logoUrl: '', ticker: item.denom })
       // item.harvestable.reduce()
       return {
@@ -113,7 +113,7 @@ export default function Accounts() {
     })
 
     return { farmingStakedTableList }
-  }, [allFarmStaked])
+  }, [allStaked])
 
   // alert-inline data
   const { significantTimeGap, isTimeDiff, isAllDataMatched } = useMemo(() => {
