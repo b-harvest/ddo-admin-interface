@@ -3,10 +3,10 @@ import type { ResponseViaSWR } from 'types/api'
 export interface AssetInfo {
   readonly denom: string
   readonly ticker: string
-  readonly chainId: string
+  readonly chainName: string
   readonly logoUrl: string
   readonly baseDenom: string
-  readonly chainName: string
+  readonly chainId: string
   readonly exponent: number
 }
 

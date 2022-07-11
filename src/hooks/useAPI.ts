@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { CHAIN_IDS } from 'constants/chain'
 import { useAtom } from 'jotai'
-import { chainNameAtomRef } from 'state/atoms'
+import { chainIdAtomRef } from 'state/atoms'
 import useSWR from 'swr'
 import type { Balance } from 'types/account'
 import type { APIHookReturn, ResponseViaSWR } from 'types/api'
@@ -16,11 +17,11 @@ export function useAllBalance(address: string, interval = 0) {
   return returnGenerator({ data, error })
 }
 
-const getBaseUrl = (chainName: string): string | undefined => {
-  switch (chainName) {
-    case 'mainnet':
+const getBaseUrl = (chainId: CHAIN_IDS): string | undefined => {
+  switch (chainId) {
+    case CHAIN_IDS.MAINNET:
       return process.env.REACT_APP_MAINNET_API_ENDPOINT
-    case 'mooncat':
+    case CHAIN_IDS.MOONCAT:
       return process.env.REACT_APP_MOONCAT_API_ENDPOINT
     default:
       return process.env.REACT_APP_MAINNET_API_ENDPOINT
@@ -36,8 +37,8 @@ const fetcher = (url: string) =>
     .catch((e) => e)
 
 function useAppSWR(url: string, interval = 0) {
-  const [chainNameAtom] = useAtom(chainNameAtomRef)
-  const { data, error } = useSWR(url ? `${getBaseUrl(chainNameAtom)}${url}` : null, fetcher, {
+  const [chainIdAtom] = useAtom(chainIdAtomRef)
+  const { data, error } = useSWR(url ? `${getBaseUrl(chainIdAtom)}${url}` : null, fetcher, {
     refreshInterval: interval,
     suspense: true,
   })

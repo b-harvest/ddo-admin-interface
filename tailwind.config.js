@@ -9,8 +9,12 @@ module.exports = {
         'adieu-bold': 'AdieuBold',
       },
       colors: {
+        // primary
         lightCRE: '#FFFAF4',
+        'lightCRE-o': 'rgba(255,250,244, 0.4)',
         darkCRE: '#1E0E0A',
+        'darkCRE-o': 'rgba(30,14,10, 0.4)',
+        // gray palette
         'grayCRE-50': '#f2f4f6',
         'grayCRE-100': '#EEEEEE',
         'grayCRE-200': '#DDDDDD',
@@ -18,7 +22,6 @@ module.exports = {
         'grayCRE-400': '#666666',
         'grayCRE-500': '#333333',
         'grayCRE-600': '#222222',
-        // opacity < 1
         'grayCRE-50-o': 'rgba(242, 244, 246, 0.5)',
         'grayCRE-100-o': 'rgba(238, 238, 238, 0.5)',
         'grayCRE-200-o': 'rgba(221, 221, 221, 0.3)',
@@ -26,6 +29,19 @@ module.exports = {
         'grayCRE-400-o': 'rgba(102, 102, 102, 0.3)',
         'grayCRE-500-o': 'rgba(51, 51, 51, 0.3)',
         'grayCRE-600-o': 'rgba(34, 34, 34, 0.3)',
+        // semantic colors
+        success: '#30B50A',
+        'success-light': 'rgba(234, 250, 230, 1)',
+        'success-o': 'rgba(48, 181, 10, 0.3)',
+        warning: '#FAC400',
+        'warning-light': 'rgba(250, 243, 220, 1)',
+        'warning-o': 'rgba(250, 196, 0, 0.3)',
+        error: '#FF5D67',
+        'error-light': 'rgba(252, 235, 236, 1)',
+        'error-o': 'rgba(255, 93, 103, 0.3)',
+        info: '#608CFF',
+        'info-light': 'rgba(230, 236, 252, 1)',
+        'info-o': 'rgba(96, 140, 255, 0.3)',
       },
       boxShadow: {
         'normal-l': '0px 0px 5px 2px rgba(0, 0, 0, 0.1)',
