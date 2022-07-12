@@ -94,15 +94,18 @@ const useAccountData = (address: string) => {
   })
 
   console.log('allStaked', allStaked)
-
   console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
 
   // backend
   const allFarmRewards = useMemo(() => {
     return (
-      allStaked?.reduce((accm: LCDTokenAmountSet[], pool) => {
+      allStaked?.reduce((accm: (LCDTokenAmountSet & { poolDenom: string })[], pool) => {
         return accm.concat(
-          pool.harvestable?.map((item) => ({ denom: item.rewardDenom, amount: item.rewardAmount })) ?? []
+          pool.harvestable?.map((item) => ({
+            poolDenom: pool.denom,
+            denom: item.rewardDenom,
+            amount: item.rewardAmount,
+          })) ?? []
         )
       }, []) ?? []
     )

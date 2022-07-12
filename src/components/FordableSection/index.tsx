@@ -21,8 +21,8 @@ export default function FoldableSection({ children, label, defaultIsOpen = true 
       </header>
 
       <div
-        className={`overflow-hidden transition-all ease-out origin-top duration-[200ms] delay-[cubic-bezier(0, 1, 0, 1)] ${
-          isOpen ? 'max-h-min scale-y-100' : 'max-h-0 scale-y-0'
+        className={`transition-all ease-out origin-top duration-[200ms] delay-[cubic-bezier(0, 1, 0, 1)] ${
+          isOpen ? 'max-h-min scale-y-100' : 'overflow-hidden max-h-0 scale-y-0'
         }`}
       >
         {children}

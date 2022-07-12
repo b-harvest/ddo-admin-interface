@@ -2,7 +2,7 @@ import { FilterRadioGroupOption } from 'components/FilterRadioGroup'
 import type { AlertStatus } from 'types/alert'
 
 // field  typing
-interface ListFieldHTML {
+export interface ListFieldHTML {
   label: string
   value: string
   widthRatio?: number
@@ -12,17 +12,17 @@ interface ListFieldHTML {
   type?: 'html'
 }
 
-interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
+export interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
   type: 'imgUrl'
   size?: number
 }
 
-interface ListFieldBignumber extends Omit<ListFieldHTML, 'type'> {
+export interface ListFieldBignumber extends Omit<ListFieldHTML, 'type'> {
   type: 'bignumber'
   toFixedFallback?: number
 }
 
-interface ListFieldUSD extends Omit<ListFieldHTML, 'type'> {
+export interface ListFieldUSD extends Omit<ListFieldHTML, 'type'> {
   type: 'usd'
   toFixedFallback?: number
 }
@@ -43,6 +43,8 @@ export interface TableListProps {
   fields: ListField[]
   useSearch?: boolean
   mergedFields?: string[]
+  mergedFieldLabel?: string
+  totalField?: string
   showTitle?: boolean
   showFieldsBar?: boolean
   useNarrow?: boolean
