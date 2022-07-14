@@ -35,7 +35,7 @@ function handleError(error: any) {
       console.log('Res data if any :', error.response.data)
       console.log('Res status : ', error.response.status)
       console.log('Res headers : ', error.response.headers)
-      msg = `Error occured - ${error.response.data?.message ?? 'unknown error'}`
+      msg = `Error occured - ${error.response.data?.message ?? 'Unknown error'}`
     } else if (error.request) {
       // request sent, but no response, `error.request` is XMLHttpRequest instance
       console.log('Request was : ', error.request)

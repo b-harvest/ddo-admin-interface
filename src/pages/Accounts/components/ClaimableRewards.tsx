@@ -1,13 +1,16 @@
 import BigNumber from 'bignumber.js'
-import AlertBox from 'components/AlertBox'
+import EmptyData from 'components/EmptyData'
 import FoldableSection from 'components/FordableSection'
-import TableList from 'components/TableList'
-import { ERROR_MSG_BACKEND_TIMESTAMP_DIFF, SUCCESS_MSG_ALL_DATA_MATCHED } from 'constants/msg'
+import TableList, { bignumberToFormat } from 'components/TableList'
+import type { ListFieldBignumber } from 'components/TableList/types'
+import Tag from 'components/Tag'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
+import AccountDataAlertArea from 'pages/Accounts/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
+import { AlertStatus } from 'types/alert'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
 export default function ClaimableRewards({
@@ -20,110 +23,167 @@ export default function ClaimableRewards({
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePair()
 
-  const { allStakedDataTimestamp, allStaked, allStakedLCD, allFarmRewards, allFarmRewardsLCD } = useAccountData(
-    address ?? ''
-  )
+  const { allFarmRewardsDataTimestamp, allFarmRewardsByToken, allFarmRewardsByTokenLCD } = useAccountData(address ?? '')
 
-  console.log('allFarmRewardsLCD', allFarmRewardsLCD)
+  console.log('allFarmRewardsByToken', allFarmRewardsByToken)
+  console.log('allFarmRewardsByTokenLCD', allFarmRewardsByTokenLCD)
 
-  const { rewardsTableList } = useMemo(() => {
-    // const onchainRewardsMap = allFarmRewardsLCD.reduce((accm, item) => ({ ...accm, [item.denom]: item.amount }), {})
+  const { rewardsTablesByRewardsToken, hasRewardsDiff } = useMemo(() => {
+    const rewardsTablesByRewardsToken = Object.keys(allFarmRewardsByToken)
+      .filter((denom) => findAssetByDenom(denom) !== undefined)
+      .map((denom) => {
+        const onchainList = allFarmRewardsByTokenLCD[denom] ?? []
+        const onchainTotal = onchainList.reduce((accm, data) => accm.plus(data.amount), new BigNumber(0))
+        const backendTotal = allFarmRewardsByToken[denom].reduce(
+          (accm, data) => accm.plus(data.amount),
+          new BigNumber(0)
+        )
 
-    const rewardsTableList = allFarmRewards
-      .filter((item) => findAssetByDenom(item.denom) !== undefined && findAssetByDenom(item.poolDenom) !== undefined)
-      .map((item) => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const poolAssetInfo = findAssetByDenom(item.poolDenom)!
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const rewardAssetInfo = findAssetByDenom(item.denom)!
+        return allFarmRewardsByToken[denom]
+          .filter((item) => findAssetByDenom(item.poolDenom) !== undefined)
+          .map((item) => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const poolAssetInfo = findAssetByDenom(item.poolDenom)!
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const rewardAssetInfo = findAssetByDenom(item.denom)!
 
-        const pool = AssetTableLogoCell({ assets: getAssetTickers(poolAssetInfo) })
-        const rewardToken = AssetTableLogoCell({
-          assets: getAssetTickers(rewardAssetInfo),
-          isSingleAssetAutoSpaced: true,
-        })
+            const pool = AssetTableLogoCell({ assets: getAssetTickers(poolAssetInfo) })
+            const rewardToken = AssetTableLogoCell({
+              assets: getAssetTickers(rewardAssetInfo),
+              isSingleAssetAutoSpaced: true,
+            })
+            const rewardTokenLogo = AssetTableLogoCell({
+              assets: getAssetTickers(rewardAssetInfo),
+              hideTicker: true,
+            })
 
-        return {
-          pool,
-          poolDenom: item.poolDenom,
-          rewardToken,
-          rewardDenom: item.denom,
-          rewardsAmount: item.amount,
-        }
+            const rewardsAmountLCD = onchainList.find((lcd) => lcd.poolDenom === item.poolDenom)?.amount ?? null
+
+            const totalDesc = TableTotalDesc({ amount: onchainTotal, prefix: rewardTokenLogo, tag: 'On-chain' })
+            const totalStatus: AlertStatus | undefined = onchainTotal.isEqualTo(backendTotal) ? undefined : 'error'
+
+            return {
+              pool,
+              poolDenom: item.poolDenom,
+              rewardToken,
+              rewardTokenLogo,
+              rewardDenom: item.denom,
+              rewardsAmount: item.amount,
+              rewardsAmountLCD,
+              totalDesc,
+              totalStatus,
+            }
+          })
       })
 
-    return { rewardsTableList }
-  }, [allFarmRewards, findAssetByDenom, getAssetTickers])
+    const hasRewardsDiff =
+      rewardsTablesByRewardsToken.findIndex((tableList) => tableList[0].totalStatus === 'error') > -1
+
+    return { rewardsTablesByRewardsToken, hasRewardsDiff }
+  }, [allFarmRewardsByToken, allFarmRewardsByTokenLCD, findAssetByDenom, getAssetTickers])
 
   // alert-inline data - staked amount
   const { isRewardsDataTimeDiff, isRewardsDataAllMatched } = useMemo(() => {
-    const isRewardsDataTimeDiff = isTimeDiffFromNowMoreThan(allStakedDataTimestamp, significantTimeGap)
-    // const isRewardsDataAllMatched = !hasRewardsDiff && !isRewardsDataTimeDiff
-    const isRewardsDataAllMatched = !isRewardsDataTimeDiff
+    const isRewardsDataTimeDiff = isTimeDiffFromNowMoreThan(allFarmRewardsDataTimestamp, significantTimeGap)
+    const isRewardsDataAllMatched = !hasRewardsDiff && !isRewardsDataTimeDiff
+    // const isRewardsDataAllMatched = !isRewardsDataTimeDiff
 
     return {
       isRewardsDataTimeDiff,
       isRewardsDataAllMatched,
     }
-  }, [allStakedDataTimestamp, significantTimeGap])
+  }, [allFarmRewardsDataTimestamp, hasRewardsDiff, significantTimeGap])
 
   return (
     <FoldableSection label="Claimable Rewards" defaultIsOpen={false}>
-      <div
-        className={`${
-          rewardsTableList.length > 0 ? 'block' : 'hidden opacity-0'
-        } flex flex-col justify-start items-start mb-4 transition-opacity`}
-      >
-        <div className="flex flex-col space-y-2 w-full mt-4">
-          <AlertBox
-            msg={`${ERROR_MSG_BACKEND_TIMESTAMP_DIFF} ≧ ${new BigNumber(significantTimeGap).toFormat(0)}ms`}
-            status="error"
-            isActive={isRewardsDataTimeDiff}
-          />
-          <AlertBox msg={SUCCESS_MSG_ALL_DATA_MATCHED} status="success" isActive={isRewardsDataAllMatched} />
-        </div>
-      </div>
-
-      <TableList
-        title="Claimabale Rewards"
-        showTitle={false}
-        useSearch={false}
-        showFieldsBar={true}
-        list={rewardsTableList}
-        mergedFields={['rewardsAmount']}
-        mergedFieldLabel="Rewards Amount"
-        defaultSortBy="rewardsAmount"
-        defaultIsSortASC={false}
-        totalField="rewardsAmount"
-        showItemsVertically={false}
-        fields={[
-          {
-            label: 'Pool',
-            value: 'pool',
-            type: 'html',
-            widthRatio: 24,
-          },
-          {
-            label: 'Denom',
-            value: 'poolDenom',
-            widthRatio: 10,
-          },
-          {
-            label: 'Rewards Token',
-            value: 'rewardToken',
-            type: 'html',
-            widthRatio: 20,
-          },
-          {
-            label: 'Rewards Amount',
-            value: 'rewardsAmount',
-            tag: 'Back-end',
-            type: 'bignumber',
-            toFixedFallback: 6,
-          },
-        ]}
+      <AccountDataAlertArea
+        isActive={rewardsTablesByRewardsToken.length > 0}
+        significantTimeGap={significantTimeGap}
+        isDataTimeDiff={isRewardsDataTimeDiff}
+        isDataNotMatched={hasRewardsDiff}
+        isAllDataMatched={isRewardsDataAllMatched}
       />
-      {/* {(allFarmRewardsLCD?.[0] as LCDTokenAmountSet).amount.toFormat()} */}
+
+      <div className="mt-8">
+        {rewardsTablesByRewardsToken.length > 0 ? (
+          rewardsTablesByRewardsToken.map((tableList, i) => (
+            <div key={i}>
+              <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
+                <span>Pools rewarding</span>
+                {tableList[0].rewardToken}
+              </h4>
+              <TableList
+                title="Claimabale Rewards"
+                showTitle={false}
+                useSearch={false}
+                showFieldsBar={true}
+                list={tableList}
+                mergedFields={['rewardsAmount', 'rewardsAmountLCD']}
+                mergedFieldLabel="Rewards amount"
+                defaultSortBy="rewardsAmount"
+                defaultIsSortASC={false}
+                totalField="rewardsAmount"
+                totalLabel="Total rewards"
+                totalPrefixDesc={tableList[0].rewardTokenLogo}
+                totalDesc={tableList[0].totalDesc}
+                totalStatus={tableList[0].totalStatus}
+                showItemsVertically={false}
+                fields={[
+                  {
+                    label: 'Pool',
+                    value: 'pool',
+                    type: 'html',
+                    widthRatio: 30,
+                  },
+                  {
+                    label: 'Denom',
+                    value: 'poolDenom',
+                    widthRatio: 10,
+                  },
+                  // {
+                  //   label: 'Rewards Token',
+                  //   value: 'rewardToken',
+                  //   type: 'html',
+                  //   widthRatio: 12,
+                  // },
+                  {
+                    label: 'Rewards amount',
+                    value: 'rewardsAmount',
+                    tag: 'Back-end',
+                    type: 'bignumber',
+                    toFixedFallback: 6,
+                  },
+                  {
+                    label: 'On-chain rewards amount',
+                    value: 'rewardsAmountLCD',
+                    tag: 'On-chain',
+                    type: 'bignumber',
+                    toFixedFallback: 6,
+                  },
+                ]}
+              />
+            </div>
+          ))
+        ) : (
+          <EmptyData label="No data" />
+        )}
+      </div>
     </FoldableSection>
+  )
+}
+
+function TableTotalDesc({ amount, tag, prefix }: { amount: BigNumber; tag?: string; prefix?: JSX.Element }) {
+  return (
+    <div className="flex space-x-2 !font-black !font-mono">
+      <div className="mr-2">{prefix ?? null}</div>
+      <div>
+        {bignumberToFormat({
+          value: amount,
+          exponent: 6,
+          field: { type: 'bignumber', label: '', value: '' } as ListFieldBignumber,
+        })}
+      </div>
+      {tag ? <Tag>{tag}</Tag> : null}
+    </div>
   )
 }

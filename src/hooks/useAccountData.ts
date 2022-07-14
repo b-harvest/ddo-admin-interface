@@ -97,8 +97,10 @@ const useAccountData = (address: string) => {
   console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
 
   // backend
-  const allFarmRewards = useMemo(() => {
-    return (
+  const allFarmRewardsDataTimestamp = allStakedDataTimestamp
+
+  const allFarmRewardsByToken = useMemo(() => {
+    const allRewards =
       allStaked?.reduce((accm: (LCDTokenAmountSet & { poolDenom: string })[], pool) => {
         return accm.concat(
           pool.harvestable?.map((item) => ({
@@ -108,61 +110,62 @@ const useAccountData = (address: string) => {
           })) ?? []
         )
       }, []) ?? []
-    )
+
+    return getTokenWideFarmRewards(allRewards)
   }, [allStaked])
 
   // onchain
-  const allFarmRewardsLCD = useMemo(() => {
+  const allFarmRewardsByTokenLCD = useMemo(() => {
     if (isOnTestnet) {
-      return (
-        ((allFarmRewardsLCDData as FarmRewardsLCDRaw)?.rewards.reduce((accm: LCDTokenAmountSet[], item) => {
-          const rewards = item.rewards.map((re) => {
-            const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
-            return { denom: re.denom, amount: new BigNumber(re.amount).dividedBy(10 ** exponent) }
-          })
-          return accm.concat(rewards)
-        }, []) as LCDTokenAmountSet[]) ?? []
-      )
+      const allRewards =
+        (allFarmRewardsLCDData as FarmRewardsLCDRaw)?.rewards.reduce(
+          (accm: (LCDTokenAmountSet & { poolDenom: string })[], item) => {
+            const rewards = item.rewards.map((re) => {
+              const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
+              return {
+                poolDenom: item.staking_coin_denom,
+                denom: re.denom,
+                amount: new BigNumber(re.amount).dividedBy(10 ** exponent),
+              }
+            })
+            return accm.concat(rewards)
+          },
+          []
+        ) ?? []
+      return getTokenWideFarmRewards(allRewards)
     }
 
-    return (
+    const allRewards =
       ((allFarmRewardsLCDData as FarmRewardLCDMainnetRaw)?.rewards.map((item) => {
         const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
         return {
+          poolDenom: 'Unknown',
           denom: item.denom,
           amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
         }
-      }) as LCDTokenAmountSet[]) ?? []
-    )
+      }) as (LCDTokenAmountSet & { poolDenom: string })[]) ?? []
+
+    return getTokenWideFarmRewards(allRewards)
   }, [isOnTestnet, allFarmRewardsLCDData, findAssetByDenom])
-
-  // * rewards total
-  // backend
-  // const totalFarmRewards = useMemo(() => {
-  //   return (
-  //     allStaked?.reduce((accm, pool) => {
-  //       const totalRewardAmountByPool =
-  //         pool.harvestable?.reduce((sum, har) => sum.plus(har.rewardAmount), new BigNumber(0)) ?? new BigNumber(0)
-  //       return accm.plus(totalRewardAmountByPool)
-  //     }, new BigNumber(0)) ?? new BigNumber(0)
-  //   )
-  // }, [allStaked])
-
-  // onchain
-  // const totalFarmRewardsLCD = useMemo(
-  //   () => allFarmRewardsLCD.reduce((accm, reward) => accm.plus(reward.amount), new BigNumber(0)),
-  //   [allFarmRewardsLCD]
-  // )
 
   return {
     allStakedDataTimestamp,
     allStaked,
-    // totalFarmRewards,
     allStakedLCD,
-    allFarmRewards,
-    allFarmRewardsLCD,
-    // totalFarmRewardsLCD,
+    allFarmRewardsDataTimestamp,
+    allFarmRewardsByToken,
+    allFarmRewardsByTokenLCD,
   }
 }
 
 export default useAccountData
+
+function getTokenWideFarmRewards(allRewards: (LCDTokenAmountSet & { poolDenom: string })[]) {
+  const tokenWideRewards: { [key: string]: (LCDTokenAmountSet & { poolDenom: string })[] } = {}
+  allRewards.forEach((item) => {
+    const key = tokenWideRewards[item.denom]
+    if (key) tokenWideRewards[item.denom].push(item)
+    else tokenWideRewards[item.denom] = [item]
+  })
+  return tokenWideRewards
+}

@@ -117,6 +117,10 @@
     @apply text-[1.25rem] leading-[1.75rem] -tracking-[0.02em] font-black break-all /* 16px */
   }
 
+  .TYPO-H4 {
+    @apply text-[1rem] leading-[1.5rem] -tracking-[0.01em] font-black break-all /* 16px */
+  }
+
   .TYPO-BODY-2XS {
     @apply text-[0.5rem] leading-[1rem] -tracking-[0.01em] font-normal break-all /* 8px */
   }

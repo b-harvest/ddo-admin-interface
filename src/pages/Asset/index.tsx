@@ -10,7 +10,7 @@ import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo, useState } from 'react'
-import { formatUSDAmount } from 'utils/amount'
+import { formatBigUSDAmount } from 'utils/amount'
 
 // filtering
 const ASSET_TABLE_LIST_FILTERS = [
@@ -180,7 +180,7 @@ function AmountUSD({
       <div className="flex flex-col justify-start items-start space-y-2">
         <div className="TYPO-BODY-XL !font-black font-mono">
           {`$${value.toFormat(0)}`}
-          <span className="hidden ml-2 md:inline-block">{`(${formatUSDAmount(value, 2)})`}</span>
+          <span className="hidden ml-2 md:inline-block">{`(${formatBigUSDAmount(value, 2)})`}</span>
         </div>
         <div className="TYPO-BODY-XS !font-medium">{dateLabel}</div>
       </div>

@@ -1,4 +1,6 @@
 import BigNumber from 'bignumber.js'
+import CopyHelper from 'components/CopyHelper'
+import EmptyData from 'components/EmptyData'
 import FilterRadioGroup, { FilterRadioGroupOption, TAB_RADIO_GROUP_DEFAULT_OPTION } from 'components/FilterRadioGroup'
 import SearchInput from 'components/Inputs/SearchInput'
 import { useMatchedTableList } from 'components/TableList/hooks'
@@ -12,6 +14,7 @@ import type {
 import Tag from 'components/Tag'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import type { AlertStatus } from 'types/alert'
+import { formatUSDAmount } from 'utils/amount'
 
 const IS_SORT_ASC_DEFAULT = false
 const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`
@@ -24,6 +27,10 @@ export default function TableList({
   mergedFields = [],
   mergedFieldLabel,
   totalField,
+  totalLabel,
+  totalPrefixDesc,
+  totalDesc,
+  totalStatus,
   showTitle = true,
   showFieldsBar = true,
   useNarrow = false,
@@ -151,13 +158,7 @@ export default function TableList({
         {/* data list */}
         <div>
           {matchedList.length <= 0 ? (
-            <div
-              className={`w-full  bg-grayCRE-200 dark:bg-neutral-800 TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${
-                useNarrow ? 'rounded-lg p-2' : 'rounded-xl p-4'
-              }`}
-            >
-              {emptyListLabel}
-            </div>
+            <EmptyData useNarrow={useNarrow} label={emptyListLabel} />
           ) : (
             <ul
               className={`flex flex-col justify-start items-stretch transition-all ${
@@ -187,12 +188,20 @@ export default function TableList({
             <div
               className={`flex justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
                 useNarrow ? 'rounded-lg px-4 md:space-x-2 mt-1' : 'rounded-xl p-4 md:space-x-4 mt-2'
-              } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400`}
+              } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400 ${
+                totalStatus ? getListItemClassByStatus(totalStatus) : ''
+              }`}
             >
-              <div className="!font-black">Total {validTotalField.label}</div>
-              <div className="flex space-x-2 !font-black !font-mono">
-                <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
-                {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
+              <div className="!font-black">
+                <span>{totalLabel ?? `Total ${validTotalField.label}`}</span>
+              </div>
+              <div className="flex flex-col justify-start items-end space-y-2">
+                <div className="flex space-x-2 !font-black !font-mono">
+                  <div className="mr-2">{totalPrefixDesc ?? null}</div>
+                  <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
+                  {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
+                </div>
+                {totalDesc ?? null}
               </div>
             </div>
           ) : null}
@@ -230,7 +239,7 @@ function ListItem({
           useNarrow ? 'rounded-lg px-4 md:space-x-2' : 'rounded-xl p-4 md:space-x-4'
         } ${
           showItemsVertically ? 'flex-col' : 'flex-row'
-        } flex justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0`}
+        } flex justify-between items-start w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0`}
       >
         {nonMerged.map((field, i) => {
           return (
@@ -287,16 +296,24 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
       <img src={value} alt="" style={{ width: `${field.size ?? 24}px`, height: `${field.size ?? 24}px` }} />
     ) : null
   } else if (field.type === 'bignumber' || field.type === 'usd') {
-    if (value === null) return null
-
-    // const valueToFormat: string = bignumberToFormat({ value, exponent: data.exponent, field })
-    const displayVal = bignumberToFormat({ value, exponent: data.exponent, field })
+    const numberVal =
+      value === null || value === undefined
+        ? 'No data available'
+        : bignumberToFormat({ value, exponent: data.exponent, field })
 
     return (
-      <div title={displayVal} className="font-mono">
-        {field.type === 'usd' ? <span className="pr-1">$</span> : null}
-        {displayVal}
+      <div title={numberVal} className="font-mono">
+        {numberVal}
       </div>
+    )
+  } else if (typeof value === 'string') {
+    const abbrLength = field.abbrOver ?? value.length
+    const abbrVal = value.length > abbrLength ? `${value.slice(0, abbrLength)}・・・${value.slice(-3)}` : value
+    return (
+      <CopyHelper toCopy={value}>
+        {' '}
+        <div title={value}>{abbrVal}</div>
+      </CopyHelper>
     )
   } else {
     return <div title={value}>{value}</div>
@@ -310,23 +327,23 @@ const cellClass = (field: ListField) =>
 function getListItemClassByStatus(status: AlertStatus): string {
   switch (status) {
     case 'success':
-      return 'border border-success'
+      return '!bg-success-light !dark:bg-success-o !border-2 !border-success-o !shadow-md !shadow-success-o'
       break
     case 'warning':
-      return 'border border-warning'
+      return '!bg-warning-light dark:!bg-warning-o !border-2 !border-warning-o !shadow-md !shadow-warning-o'
       break
     case 'error':
-      return 'bg-error-light border-2 border-error-o shadow-md shadow-error-o'
+      return '!bg-error-light dark:!bg-error-o !border-2 !border-error-o !shadow-md !shadow-error-o'
       break
     case 'info':
-      return 'border border-info'
+      return '!bg-info-light dark:!bg-info-o !border-2 !border-info-o !shadow-md !shadow-info-o'
       break
     default:
       return ''
   }
 }
 
-function bignumberToFormat({
+export function bignumberToFormat({
   value,
   exponent,
   field,
@@ -335,9 +352,9 @@ function bignumberToFormat({
   exponent?: number
   field: ListFieldBignumber | ListFieldUSD
 }): string {
-  return value.isZero()
+  return field.type === 'usd'
+    ? formatUSDAmount({ value, mantissa: 0 })
+    : value.isZero()
     ? '0'
-    : field.type === 'usd'
-    ? value.toFormat(field.toFixedFallback ?? 0, BigNumber.ROUND_HALF_UP)
     : value.toFormat(exponent ?? field.toFixedFallback ?? 0)
 }

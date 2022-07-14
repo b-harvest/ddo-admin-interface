@@ -5,6 +5,7 @@ import type { AlertStatus } from 'types/alert'
 export interface ListFieldHTML {
   label: string
   value: string
+  abbrOver?: number
   widthRatio?: number
   responsive?: boolean // default => false
   tag?: string
@@ -45,6 +46,10 @@ export interface TableListProps {
   mergedFields?: string[]
   mergedFieldLabel?: string
   totalField?: string
+  totalLabel?: string | JSX.Element
+  totalPrefixDesc?: string | JSX.Element
+  totalDesc?: string | JSX.Element
+  totalStatus?: AlertStatus
   showTitle?: boolean
   showFieldsBar?: boolean
   useNarrow?: boolean
