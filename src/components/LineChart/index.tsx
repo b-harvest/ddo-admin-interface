@@ -93,7 +93,7 @@ export default function LineChart({
               dataKey="time"
               axisLine={false}
               tickLine={false}
-              tickFormatter={(time: DataByDay['time']) => dayjs(time).format('DD')}
+              tickFormatter={(time: DataByDay['time']) => dayjs(time).format('MM')}
               minTickGap={10}
             />
             <Tooltip

@@ -10,7 +10,7 @@ import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo, useState } from 'react'
-import { formatUSDAmount } from 'utils/amount'
+import { formatBigUSDAmount } from 'utils/amount'
 
 // filtering
 const ASSET_TABLE_LIST_FILTERS = [
@@ -25,8 +25,8 @@ const ASSET_TABLE_LIST_FILTERS = [
 ]
 
 export default function Asset() {
-  const { allAsset, isPoolToken } = useAsset()
-  const { tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
+  const { allAsset } = useAsset()
+  const { findPoolFromPairsByDenom, tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()
 
   // chart
@@ -55,28 +55,32 @@ export default function Asset() {
 
   // asset table
   const assetTableList = useMemo(() => {
-    return allAsset.map((item, index) => {
-      const asset = AssetTableLogoCell({ assets: getAssetTickers(item) })
-      const vol24USD = getVol24USDbyDenom(item.denom)
-      const tvlUSD = getTVLUSDbyDenom(item.denom)
-      const priceOracle =
-        (isPoolToken(item.denom) ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle) ??
-        new BigNumber(0)
-      const filter = item.denom.includes('pool') ? ASSET_TABLE_LIST_FILTERS[1].value : ASSET_TABLE_LIST_FILTERS[0].value
+    return allAsset
+      .filter((item) => (item.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
+      .map((item, index) => {
+        const asset = AssetTableLogoCell({ assets: getAssetTickers(item) })
+        const vol24USD = getVol24USDbyDenom(item.denom)
+        const tvlUSD = getTVLUSDbyDenom(item.denom)
+        const priceOracle =
+          (item.isPoolToken ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle) ?? new BigNumber(0)
+        const filter = item.denom.includes('pool')
+          ? ASSET_TABLE_LIST_FILTERS[1].value
+          : ASSET_TABLE_LIST_FILTERS[0].value
 
-      return {
-        index,
-        ticker: item.ticker,
-        asset,
-        chainName: item.chainName,
-        priceOracle,
-        vol24USD,
-        tvlUSD,
-        exponent: item.exponent,
-        filter,
-      }
-    })
-  }, [allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, isPoolToken, findPoolByDenom])
+        return {
+          index,
+          denom: item.denom,
+          ticker: item.ticker,
+          asset,
+          chainName: item.chainName,
+          priceOracle,
+          vol24USD,
+          tvlUSD,
+          exponent: item.exponent,
+          filter,
+        }
+      })
+  }, [findPoolFromPairsByDenom, allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, findPoolByDenom, getAssetTickers])
 
   return (
     <AppPage>
@@ -119,12 +123,19 @@ export default function Asset() {
           defaultSortBy="tvlUSD"
           defaultIsSortASC={false}
           filterOptions={ASSET_TABLE_LIST_FILTERS}
+          nowrap={true}
           fields={[
             {
               label: 'Token',
               value: 'asset',
               type: 'html',
               widthRatio: 22,
+            },
+            {
+              label: 'Denom',
+              value: 'denom',
+              abbrOver: 8,
+              responsive: true,
             },
             {
               label: 'Chain',
@@ -180,7 +191,7 @@ function AmountUSD({
       <div className="flex flex-col justify-start items-start space-y-2">
         <div className="TYPO-BODY-XL !font-black font-mono">
           {`$${value.toFormat(0)}`}
-          <span className="hidden ml-2 md:inline-block">{`(${formatUSDAmount(value, 2)})`}</span>
+          <span className="hidden ml-2 md:inline-block">{`(${formatBigUSDAmount(value, 2)})`}</span>
         </div>
         <div className="TYPO-BODY-XS !font-medium">{dateLabel}</div>
       </div>

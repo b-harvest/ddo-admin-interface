@@ -2,18 +2,18 @@ import BigNumber from 'bignumber.js'
 import numbro from 'numbro'
 
 // using a currency library here in case we want to add more in future
-export const formatUSDAmount = (amt: BigNumber | undefined, digits = 2, average = true) => {
+export const formatBigUSDAmount = (amt: BigNumber | undefined, mantissa = 2, average = true) => {
   const num = amt?.toNumber()
 
+  if (num === undefined) return '-'
   if (num === 0) return '0'
-  if (!num) return '-'
-  if (num < 0.001 && digits <= 3) {
-    return '<0.001'
+  if (num < 0.01) {
+    return '<0.01'
   }
 
   return numbro(num).formatCurrency({
     average,
-    mantissa: num > 1000 ? 2 : digits,
+    mantissa: num > 1000 ? 2 : mantissa,
     abbreviations: {
       billion: 'b',
       million: 'm',
@@ -22,6 +22,23 @@ export const formatUSDAmount = (amt: BigNumber | undefined, digits = 2, average 
     prefix: '',
     currencySymbol: '≈',
   })
+}
+
+export const formatUSDAmount = ({
+  value,
+  mantissa = 2,
+  useCurrencySymbol = true,
+}: {
+  value: BigNumber
+  mantissa?: number
+  useCurrencySymbol?: boolean
+}) => {
+  const currency = useCurrencySymbol ? '$' : ''
+  return value.isZero()
+    ? `${currency}0`
+    : value.isLessThan(0.01)
+    ? `<${currency}0.01`
+    : `${currency}${value.toFormat(mantissa, BigNumber.ROUND_HALF_UP)}`
 }
 
 // tmp to parse scientific notation for log digits number in js

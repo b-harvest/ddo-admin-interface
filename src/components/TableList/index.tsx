@@ -1,13 +1,23 @@
 import BigNumber from 'bignumber.js'
+import CopyHelper from 'components/CopyHelper'
+import EmptyData from 'components/EmptyData'
 import FilterRadioGroup, { FilterRadioGroupOption, TAB_RADIO_GROUP_DEFAULT_OPTION } from 'components/FilterRadioGroup'
 import SearchInput from 'components/Inputs/SearchInput'
 import { useMatchedTableList } from 'components/TableList/hooks'
-import type { ListField, TableListItem, TableListProps } from 'components/TableList/types'
+import type {
+  ListField,
+  ListFieldBignumber,
+  ListFieldUSD,
+  TableListItem,
+  TableListProps,
+} from 'components/TableList/types'
 import Tag from 'components/Tag'
-import { useLayoutEffect, useState } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 import type { AlertStatus } from 'types/alert'
+import { formatUSDAmount } from 'utils/amount'
 
 const IS_SORT_ASC_DEFAULT = false
+const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`
 
 export default function TableList({
   title,
@@ -15,21 +25,31 @@ export default function TableList({
   fields,
   useSearch = true,
   mergedFields = [],
+  mergedFieldLabel,
+  totalField,
+  totalLabel,
+  totalPrefixDesc,
+  totalDesc,
+  totalStatus,
   showTitle = true,
   showFieldsBar = true,
   useNarrow = false,
   emptyListLabel = 'No data',
   defaultSortBy,
   defaultIsSortASC,
-  showItemsVertically = false,
+  nowrap = false,
   filterOptions,
 }: TableListProps) {
+  // fields
+  const merged = useMemo(() => fields.filter((field) => mergedFields.includes(field.value)), [fields, mergedFields])
+  const nonMerged = useMemo(() => fields.filter((field) => !mergedFields.includes(field.value)), [fields, mergedFields])
+
   // col width ratio
   const [colWidthRatio, setColWidthRatio] = useState(100)
 
   useLayoutEffect(() => {
-    setColWidthRatio(100 / fields.length)
-  }, [fields])
+    setColWidthRatio(100 / (nonMerged.length + 1))
+  }, [nonMerged])
 
   // table search keyword
   const [searchKeyword, setSearchKeyword] = useState<string>('')
@@ -56,6 +76,18 @@ export default function TableList({
   // final table list to display
   const matchedList = useMatchedTableList({ list, searchKeyword, sortBy, isSortASC, filterOption })
 
+  // total derieved from the matched list only
+  const validTotalField = useMemo(() => {
+    return fields.find(
+      (field) => field.value === totalField && (field.type === 'bignumber' || field.type === 'usd')
+    ) as ListFieldBignumber | ListFieldUSD | undefined
+  }, [totalField, fields])
+
+  const total = useMemo(() => {
+    if (!validTotalField) return undefined
+    else return matchedList.reduce((accm, item) => accm.plus(item[validTotalField.value]), new BigNumber(0))
+  }, [validTotalField, matchedList])
+
   return (
     <div>
       {/* list header */}
@@ -81,10 +113,11 @@ export default function TableList({
           <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-1' : 'mb-2'}`}>
             <ul
               className={`flex justify-between items-center bg-grayCRE-50 dark:bg-neutral-800 px-4 py-1 hover:shadow-md transition-all ${
-                useNarrow ? 'md:py-1 rounded-md' : 'rounded-lg'
+                useNarrow ? 'md:py-1 rounded-md md:space-x-2' : 'rounded-lg md:space-x-4'
+                // useNarrow ? 'rounded-lg px-4 md:space-x-2' : 'rounded-xl p-4 md:space-x-4'
               }`}
             >
-              {fields.map((field, i) => {
+              {nonMerged.map((field, i) => {
                 return (
                   <li
                     key={i}
@@ -92,9 +125,7 @@ export default function TableList({
                       flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                       justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
                     }}
-                    className={`grow shrink ${
-                      field.responsive ? 'hidden' : 'flex'
-                    } justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`}
+                    className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                     onClick={() => onFieldClick(field)}
                   >
                     {field.label}
@@ -102,6 +133,24 @@ export default function TableList({
                   </li>
                 )
               })}
+              {merged.map((field, i) =>
+                i === 0 ? (
+                  <li
+                    key={i}
+                    className={`flex ${FIELD_CSS_CLASS}`}
+                    style={{
+                      flexBasis: `${
+                        merged.reduce((m, item) => m + (field.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio
+                      }%`,
+                      justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
+                    }}
+                    onClick={() => onFieldClick(field)}
+                  >
+                    {mergedFieldLabel ?? ''}
+                    {sortBy === field.value ? <span className="ml-2">{isSortASC ? '↓' : '↑'}</span> : null}
+                  </li>
+                ) : null
+              )}
             </ul>
           </div>
         ) : null}
@@ -109,13 +158,7 @@ export default function TableList({
         {/* data list */}
         <div>
           {matchedList.length <= 0 ? (
-            <div
-              className={`w-full  bg-grayCRE-200 dark:bg-neutral-800 TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${
-                useNarrow ? 'rounded-lg p-2' : 'rounded-xl p-4'
-              }`}
-            >
-              {emptyListLabel}
-            </div>
+            <EmptyData useNarrow={useNarrow} label={emptyListLabel} />
           ) : (
             <ul
               className={`flex flex-col justify-start items-stretch transition-all ${
@@ -127,16 +170,41 @@ export default function TableList({
                   <ListItem
                     key={i}
                     data={item}
-                    fields={fields}
-                    mergedFields={mergedFields}
+                    merged={merged}
+                    nonMerged={nonMerged}
                     useNarrow={useNarrow}
                     colWidthRatio={colWidthRatio}
-                    showItemsVertically={showItemsVertically}
+                    nowrap={nowrap}
                   />
                 )
               })}
             </ul>
           )}
+        </div>
+
+        {/* total */}
+        <div className="relative block w-full">
+          {validTotalField && total ? (
+            <div
+              className={`flex flex-col md:flex-row justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
+                useNarrow ? 'rounded-lg px-4 space-y-1 md:space-x-2 mt-1' : 'rounded-xl p-4 space-y-2 md:space-x-4 mt-2'
+              } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400 ${
+                totalStatus ? getListItemClassByStatus(totalStatus) : ''
+              }`}
+            >
+              <div className="text-left !font-black">
+                <span>{totalLabel ?? `Total ${validTotalField.label}`}</span>
+              </div>
+              <div className="flex flex-col justify-start items-end space-y-2">
+                <div className="flex space-x-2 !font-black !font-mono">
+                  <div className="mr-2">{totalPrefixDesc ?? null}</div>
+                  <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
+                  {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
+                </div>
+                {totalDesc ?? null}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -146,34 +214,34 @@ export default function TableList({
 //   ListItem
 function ListItem({
   data,
-  fields,
-  mergedFields,
+  // fields,
+  merged,
+  nonMerged,
   useNarrow,
   colWidthRatio,
-  showItemsVertically,
+  nowrap,
 }: {
   data: TableListItem
-  fields: ListField[]
-  mergedFields: string[]
+  // fields: ListField[]
+  merged: ListField[]
+  nonMerged: ListField[]
   useNarrow?: boolean
   colWidthRatio: number
-  showItemsVertically: boolean
+  nowrap: boolean
 }) {
-  const merged = fields.filter((field) => mergedFields.includes(field.value))
-  const nonMerged = fields.filter((field) => !mergedFields.includes(field.value))
-  const cellClass = (field: ListField) =>
-    `${
-      field.responsive ? 'hidden' : 'flex'
-    } grow shrink items-center TYPO-BODY-S text-black dark:text-white !font-medium overflow-hidden md:flex md:TYPO-BODY-M`
+  // const merged = fields.filter((field) => mergedFields.includes(field.value))
+  // const nonMerged = fields.filter((field) => !mergedFields.includes(field.value))
 
   return (
     <li className="relative block w-full">
       <ul
-        className={`${data.status ? getListItemClass(data.status) : ''} ${
-          useNarrow ? 'rounded-lg space-y-1 px-4 md:space-x-2' : 'rounded-xl space-y-2 p-4 md:space-x-4'
+        className={`${data.status ? getListItemClassByStatus(data.status) : ''} ${
+          useNarrow ? 'rounded-lg px-4 md:space-x-2' : 'rounded-xl p-4 md:space-x-4'
         } ${
-          showItemsVertically ? 'flex-col' : 'flex-row'
-        } flex justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0`}
+          nowrap
+            ? 'flex-row items-center space-x-2'
+            : 'flex-col md:flex-row items-strecth md:items-center space-y-1 md:space-y-0 space-x-0 md:space-x-2'
+        } flex  justify-between w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md`}
       >
         {nonMerged.map((field, i) => {
           return (
@@ -185,7 +253,7 @@ function ListItem({
                 justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
                 // color: field.color ?? 'inherit',
               }}
-              className={cellClass(field)}
+              className={`${cellClass(field)} flex space-x-2`}
             >
               {ListItemCell({ data, field })}
               {field.tag ? <Tag>{field.tag}</Tag> : null}
@@ -194,7 +262,7 @@ function ListItem({
         })}
         {merged.length > 0 ? (
           <li
-            className="flex flex-col justify-start items-stretch space-y-2"
+            className="grow shrink flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
             style={{
               flexBasis: `${merged.reduce((m, item) => m + (item.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio}%`,
             }}
@@ -230,41 +298,65 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
       <img src={value} alt="" style={{ width: `${field.size ?? 24}px`, height: `${field.size ?? 24}px` }} />
     ) : null
   } else if (field.type === 'bignumber' || field.type === 'usd') {
-    if (value === null) return null
-
-    const valueToFormat: string =
-      field.type === 'usd'
-        ? (value as BigNumber).toFormat(field.toFixedFallback ?? 0, BigNumber.ROUND_HALF_UP)
-        : (value as BigNumber).toFormat(data.exponent ?? field.toFixedFallback ?? 0)
-
-    const displayVal = new BigNumber(valueToFormat).isZero() ? '0' : valueToFormat
+    const numberVal =
+      value === null || value === undefined ? '-' : bignumberToFormat({ value, exponent: data.exponent, field })
 
     return (
-      <div title={displayVal} className="font-mono">
-        {field.type === 'usd' ? <span className="pr-1">$</span> : null}
-        {displayVal}
+      <div title={numberVal} className="font-mono">
+        {numberVal}
       </div>
     )
+  } else if (field.abbrOver && typeof value === 'string') {
+    const abbrLength = field.abbrOver ?? value.length
+    const abbrVal = value.length > abbrLength ? `${value.slice(0, abbrLength)}・・・${value.slice(-3)}` : value
+    return (
+      <CopyHelper toCopy={value} iconPosition="left">
+        {' '}
+        <div title={value}>{abbrVal}</div>
+      </CopyHelper>
+    )
+  } else if (typeof value === 'string') {
+    return <div title={value}>{value}</div>
   } else {
     return <div title={value}>{value}</div>
   }
 }
+const cellClass = (field: ListField) =>
+  `${
+    field.responsive ? 'hidden' : 'flex'
+  } grow shrink items-center TYPO-BODY-S text-black dark:text-white !font-medium overflow-hidden md:flex md:TYPO-BODY-M`
 
-function getListItemClass(status: AlertStatus): string {
+function getListItemClassByStatus(status: AlertStatus): string {
   switch (status) {
     case 'success':
-      return 'border border-success'
+      return '!bg-success-light !dark:bg-success-o !border-2 !border-success-o !shadow-md !shadow-success-o'
       break
     case 'warning':
-      return 'border border-warning'
+      return '!bg-warning-light dark:!bg-warning-o !border-2 !border-warning-o !shadow-md !shadow-warning-o'
       break
     case 'error':
-      return 'bg-error-light border-2 border-error-o shadow-md shadow-error-o'
+      return '!bg-error-light dark:!bg-error-o !border-2 !border-error-o !shadow-md !shadow-error-o'
       break
     case 'info':
-      return 'border border-info'
+      return '!bg-info-light dark:!bg-info-o !border-2 !border-info-o !shadow-md !shadow-info-o'
       break
     default:
       return ''
   }
+}
+
+export function bignumberToFormat({
+  value,
+  exponent,
+  field,
+}: {
+  value: BigNumber
+  exponent?: number
+  field: ListFieldBignumber | ListFieldUSD
+}): string {
+  return field.type === 'usd'
+    ? formatUSDAmount({ value, mantissa: 0 })
+    : value.isZero()
+    ? '0'
+    : value.toFormat(exponent ?? field.toFixedFallback ?? 0)
 }
