@@ -66,6 +66,7 @@ export default function Asset() {
 
       return {
         index,
+        denom: item.denom,
         ticker: item.ticker,
         asset,
         chainName: item.chainName,
@@ -76,7 +77,7 @@ export default function Asset() {
         filter,
       }
     })
-  }, [allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, isPoolToken, findPoolByDenom])
+  }, [allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, isPoolToken, findPoolByDenom, getAssetTickers])
 
   return (
     <AppPage>
@@ -125,6 +126,12 @@ export default function Asset() {
               value: 'asset',
               type: 'html',
               widthRatio: 22,
+            },
+            {
+              label: 'Denom',
+              value: 'denom',
+              abbrOver: 6,
+              responsive: true,
             },
             {
               label: 'Chain',

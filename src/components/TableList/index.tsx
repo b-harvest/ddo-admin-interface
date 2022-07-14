@@ -251,7 +251,7 @@ function ListItem({
                 justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
                 // color: field.color ?? 'inherit',
               }}
-              className={cellClass(field)}
+              className={`${cellClass(field)} flex space-x-2`}
             >
               {ListItemCell({ data, field })}
               {field.tag ? <Tag>{field.tag}</Tag> : null}
@@ -306,15 +306,17 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
         {numberVal}
       </div>
     )
-  } else if (typeof value === 'string') {
+  } else if (field.abbrOver && typeof value === 'string') {
     const abbrLength = field.abbrOver ?? value.length
     const abbrVal = value.length > abbrLength ? `${value.slice(0, abbrLength)}・・・${value.slice(-3)}` : value
     return (
-      <CopyHelper toCopy={value}>
+      <CopyHelper toCopy={value} iconPosition="left">
         {' '}
         <div title={value}>{abbrVal}</div>
       </CopyHelper>
     )
+  } else if (typeof value === 'string') {
+    return <div title={value}>{value}</div>
   } else {
     return <div title={value}>{value}</div>
   }

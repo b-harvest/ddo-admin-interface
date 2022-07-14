@@ -7,6 +7,7 @@ import Tag from 'components/Tag'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
+import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Accounts/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
@@ -22,6 +23,7 @@ export default function ClaimableRewards({
 }) {
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePair()
+  const { findPoolByDenom } = usePool()
 
   const { allFarmRewardsDataTimestamp, allFarmRewardsByToken, allFarmRewardsByTokenLCD } = useAccountData(address ?? '')
 
@@ -64,6 +66,7 @@ export default function ClaimableRewards({
 
             return {
               pool,
+              poolId: findPoolByDenom(item.poolDenom)?.poolId,
               poolDenom: item.poolDenom,
               rewardToken,
               rewardTokenLogo,
@@ -80,7 +83,7 @@ export default function ClaimableRewards({
       rewardsTablesByRewardsToken.findIndex((tableList) => tableList[0].totalStatus === 'error') > -1
 
     return { rewardsTablesByRewardsToken, hasRewardsDiff }
-  }, [allFarmRewardsByToken, allFarmRewardsByTokenLCD, findAssetByDenom, getAssetTickers])
+  }, [allFarmRewardsByToken, allFarmRewardsByTokenLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   // alert-inline data - staked amount
   const { isRewardsDataTimeDiff, isRewardsDataAllMatched } = useMemo(() => {
@@ -95,7 +98,7 @@ export default function ClaimableRewards({
   }, [allFarmRewardsDataTimestamp, hasRewardsDiff, significantTimeGap])
 
   return (
-    <FoldableSection label="Claimable Rewards" defaultIsOpen={false}>
+    <FoldableSection label="Claimable Rewards" defaultIsOpen={true}>
       <AccountDataAlertArea
         isActive={rewardsTablesByRewardsToken.length > 0}
         significantTimeGap={significantTimeGap}
@@ -112,6 +115,7 @@ export default function ClaimableRewards({
                 <span>Pools rewarding</span>
                 {tableList[0].rewardToken}
               </h4>
+
               <TableList
                 title="Claimabale Rewards"
                 showTitle={false}
@@ -136,8 +140,8 @@ export default function ClaimableRewards({
                     widthRatio: 30,
                   },
                   {
-                    label: 'Denom',
-                    value: 'poolDenom',
+                    label: 'Pool ID',
+                    value: 'poolId',
                     widthRatio: 10,
                   },
                   // {

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import AlertBox from 'components/AlertBox'
 import AppPage from 'components/AppPage'
+import Hr from 'components/Hr'
 import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
@@ -77,7 +78,9 @@ export default function Accounts() {
 
       <div className="flex flex-col justify-start items-stretch space-y-12">
         <TokenBalance address={address} significantTimeGap={significantTimeGap} />
+        <Hr />
         <ClaimableRewards address={address} significantTimeGap={significantTimeGap} />
+        <Hr />
         <FarmStakedAmount address={address} significantTimeGap={significantTimeGap} />
       </div>
     </AppPage>

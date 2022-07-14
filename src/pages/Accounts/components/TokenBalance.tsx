@@ -89,7 +89,7 @@ export default function TokenBalance({
   }, [allBalanceData, hasBalanceDiff, significantTimeGap])
 
   return (
-    <FoldableSection label="Token Balance" defaultIsOpen={false}>
+    <FoldableSection label="Token Balance" defaultIsOpen={true}>
       <AccountDataAlertArea
         isActive={balanceTableList.length > 0}
         significantTimeGap={significantTimeGap}
@@ -105,7 +105,7 @@ export default function TokenBalance({
           useSearch={false}
           showFieldsBar={true}
           list={balanceTableList}
-          mergedFields={['onchainBalance', 'backendBalance']}
+          mergedFields={['backendBalance', 'onchainBalance']}
           mergedFieldLabel="Balance"
           defaultSortBy="onchainBalance"
           defaultIsSortASC={false}
@@ -124,16 +124,16 @@ export default function TokenBalance({
               widthRatio: 20,
             },
             {
-              label: 'Onchain Data',
-              value: 'onchainBalance',
-              tag: 'On-chain',
+              label: 'Backend Data',
+              value: 'backendBalance',
+              tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: MAX_AMOUNT_FIXED,
             },
             {
-              label: 'Backend Data',
-              value: 'backendBalance',
-              tag: 'Back-end',
+              label: 'Onchain Data',
+              value: 'onchainBalance',
+              tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: MAX_AMOUNT_FIXED,
             },

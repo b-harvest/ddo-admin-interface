@@ -4,6 +4,7 @@ import TableList from 'components/TableList'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
+import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Accounts/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
@@ -19,6 +20,7 @@ export default function FarmStakedAmount({
 }) {
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePair()
+  const { findPoolByDenom } = usePool()
 
   const { allStakedDataTimestamp, allStaked, allStakedLCD } = useAccountData(address ?? '')
 
@@ -39,6 +41,7 @@ export default function FarmStakedAmount({
         return {
           asset,
           ...item,
+          poolId: findPoolByDenom(item.denom)?.poolId,
           onchainStakedAmount,
           status,
         }
@@ -47,7 +50,7 @@ export default function FarmStakedAmount({
     const hasStakedDiff = stakedTableList.findIndex((item) => item.status === 'error') > -1
 
     return { stakedTableList, hasStakedDiff }
-  }, [allStaked, allStakedLCD, findAssetByDenom, getAssetTickers])
+  }, [allStaked, allStakedLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   // alert-inline data - staked amount
   const { isStakedDataTimeDiff, isStakedDataAllMatched } = useMemo(() => {
@@ -61,7 +64,7 @@ export default function FarmStakedAmount({
   }, [allStakedDataTimestamp, hasStakedDiff, significantTimeGap])
 
   return (
-    <FoldableSection label="Farm Staked Amount" defaultIsOpen={false}>
+    <FoldableSection label="Farm Staked Amount" defaultIsOpen={true}>
       <AccountDataAlertArea
         isActive={stakedTableList.length > 0}
         significantTimeGap={significantTimeGap}
@@ -77,8 +80,8 @@ export default function FarmStakedAmount({
           useSearch={false}
           showFieldsBar={true}
           list={stakedTableList}
-          mergedFields={['onchainStakedAmount', 'stakedAmount', 'queuedAmount']}
-          mergedFieldLabel="Staked Amount"
+          mergedFields={['stakedAmount', 'onchainStakedAmount']}
+          mergedFieldLabel="Staked amount"
           defaultSortBy="onchainStakedAmount"
           defaultIsSortASC={false}
           showItemsVertically={false}
@@ -90,28 +93,29 @@ export default function FarmStakedAmount({
               widthRatio: 30,
             },
             {
-              label: 'Denom',
-              value: 'denom',
+              label: 'Pool ID',
+              value: 'poolId',
               widthRatio: 10,
             },
             {
-              label: 'Onchain Amount',
-              value: 'onchainStakedAmount',
-              tag: 'On-chain',
+              label: 'Queued amount',
+              value: 'queuedAmount',
+              tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: 6,
+              responsive: true,
             },
             {
-              label: 'Backend Amount',
+              label: 'Backend amount',
               value: 'stakedAmount',
               tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: 6,
             },
             {
-              label: 'Backend Queued Amount',
-              value: 'queuedAmount',
-              tag: '* Queued',
+              label: 'Onchain amount',
+              value: 'onchainStakedAmount',
+              tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: 6,
             },
