@@ -56,7 +56,7 @@
     "test": "craco test",
     "eject": "craco eject",
     "lint": "eslint",
-    "deploy": "yarn build && aws s3 sync ./build s3://crescent-admin --profile=summer.smith@crescent.foundation && aws cloudfront create-invalidation --profile=summer.smith@crescent.foundation --distribution-id E32I1SF07RFNR3 --paths /*"
+    "deploy": "yarn build && aws s3 sync ./build s3://crescent-admin --profile=summer.smith@crescent.foundation && aws cloudfront create-invalidation --profile=summer.smith@crescent.foundation --distribution-id E32I1SF07RFNR3 --paths \"/*\""
   },
   "browserslist": {
     "production": [
