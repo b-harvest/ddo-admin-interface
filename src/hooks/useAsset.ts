@@ -24,7 +24,7 @@ const useAsset = () => {
         isPoolToken: isPoolToken(assetInfo.denom),
       }
     }) as Asset[]
-  }, [allAssetInfoAtom, allAssetLive])
+  }, [allAssetInfoAtom, allAssetLive, isPoolToken])
 
   const findAssetByDenom = useCallback(
     (denom: string) => {

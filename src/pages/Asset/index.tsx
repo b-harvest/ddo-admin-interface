@@ -25,8 +25,8 @@ const ASSET_TABLE_LIST_FILTERS = [
 ]
 
 export default function Asset() {
-  const { allAsset, isPoolToken } = useAsset()
-  const { tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
+  const { allAsset } = useAsset()
+  const { findPoolFromPairsByDenom, tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()
 
   // chart
@@ -55,29 +55,32 @@ export default function Asset() {
 
   // asset table
   const assetTableList = useMemo(() => {
-    return allAsset.map((item, index) => {
-      const asset = AssetTableLogoCell({ assets: getAssetTickers(item) })
-      const vol24USD = getVol24USDbyDenom(item.denom)
-      const tvlUSD = getTVLUSDbyDenom(item.denom)
-      const priceOracle =
-        (isPoolToken(item.denom) ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle) ??
-        new BigNumber(0)
-      const filter = item.denom.includes('pool') ? ASSET_TABLE_LIST_FILTERS[1].value : ASSET_TABLE_LIST_FILTERS[0].value
+    return allAsset
+      .filter((item) => (item.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
+      .map((item, index) => {
+        const asset = AssetTableLogoCell({ assets: getAssetTickers(item) })
+        const vol24USD = getVol24USDbyDenom(item.denom)
+        const tvlUSD = getTVLUSDbyDenom(item.denom)
+        const priceOracle =
+          (item.isPoolToken ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle) ?? new BigNumber(0)
+        const filter = item.denom.includes('pool')
+          ? ASSET_TABLE_LIST_FILTERS[1].value
+          : ASSET_TABLE_LIST_FILTERS[0].value
 
-      return {
-        index,
-        denom: item.denom,
-        ticker: item.ticker,
-        asset,
-        chainName: item.chainName,
-        priceOracle,
-        vol24USD,
-        tvlUSD,
-        exponent: item.exponent,
-        filter,
-      }
-    })
-  }, [allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, isPoolToken, findPoolByDenom, getAssetTickers])
+        return {
+          index,
+          denom: item.denom,
+          ticker: item.ticker,
+          asset,
+          chainName: item.chainName,
+          priceOracle,
+          vol24USD,
+          tvlUSD,
+          exponent: item.exponent,
+          filter,
+        }
+      })
+  }, [findPoolFromPairsByDenom, allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, findPoolByDenom, getAssetTickers])
 
   return (
     <AppPage>
