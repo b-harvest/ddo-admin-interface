@@ -25,7 +25,7 @@ export const toastWarning = (msg: string) => {
 }
 
 export const toastError = (msg: string) => {
-  console.log('Toast Error')
+  // console.log('Toast Error')
   toast.error(msg, {
     // position: toast.POSITION.TOP_LEFT,
   })

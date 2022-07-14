@@ -18,7 +18,6 @@ import {
   allPairInfoAtomRef,
   allPairLiveAtomRef,
   allPoolLiveAtomRef,
-  // chainIdAtomRef,
 } from 'state/atoms'
 import type { APIHookReturn } from 'types/api'
 import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
@@ -27,9 +26,6 @@ import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
 export default function StateUpdater(): null {
-  // chain id
-  // const [chainIdAtom] = useAtom(chainIdAtomRef)
-
   // all chain
   const [, setAllChainInfoAtom] = useAtom(allChainInfoAtomRef)
   const [, setAllChainLiveAtom] = useAtom(allChainLiveAtomRef)
@@ -63,37 +59,37 @@ export default function StateUpdater(): null {
     if (allChainInfoData && allChainLiveData) {
       const allChainInfo = allChainInfoData.data ?? []
       setAllChainInfoAtom(allChainInfo)
-      console.log('allChainInfo', allChainInfoData)
+      // console.log('allChainInfo', allChainInfoData)
 
       const allChainLive = allChainLiveData.data ?? []
       setAllChainLiveAtom(allChainLive)
-      console.log('allChainLive', allChainLiveData)
+      // console.log('allChainLive', allChainLiveData)
     }
 
     if (allAssetInfoData && allAssetLiveData) {
       const allAssetInfo = allAssetInfoData.data ?? []
       setAllAssetInfoAtom(allAssetInfo)
-      console.log('allAssetInfo', allAssetInfoData)
+      // console.log('allAssetInfo', allAssetInfoData)
 
       const allAssetLive = allAssetLiveData.data ?? []
       setAllAssetLiveAtom(allAssetLive)
-      console.log('allAssetLive', allAssetLiveData)
+      // console.log('allAssetLive', allAssetLiveData)
     }
 
     if (allPairInfoData && allPairLiveData) {
       const allPairInfo = allPairInfoData.data ?? []
       setAllPairtInfoAtom(allPairInfo)
-      console.log('allPairInfo', allPairInfoData)
+      // console.log('allPairInfo', allPairInfoData)
 
       const allPairLive = allPairLiveData.data ?? []
       setAllPairLiveAtom(allPairLive)
-      console.log('allPairLive', allPairLiveData)
+      // console.log('allPairLive', allPairLiveData)
     }
 
     if (allPoolLiveData) {
       const allPoolLive = allPoolLiveData.data ?? []
       setAllPoolLiveAtom(allPoolLive)
-      console.log('allPoolLive', allPoolLiveData)
+      // console.log('allPoolLive', allPoolLiveData)
     }
   }, [
     allChainInfoData,

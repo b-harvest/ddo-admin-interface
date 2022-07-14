@@ -93,8 +93,8 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     fetch: address !== '',
   })
 
-  console.log('allStaked', allStaked)
-  console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
+  // console.log('allStaked', allStaked)
+  // console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
 
   // backend
   const allFarmRewardsDataTimestamp = allStakedDataTimestamp
