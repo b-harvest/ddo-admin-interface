@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { allChainInfoAtomRef, allChainLiveAtomRef } from 'state/atoms'
 import { Chain } from 'types/chain'
 
-const useAsset = () => {
+const useChain = ({ interval = 0 }: { interval?: number }) => {
   const [allChainLiveAtom] = useAtom(allChainLiveAtomRef)
   const [allChainInfoAtom] = useAtom(allChainInfoAtomRef)
 
@@ -27,4 +27,4 @@ const useAsset = () => {
   return { allChain, findChainById }
 }
 
-export default useAsset
+export default useChain

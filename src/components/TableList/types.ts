@@ -56,6 +56,6 @@ export interface TableListProps {
   emptyListLabel?: string
   defaultSortBy?: ListField['value']
   defaultIsSortASC?: boolean
-  showItemsVertically?: boolean
+  nowrap?: boolean
   filterOptions?: FilterRadioGroupOption[]
 }

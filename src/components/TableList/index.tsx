@@ -37,7 +37,7 @@ export default function TableList({
   emptyListLabel = 'No data',
   defaultSortBy,
   defaultIsSortASC,
-  showItemsVertically = false,
+  nowrap = false,
   filterOptions,
 }: TableListProps) {
   // fields
@@ -174,7 +174,7 @@ export default function TableList({
                     nonMerged={nonMerged}
                     useNarrow={useNarrow}
                     colWidthRatio={colWidthRatio}
-                    showItemsVertically={showItemsVertically}
+                    nowrap={nowrap}
                   />
                 )
               })}
@@ -186,13 +186,13 @@ export default function TableList({
         <div className="relative block w-full">
           {validTotalField && total ? (
             <div
-              className={`flex justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
-                useNarrow ? 'rounded-lg px-4 md:space-x-2 mt-1' : 'rounded-xl p-4 md:space-x-4 mt-2'
+              className={`flex flex-col md:flex-row justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
+                useNarrow ? 'rounded-lg px-4 space-y-1 md:space-x-2 mt-1' : 'rounded-xl p-4 space-y-2 md:space-x-4 mt-2'
               } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400 ${
                 totalStatus ? getListItemClassByStatus(totalStatus) : ''
               }`}
             >
-              <div className="!font-black">
+              <div className="text-left !font-black">
                 <span>{totalLabel ?? `Total ${validTotalField.label}`}</span>
               </div>
               <div className="flex flex-col justify-start items-end space-y-2">
@@ -219,7 +219,7 @@ function ListItem({
   nonMerged,
   useNarrow,
   colWidthRatio,
-  showItemsVertically,
+  nowrap,
 }: {
   data: TableListItem
   // fields: ListField[]
@@ -227,7 +227,7 @@ function ListItem({
   nonMerged: ListField[]
   useNarrow?: boolean
   colWidthRatio: number
-  showItemsVertically: boolean
+  nowrap: boolean
 }) {
   // const merged = fields.filter((field) => mergedFields.includes(field.value))
   // const nonMerged = fields.filter((field) => !mergedFields.includes(field.value))
@@ -238,8 +238,10 @@ function ListItem({
         className={`${data.status ? getListItemClassByStatus(data.status) : ''} ${
           useNarrow ? 'rounded-lg px-4 md:space-x-2' : 'rounded-xl p-4 md:space-x-4'
         } ${
-          showItemsVertically ? 'flex-col' : 'flex-row'
-        } flex justify-between items-start w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0`}
+          nowrap
+            ? 'flex-row items-center space-x-2'
+            : 'flex-col md:flex-row items-strecth md:items-center space-y-1 md:space-y-0 space-x-0 md:space-x-2'
+        } flex  justify-between w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md`}
       >
         {nonMerged.map((field, i) => {
           return (
@@ -260,7 +262,7 @@ function ListItem({
         })}
         {merged.length > 0 ? (
           <li
-            className="flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
+            className="grow shrink flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
             style={{
               flexBasis: `${merged.reduce((m, item) => m + (item.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio}%`,
             }}
@@ -297,9 +299,7 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
     ) : null
   } else if (field.type === 'bignumber' || field.type === 'usd') {
     const numberVal =
-      value === null || value === undefined
-        ? 'No data available'
-        : bignumberToFormat({ value, exponent: data.exponent, field })
+      value === null || value === undefined ? '-' : bignumberToFormat({ value, exponent: data.exponent, field })
 
     return (
       <div title={numberVal} className="font-mono">

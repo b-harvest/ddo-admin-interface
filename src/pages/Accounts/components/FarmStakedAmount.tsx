@@ -14,15 +14,17 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function FarmStakedAmount({
   address,
   significantTimeGap,
+  interval = 0,
 }: {
   address: string | undefined
   significantTimeGap: number
+  interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()
 
-  const { allStakedDataTimestamp, allStaked, allStakedLCD } = useAccountData(address ?? '')
+  const { allStakedDataTimestamp, allStaked, allStakedLCD } = useAccountData({ address: address ?? '', interval })
 
   const { stakedTableList, hasStakedDiff } = useMemo(() => {
     const onchainStakedMap = allStakedLCD
@@ -34,7 +36,7 @@ export default function FarmStakedAmount({
       .map((item) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const assetInfo = findAssetByDenom(item.denom)!
-        const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo) })
+        const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo), poolDenom: item.denom })
         const onchainStakedAmount = onchainStakedMap[item.denom]?.amount ?? new BigNumber(0)
         const status: AlertStatus | undefined = item.stakedAmount.isEqualTo(onchainStakedAmount) ? undefined : 'error'
 
@@ -84,18 +86,19 @@ export default function FarmStakedAmount({
           mergedFieldLabel="Staked amount"
           defaultSortBy="onchainStakedAmount"
           defaultIsSortASC={false}
-          showItemsVertically={false}
+          nowrap={false}
           fields={[
             {
               label: 'Pool',
               value: 'asset',
               type: 'html',
-              widthRatio: 30,
+              widthRatio: 18,
             },
             {
-              label: 'Pool ID',
+              label: 'Pool #',
               value: 'poolId',
-              widthRatio: 10,
+              widthRatio: 12,
+              responsive: true,
             },
             {
               label: 'Queued amount',

@@ -18,23 +18,31 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function TokenBalance({
   address,
   significantTimeGap,
+  interval = 0,
 }: {
   address: string | undefined
   significantTimeGap: number
+  interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
 
-  const { getAssetTickers } = usePair()
+  const { getAssetTickers, findPoolFromPairsByDenom } = usePair()
 
   // fetching balance
-  const { data: allBalanceData, error: allBalanceDataError }: APIHookReturn<Balance> = useAllBalance({
-    address: address ?? '',
-    fetch: address !== undefined,
-  })
-  const { data: allBalanceLCDData, error: allBalanceLCDError }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD({
-    address: address ?? '',
-    fetch: address !== undefined,
-  })
+  const { data: allBalanceData, error: allBalanceDataError }: APIHookReturn<Balance> = useAllBalance(
+    {
+      address: address ?? '',
+      fetch: address !== undefined,
+    },
+    interval
+  )
+  const { data: allBalanceLCDData, error: allBalanceLCDError }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD(
+    {
+      address: address ?? '',
+      fetch: address !== undefined,
+    },
+    interval
+  )
 
   // toast
   useEffect(() => {
@@ -45,13 +53,16 @@ export default function TokenBalance({
   const { balanceTableList, hasBalanceDiff } = useMemo(() => {
     const balanceTableList =
       allBalanceData?.data.asset
-        .filter((item) => findAssetByDenom(item.denom) !== undefined)
+        .filter((item) => (findAssetByDenom(item.denom)?.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
         .map((item) => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const assetInfo = findAssetByDenom(item.denom)!
           const exponent = assetInfo.exponent
 
-          const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo) })
+          const asset = AssetTableLogoCell({
+            assets: getAssetTickers(assetInfo),
+            poolDenom: assetInfo.isPoolToken ? item.denom : undefined,
+          })
           const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
           const onchainBalance = allBalanceLCDData
             ? new BigNumber(allBalanceLCDData.balances.find((bal) => bal.denom === item.denom)?.amount ?? 0).dividedBy(
@@ -109,19 +120,20 @@ export default function TokenBalance({
           mergedFieldLabel="Balance"
           defaultSortBy="onchainBalance"
           defaultIsSortASC={false}
-          showItemsVertically={false}
+          nowrap={false}
           fields={[
             {
               label: 'Token',
               value: 'asset',
               type: 'html',
-              widthRatio: 30,
+              widthRatio: 18,
             },
             {
               label: 'Denom',
               value: 'denom',
-              abbrOver: 5,
+              abbrOver: 8,
               widthRatio: 20,
+              responsive: true,
             },
             {
               label: 'Backend Data',

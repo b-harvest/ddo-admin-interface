@@ -123,6 +123,7 @@ export default function Asset() {
           defaultSortBy="tvlUSD"
           defaultIsSortASC={false}
           filterOptions={ASSET_TABLE_LIST_FILTERS}
+          nowrap={true}
           fields={[
             {
               label: 'Token',
@@ -133,7 +134,7 @@ export default function Asset() {
             {
               label: 'Denom',
               value: 'denom',
-              abbrOver: 6,
+              abbrOver: 8,
               responsive: true,
             },
             {

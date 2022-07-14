@@ -17,15 +17,20 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function ClaimableRewards({
   address,
   significantTimeGap,
+  interval = 0,
 }: {
   address: string | undefined
   significantTimeGap: number
+  interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()
 
-  const { allFarmRewardsDataTimestamp, allFarmRewardsByToken, allFarmRewardsByTokenLCD } = useAccountData(address ?? '')
+  const { allFarmRewardsDataTimestamp, allFarmRewardsByToken, allFarmRewardsByTokenLCD } = useAccountData({
+    address: address ?? '',
+    interval,
+  })
 
   console.log('allFarmRewardsByToken', allFarmRewardsByToken)
   console.log('allFarmRewardsByTokenLCD', allFarmRewardsByTokenLCD)
@@ -49,10 +54,11 @@ export default function ClaimableRewards({
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const rewardAssetInfo = findAssetByDenom(item.denom)!
 
-            const pool = AssetTableLogoCell({ assets: getAssetTickers(poolAssetInfo) })
+            const pool = AssetTableLogoCell({ assets: getAssetTickers(poolAssetInfo), poolDenom: item.poolDenom })
             const rewardToken = AssetTableLogoCell({
               assets: getAssetTickers(rewardAssetInfo),
               isSingleAssetAutoSpaced: true,
+              nowrap: true,
             })
             const rewardTokenLogo = AssetTableLogoCell({
               assets: getAssetTickers(rewardAssetInfo),
@@ -131,18 +137,19 @@ export default function ClaimableRewards({
                 totalPrefixDesc={tableList[0].rewardTokenLogo}
                 totalDesc={tableList[0].totalDesc}
                 totalStatus={tableList[0].totalStatus}
-                showItemsVertically={false}
+                nowrap={false}
                 fields={[
                   {
                     label: 'Pool',
                     value: 'pool',
                     type: 'html',
-                    widthRatio: 30,
+                    widthRatio: 18,
                   },
                   {
-                    label: 'Pool ID',
+                    label: 'Pool #',
                     value: 'poolId',
-                    widthRatio: 10,
+                    widthRatio: 12,
+                    responsive: true,
                   },
                   // {
                   //   label: 'Rewards Token',

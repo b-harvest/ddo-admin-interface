@@ -20,7 +20,7 @@ import type {
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import { isTestnet } from 'utils/chain'
 
-const useAccountData = (address: string) => {
+const useAccountData = ({ address, interval = 0 }: { address: string; interval?: number }) => {
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   const isOnTestnet = isTestnet(chainIdAtom)
   const { findAssetByDenom } = useAsset()
