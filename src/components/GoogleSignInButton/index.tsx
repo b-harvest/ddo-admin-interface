@@ -1,4 +1,4 @@
-import Button from 'components/Buttons/Button'
+import Button from 'components/Button'
 import { useAtom } from 'jotai'
 import { isValidUser, refreshTokenSetup } from 'pages/SignIn/utils'
 import { useState } from 'react'

@@ -1,4 +1,4 @@
-import IconButton from 'components/Buttons/IconButton'
+import IconButton from 'components/IconButton'
 
 interface SearchInputProps {
   placeholder?: string
