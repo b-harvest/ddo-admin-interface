@@ -2,7 +2,7 @@ import AlertIcon from 'components/AlertIcon'
 import { CSSProperties, ReactElement } from 'react'
 import type { AlertStatus } from 'types/alert'
 interface AlertBoxProps {
-  msg: string
+  msg: string | JSX.Element
   status: AlertStatus
   isActive?: boolean
 }
@@ -37,7 +37,7 @@ function getCSSClassbyStatus(status: AlertStatus) {
       return `bg-[#FFFAF1] dark:bg-warning-o border-warning`
       break
     default:
-      return ''
+      return 'bg-grayCRE-50 dark:bg-grayCRE-400-o border-grayCRE-400 dark:border-grayCRE-200'
   }
 }
 
@@ -81,7 +81,7 @@ function AlertBoxMsg({ status, msg }: AlertBoxProps) {
       break
     default:
       html = (
-        <div style={style} className={className}>
+        <div style={style} className={`${className} !text-grayCRE-400 dark:!text-grayCRE-200`}>
           {msg}
         </div>
       )

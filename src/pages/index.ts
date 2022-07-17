@@ -16,9 +16,9 @@ export const pages: Page[] = [
     pageName: 'Account Comparison',
   },
   {
-    path: '/chains',
-    label: 'Chains',
-    pageName: 'Chain Tracking',
+    path: '/chain',
+    label: 'Chain',
+    pageName: 'Crescent Chain Tracking',
   },
   {
     path: '/validators',

@@ -1,7 +1,7 @@
 import { CHAIN_IDS } from 'constants/chain'
 import { atom } from 'jotai'
 import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
-import type { ChainInfo, ChainLive } from 'types/chain'
+import type { ChainInfo } from 'types/chain'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 import type { GoogleUserProfile } from 'types/user'
@@ -50,7 +50,7 @@ export const isTestnetAtomRef = atom<boolean>(false)
 // backend data
 export const allChainInfoAtomRef = atom<ChainInfo[]>([])
 
-export const allChainLiveAtomRef = atom<ChainLive[]>([])
+// export const allChainLiveAtomRef = atom<ChainLive[]>([])
 
 export const allAssetInfoAtomRef = atom<AssetInfoRaw[]>([])
 
