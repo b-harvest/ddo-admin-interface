@@ -23,9 +23,9 @@ const useChain = ({ interval = 0 }: { interval?: number }) => {
   const { data: allChainLiveData, isLoading: allChainLiveIsLoading }: APIHookReturn<ChainLive[]> =
     useAllChainLive(interval)
 
-  console.log('latestBlockLCDData', latestBlockLCDData)
-  console.log('allChainInfoData', allChainInfoData)
-  console.log('allChainLiveData', allChainLiveData)
+  // console.log('latestBlockLCDData', latestBlockLCDData)
+  // console.log('allChainInfoData', allChainInfoData)
+  // console.log('allChainLiveData', allChainLiveData)
 
   const allChain = useMemo(() => {
     return (

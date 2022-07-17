@@ -4,5 +4,5 @@ export type GenericChartEntry = {
 }
 
 export type ComposedChartEntry = Omit<GenericChartEntry, 'value'> & {
-  data: { [key: string]: number }[]
+  [key: string]: number
 }

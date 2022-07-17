@@ -69,7 +69,7 @@ export default function Accounts() {
           <button
             type="button"
             onClick={toggleInterval}
-            className="shrink-0 grow-0 basis-auto outline-none TYPO-BODY-S italic !font-bold text-left text-black dark:text-white bg-transparent p-3 rounded-xl hover:bg-grayCRE-200-o dark:hover:bg-grayCRE-400-o"
+            className="shrink-0 grow-0 basis-auto outline-none TYPO-BODY-S italic !font-bold text-left text-black dark:text-white bg-grayCRE-200-o p-3 rounded-xl hover:bg-grayCRE-50-o dark:bg-grayCRE-400-o dark:hover:bg-grayCRE-300-o"
           >
             <span className="hidden md:inline-block mr-2">Fetching</span>
             every {interval}s

@@ -16,3 +16,8 @@ export interface ChainLive {
 export interface Chain extends ChainInfo {
   live?: Omit<ChainLive, 'denom'>
 }
+
+export type BlockEvent = {
+  name: string
+  count: number
+}

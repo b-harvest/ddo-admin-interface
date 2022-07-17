@@ -30,7 +30,7 @@ export default function Chain() {
         }}
       />
 
-      <section>
+      <section className="mb-4">
         <BlockHeightPolling onchainBlockHeight={onchainBlockHeight} backendBlockHeight={backendBlockHeight} />
       </section>
 

@@ -1,31 +1,24 @@
-import { LIGHT_CRE } from 'constants/style'
+import { GLOW_CRE, LIGHT_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import weekOfYear from 'dayjs/plugin/weekOfYear'
-import { HTMLAttributes, ReactNode } from 'react'
+import { HTMLAttributes, ReactNode, useMemo } from 'react'
 import { Bar, BarChart as Chart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import type { ComposedChartEntry } from 'types/chart'
 
 dayjs.extend(utc)
-dayjs.extend(weekOfYear)
 
 const DEFAULT_HEIGHT = 300
 
-// export enum TimeTick {
-//   Daily,
-//   Weekly,
-//   Monthly,
-// }
-
 export type LineChartProps = {
   data: ComposedChartEntry[]
-  color?: string | undefined
+  dataKeys: string[]
+  colors?: string[]
   height?: number | undefined
   minHeight?: number
-  setValue?: (value: number | undefined) => void
-  setLabel?: (value: string | undefined) => void
-  value?: number
-  label?: string
+  setIndex?: (value: number | undefined) => void
+  setLabel?: (value: number | undefined) => void
+  index?: number
+  label?: number
   tickFormatter?: (tick: ComposedChartEntry['time']) => string
   topLeft?: ReactNode | undefined
   topRight?: ReactNode | undefined
@@ -36,10 +29,11 @@ export type LineChartProps = {
 
 export default function ComposedBarChart({
   data,
-  color = '#56B2A4',
-  setValue,
+  dataKeys,
+  colors = [GLOW_CRE],
+  setIndex,
   setLabel,
-  value,
+  index,
   label,
   tickFormatter,
   topLeft,
@@ -50,9 +44,21 @@ export default function ComposedBarChart({
   className = '',
   ...rest
 }: LineChartProps) {
-  const parsedValue = value
+  const chartData = useMemo(() => {
+    return data.map((item) => {
+      let accmVal = 0
+      const accmData = dataKeys.reduce((accm: { [key: string]: number }, key) => {
+        accmVal += item[key]
+        accm[key] = accmVal
+        return accm
+      }, {})
 
-  // const now = dayjs()
+      return {
+        time: item.time,
+        ...accmData,
+      }
+    })
+  }, [data, dataKeys])
 
   return (
     <div
@@ -74,7 +80,8 @@ export default function ComposedBarChart({
           <Chart
             width={400}
             height={220}
-            data={data}
+            data={chartData}
+            barGap={'-79.3%'}
             margin={{
               top: 5,
               right: 30,
@@ -83,7 +90,7 @@ export default function ComposedBarChart({
             }}
             onMouseLeave={() => {
               setLabel && setLabel(undefined)
-              setValue && setValue(undefined)
+              setIndex && setIndex(undefined)
             }}
           >
             <XAxis
@@ -96,28 +103,36 @@ export default function ComposedBarChart({
             <Tooltip
               cursor={{ fill: LIGHT_CRE }}
               contentStyle={{ display: 'none' }}
-              formatter={(
-                value: ComposedChartEntry['data'],
-                name: string,
-                props: { payload: { time: ComposedChartEntry['time']; value: ComposedChartEntry['data'] } }
-              ) => {
-                if (setValue && parsedValue !== props.payload.time) {
-                  setValue(props.payload.time)
+              formatter={(value: number, name: string, props: { payload: { time: ComposedChartEntry['time'] } }) => {
+                if (setLabel && label !== props.payload.time) {
+                  setLabel(props.payload.time)
                 }
-                const formattedTime = dayjs(props.payload.time).format('MMM D')
 
-                if (setLabel && label !== formattedTime) {
-                  setLabel(formattedTime)
+                const currentIndex = data.findIndex((item) => item.time === props.payload.time)
+
+                if (setIndex && index !== currentIndex) {
+                  setIndex(currentIndex)
                 }
               }}
             />
-            <Bar
-              dataKey="value"
-              fill={color}
-              shape={(props) => {
-                return <CustomBar height={props.height} width={props.width} x={props.x} y={props.y} fill={color} />
-              }}
-            />
+            {dataKeys.map((key, i) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                fill={colors[i] ?? colors.at(-1)}
+                shape={(props) => {
+                  return (
+                    <CustomBar
+                      height={props.height}
+                      width={props.width}
+                      x={props.x}
+                      y={props.y}
+                      fill={colors[i] ?? colors.at(-1)}
+                    />
+                  )
+                }}
+              />
+            ))}
           </Chart>
         </ResponsiveContainer>
       </div>

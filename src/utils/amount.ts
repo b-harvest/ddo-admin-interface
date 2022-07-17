@@ -4,15 +4,15 @@ import numbro from 'numbro'
 export const formatUSDAmount = ({
   value,
   mantissa = 2,
-  useCurrencySymbol = true,
+  currencySymbol = '$',
   abbr = false,
 }: {
   value?: BigNumber
   mantissa?: number
-  useCurrencySymbol?: boolean
+  currencySymbol?: string
   abbr?: boolean
 }) => {
-  const prefix = useCurrencySymbol ? '$' : ''
+  const prefix = currencySymbol ?? ''
   if (value === undefined) return '-'
   if (value.isZero()) return `${prefix}0`
   if (value.isLessThan(0.01)) return `<${prefix}0.01`
