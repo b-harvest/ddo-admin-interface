@@ -86,7 +86,7 @@ export default function ClaimableRewards({
       })
 
     const hasRewardsDiff =
-      rewardsTablesByRewardsToken.findIndex((tableList) => tableList[0].totalStatus === 'error') > -1
+      rewardsTablesByRewardsToken.findIndex((tableList) => tableList[0]?.totalStatus === 'error') > -1
 
     return { rewardsTablesByRewardsToken, hasRewardsDiff }
   }, [allFarmRewardsByToken, allFarmRewardsByTokenLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
@@ -115,66 +115,68 @@ export default function ClaimableRewards({
 
       <div className="mt-8">
         {rewardsTablesByRewardsToken.length > 0 ? (
-          rewardsTablesByRewardsToken.map((tableList, i) => (
-            <div key={i}>
-              <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
-                <span>Pools rewarding</span>
-                {tableList[0].rewardToken}
-              </h4>
+          rewardsTablesByRewardsToken.map((tableList, i) =>
+            tableList.length ? (
+              <div key={i}>
+                <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
+                  <span>Pools rewarding</span>
+                  {tableList[0].rewardToken}
+                </h4>
 
-              <TableList
-                title="Claimabale Rewards"
-                showTitle={false}
-                useSearch={false}
-                showFieldsBar={true}
-                list={tableList}
-                mergedFields={['rewardsAmount', 'rewardsAmountLCD']}
-                mergedFieldLabel="Rewards amount"
-                defaultSortBy="rewardsAmount"
-                defaultIsSortASC={false}
-                totalField="rewardsAmount"
-                totalLabel="Total rewards"
-                totalPrefixDesc={tableList[0].rewardTokenLogo}
-                totalDesc={tableList[0].totalDesc}
-                totalStatus={tableList[0].totalStatus}
-                nowrap={false}
-                fields={[
-                  {
-                    label: 'Pool',
-                    value: 'pool',
-                    type: 'html',
-                    widthRatio: 18,
-                  },
-                  {
-                    label: 'Pool #',
-                    value: 'poolId',
-                    widthRatio: 12,
-                    responsive: true,
-                  },
-                  // {
-                  //   label: 'Rewards Token',
-                  //   value: 'rewardToken',
-                  //   type: 'html',
-                  //   widthRatio: 12,
-                  // },
-                  {
-                    label: 'Rewards amount',
-                    value: 'rewardsAmount',
-                    tag: 'Back-end',
-                    type: 'bignumber',
-                    toFixedFallback: 6,
-                  },
-                  {
-                    label: 'On-chain rewards amount',
-                    value: 'rewardsAmountLCD',
-                    tag: 'On-chain',
-                    type: 'bignumber',
-                    toFixedFallback: 6,
-                  },
-                ]}
-              />
-            </div>
-          ))
+                <TableList
+                  title="Claimabale Rewards"
+                  showTitle={false}
+                  useSearch={false}
+                  showFieldsBar={true}
+                  list={tableList}
+                  mergedFields={['rewardsAmount', 'rewardsAmountLCD']}
+                  mergedFieldLabel="Rewards amount"
+                  defaultSortBy="rewardsAmount"
+                  defaultIsSortASC={false}
+                  totalField="rewardsAmount"
+                  totalLabel="Total rewards"
+                  totalPrefixDesc={tableList[0].rewardTokenLogo}
+                  totalDesc={tableList[0].totalDesc}
+                  totalStatus={tableList[0].totalStatus}
+                  nowrap={false}
+                  fields={[
+                    {
+                      label: 'Pool',
+                      value: 'pool',
+                      type: 'html',
+                      widthRatio: 18,
+                    },
+                    {
+                      label: 'Pool #',
+                      value: 'poolId',
+                      widthRatio: 12,
+                      responsive: true,
+                    },
+                    // {
+                    //   label: 'Rewards Token',
+                    //   value: 'rewardToken',
+                    //   type: 'html',
+                    //   widthRatio: 12,
+                    // },
+                    {
+                      label: 'Rewards amount',
+                      value: 'rewardsAmount',
+                      tag: 'Back-end',
+                      type: 'bignumber',
+                      toFixedFallback: 6,
+                    },
+                    {
+                      label: 'On-chain rewards amount',
+                      value: 'rewardsAmountLCD',
+                      tag: 'On-chain',
+                      type: 'bignumber',
+                      toFixedFallback: 6,
+                    },
+                  ]}
+                />
+              </div>
+            ) : null
+          )
         ) : (
           <EmptyData label="No data" />
         )}
