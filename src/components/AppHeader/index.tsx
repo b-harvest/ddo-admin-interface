@@ -22,8 +22,8 @@ export default function Header() {
         {userAtom && <NavigationTab />}
       </div>
 
-      <div className="grow shrink flex justify-end items-center space-x-1">
-        <AppChainListBox />
+      <div className="grow-0 shrink-0 flex justify-end items-center space-x-1">
+        {userAtom && <AppChainListBox />}
         <AppSettingWidget />
       </div>
     </header>

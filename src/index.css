@@ -44,10 +44,6 @@
       /* bg-neutral-900 */
     }
 
-    body.testnet {
-      /* @apply bg-grayCRE-100 */
-    }
-
     /* Chrome, Safari, Edge, Opera */
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
@@ -86,7 +82,7 @@
 }
 
 @layer utilities {
-  /* SCREEN-READER (alternative texts) */
+  /* SCREEN-READER (alternative texts screen readers will read) */
   .SCREEN-READER {
     border: 0;
     clip: rect(0 0 0 0);
@@ -101,7 +97,11 @@
 
   /* MAIN */
   .MAIN {
-    @apply relative min-h-screen pt-[calc((1rem*2)+2.5rem)] md:pt-[calc((1rem*2)+2.5rem)]
+    @apply relative min-h-screen pt-[calc((1rem*2)+2.5rem)]
+  }
+
+  .MAIN-TOP-BAR {
+    @apply relative min-h-screen pt-[calc((1rem*2)+2.5rem+1.5rem)]
   }
 
   /* TYPOGRAPHY */

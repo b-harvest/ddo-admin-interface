@@ -12,10 +12,10 @@ import AuthRoute from 'pages/AuthRoute'
 import Chains from 'pages/Chains'
 import SignIn from 'pages/SignIn/index'
 import Validators from 'pages/Validators'
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useMemo } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
-import { chainIdAtomRef } from 'state/atoms'
+import { chainIdAtomRef, userAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
 import { isTestnet } from 'utils/chain'
 
@@ -29,10 +29,16 @@ function Updaters() {
 }
 
 function App() {
+  // user
+  const [userAtom] = useAtom(userAtomRef)
+
   // chain
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   const isOnTestnet = isTestnet(chainIdAtom)
   const topBannerLabel = isOnTestnet ? `Testnet - ${chainIdAtom}` : `Mainnet`
+
+  // app top bar
+  const showAppTopBar = useMemo(() => userAtom && isOnTestnet, [userAtom, isOnTestnet])
 
   // scroll behavior by route history
   const history = useHistory()
@@ -54,11 +60,11 @@ function App() {
       </Suspense>
 
       <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
-        {isOnTestnet ? <AppTopBanner label={topBannerLabel} /> : null}
+        {showAppTopBar && <AppTopBanner label={topBannerLabel} />}
         <AppHeader />
       </div>
 
-      <main role="main" className="MAIN" style={{ marginTop: isOnTestnet ? '1.5rem' : '0' }}>
+      <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
         <Suspense fallback={<Loader />}>
           <Switch>
             <Route exact path="/auth" component={SignIn} />
@@ -78,14 +84,14 @@ function App() {
           limit={3}
           transition={Slide}
           position="top-right"
-          autoClose={5000}
+          autoClose={8000}
           hideProgressBar={false}
           closeOnClick
           closeButton={() => <div>𝗫</div>}
           // className={'top-20'}
-          toastClassName={'bg-white text-black'}
+          toastClassName={'bg-white text-black dark:bg-black dark:text-white'}
           // toastStyle={{ top: '3.5rem' }}
-          newestOnTop={true}
+          newestOnTop
           rtl={false}
           pauseOnFocusLoss
           pauseOnHover
