@@ -10,6 +10,7 @@ import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo, useState } from 'react'
+import type { GenericChartEntry } from 'types/chart'
 import { formatBigUSDAmount } from 'utils/amount'
 
 // filtering
@@ -37,18 +38,18 @@ export default function Asset() {
     return tvlHover ? new BigNumber(tvlHover) : tvlUSD
   }, [tvlHover, tvlUSD])
 
-  const tvlChartList = useMemo(() => {
-    type DexDataByDay = { id: string; date: number; tvlUSD: string; volumeUSD: string }
+  const tvlChartList: GenericChartEntry[] = useMemo(() => {
+    type DexDailyData = { id: string; date: number; tvlUSD: string; volumeUSD: string }
     const {
       data: { uniswapDayDatas },
-    } = chartData as { data: { uniswapDayDatas: DexDataByDay[] } }
+    } = chartData as { data: { uniswapDayDatas: DexDailyData[] } }
 
     if (!uniswapDayDatas) return []
 
-    return uniswapDayDatas.map((day) => {
+    return uniswapDayDatas.map((data) => {
       return {
-        time: day.date * 1000,
-        value: Number(new BigNumber(day.tvlUSD).toFixed(0)),
+        time: data.date * 1000,
+        value: Number(new BigNumber(data.tvlUSD).toFixed(0)),
       }
     })
   }, [])

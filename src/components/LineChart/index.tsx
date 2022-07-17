@@ -1,22 +1,17 @@
+import { GLOW_CRE, LIGHT_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { darken } from 'polished'
 import { HTMLAttributes, ReactNode } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import type { GenericChartEntry } from 'types/chart'
+
 dayjs.extend(utc)
 
 const DEFAULT_HEIGHT = 300
-const LIGHT_CRE = '#FFFAF4'
-// const DARK_CRE = '#1E0E0A'
-const GLOW_CRE = 'rgb(255, 199, 127)'
-
-type DataByDay = {
-  time: number
-  value: number
-}
 
 type LineChartProps = {
-  data: DataByDay[]
+  data: GenericChartEntry[]
   color?: string | undefined
   height?: number | undefined
   minHeight?: number
@@ -93,16 +88,16 @@ export default function LineChart({
               dataKey="time"
               axisLine={false}
               tickLine={false}
-              tickFormatter={(time: DataByDay['time']) => dayjs(time).format('MM')}
+              tickFormatter={(time: GenericChartEntry['time']) => dayjs(time).format('MM')}
               minTickGap={10}
             />
             <Tooltip
               cursor={{ stroke: LIGHT_CRE }}
               contentStyle={{ display: 'none' }}
               formatter={(
-                value: DataByDay['value'],
+                value: GenericChartEntry['value'],
                 name: string,
-                props: { payload: { time: DataByDay['time']; value: DataByDay['value'] } }
+                props: { payload: { time: GenericChartEntry['time']; value: GenericChartEntry['value'] } }
               ) => {
                 if (setValue && parsedValue !== props.payload.value) {
                   setValue(props.payload.value)

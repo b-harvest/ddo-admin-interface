@@ -9,6 +9,7 @@ import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
 import Asset from 'pages/Asset'
 import AuthRoute from 'pages/AuthRoute'
+import Chains from 'pages/Chains'
 import SignIn from 'pages/SignIn/index'
 import Validators from 'pages/Validators'
 import { Suspense, useEffect } from 'react'
@@ -62,6 +63,7 @@ function App() {
           <Switch>
             <Route exact path="/auth" component={SignIn} />
 
+            <AuthRoute path="/chains" component={Chains} />
             <AuthRoute path="/asset" component={Asset} />
             <AuthRoute path="/accounts" component={Accounts} />
             <AuthRoute path="/validators" component={Validators} />
