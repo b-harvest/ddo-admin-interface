@@ -1,17 +1,15 @@
 import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
 import GlowBackground from 'components/GlowBackground'
-import LineChart from 'components/LineChart'
-import chartData from 'components/LineChart/dummy/data.json'
 import TableList from 'components/TableList'
-import dayjs from 'dayjs'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
-import { useMemo, useState } from 'react'
-import type { GenericChartEntry } from 'types/chart'
-import { formatBigUSDAmount } from 'utils/amount'
+import { useMemo } from 'react'
+
+import TVLChart from './sections/TVLChart'
+import VolumeChart from './sections/VolumeChart'
 
 // filtering
 const ASSET_TABLE_LIST_FILTERS = [
@@ -27,32 +25,8 @@ const ASSET_TABLE_LIST_FILTERS = [
 
 export default function Asset() {
   const { allAsset } = useAsset()
-  const { findPoolFromPairsByDenom, tvlUSD, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
+  const { findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()
-
-  // chart
-  const [tvlHover, setTvlHover] = useState<number | undefined>()
-  const [tvlTimeLabelHover, setTvlTimeLabelHover] = useState<number | undefined>()
-
-  const tvlChartHeadAmt = useMemo(() => {
-    return tvlHover ? new BigNumber(tvlHover) : tvlUSD
-  }, [tvlHover, tvlUSD])
-
-  const tvlChartList: GenericChartEntry[] = useMemo(() => {
-    type DexDailyData = { id: string; date: number; tvlUSD: string; volumeUSD: string }
-    const {
-      data: { uniswapDayDatas },
-    } = chartData as { data: { uniswapDayDatas: DexDailyData[] } }
-
-    if (!uniswapDayDatas) return []
-
-    return uniswapDayDatas.map((data) => {
-      return {
-        time: data.date * 1000,
-        value: Number(new BigNumber(data.tvlUSD).toFixed(0)),
-      }
-    })
-  }, [])
 
   // asset table
   const assetTableList = useMemo(() => {
@@ -95,24 +69,10 @@ export default function Asset() {
           transform: 'translateY(25vh) translateX(75vw)',
         }}
       />
-      <section className="flex flex-col justify-between items-center space-y-4 mb-8 md:flex-row md:space-x-4 md:space-y-0">
-        {/* className="dark:shadow-glow-wide-d" */}
-        <LineChart
-          height={220}
-          minHeight={360}
-          data={tvlChartList}
-          value={tvlHover}
-          setValue={setTvlHover}
-          label={tvlTimeLabelHover}
-          setLabel={setTvlTimeLabelHover}
-          topLeft={
-            <AmountUSD
-              className="mb-4"
-              value={tvlChartHeadAmt}
-              dateLabel={dayjs(tvlTimeLabelHover).format('MMM DD, YYYY')}
-            />
-          }
-        ></LineChart>
+
+      <section className="flex flex-col justify-between items-stretch space-y-4 md:flex-row md:space-x-4 md:space-y-0 mb-20">
+        <TVLChart />
+        <VolumeChart />
       </section>
 
       <section>
@@ -166,36 +126,5 @@ export default function Asset() {
         />
       </section>
     </AppPage>
-  )
-}
-
-function AmountUSD({
-  value,
-  dateLabel,
-  light = true,
-  className = '',
-}: {
-  value: BigNumber
-  dateLabel: string
-  light?: boolean
-  className?: string
-}) {
-  return (
-    <div className={`${light ? 'text-white' : 'text-black'} text-left ${className}`}>
-      <div
-        className={`${
-          light ? 'text-grayCRE-300 dark:text-grayCRE-400' : 'text-grayCRE-400-o'
-        } TYPO-BODY-M !font-medium mb-2`}
-      >
-        TVL
-      </div>
-      <div className="flex flex-col justify-start items-start space-y-2">
-        <div className="TYPO-BODY-XL !font-black font-mono">
-          {`$${value.toFormat(0)}`}
-          <span className="hidden ml-2 md:inline-block">{`(${formatBigUSDAmount(value, 2)})`}</span>
-        </div>
-        <div className="TYPO-BODY-XS !font-medium">{dateLabel}</div>
-      </div>
-    </div>
   )
 }

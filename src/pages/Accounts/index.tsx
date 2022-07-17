@@ -4,6 +4,7 @@ import AppPage from 'components/AppPage'
 import Hr from 'components/Hr'
 import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
+import { toastSuccess } from 'components/Toast/generator'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { DUMMY_ADDRESS } from 'constants/msg'
 import { useAllChainLive } from 'data/useAPI'
@@ -16,9 +17,9 @@ import type { BlockLCD } from 'types/block'
 import type { ChainLive } from 'types/chain'
 import { isTestnet } from 'utils/chain'
 
-import ClaimableRewards from './components/ClaimableRewards'
-import FarmStakedAmount from './components/FarmStakedAmount'
-import TokenBalance from './components/TokenBalance'
+import ClaimableRewards from './sections/ClaimableRewards'
+import FarmStakedAmount from './sections/FarmStakedAmount'
+import TokenBalance from './sections/TokenBalance'
 
 export default function Accounts() {
   // chainId atom
@@ -31,6 +32,7 @@ export default function Accounts() {
   const handleInterval = () => {
     const newInterval = interval >= 15 ? 5 : interval + 5
     setInterval(newInterval)
+    toastSuccess(`Fetching interval set to ${newInterval}s`)
   }
 
   // block
@@ -66,22 +68,22 @@ export default function Accounts() {
             <span className="hidden TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium md:block">
               Current Address
             </span>
-            <span className="TYPO-BODY-XS text-black dark:text-white !font-black !font-mono text-left">
+            <span className="TYPO-BODY-XS text-black dark:text-white !font-black FONT-MONO text-left">
               {address ?? 'No address yet'}
             </span>
           </div>
         </Sticker>
       </div>
 
-      <div className="flex flex-col justify-start items-stretch space-y-4 mb-12">
+      <div className="flex flex-col justify-start items-stretch space-y-4 mb-20">
         <div className="flex items-center space-x-4">
           <button
             type="button"
             onClick={handleInterval}
             className="shrink-0 grow-0 basis-auto outline-none TYPO-BODY-XS italic !font-bold text-left text-black dark:text-white bg-transparent p-3 rounded-xl hover:bg-grayCRE-200-o dark:hover:bg-grayCRE-400-o"
           >
-            <span className="hidden md:inline">Fetching interval: </span>
-            Every {interval}s
+            <span className="hidden md:inline-block mr-2">Fetching</span>
+            every {interval}s
           </button>
 
           <SearchInput

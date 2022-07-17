@@ -196,7 +196,7 @@ export default function TableList({
                 <span>{totalLabel ?? `Total ${validTotalField.label}`}</span>
               </div>
               <div className="flex flex-col justify-start items-end space-y-2">
-                <div className="flex space-x-2 !font-black !font-mono">
+                <div className="flex space-x-2 !font-black FONT-MONO">
                   <div className="mr-2">{totalPrefixDesc ?? null}</div>
                   <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
                   {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
@@ -302,7 +302,7 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
       value === null || value === undefined ? '-' : bignumberToFormat({ value, exponent: data.exponent, field })
 
     return (
-      <div title={numberVal} className="font-mono">
+      <div title={numberVal} className="FONT-MONO">
         {numberVal}
       </div>
     )

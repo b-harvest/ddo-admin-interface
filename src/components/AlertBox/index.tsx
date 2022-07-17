@@ -42,7 +42,7 @@ function getCSSClassbyStatus(status: AlertStatus) {
 }
 
 function AlertBoxMsg({ status, msg }: AlertBoxProps) {
-  const className = `TYPO-BODY-S !font-mono !font-bold text-left whitespace-pre-line ml-2`
+  const className = `TYPO-BODY-S FONT-MONO !font-bold text-left whitespace-pre-line ml-2`
   const style = { wordBreak: 'keep-all' } as CSSProperties
 
   // without returning the JSX element directly, the Tailwind colors dont work

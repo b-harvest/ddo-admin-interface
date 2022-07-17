@@ -6,17 +6,25 @@ import { useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { isDarkModeAtomRef, userAtomRef } from 'state/atoms'
 
-const DARK_MODE_TAB_ITEMS = ['Light', 'Dark']
+const DARK_MODE_TAB_ITEMS = [
+  {
+    label: 'Light',
+    value: 'light',
+  },
+  {
+    label: 'Dark',
+    value: 'dark',
+  },
+]
 const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
 
 export default function AppSettingWidget() {
   // dark mode
   const [isDarkModeAtom, setIsDarkModeAtom] = useAtom(isDarkModeAtomRef)
+  const darkModeTabSelectedValue = useMemo(() => (isDarkModeAtom ? 'dark' : 'light'), [isDarkModeAtom])
 
-  const darkModeTabIndex = useMemo(() => (isDarkModeAtom ? 1 : 0), [isDarkModeAtom])
-
-  const handleDarkModeSelect = (index: number) => {
-    setIsDarkModeAtom({ isDarkMode: index === 1 })
+  const handleDarkModeSelect = (value: string | undefined) => {
+    setIsDarkModeAtom({ isDarkMode: value === 'dark' })
   }
 
   const colorBodyDarkIf = (isDarkMode: boolean) => {
@@ -52,10 +60,10 @@ export default function AppSettingWidget() {
 
   return (
     <MoreWidget panelItems={settingsWidgetPanelItems} excludedItems={userAtom ? [] : ['logout']}>
-      <SelectTab
+      <SelectTab<string>
         label="Theme"
         tabItems={DARK_MODE_TAB_ITEMS}
-        selectedTabIndex={darkModeTabIndex}
+        selectedValue={darkModeTabSelectedValue}
         onChange={handleDarkModeSelect}
         className="border-t border-grayCRE-200 dark:border-grayCRE-400 mt-2"
       />

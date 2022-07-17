@@ -88,9 +88,7 @@ function App() {
           hideProgressBar={false}
           closeOnClick
           closeButton={() => <div>𝗫</div>}
-          // className={'top-20'}
-          toastClassName={'bg-white text-black dark:bg-black dark:text-white'}
-          // toastStyle={{ top: '3.5rem' }}
+          toastClassName={'bg-white text-black dark:bg-black dark:text-white TYPO-BODY-M text-left'}
           newestOnTop
           rtl={false}
           pauseOnFocusLoss

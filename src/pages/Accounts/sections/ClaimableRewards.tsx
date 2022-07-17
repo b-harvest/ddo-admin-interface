@@ -8,7 +8,7 @@ import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
-import AccountDataAlertArea from 'pages/Accounts/components/AccountDataAlertArea'
+import AccountDataAlertArea from 'pages/Accounts/sections/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
 import { AlertStatus } from 'types/alert'
@@ -185,7 +185,7 @@ export default function ClaimableRewards({
 
 function TableTotalDesc({ amount, tag, prefix }: { amount: BigNumber; tag?: string; prefix?: JSX.Element }) {
   return (
-    <div className="flex space-x-2 !font-black !font-mono">
+    <div className="flex space-x-2 !font-black FONT-MONO">
       <div className="mr-2">{prefix ?? null}</div>
       <div>
         {bignumberToFormat({
