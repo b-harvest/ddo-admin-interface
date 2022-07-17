@@ -44,6 +44,8 @@ export default function ComposedBarChart({
   className = '',
   ...rest
 }: LineChartProps) {
+  const chartColors = useMemo(() => colors.slice().reverse(), [colors])
+
   const chartData = useMemo(() => {
     return data.map((item) => {
       let accmVal = 0
@@ -115,24 +117,27 @@ export default function ComposedBarChart({
                 }
               }}
             />
-            {dataKeys.map((key, i) => (
-              <Bar
-                key={key}
-                dataKey={key}
-                fill={colors[i] ?? colors.at(-1)}
-                shape={(props) => {
-                  return (
-                    <CustomBar
-                      height={props.height}
-                      width={props.width}
-                      x={props.x}
-                      y={props.y}
-                      fill={colors[i] ?? colors.at(-1)}
-                    />
-                  )
-                }}
-              />
-            ))}
+            {dataKeys
+              .slice()
+              .reverse()
+              .map((key, i) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  fill={chartColors[i] ?? chartColors.at(-1)}
+                  shape={(props) => {
+                    return (
+                      <CustomBar
+                        height={props.height}
+                        width={props.width}
+                        x={props.x}
+                        y={props.y}
+                        fill={chartColors[i] ?? chartColors.at(-1)}
+                      />
+                    )
+                  }}
+                />
+              ))}
           </Chart>
         </ResponsiveContainer>
       </div>

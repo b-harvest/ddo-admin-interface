@@ -2,12 +2,12 @@ import BigNumber from 'bignumber.js'
 import ComposedBarChart from 'components/ComposedBarChart'
 import Indicator from 'components/Indicator'
 import dummyChartData from 'components/LineChart/dummy/data.json'
-import { DARK_CRE, GLOW_CRE } from 'constants/style'
+import { GLOW_CRE, GLOW_DARK_CRE } from 'constants/style'
 import { useMemo, useState } from 'react'
 import type { BlockEvent } from 'types/chain'
 import type { ComposedChartEntry } from 'types/chart'
 
-const BLOCK_CHART_COLORS = ['#ddd', GLOW_CRE, DARK_CRE]
+const BLOCK_CHART_COLORS = ['#ddd', GLOW_CRE, GLOW_DARK_CRE]
 
 export default function BlockChart() {
   // chart data - this is using dummy data for component test
