@@ -4,6 +4,7 @@ import utc from 'dayjs/plugin/utc'
 import weekOfYear from 'dayjs/plugin/weekOfYear'
 import { HTMLAttributes, ReactNode, useCallback, useMemo } from 'react'
 import { Bar, BarChart as Chart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { CategoricalChartState } from 'recharts/types/chart/generateCategoricalChart'
 import type { GenericChartEntry } from 'types/chart'
 
 dayjs.extend(utc)
@@ -52,8 +53,6 @@ export default function BarChart({
 }: LineChartProps) {
   const parsedValue = value
 
-  const now = dayjs()
-
   const timeTickedChartData = useCallback((chartData: GenericChartEntry[], type: TimeTick) => {
     if (!chartData) return []
 
@@ -78,6 +77,43 @@ export default function BarChart({
     () => timeTickedChartData(data, chartTimeTick ?? TimeTick.Daily),
     [data, timeTickedChartData, chartTimeTick]
   )
+
+  const handleMouseOn = useCallback(
+    (props: CategoricalChartState) => {
+      // value
+      if (setValue && props.activePayload && value !== props.activePayload[0]?.payload?.value) {
+        setValue(props.activePayload[0]?.payload?.value)
+      }
+
+      // label
+
+      if (setLabel && props.isTooltipActive && label !== props.activeLabel) {
+        const now = dayjs()
+        const formattedTime = dayjs(props.activeLabel).format('MMM D')
+        const formattedTimeDaily = dayjs(props.activeLabel).format('MMM D YYYY')
+        const formattedTimePlusWeek = dayjs(props.activeLabel).add(1, 'week')
+        const formattedTimePlusMonth = dayjs(props.activeLabel).add(1, 'month')
+
+        if (setLabel && label !== formattedTime) {
+          if (chartTimeTick === TimeTick.Weekly) {
+            const isCurrent = formattedTimePlusWeek.isAfter(now)
+            setLabel(formattedTime + '-' + (isCurrent ? 'current' : formattedTimePlusWeek.format('MMM D, YYYY')))
+          } else if (chartTimeTick === TimeTick.Monthly) {
+            const isCurrent = formattedTimePlusMonth.isAfter(now)
+            setLabel(formattedTime + '-' + (isCurrent ? 'current' : formattedTimePlusMonth.format('MMM D, YYYY')))
+          } else {
+            setLabel(formattedTimeDaily)
+          }
+        }
+      }
+    },
+    [setValue, value, setLabel, label, chartTimeTick]
+  )
+
+  const handleMouseLeave = useCallback(() => {
+    setLabel && setLabel(undefined)
+    setValue && setValue(undefined)
+  }, [setLabel, setValue])
 
   return (
     <div
@@ -106,10 +142,9 @@ export default function BarChart({
               left: 20,
               bottom: 5,
             }}
-            onMouseLeave={() => {
-              setLabel && setLabel(undefined)
-              setValue && setValue(undefined)
-            }}
+            onMouseEnter={handleMouseOn}
+            onMouseMove={handleMouseOn}
+            onMouseLeave={handleMouseLeave}
           >
             <XAxis
               dataKey="time"
@@ -118,39 +153,7 @@ export default function BarChart({
               tickFormatter={(time) => dayjs(time).format(chartTimeTick === TimeTick.Monthly ? 'MMM' : 'DD')}
               minTickGap={10}
             />
-            <Tooltip
-              cursor={{ fill: LIGHT_CRE }}
-              contentStyle={{ display: 'none' }}
-              formatter={(
-                value: GenericChartEntry['value'],
-                name: string,
-                props: { payload: { time: GenericChartEntry['time']; value: GenericChartEntry['value'] } }
-              ) => {
-                if (setValue && parsedValue !== props.payload.value) {
-                  setValue(props.payload.value)
-                }
-                const formattedTime = dayjs(props.payload.time).format('MMM D')
-                const formattedTimeDaily = dayjs(props.payload.time).format('MMM D YYYY')
-                const formattedTimePlusWeek = dayjs(props.payload.time).add(1, 'week')
-                const formattedTimePlusMonth = dayjs(props.payload.time).add(1, 'month')
-
-                if (setLabel && label !== formattedTime) {
-                  if (chartTimeTick === TimeTick.Weekly) {
-                    const isCurrent = formattedTimePlusWeek.isAfter(now)
-                    setLabel(
-                      formattedTime + '-' + (isCurrent ? 'current' : formattedTimePlusWeek.format('MMM D, YYYY'))
-                    )
-                  } else if (chartTimeTick === TimeTick.Monthly) {
-                    const isCurrent = formattedTimePlusMonth.isAfter(now)
-                    setLabel(
-                      formattedTime + '-' + (isCurrent ? 'current' : formattedTimePlusMonth.format('MMM D, YYYY'))
-                    )
-                  } else {
-                    setLabel(formattedTimeDaily)
-                  }
-                }
-              }}
-            />
+            <Tooltip cursor={{ fill: LIGHT_CRE }} contentStyle={{ display: 'none' }} />
             <Bar
               dataKey="value"
               fill={color}

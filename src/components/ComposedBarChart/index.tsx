@@ -1,16 +1,17 @@
 import { GLOW_CRE, LIGHT_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import { HTMLAttributes, ReactNode, useMemo } from 'react'
+import { HTMLAttributes, ReactNode, useCallback, useMemo } from 'react'
 import { Bar, BarChart as Chart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
-import type { ComposedChartEntry } from 'types/chart'
+import { CategoricalChartState } from 'recharts/types/chart/generateCategoricalChart'
+import type { GenericComposedChartEntry } from 'types/chart'
 
 dayjs.extend(utc)
 
 const DEFAULT_HEIGHT = 300
 
-export type LineChartProps = {
-  data: ComposedChartEntry[]
+export type ComposedBarChartProps = {
+  data: GenericComposedChartEntry[]
   dataKeys: string[]
   colors?: string[]
   height?: number | undefined
@@ -19,7 +20,7 @@ export type LineChartProps = {
   setLabel?: (value: number | undefined) => void
   index?: number
   label?: number
-  tickFormatter?: (tick: ComposedChartEntry['time']) => string
+  tickFormatter?: (tick: GenericComposedChartEntry['time']) => string
   topLeft?: ReactNode | undefined
   topRight?: ReactNode | undefined
   bottomLeft?: ReactNode | undefined
@@ -43,7 +44,7 @@ export default function ComposedBarChart({
   minHeight = DEFAULT_HEIGHT,
   className = '',
   ...rest
-}: LineChartProps) {
+}: ComposedBarChartProps) {
   const chartColors = useMemo(() => colors.slice().reverse(), [colors])
 
   const chartData = useMemo(() => {
@@ -61,6 +62,24 @@ export default function ComposedBarChart({
       }
     })
   }, [data, dataKeys])
+
+  const handleMouseOn = useCallback(
+    (props: CategoricalChartState) => {
+      if (setIndex && props.isTooltipActive && index !== props.activeTooltipIndex) {
+        setIndex(props.activeTooltipIndex)
+      }
+
+      if (setLabel && props.isTooltipActive && label !== props.activeLabel) {
+        setLabel((props.activeLabel as number | undefined) ?? 0)
+      }
+    },
+    [setIndex, index, setLabel, label]
+  )
+
+  const handleMouseLeave = useCallback(() => {
+    setLabel && setLabel(undefined)
+    setIndex && setIndex(undefined)
+  }, [setLabel, setIndex])
 
   return (
     <div
@@ -90,10 +109,9 @@ export default function ComposedBarChart({
               left: 20,
               bottom: 5,
             }}
-            onMouseLeave={() => {
-              setLabel && setLabel(undefined)
-              setIndex && setIndex(undefined)
-            }}
+            onMouseEnter={handleMouseOn}
+            onMouseMove={handleMouseOn}
+            onMouseLeave={handleMouseLeave}
           >
             <XAxis
               dataKey="time"
@@ -102,21 +120,7 @@ export default function ComposedBarChart({
               tickFormatter={tickFormatter ?? ((time) => time)}
               minTickGap={10}
             />
-            <Tooltip
-              cursor={{ fill: LIGHT_CRE }}
-              contentStyle={{ display: 'none' }}
-              formatter={(value: number, name: string, props: { payload: { time: ComposedChartEntry['time'] } }) => {
-                if (setLabel && label !== props.payload.time) {
-                  setLabel(props.payload.time)
-                }
-
-                const currentIndex = data.findIndex((item) => item.time === props.payload.time)
-
-                if (setIndex && index !== currentIndex) {
-                  setIndex(currentIndex)
-                }
-              }}
-            />
+            <Tooltip cursor={{ fill: LIGHT_CRE }} contentStyle={{ display: 'none' }} />
             {dataKeys
               .slice()
               .reverse()

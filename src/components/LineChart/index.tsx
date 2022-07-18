@@ -2,8 +2,9 @@ import { GLOW_CRE, LIGHT_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { darken } from 'polished'
-import { HTMLAttributes, ReactNode } from 'react'
+import { HTMLAttributes, ReactNode, useCallback } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { CategoricalChartState } from 'recharts/types/chart/generateCategoricalChart'
 import type { GenericChartEntry } from 'types/chart'
 
 dayjs.extend(utc)
@@ -43,10 +44,23 @@ export default function LineChart({
 }: LineChartProps) {
   const parsedValue = value
 
-  const onEventLeave = () => {
-    setValue && setValue(undefined)
+  const handleMouseOn = useCallback(
+    (props: CategoricalChartState) => {
+      if (setValue && props.activePayload && value !== props.activePayload[0]?.payload?.value) {
+        setValue(props.activePayload[0]?.payload?.value)
+      }
+
+      if (setLabel && props.isTooltipActive && label !== props.activeLabel) {
+        setLabel((props.activeLabel as number | undefined) ?? 0)
+      }
+    },
+    [setValue, value, setLabel, label]
+  )
+
+  const handleMouseLeave = useCallback(() => {
     setLabel && setLabel(undefined)
-  }
+    setValue && setValue(undefined)
+  }, [setLabel, setValue])
 
   return (
     <div
@@ -76,7 +90,9 @@ export default function LineChart({
               left: 24,
               bottom: 4,
             }}
-            onMouseLeave={onEventLeave}
+            onMouseEnter={handleMouseOn}
+            onMouseMove={handleMouseOn}
+            onMouseLeave={handleMouseLeave}
           >
             <defs>
               <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
@@ -91,21 +107,7 @@ export default function LineChart({
               tickFormatter={(time: GenericChartEntry['time']) => dayjs(time).format('MM')}
               minTickGap={10}
             />
-            <Tooltip
-              cursor={{ stroke: LIGHT_CRE }}
-              contentStyle={{ display: 'none' }}
-              formatter={(
-                value: GenericChartEntry['value'],
-                name: string,
-                props: { payload: { time: GenericChartEntry['time']; value: GenericChartEntry['value'] } }
-              ) => {
-                if (setValue && parsedValue !== props.payload.value) {
-                  setValue(props.payload.value)
-                }
-
-                if (setLabel && label !== props.payload.time) setLabel(props.payload.time)
-              }}
-            />
+            <Tooltip cursor={{ stroke: LIGHT_CRE }} contentStyle={{ display: 'none' }} />
             <Area dataKey="value" type="monotone" stroke={color} fill="url(#gradient)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>

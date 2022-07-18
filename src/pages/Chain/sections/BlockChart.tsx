@@ -1,92 +1,100 @@
 import BigNumber from 'bignumber.js'
-import ComposedBarChart from 'components/ComposedBarChart'
+// import ComposedBarChart from 'components/ComposedBarChart'
+import ComposedBarChart from 'components/ComposedBarChart/ant'
 import Indicator from 'components/Indicator'
 import dummyChartData from 'components/LineChart/dummy/data.json'
-import { GLOW_CRE, GLOW_DARK_CRE } from 'constants/style'
+import { CHART_COLOR_MAP } from 'constants/style'
 import { useMemo, useState } from 'react'
-import type { BlockEvent } from 'types/chain'
 import type { ComposedChartEntry } from 'types/chart'
+import { firstCharToUpperCase } from 'utils/text'
 
-const BLOCK_CHART_COLORS = ['#ddd', GLOW_CRE, GLOW_DARK_CRE]
+type DexDailyData = { date: number; tvlUSD: string; volumeUSD: string }
+
+const rawList = () => {
+  const {
+    data: { uniswapDayDatas },
+  } = dummyChartData as { data: { uniswapDayDatas: DexDailyData[] } }
+
+  if (!uniswapDayDatas) return []
+
+  return uniswapDayDatas.map((item) => ({
+    date: item.date,
+    bank: item.tvlUSD,
+    'liquidity/swap': item.volumeUSD,
+    'liquidity/deposit': item.volumeUSD,
+  }))
+}
 
 export default function BlockChart() {
   // chart data - this is using dummy data for component test
   const chartData: ComposedChartEntry[] = useMemo(() => {
-    type DexDailyData = { id: string; date: number; tvlUSD: string; volumeUSD: string }
-    const {
-      data: { uniswapDayDatas },
-    } = dummyChartData as { data: { uniswapDayDatas: DexDailyData[] } }
-
-    if (!uniswapDayDatas) return []
-
-    return uniswapDayDatas.map((data) => {
-      return {
-        time: data.date / 1000,
-        bank: Number(new BigNumber(data.tvlUSD)) / 100000000,
-        'liquidity/swap': Number(new BigNumber(data.volumeUSD)) / 100000000,
-        'liquidity/deposit': Number(new BigNumber(data.date)) / 100000000,
-      }
-    })
+    return rawList().reduce((totalList: ComposedChartEntry[], data) => {
+      const types = getEventTypes(data)
+      const dailyList = types.reduce((accm: ComposedChartEntry[], type) => {
+        accm.push({
+          time: Number((data.date / 1000).toFixed(0)),
+          type,
+          value: Number((data[type] / 100000000).toFixed(0)),
+        })
+        return accm
+      }, [])
+      return totalList.concat(dailyList)
+    }, [])
   }, [])
 
-  const dataKeys = useMemo(() => {
-    if (chartData.length < 1) return []
-    return Object.keys(chartData[0]).filter((key) => key !== 'time')
-  }, [chartData])
+  const colorMap = useMemo(() => {
+    const map =
+      rawList().length > 0
+        ? getEventTypes(rawList()[0])
+            .map((type, i) => ({ [type]: CHART_COLOR_MAP[i] ?? CHART_COLOR_MAP.at(-1) }))
+            .reduce((accm, set) => ({ ...accm, ...set }), {})
+        : undefined
+    return map
+  }, [])
 
   // volume total
-  const [dataIndex, setDataIndex] = useState<number | undefined>(-1)
   const [blockHeightHover, setBlockHeightHover] = useState<number | undefined>()
 
   const blockChartHeight = useMemo(() => {
-    return 'Block #' + new BigNumber(blockHeightHover ?? chartData.at(-1)?.time ?? 0).toFormat(0)
+    return 'Height ' + new BigNumber(blockHeightHover ?? chartData.at(-1)?.time ?? 0).toFormat(0)
   }, [blockHeightHover, chartData])
 
-  const blockEvents = useMemo(() => {
-    const block = chartData.at(dataIndex ?? -1)
-    return block
-      ? dataKeys.map((key) => {
-          return {
-            name: firstCharToUpperCase(key),
-            count: block[key],
-          }
-        })
-      : []
-  }, [dataKeys, chartData, dataIndex])
+  const allEventsHover = useMemo(() => {
+    return chartData
+      .filter((item) => item.time === (blockHeightHover ?? chartData.at(-1)?.time ?? 0))
+      .sort((a, b) => b.value - a.value)
+  }, [chartData, blockHeightHover])
 
-  const mappedEvents = useMemo(() => topBlockEvents(blockEvents), [blockEvents])
+  const topEventHover = useMemo(() => {
+    return allEventsHover[0] ?? undefined
+  }, [allEventsHover])
 
   return (
     <div className="w-full flex flex-col md:flex-row justify-between items-stretch space-y-4 md:space-y-0 md:space-x-2">
-      <ComposedBarChart
-        className="grow shrink"
-        height={220}
-        minHeight={360}
-        data={chartData}
-        dataKeys={dataKeys}
-        tickFormatter={() => ''}
-        colors={BLOCK_CHART_COLORS}
-        setIndex={setDataIndex}
-        setLabel={setBlockHeightHover}
-        index={dataIndex}
-        label={blockHeightHover}
-        topLeft={
-          <TopEvent
-            title="Top event block-wide"
-            label={blockChartHeight}
-            className="mb-4"
-            mappedEvents={mappedEvents}
-          />
-        }
-      />
+      {colorMap && (
+        <ComposedBarChart
+          className="grow shrink"
+          height={220}
+          data={chartData}
+          colorMap={colorMap}
+          setLabel={setBlockHeightHover}
+          label={blockHeightHover}
+          topLeft={
+            topEventHover && (
+              <TopEvent title="Top event" label={blockChartHeight} event={topEventHover} colorMap={colorMap} />
+            )
+          }
+        />
+      )}
 
       <div className="grow-0 shrink-0 md:basis-[25%] flex flex-col items-start space-y-2 !font-medium bg-neutral-900 px-6 py-4 rounded-xl dark:bg-neutral-800">
         <Indicator title="All events" light={true}>
-          {mappedEvents.map((item) => (
-            <div key={item.name} className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full" style={{ background: item.color }}></div>
-              <div className="TYPO-BLOCK-XS">
-                {item.name} <span className="FONT-MONO !font-bold">{item.count.toFormat(0)}</span>
+          {allEventsHover.map((event, i) => (
+            <div key={event.type} className="flex items-center space-x-2">
+              {colorMap && <div className="w-2 h-2 rounded-full" style={{ background: colorMap[event.type] }}></div>}
+              <div className="TYPO-BODY-XS md:TYPO-BODY-S">
+                {firstCharToUpperCase(event.type)}{' '}
+                <span className="FONT-MONO !font-bold">{new BigNumber(event.value).toFormat(0)}</span>
               </div>
             </div>
           ))}
@@ -100,48 +108,29 @@ function TopEvent({
   title,
   label,
   className,
-  mappedEvents,
+  event,
+  colorMap,
 }: {
   className?: string
   title: string
   label?: string
-  mappedEvents: { name: string; ratio: BigNumber; count: BigNumber; color: string }[]
+  event: ComposedChartEntry
+  colorMap: { [x: string]: string }
 }) {
   return (
     <Indicator title={title} light={true} label={label} className={className}>
       <div className="flex TYPO-BODY-XL !font-bold">
-        {mappedEvents.length > 0 && (
-          <div className="flex items-center space-x-3">
-            <div>
-              {mappedEvents[0].name} <span className="FONT-MONO !font-black">{mappedEvents[0].count.toFormat(0)}</span>
-            </div>
-            <div className="w-3 h-3 rounded-full" style={{ background: mappedEvents[0].color }}></div>
+        <div className="flex items-center space-x-3">
+          <div>
+            {firstCharToUpperCase(event.type)} <span className="FONT-MONO !font-black">{event.value}</span>
           </div>
-        )}
+          <div className="w-3 h-3 rounded-full" style={{ background: colorMap[event.type] }}></div>
+        </div>
       </div>
     </Indicator>
   )
 }
 
-function topBlockEvents(events: BlockEvent[]) {
-  if (events.length < 1) return []
-
-  const colors = BLOCK_CHART_COLORS.reverse()
-
-  const sum = events.reduce((accm, event) => accm + event.count, 0)
-
-  return events
-    .map((event, i) => {
-      return {
-        name: event.name,
-        count: new BigNumber(event.count),
-        ratio: new BigNumber((event.count / sum) * 100),
-        color: colors.at(i) ?? colors.at(-1) ?? '#fff',
-      }
-    })
-    .sort((a, b) => b.count.minus(a.count).toNumber())
-}
-
-function firstCharToUpperCase(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1)
+function getEventTypes(rawData: { [key: string]: number | string }) {
+  return Object.keys(rawData).filter((key) => key !== 'date')
 }
