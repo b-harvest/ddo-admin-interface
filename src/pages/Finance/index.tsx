@@ -23,7 +23,7 @@ const ASSET_TABLE_LIST_FILTERS = [
   },
 ]
 
-export default function Asset() {
+export default function Finance() {
   const { allAsset } = useAsset()
   const { findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()

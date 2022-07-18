@@ -6,24 +6,29 @@ interface Page {
 
 export const pages: Page[] = [
   {
-    path: '/asset',
-    label: 'Asset',
-    pageName: 'DEX Asset Tracking',
-  },
-  {
-    path: '/accounts',
-    label: 'Account',
-    pageName: 'Account Comparison',
+    path: '/finance',
+    label: 'Finance',
+    pageName: 'Finance',
   },
   {
     path: '/chain',
     label: 'Chain',
-    pageName: 'Crescent Chain Tracking',
+    pageName: 'Chain Tracking',
+  },
+  {
+    path: '/accounts',
+    label: 'Account',
+    pageName: 'Account Sync Status',
   },
   {
     path: '/validators',
     label: 'Validators',
-    pageName: 'Validators under 3SO/Kick-out',
+    pageName: 'Validators',
+  },
+  {
+    path: '/dex',
+    label: 'DEX',
+    pageName: 'DEX Management',
   },
 ]
 

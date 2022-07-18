@@ -15,11 +15,11 @@ const CRE_TESTNET_RPC_REST_API_URL = `https://testnet-endpoint.crescent.network/
 const getBaseUrl = ({ chainId, type }: { chainId: CHAIN_IDS; type: DataType }): string | undefined => {
   switch (chainId) {
     case CHAIN_IDS.MAINNET:
-      return type === 'backend' ? process.env.REACT_APP_MAINNET_API_ENDPOINT : CRE_MAINNET_RPC_REST_API_URL
+      return type === 'backend' ? process.env.REACT_APP_MAINNET_V2_API_ENDPOINT : CRE_MAINNET_RPC_REST_API_URL
     case CHAIN_IDS.MOONCAT:
-      return type === 'backend' ? process.env.REACT_APP_MOONCAT_API_ENDPOINT : CRE_TESTNET_RPC_REST_API_URL
+      return type === 'backend' ? process.env.REACT_APP_MOONCAT_V2_API_ENDPOINT : CRE_TESTNET_RPC_REST_API_URL
     default:
-      return type === 'backend' ? process.env.REACT_APP_MAINNET_API_ENDPOINT : CRE_MAINNET_RPC_REST_API_URL
+      return type === 'backend' ? process.env.REACT_APP_MAINNET_V2_API_ENDPOINT : CRE_MAINNET_RPC_REST_API_URL
   }
 }
 

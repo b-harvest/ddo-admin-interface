@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
-import { toastError } from 'components/Toast/generator'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
 import { useAllBalance } from 'data/useAPI'
 import { useAllBalanceLCD } from 'data/useLCD'
@@ -9,7 +8,7 @@ import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
 import AccountDataAlertArea from 'pages/Accounts/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { Balance, BalanceLCD } from 'types/account'
 import type { AlertStatus } from 'types/alert'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
@@ -20,7 +19,7 @@ export default function TokenBalance({
   significantTimeGap,
   interval = 0,
 }: {
-  address: string | undefined
+  address?: string
   significantTimeGap: number
   interval?: number
 }) {
@@ -29,31 +28,30 @@ export default function TokenBalance({
   const { getAssetTickers, findPoolFromPairsByDenom } = usePair()
 
   // fetching balance
-  const { data: allBalanceData, error: allBalanceDataError }: APIHookReturn<Balance> = useAllBalance(
+  const { data: allBalanceData }: APIHookReturn<Balance> = useAllBalance(
     {
       address: address ?? '',
       fetch: address !== undefined,
     },
     interval
   )
-  const { data: allBalanceLCDData, error: allBalanceLCDError }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD(
+  const { data: allBalanceLCDData }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD(
     {
       address: address ?? '',
       fetch: address !== undefined,
     },
     interval
   )
-
-  // toast
-  useEffect(() => {
-    if (allBalanceDataError) toastError(allBalanceDataError.msg)
-    if (allBalanceLCDError) toastError(allBalanceLCDError.msg)
-  }, [allBalanceDataError, allBalanceLCDError])
 
   const { balanceTableList, hasBalanceDiff } = useMemo(() => {
     const balanceTableList =
       allBalanceData?.data.asset
-        .filter((item) => (findAssetByDenom(item.denom)?.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
+        .filter(
+          (item) =>
+            findAssetByDenom(item.denom) &&
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            (findAssetByDenom(item.denom)!.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true)
+        )
         .map((item) => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const assetInfo = findAssetByDenom(item.denom)!

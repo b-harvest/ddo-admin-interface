@@ -2,9 +2,7 @@ import BigNumber from 'bignumber.js'
 import { useAllStaked } from 'data/useAPI'
 import { useAllFarmRewardsLCD, useAllStakedLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
-import { useAtom } from 'jotai'
 import { useMemo } from 'react'
-import { chainIdAtomRef } from 'state/atoms'
 import type {
   FarmRewardLCDMainnetRaw,
   FarmRewardsLCDRaw,
@@ -18,24 +16,23 @@ import type {
   StakedRaw,
 } from 'types/account'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
-import { isTestnet } from 'utils/chain'
+// import { isTestnet } from 'utils/chain'
 
 const useAccountData = ({ address, interval = 0 }: { address: string; interval?: number }) => {
-  const [chainIdAtom] = useAtom(chainIdAtomRef)
-  const isOnTestnet = isTestnet(chainIdAtom)
+  // const [chainIdAtom] = useAtom(chainIdAtomRef)
+  // const isOnTestnet = isTestnet(chainIdAtom)
   const { findAssetByDenom } = useAsset()
 
   // * staked amount
-  const { data: allStakedData, error: allStakedDataError }: APIHookReturn<StakedRaw[]> = useAllStaked({
+  const { data: allStakedData }: APIHookReturn<StakedRaw[]> = useAllStaked({
     address,
     fetch: address !== '',
   })
 
-  const { data: allStakedLCDData, error: allStakedLCDDataError }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> =
-    useAllStakedLCD({
-      address,
-      fetch: address !== '',
-    })
+  const { data: allStakedLCDData }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useAllStakedLCD({
+    address,
+    fetch: address !== '',
+  })
 
   // backend
   const allStakedDataTimestamp = useMemo(() => (allStakedData?.curTimestamp ?? 0) * 1000, [allStakedData])
@@ -64,37 +61,36 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 
   // onchain
   const allStakedLCD = useMemo(() => {
-    if (isOnTestnet) {
-      return (
-        ((allStakedLCDData as StakedLCDRaw)?.stakings.map((item) => {
-          const exponent = findAssetByDenom(item.staking_coin_denom)?.exponent ?? 0
-          return { denom: item.staking_coin_denom, amount: new BigNumber(item.amount).dividedBy(10 ** exponent) }
-        }) as StakedByPoolLCD[]) ?? []
-      )
-    }
-
+    // if (isOnTestnet) {
     return (
-      ((allStakedLCDData as StakedLCDMainnetRaw)?.staked_coins.map((item) => {
-        const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
-        return {
-          denom: item.denom,
-          amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
-        }
+      ((allStakedLCDData as StakedLCDRaw)?.stakings.map((item) => {
+        const exponent = findAssetByDenom(item.staking_coin_denom)?.exponent ?? 0
+        return { denom: item.staking_coin_denom, amount: new BigNumber(item.amount).dividedBy(10 ** exponent) }
       }) as StakedByPoolLCD[]) ?? []
     )
-  }, [isOnTestnet, allStakedLCDData, findAssetByDenom])
+    // }
+
+    // return (
+    //   ((allStakedLCDData as StakedLCDMainnetRaw)?.staked_coins.map((item) => {
+    //     const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
+    //     return {
+    //       denom: item.denom,
+    //       amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
+    //     }
+    //   }) as StakedByPoolLCD[]) ?? []
+    // )
+  }, [
+    // isOnTestnet,
+    allStakedLCDData,
+    findAssetByDenom,
+  ])
 
   // * rewards by pool
-  const {
-    data: allFarmRewardsLCDData,
-    error: allFarmRewardsLCDDataError,
-  }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> = useAllFarmRewardsLCD({
-    address,
-    fetch: address !== '',
-  })
-
-  // console.log('allStaked', allStaked)
-  // console.log('allFarmRewardsLCDData', allFarmRewardsLCDData)
+  const { data: allFarmRewardsLCDData }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> =
+    useAllFarmRewardsLCD({
+      address,
+      fetch: address !== '',
+    })
 
   // backend
   const allFarmRewardsDataTimestamp = allStakedDataTimestamp
@@ -116,37 +112,40 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 
   // onchain
   const allFarmRewardsByTokenLCD = useMemo(() => {
-    if (isOnTestnet) {
-      const allRewards =
-        (allFarmRewardsLCDData as FarmRewardsLCDRaw)?.rewards.reduce(
-          (accm: (LCDTokenAmountSet & { poolDenom: string })[], item) => {
-            const rewards = item.rewards.map((re) => {
-              const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
-              return {
-                poolDenom: item.staking_coin_denom,
-                denom: re.denom,
-                amount: new BigNumber(re.amount).dividedBy(10 ** exponent),
-              }
-            })
-            return accm.concat(rewards)
-          },
-          []
-        ) ?? []
-      return getTokenWideFarmRewards(allRewards)
-    }
-
+    // if (isOnTestnet) {
     const allRewards =
-      ((allFarmRewardsLCDData as FarmRewardLCDMainnetRaw)?.rewards.map((item) => {
-        const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
-        return {
-          poolDenom: 'Unknown',
-          denom: item.denom,
-          amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
-        }
-      }) as (LCDTokenAmountSet & { poolDenom: string })[]) ?? []
-
+      (allFarmRewardsLCDData as FarmRewardsLCDRaw)?.rewards.reduce(
+        (accm: (LCDTokenAmountSet & { poolDenom: string })[], item) => {
+          const rewards = item.rewards.map((re) => {
+            const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
+            return {
+              poolDenom: item.staking_coin_denom,
+              denom: re.denom,
+              amount: new BigNumber(re.amount).dividedBy(10 ** exponent),
+            }
+          })
+          return accm.concat(rewards)
+        },
+        []
+      ) ?? []
     return getTokenWideFarmRewards(allRewards)
-  }, [isOnTestnet, allFarmRewardsLCDData, findAssetByDenom])
+    // }
+
+    // const allRewards =
+    //   ((allFarmRewardsLCDData as FarmRewardLCDMainnetRaw)?.rewards.map((item) => {
+    //     const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
+    //     return {
+    //       poolDenom: 'Unknown',
+    //       denom: item.denom,
+    //       amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
+    //     }
+    //   }) as (LCDTokenAmountSet & { poolDenom: string })[]) ?? []
+    // return getTokenWideFarmRewards(allRewards)
+  }, [
+    // isOnTestnet,
+    allFarmRewardsLCDData,
+    findAssetByDenom,
+  ])
 
   return {
     allStakedDataTimestamp,

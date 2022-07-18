@@ -7,9 +7,10 @@ import AppTopBanner from 'components/AppTopBanner'
 import Loader from 'components/Loader'
 import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
-import Asset from 'pages/Asset'
 import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
+import DEX from 'pages/DEX'
+import Finance from 'pages/Finance'
 import SignIn from 'pages/SignIn/index'
 import Validators from 'pages/Validators'
 import { Suspense, useEffect, useMemo } from 'react'
@@ -69,13 +70,14 @@ function App() {
           <Switch>
             <Route exact path="/auth" component={SignIn} />
 
+            <AuthRoute path="/finance" component={Finance} />
             <AuthRoute path="/chain" component={Chain} />
-            <AuthRoute path="/asset" component={Asset} />
             <AuthRoute path="/accounts" component={Accounts} />
             <AuthRoute path="/validators" component={Validators} />
+            <AuthRoute path="/dex" component={DEX} />
 
-            <Route exact path="/">
-              <Redirect to="/asset" />
+            <Route>
+              <Redirect to="/finance" />
             </Route>
           </Switch>
         </Suspense>
