@@ -4,7 +4,9 @@ import 'react-toastify/dist/ReactToastify.min.css'
 
 import AppHeader from 'components/AppHeader'
 import AppTopBanner from 'components/AppTopBanner'
+import BlockHeightPolling from 'components/BlockHeightPolling'
 import Loader from 'components/Loader'
+import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
 import AuthRoute from 'pages/AuthRoute'
@@ -32,6 +34,8 @@ function Updaters() {
 function App() {
   // user
   const [userAtom] = useAtom(userAtomRef)
+
+  const { backendBlockHeight, onchainBlockHeight } = useChain()
 
   // chain
   const [chainIdAtom] = useAtom(chainIdAtomRef)
@@ -62,6 +66,14 @@ function App() {
 
       <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
         {showAppTopBar && <AppTopBanner label={topBannerLabel} />}
+        {userAtom && (
+          <div
+            className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
+            style={{ zIndex: '1' }}
+          >
+            <BlockHeightPolling onchainBlockHeight={onchainBlockHeight} backendBlockHeight={backendBlockHeight} />
+          </div>
+        )}
         <AppHeader />
       </div>
 

@@ -24,7 +24,6 @@ export default function TokenBalance({
   interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
-
   const { getAssetTickers, findPoolFromPairsByDenom } = usePair()
 
   // fetching balance
@@ -83,7 +82,7 @@ export default function TokenBalance({
     const hasBalanceDiff = balanceTableList.findIndex((item) => item.status === 'error') > -1
 
     return { balanceTableList, hasBalanceDiff }
-  }, [allBalanceData, allBalanceLCDData, findAssetByDenom, getAssetTickers])
+  }, [allBalanceData, allBalanceLCDData, findAssetByDenom, getAssetTickers, findPoolFromPairsByDenom])
 
   // alert-inline data - balance
   const { isBalanceDataTimeDiff, isBalanceDataAllMatched } = useMemo(() => {

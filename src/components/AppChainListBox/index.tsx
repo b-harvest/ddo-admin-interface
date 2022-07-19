@@ -67,6 +67,7 @@ export default function AppChainListBox() {
 
         <Listbox.Options
           className={`absolute w-full rounded-lg rounded-t-none bg-white border-2 border-t-0 border-grayCRE-100 max-h-48 overflow-y-auto outline-0 transition-all dark:bg-black dark:border-neutral-600`}
+          style={{ zIndex: '1' }}
         >
           {CHAINS.map((chain: ChainOption, index) => (
             <Listbox.Option
@@ -79,7 +80,6 @@ export default function AppChainListBox() {
               }
             >
               <div className="flex">
-                {/* <CoinLogo logoUrl={asset?.logoUrl} ticker={asset?.ticker} css={'w-5 h-5 mr-1'} /> */}
                 <div> {chain.label}</div>
               </div>
             </Listbox.Option>

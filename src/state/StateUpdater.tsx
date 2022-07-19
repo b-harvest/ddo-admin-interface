@@ -1,41 +1,79 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useAllAssetInfo, useAllAssetLive, useAllPairInfo, useAllPairLive, useAllPoolLive } from 'data/useAPI'
+import { COMMON_FETCHING_INTERVAL } from 'constants/chain'
+import {
+  useAllAssetInfo,
+  useAllAssetLive,
+  useAllChainInfo,
+  useAllChainLive,
+  useAllPairInfo,
+  useAllPairLive,
+  useAllPoolLive,
+} from 'data/useAPI'
+import { useLatestBlockLCD } from 'data/useLCD'
 import { useAtom } from 'jotai'
 import { useEffect } from 'react'
 import {
   allAssetInfoAtomRef,
   allAssetLiveAtomRef,
+  allChainInfoAtomRef,
+  allChainLiveAtomRef,
   allPairInfoAtomRef,
   allPairLiveAtomRef,
   allPoolLiveAtomRef,
+  latestBlockLCDAtomRef,
 } from 'state/atoms'
-import type { APIHookReturn } from 'types/api'
+import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
+import type { BlockLCD, ChainInfo, ChainLive } from 'types/chain'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
 export default function StateUpdater(): null {
+  // all chain
+  const [, setAllChainInfoAtom] = useAtom(allChainInfoAtomRef)
+  const [, setAllChainLiveAtom] = useAtom(allChainLiveAtomRef)
+  const [, setLatestBlockLCDAtom] = useAtom(latestBlockLCDAtomRef)
+
+  const { data: allChainInfoData }: APIHookReturn<ChainInfo[]> = useAllChainInfo(COMMON_FETCHING_INTERVAL)
+  const { data: allChainLiveData }: APIHookReturn<ChainLive[]> = useAllChainLive(COMMON_FETCHING_INTERVAL)
+  const { data: latestBlockLCDData }: LCDHookReturn<BlockLCD> = useLatestBlockLCD({}, COMMON_FETCHING_INTERVAL)
+
   // all asset
   const [, setAllAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
   const [, setAllAssetLiveAtom] = useAtom(allAssetLiveAtomRef)
 
   const { data: allAssetInfoData, isLoading: allAssetInfoIsLoading }: APIHookReturn<AssetInfoRaw[]> =
-    useAllAssetInfo(60000) // to be 6000
+    useAllAssetInfo(COMMON_FETCHING_INTERVAL)
   const { data: allAssetLiveData, isLoading: allAssetLiveIsLoading }: APIHookReturn<AssetLiveRaw[]> =
-    useAllAssetLive(5000) // to be 6000
+    useAllAssetLive(COMMON_FETCHING_INTERVAL)
 
   // all pair
   const [, setAllPairtInfoAtom] = useAtom(allPairInfoAtomRef)
   const [, setAllPairLiveAtom] = useAtom(allPairLiveAtomRef)
 
-  const { data: allPairInfoData, isLoading: allPairInfoIsLoading }: APIHookReturn<PairInfoRaw[]> = useAllPairInfo(5000) // to be 6000
-  const { data: allPairLiveData, isLoading: allPairLiveIsLoading }: APIHookReturn<PairLiveRaw[]> = useAllPairLive(5000) // to be 6000
+  const { data: allPairInfoData, isLoading: allPairInfoIsLoading }: APIHookReturn<PairInfoRaw[]> =
+    useAllPairInfo(COMMON_FETCHING_INTERVAL)
+  const { data: allPairLiveData, isLoading: allPairLiveIsLoading }: APIHookReturn<PairLiveRaw[]> =
+    useAllPairLive(COMMON_FETCHING_INTERVAL)
 
   // all pool
   const [, setAllPoolLiveAtom] = useAtom(allPoolLiveAtomRef)
-  const { data: allPoolLiveData, isLoading: allPoolLiveIsLoading }: APIHookReturn<PoolLiveRaw[]> = useAllPoolLive(5000)
+  const { data: allPoolLiveData, isLoading: allPoolLiveIsLoading }: APIHookReturn<PoolLiveRaw[]> =
+    useAllPoolLive(COMMON_FETCHING_INTERVAL)
 
   useEffect(() => {
+    if (allChainInfoData && allChainLiveData) {
+      const allChainInfo = allChainInfoData.data ?? []
+      setAllChainInfoAtom(allChainInfo)
+
+      const allChainLive = allChainLiveData.data ?? []
+      setAllChainLiveAtom(allChainLive)
+    }
+
+    if (latestBlockLCDData) {
+      setLatestBlockLCDAtom(latestBlockLCDData)
+    }
+
     if (allAssetInfoData && allAssetLiveData) {
       const allAssetInfo = allAssetInfoData.data ?? []
       setAllAssetInfoAtom(allAssetInfo)
@@ -62,6 +100,12 @@ export default function StateUpdater(): null {
       // console.log('allPoolLive', allPoolLiveData)
     }
   }, [
+    allChainInfoData,
+    setAllChainInfoAtom,
+    allChainLiveData,
+    setAllChainLiveAtom,
+    latestBlockLCDData,
+    setLatestBlockLCDAtom,
     allAssetInfoData,
     setAllAssetInfoAtom,
     allAssetLiveData,

@@ -5,10 +5,12 @@ export default function Polling({
   label,
   status = 'info',
   className,
+  onClick,
 }: {
   label?: string
   status?: AlertStatus
   className?: string
+  onClick?: () => void
 }) {
   const [isMounting, setIsMounting] = useState(false)
 
@@ -18,14 +20,17 @@ export default function Polling({
     setIsMounting(true)
     const mountingTimer = setTimeout(() => setIsMounting(false), 1000)
 
-    return () => {
-      clearTimeout(mountingTimer)
-    }
+    return () => clearTimeout(mountingTimer)
   }, [label])
 
   return (
-    <div className={`${className} flex items-center space-x-2 TYPO-BODY-S ${textCSSByStatus(status)}`}>
-      <div className={`${isMounting ? 'opacity-50' : ''}`}>{label}</div>
+    <div
+      className={`${className} flex items-center space-x-2 TYPO-BODY-XS ${textCSSByStatus(status)} ${
+        onClick ? 'cursor-pointer' : ''
+      }`}
+      onClick={onClick}
+    >
+      <div className={`hover:opacity-50 ${isMounting ? 'opacity-50' : ''}`}>{label}</div>
       <PollingDot status={status}>
         <PollingSpinner status={status} isMounting={isMounting} />
       </PollingDot>
@@ -69,7 +74,7 @@ function textCSSByStatus(status: AlertStatus) {
     case 'success':
       return 'text-success'
     default:
-      return 'text-neutral'
+      return 'text-neutral-400'
   }
 }
 
@@ -84,7 +89,7 @@ function bgCSSByStatus(status: AlertStatus) {
     case 'success':
       return 'bg-success'
     default:
-      return 'bg-neutral'
+      return 'bg-neutral-400'
   }
 }
 
@@ -99,6 +104,6 @@ function borderCSSByStatus(status: AlertStatus) {
     case 'success':
       return 'border-success'
     default:
-      return 'border-neutral'
+      return 'border-neutral-400'
   }
 }

@@ -13,17 +13,6 @@ const DEFAULT_HEIGHT = 300
 const ACTIVE_EVENTS = ['mouseenter', 'mousemove', 'touchstart', 'touchmove']
 const DEACTIVE_EVENTS = ['mouseout', 'mouseleave', 'touchend', 'touchcancel']
 
-type Transformation =
-  | {
-      type: 'reflectX' // send (x, y) to (-x, y)
-    }
-  | {
-      type: 'reflectY' // send (x, y) to (x, -y)
-    }
-  | {
-      type: 'transpose' // send (x, y) to (y, x)
-    }
-
 export type AntComposedBarChartProps = {
   data: ComposedChartEntry[]
   colorMap: { [x: string]: string }
@@ -73,7 +62,12 @@ export default function ComposedBarChart({
       position: 'left',
       colorField: 'type',
       color: (item) => colorMap[item.type],
-      columnStyle: {},
+      dodgePadding: -1,
+      columnStyle: {
+        lineWidth: 0,
+        strokeOpacity: 0,
+        shadowColor: 'rgba(0,0,0,0)',
+      },
       legend: {
         flipPage: false,
         position: 'bottom-right' as const,

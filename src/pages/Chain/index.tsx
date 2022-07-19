@@ -1,13 +1,11 @@
 import AppPage from 'components/AppPage'
 import GlowBackground from 'components/GlowBackground'
-import useChain from 'hooks/useChain'
-// import { useAtom } from 'jotai'
-import BlockHeightPolling from 'pages/components/BlockHeightPolling'
 
+// import { useAtom } from 'jotai'
 // import { chainIdAtomRef } from 'state/atoms'
 // import { isTestnet } from 'utils/chain'
-// import BlockChart from './sections/BlockChart'
 import BlockChart from './sections/BlockChart'
+import IBCVolume from './sections/IBCVolume'
 
 export default function Chain() {
   // const { findChainById } = useChain({})
@@ -15,8 +13,6 @@ export default function Chain() {
   // chain
   // const [chainIdAtom] = useAtom(chainIdAtomRef)
   // const isOnTestnet = isTestnet(chainIdAtom)
-
-  const { backendBlockHeight, onchainBlockHeight } = useChain({ interval: 5000 })
 
   return (
     <AppPage>
@@ -31,13 +27,9 @@ export default function Chain() {
         }}
       />
 
-      <section className="mb-4">
-        <BlockHeightPolling onchainBlockHeight={onchainBlockHeight} backendBlockHeight={backendBlockHeight} />
-      </section>
-
-      <section className="flex flex-col justify-between items-center space-y-4 mb-8">
-        {/* <BlockChart /> */}
+      <section className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 space-x-0 md:space-x-4 mb-8">
         <BlockChart />
+        <IBCVolume />
       </section>
     </AppPage>
   )

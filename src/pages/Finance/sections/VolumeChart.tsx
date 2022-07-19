@@ -78,7 +78,7 @@ export default function VolumeChart() {
           tabItems={VOLUME_CHART_WINDOW_TAB_ITEMS}
           selectedValue={chartTimeTick}
           onChange={handleChartTimeTickSelect}
-          className=""
+          className="!TYPO-BODY-S"
           getVerticalIfMobile={true}
         />
       }

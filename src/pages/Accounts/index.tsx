@@ -1,13 +1,12 @@
 import AppPage from 'components/AppPage'
+// import BlockHeightPolling from 'components/BlockHeightPolling'
 import Hr from 'components/Hr'
 import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
-import { toastSuccess } from 'components/Toast/generator'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { DUMMY_ADDRESS } from 'constants/msg'
-import useChain from 'hooks/useChain'
+// import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
-import BlockHeightPolling from 'pages/components/BlockHeightPolling'
 import { useMemo, useState } from 'react'
 import { chainIdAtomRef } from 'state/atoms'
 import { isTestnet } from 'utils/chain'
@@ -19,33 +18,40 @@ import TokenBalance from './sections/TokenBalance'
 export default function Accounts() {
   // chainId atom
   const [chainIdAtom] = useAtom(chainIdAtomRef)
-
   const significantTimeGap = useMemo(() => CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom], [chainIdAtom])
 
-  // fetching interval
-  const [interval, setInterval] = useState<number>(15)
-  const toggleInterval = () => {
-    const newInterval = interval >= 15 ? 5 : interval + 5
-    setInterval(newInterval)
-    toastSuccess(`Fetching interval set to ${newInterval}s`)
-  }
-
-  // block
-  const { backendBlockHeight, onchainBlockHeight } = useChain({ interval: interval * 1000 })
+  // const { onchainBlockHeight: onchainBlockHeightRaw, backendBlockHeight: backendBlockHeightRaw } = useChain()
 
   // address
   const [searchAddress, setSearchAddress] = useState(DUMMY_ADDRESS)
   const [address, setAddress] = useState<undefined | string>(undefined)
-  const handleAddressSearch = () => setAddress(searchAddress)
+  // const [fetch, setFetch] = useState<boolean>(false)
+
+  const handleAddressSearch = () => {
+    if (address !== searchAddress) setAddress(searchAddress)
+    // setFetch(true)
+  }
+
+  // refresh data
+  // const [onchainBlockHeight, setOnchainBlockHeight] = useState<string>('-')
+  // const [backendBlockHeight, setBackendBlockHeight] = useState<string>('-')
+
+  // useEffect(() => {
+  //   if (fetch) {
+  //     setFetch(false)
+  //     setOnchainBlockHeight(onchainBlockHeightRaw)
+  //     setBackendBlockHeight(backendBlockHeightRaw)
+  //   }
+  // }, [fetch, setOnchainBlockHeight, setBackendBlockHeight, onchainBlockHeightRaw, backendBlockHeightRaw])
 
   return (
-    <AppPage className="pt-[calc(2rem+3.25rem)]">
+    <AppPage className="pt-[calc(1.5rem+3.25rem)]">
       <div
-        className="fixed left-0 right-0 z-50 w-full"
+        className={`fixed left-0 right-0 z-50 w-full translate-y-[28px] md:translate-y-0`}
         style={{ top: `calc(2.5rem + (1rem * 2)${isTestnet(chainIdAtom) ? ' + 1.5rem' : ''})` }}
       >
         <Sticker>
-          <div className="flex justify-start items-center px-4 py-4 md:justify-end md:space-x-2 md:px-12">
+          <div className="flex justify-start items-center px-4 py-3 md:justify-start md:space-x-2 md:px-12">
             <span className="hidden TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium md:block">
               Current Address
             </span>
@@ -64,25 +70,20 @@ export default function Accounts() {
           onSearch={handleAddressSearch}
         />
 
-        <div className="flex justify-between items-start md:items-center space-x-4">
+        {/* refactoring wip */}
+        {/* <div className="flex justify-start items-start md:items-center md:space-x-4">
+          <div className="hidden md:block TYPO-BODY-XS text-grayCRE-400">Latest fetched block</div>
           <BlockHeightPolling onchainBlockHeight={onchainBlockHeight} backendBlockHeight={backendBlockHeight} />
-          <button
-            type="button"
-            onClick={toggleInterval}
-            className="shrink-0 grow-0 basis-auto outline-none TYPO-BODY-S italic !font-bold text-left text-black dark:text-white bg-grayCRE-200-o p-3 rounded-xl hover:bg-grayCRE-50-o dark:bg-grayCRE-400-o dark:hover:bg-grayCRE-300-o"
-          >
-            <span className="hidden md:inline-block mr-2">Fetching</span>
-            every {interval}s
-          </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="flex flex-col justify-start items-stretch space-y-12">
-        <TokenBalance interval={interval * 1000} address={address} significantTimeGap={significantTimeGap} />
+        {/* refactoring wip */}
+        <TokenBalance address={address} significantTimeGap={significantTimeGap} />
         <Hr />
-        <ClaimableRewards interval={interval * 1000} address={address} significantTimeGap={significantTimeGap} />
+        <ClaimableRewards address={address} significantTimeGap={significantTimeGap} />
         <Hr />
-        <FarmStakedAmount interval={interval * 1000} address={address} significantTimeGap={significantTimeGap} />
+        <FarmStakedAmount address={address} significantTimeGap={significantTimeGap} />
       </div>
     </AppPage>
   )

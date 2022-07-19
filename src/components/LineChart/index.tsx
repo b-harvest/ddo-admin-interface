@@ -42,8 +42,6 @@ export default function LineChart({
   className = '',
   ...rest
 }: LineChartProps) {
-  const parsedValue = value
-
   const handleMouseOn = useCallback(
     (props: CategoricalChartState) => {
       if (setValue && props.activePayload && value !== props.activePayload[0]?.payload?.value) {

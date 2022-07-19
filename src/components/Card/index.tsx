@@ -1,10 +1,13 @@
-import { ReactNode } from 'react'
+import { HTMLAttributes, ReactNode } from 'react'
 
-export default function Card({ children, className }: { children: ReactNode; className?: string }) {
+type CardProps = {
+  children?: ReactNode
+  className?: string
+} & Omit<HTMLAttributes<HTMLDivElement>, 'className'>
+
+export default function Card({ children, className = '', ...rest }: CardProps) {
   return (
-    <div
-      className={`relative bg-white dark:bg-neutral-800 text-black dark:text-white rounded-xl shadow-glow-wide-l dark:shadow-glow-wide-d p-8 ${className}`}
-    >
+    <div {...rest} className={`${className} flex flex-col w-full bg-neutral-900 p-4 rounded-xl dark:bg-neutral-800`}>
       {children}
     </div>
   )
