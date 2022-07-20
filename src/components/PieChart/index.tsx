@@ -1,10 +1,8 @@
-import BigNumber from 'bignumber.js'
-import Card from 'components/Card'
+import Card, { CardMergedSide } from 'components/Card'
 import { GLOW_CRE } from 'constants/style'
-import { lighten } from 'polished'
 import { ReactNode, useCallback, useState } from 'react'
 import { Cell, Pie, PieChart as Chart, ResponsiveContainer, Sector } from 'recharts'
-import { CategoricalChartState } from 'recharts/types/chart/generateCategoricalChart'
+import { pure } from 'recompose'
 import type { PieChartEntry } from 'types/chart'
 
 const DEFAULT_HEIGHT = 300
@@ -19,9 +17,12 @@ type PieChartProps = {
   topLeft?: ReactNode | undefined
   topRight?: ReactNode | undefined
   className?: string
+  cardMerged?: CardMergedSide
 }
 
-export default function PieChart({
+export default pure(PieChart)
+
+function PieChart({
   data,
   colorMap,
   value,
@@ -31,23 +32,31 @@ export default function PieChart({
   topLeft,
   topRight,
   className,
+  cardMerged,
 }: PieChartProps) {
   const color = GLOW_CRE
 
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const handleMouseOn = useCallback(
-    (props: CategoricalChartState | null, event) => {
+    (props, index) => {
+      console.log('props', props)
+
       if (props) {
-        if (event.type === 'mouseenter' && props.activeTooltipIndex) {
+        if (typeof index === 'number') {
           setActiveIndex(props.activeTooltipIndex)
         }
 
-        if (setValue && props.activePayload && value !== props.activePayload[0]?.payload?.value) {
-          setValue(props.activePayload[0]?.payload?.value)
+        if (setValue && value !== props.payload?.value) {
+          setValue(props.payload?.value)
         }
-        if (setLabel && props.activePayload && label !== props.activePayload[0]?.payload?.type) {
-          setLabel(props.activePayload[0]?.payload?.type)
+
+        const newLabel = props.percent
+          ? `${props.payload?.type} ${(props.percent * 100).toFixed(0)}%`
+          : props.payload?.type
+
+        if (setLabel && label !== newLabel) {
+          setLabel(newLabel)
         }
       }
     },
@@ -61,70 +70,74 @@ export default function PieChart({
   }, [setLabel, setValue])
 
   return (
-    <Card
-      className={className}
-      style={{ width: `${DEFAULT_HEIGHT}px`, height: `${DEFAULT_HEIGHT}px`, minHeight: `${DEFAULT_HEIGHT}px` }}
-    >
-      <div className="shrink-0 grow-0 flex justify-between">
+    <Card className={`${className} items-center md:items-start`} merged={cardMerged}>
+      <div className="shrink-0 grow-0 flex justify-between w-full">
         {topLeft ?? null}
         {topRight ?? null}
       </div>
 
-      <div className="w-full h-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <Chart
-            width={730}
-            height={250}
-            onMouseEnter={handleMouseOn}
-            onMouseMove={handleMouseOn}
-            onMouseLeave={handleMouseLeave}
-          >
-            {/* <Tooltip cursor={{ stroke: LIGHT_CRE }} contentStyle={{ display: 'none' }} /> */}
+      <div style={{ width: `${DEFAULT_HEIGHT}px`, height: `${DEFAULT_HEIGHT}px`, minHeight: `${DEFAULT_HEIGHT}px` }}>
+        <div className="w-full h-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <Chart width={730} height={250}>
+              {data.map((item) => {
+                return (
+                  <defs key={item.type}>
+                    <linearGradient id={`gradient-${item.type}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={colorMap[item.type] ?? GLOW_CRE} stopOpacity={0.5} />
+                      <stop offset="100%" stopColor={color} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                )
+              })}
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="type"
+                cx="50%"
+                cy="50%"
+                innerRadius={70}
+                outerRadius={100}
+                startAngle={90}
+                endAngle={450}
+                fill={GLOW_CRE}
+                stroke={GLOW_CRE}
+                // label={({ cx, cy, midAngle, innerRadius, outerRadius, index }) => {
+                //   const RADIAN = Math.PI / 180
+                //   // eslint-disable-next-line
+                //   const radius = 25 + innerRadius + (outerRadius - innerRadius);
+                //   // eslint-disable-next-line
+                //   const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                //   // eslint-disable-next-line
+                //   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-            {/* <Tooltip cursor={{ fill: LIGHT_CRE }} contentStyle={{ display: 'none' }} /> */}
-
-            {/* <Legend
-        verticalAlign="middle"
-        layout="vertical"
-        height={36}
-        chartHeight={12}
-        iconSize={6}
-        iconType="circle"
-        wrapperStyle={{
-          position: 'static',
-          right: 0,
-        }}
-      /> */}
-
-            {data.map((item) => (
-              <defs key={item.type}>
-                <linearGradient id={`gradient-${item.type}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={lighten(0.3, colorMap[item.type])} stopOpacity={0.3} />
-                  <stop offset="100%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-            ))}
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="type"
-              cx="50%"
-              cy="50%"
-              innerRadius={70}
-              outerRadius={100}
-              fill={GLOW_CRE}
-              stroke={GLOW_CRE}
-              label={(label) => `${label.name} ${new BigNumber(label.value).toFormat(0)}`}
-              paddingAngle={5}
-              activeIndex={activeIndex}
-              activeShape={renderActiveShape}
-            >
-              {data.map((item) => (
-                <Cell key={item.type} fill={`url(#gradient-${item.type})`} />
-              ))}
-            </Pie>
-          </Chart>
-        </ResponsiveContainer>
+                //   return (
+                //     <text
+                //       x={x}
+                //       y={y}
+                //       fill={'#ffffff'}
+                //       fontSize="0.5rem"
+                //       textAnchor={x > cx ? 'start' : 'end'}
+                //       dominantBaseline="central"
+                //     >
+                //       {data[index].type}
+                //     </text>
+                //   )
+                // }}
+                paddingAngle={5}
+                activeIndex={activeIndex}
+                activeShape={renderActiveShape}
+                onMouseEnter={handleMouseOn}
+                onMouseMove={handleMouseOn}
+                onMouseLeave={handleMouseLeave}
+              >
+                {data.map((item) => (
+                  <Cell key={item.type} fill={`url(#gradient-${item.type})`} />
+                ))}
+              </Pie>
+            </Chart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </Card>
   )

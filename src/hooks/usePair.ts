@@ -48,7 +48,7 @@ const usePair = () => {
         }),
       }
     }) as PairInfo[]
-  }, [allPairInfoAtom, allAsset])
+  }, [allPairInfoAtom, findAssetByDenom])
 
   const getTVLUSDbyDenom = useCallback(
     (denom: string) => {

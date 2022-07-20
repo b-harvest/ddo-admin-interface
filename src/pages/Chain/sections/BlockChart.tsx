@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js'
+import Card from 'components/Card'
 // import ComposedBarChart from 'components/ComposedBarChart'
 import ComposedBarChart from 'components/ComposedBarChart/ant'
+import Dot from 'components/Dot'
 import Indicator from 'components/Indicator'
 import dummyChartData from 'components/LineChart/dummy/data.json'
 import { CHART_COLOR_MAP } from 'constants/style'
@@ -70,37 +72,40 @@ export default function BlockChart() {
   }, [allEventsHover])
 
   return (
-    <div className="w-full flex flex-col md:flex-row justify-between items-stretch space-y-4 md:space-y-0 md:space-x-2">
-      {colorMap && (
-        <ComposedBarChart
-          className="grow shrink"
-          height={220}
-          data={chartData}
-          colorMap={colorMap}
-          setLabel={setBlockHeightHover}
-          label={blockHeightHover}
-          topLeft={
-            topEventHover && (
-              <TopEvent title="Top event" label={blockChartHeight} event={topEventHover} colorMap={colorMap} />
-            )
-          }
-        />
-      )}
+    <section>
+      <div className="w-full flex flex-col md:flex-row justify-between items-stretch">
+        {colorMap && (
+          <ComposedBarChart
+            className="grow shrink"
+            height={220}
+            data={chartData}
+            colorMap={colorMap}
+            setLabel={setBlockHeightHover}
+            label={blockHeightHover}
+            topLeft={
+              topEventHover && (
+                <TopEvent title="Top event" label={blockChartHeight} event={topEventHover} colorMap={colorMap} />
+              )
+            }
+            cardMerged="right-bottom"
+          />
+        )}
 
-      <div className="grow-0 shrink-0 md:basis-[25%] flex flex-col items-start space-y-2 !font-medium bg-neutral-900 px-6 py-4 rounded-xl dark:bg-neutral-800">
-        <Indicator title="All events" light={true}>
-          {allEventsHover.map((event, i) => (
-            <div key={event.type} className="flex items-center space-x-2">
-              {colorMap && <div className="w-2 h-2 rounded-full" style={{ background: colorMap[event.type] }}></div>}
-              <div className="TYPO-BODY-XS md:TYPO-BODY-S">
-                {firstCharToUpperCase(event.type)}{' '}
-                <span className="FONT-MONO !font-bold">{new BigNumber(event.value).toFormat(0)}</span>
+        <Card className="grow-0 shrink-0 md:basis-[25%]" merged="left-top">
+          <Indicator title="" light={true} className="space-y-4 md:pt-[2rem]">
+            {allEventsHover.map((event, i) => (
+              <div key={event.type} className="flex items-center space-x-4">
+                {colorMap && <Dot color={colorMap[event.type]} />}
+                <div className="flex items-center space-x-4 TYPO-BODY-XS md:TYPO-BODY-S">
+                  <span>{firstCharToUpperCase(event.type)}</span>
+                  <span className="FONT-MONO !font-bold">{new BigNumber(event.value).toFormat(0)}</span>
+                </div>
               </div>
-            </div>
-          ))}
-        </Indicator>
+            ))}
+          </Indicator>
+        </Card>
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -124,7 +129,8 @@ function TopEvent({
           <div>
             {firstCharToUpperCase(event.type)} <span className="FONT-MONO !font-black">{event.value}</span>
           </div>
-          <div className="w-3 h-3 rounded-full" style={{ background: colorMap[event.type] }}></div>
+          <Dot color={colorMap[event.type]} size="md" />
+          {/* <div className="w-3 h-3 rounded-full" style={{ background: colorMap[event.type] }}></div> */}
         </div>
       </div>
     </Indicator>

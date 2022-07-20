@@ -45,6 +45,7 @@
     "react-scripts": "5.0.1",
     "react-toastify": "^9.0.5",
     "recharts": "^2.0.9",
+    "recompose": "^0.30.0",
     "stream-browserify": "^3.0.0",
     "swr": "^1.1.2-beta.0",
     "typescript": "^4.4.2",

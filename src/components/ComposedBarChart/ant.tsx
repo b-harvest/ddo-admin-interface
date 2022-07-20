@@ -1,10 +1,9 @@
 import { Column } from '@ant-design/charts'
-import BigNumber from 'bignumber.js'
+import Card, { CardMergedSide } from 'components/Card'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { ReactNode, useMemo } from 'react'
 import type { ComposedChartEntry } from 'types/chart'
-import { firstCharToUpperCase } from 'utils/text'
 
 dayjs.extend(utc)
 
@@ -24,6 +23,8 @@ export type AntComposedBarChartProps = {
   bottomLeft?: ReactNode | undefined
   bottomRight?: ReactNode | undefined
   className?: string
+  cardMerged?: CardMergedSide
+  legend?: boolean
 }
 
 export default function ComposedBarChart({
@@ -39,6 +40,8 @@ export default function ComposedBarChart({
   bottomLeft,
   bottomRight,
   className = '',
+  cardMerged,
+  legend = false,
 }: AntComposedBarChartProps) {
   const config = useMemo(
     () => ({
@@ -70,23 +73,22 @@ export default function ComposedBarChart({
       },
       legend: {
         flipPage: false,
-        position: 'bottom-right' as const,
-        layout: 'horizontal' as const,
+        position: 'right' as const,
+        layout: 'vertical' as const,
         marker: {
           symbol: 'circle' as const,
+          style: { opacity: 0, width: 0, height: 0 },
         },
-        itemName: {
-          formatter: (text) => firstCharToUpperCase(text),
-        },
-        itemValue: {
-          formatter: () => '',
-        },
+        itemName: { formatter: () => '' },
+        itemWidth: 0,
+        itemHeight: 0,
       },
       tooltip: {
         title: '',
-        formatter: (item) => {
-          return { title: new BigNumber(item.time).toFormat(0), name: item.type, value: item.value }
-        },
+        container: '',
+        // formatter: (item) => {
+        //   return { title: new BigNumber(item.time).toFormat(0), name: item.type, value: item.value }
+        // },
       },
       lineOpacity: 0,
       intervalPadding: 0,
@@ -106,8 +108,9 @@ export default function ComposedBarChart({
   )
 
   return (
-    <div
-      className={`${className} flex flex-col w-full bg-neutral-900 p-4 rounded-xl dark:bg-neutral-800`}
+    <Card
+      className={className}
+      merged={cardMerged}
       style={{
         minWidth: '0',
         minHeight: `${height}px`,
@@ -126,6 +129,6 @@ export default function ComposedBarChart({
         {bottomLeft ?? null}
         {bottomRight ?? null}
       </div>
-    </div>
+    </Card>
   )
 }

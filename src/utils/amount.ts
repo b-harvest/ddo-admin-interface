@@ -16,6 +16,7 @@ export const formatUSDAmount = ({
   if (value === undefined) return '-'
   if (value.isZero()) return `${prefix}0`
   if (value.isLessThan(0.01)) return `<${prefix}0.01`
+  if (value.isLessThan(1) && mantissa === 0) mantissa = 2
 
   if (abbr) {
     const number = value.toNumber()

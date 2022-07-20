@@ -51,7 +51,7 @@ export default function BarChart({
   className = '',
   ...rest
 }: LineChartProps) {
-  const parsedValue = value
+  // const parsedValue = value
 
   const timeTickedChartData = useCallback((chartData: GenericChartEntry[], type: TimeTick) => {
     if (!chartData) return []
