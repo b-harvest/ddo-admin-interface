@@ -7,6 +7,7 @@ import BlockHeightPolling from 'components/BlockHeightPolling'
 import GlowBackground from 'components/GlowBackground'
 import Loader from 'components/Loader'
 import TextBand from 'components/TextBand'
+import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
@@ -21,6 +22,7 @@ import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
 import { chainIdAtomRef, userAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
+import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
 
 // No interface change
@@ -45,6 +47,16 @@ function App() {
 
   // app top bar
   const showAppTopBar = useMemo(() => userAtom && isOnTestnet, [userAtom, isOnTestnet])
+
+  // hidden bar for standalone mode
+  const { cre } = useAsset()
+  const hiddenBarLabel = useMemo(
+    () =>
+      cre?.live?.priceOracle
+        ? `The last known price of CRE is ${formatUSDAmount({ value: cre?.live?.priceOracle })}`
+        : `Visit app.crescent.network for DEX`,
+    [cre]
+  )
 
   // scroll behavior by route history
   const history = useHistory()
@@ -80,7 +92,7 @@ function App() {
 
       <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
         <div className="absolute top-0 left-0 right-0">
-          <TextBand label="" thin={true} bgColorClass="bg-info" />
+          <TextBand label={hiddenBarLabel} thin={true} bgColorClass="bg-info" />
         </div>
 
         <GlowBackground

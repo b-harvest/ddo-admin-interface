@@ -33,7 +33,9 @@ const useAsset = () => {
     [allAsset]
   )
 
-  return { allAssetLive, allAsset, findAssetByDenom, isPoolToken }
+  const cre = useMemo(() => findAssetByDenom('ucre'), [findAssetByDenom])
+
+  return { allAssetLive, allAsset, findAssetByDenom, isPoolToken, cre }
 }
 
 export default useAsset
