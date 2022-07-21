@@ -1,5 +1,4 @@
 import AppPage from 'components/AppPage'
-import GlowBackground from 'components/GlowBackground'
 
 // import { useAtom } from 'jotai'
 // import { chainIdAtomRef } from 'state/atoms'
@@ -17,17 +16,6 @@ export default function Chain() {
 
   return (
     <AppPage>
-      <GlowBackground
-        style={{
-          transform: 'translateY(-150vh) translateX(-50vw)',
-        }}
-      />
-      <GlowBackground
-        style={{
-          transform: 'translateY(25vh) translateX(75vw)',
-        }}
-      />
-
       <section className="flex flex-col justify-between items-stretch mb-20">
         <BlockChart />
       </section>

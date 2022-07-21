@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
-import GlowBackground from 'components/GlowBackground'
 import TableList from 'components/TableList'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
@@ -59,17 +58,6 @@ export default function Finance() {
 
   return (
     <AppPage>
-      <GlowBackground
-        style={{
-          transform: 'translateY(-150vh) translateX(-50vw)',
-        }}
-      />
-      <GlowBackground
-        style={{
-          transform: 'translateY(25vh) translateX(75vw)',
-        }}
-      />
-
       <section className="flex flex-col justify-between items-stretch space-y-4 md:flex-row md:space-x-4 md:space-y-0 mb-20">
         <TVLChart />
         <VolumeChart />

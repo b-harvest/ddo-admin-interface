@@ -71,14 +71,14 @@ export default function IBCVolume() {
               </Indicator>
             }
           />
-          <Card className="min-w-[300px] md:basis-[70%]" merged="left-top">
+          <Card useGlassEffect={true} className="min-w-[300px] md:basis-[70%]" merged="left-top">
             <Indicator light={true} className="md:pt-[2rem]">
               {chartData
                 .sort((a, b) => b.value - a.value)
                 .map((item, i) => (
                   <div key={item.type} className="flex items-center space-x-4">
                     {colorMap && <Dot color={transparentize(0.4, colorMap[item.type])} />}
-                    <div className="flex items-center space-x-4 TYPO-BODY-XS md:TYPO-BODY-S text-grayCRE-100">
+                    <div className="flex items-center space-x-4 TYPO-BODY-XS md:TYPO-BODY-S text-neutral-800 dark:text-grayCRE-100">
                       <span>{item.type}</span>{' '}
                       <span className="FONT-MONO !font-bold">
                         {formatUSDAmount({

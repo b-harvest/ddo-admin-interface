@@ -70,7 +70,7 @@ function PieChart({
   }, [setLabel, setValue])
 
   return (
-    <Card className={`${className} items-center md:items-start`} merged={cardMerged}>
+    <Card useGlassEffect={true} className={`${className} items-center md:items-start`} merged={cardMerged}>
       <div className="shrink-0 grow-0 flex justify-between w-full">
         {topLeft ?? null}
         {topRight ?? null}

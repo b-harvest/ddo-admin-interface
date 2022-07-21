@@ -1,3 +1,4 @@
+import Card from 'components/Card'
 import { GLOW_CRE, LIGHT_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -61,14 +62,15 @@ export default function LineChart({
   }, [setLabel, setValue])
 
   return (
-    <div
-      {...rest}
-      className={`${className} flex flex-col w-full bg-neutral-900 p-4 rounded-xl dark:bg-neutral-800`}
+    <Card
+      className={`${className} w-full`}
+      useGlassEffect={true}
       style={{
         minWidth: '0',
         height: `${minHeight}px`,
         minHeight: `${minHeight}px`,
       }}
+      {...rest}
     >
       <div className="shrink-0 grow-0 flex justify-between">
         {topLeft ?? null}
@@ -115,6 +117,6 @@ export default function LineChart({
         {bottomLeft ?? null}
         {bottomRight ?? null}
       </div>
-    </div>
+    </Card>
   )
 }

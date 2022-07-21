@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
-import 'antd/dist/antd.css'
 import './index.css'
 import '@reach/dialog/styles.css'
 

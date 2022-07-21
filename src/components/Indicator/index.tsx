@@ -14,7 +14,7 @@ export default function Indicator({
   light?: boolean
 }) {
   return (
-    <div className={`text-white text-left ${className}`}>
+    <div className={`text-black dark:text-white text-left ${className}`}>
       {title && (
         <div
           className={`${

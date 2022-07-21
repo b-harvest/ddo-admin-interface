@@ -1,3 +1,4 @@
+import Card from 'components/Card'
 import { LIGHT_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -116,8 +117,9 @@ export default function BarChart({
   }, [setLabel, setValue])
 
   return (
-    <div
-      className={`${className} flex flex-col w-full bg-neutral-900 p-4 rounded-xl dark:bg-neutral-800`}
+    <Card
+      className={`${className} w-full`}
+      useGlassEffect={true}
       style={{
         minWidth: '0',
         height: `${minHeight}px`,
@@ -169,7 +171,7 @@ export default function BarChart({
         {bottomLeft ?? null}
         {bottomRight ?? null}
       </div>
-    </div>
+    </Card>
   )
 }
 

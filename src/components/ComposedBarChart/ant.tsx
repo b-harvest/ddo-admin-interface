@@ -73,8 +73,8 @@ export default function ComposedBarChart({
       },
       legend: {
         flipPage: false,
-        position: 'right' as const,
-        layout: 'vertical' as const,
+        position: 'bottom-right' as const,
+        layout: 'horizontal' as const,
         marker: {
           symbol: 'circle' as const,
           style: { opacity: 0, width: 0, height: 0 },
@@ -110,6 +110,7 @@ export default function ComposedBarChart({
   return (
     <Card
       className={className}
+      useGlassEffect={true}
       merged={cardMerged}
       style={{
         minWidth: '0',
@@ -121,7 +122,7 @@ export default function ComposedBarChart({
         {topRight ?? null}
       </div>
 
-      <div className="w-full h-full text-left !FONT-MONO">
+      <div className="w-full h-full text-left !FONT-MONO pr-2">
         <Column {...config} />
       </div>
 

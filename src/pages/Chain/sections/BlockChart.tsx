@@ -91,7 +91,7 @@ export default function BlockChart() {
           />
         )}
 
-        <Card className="grow-0 shrink-0 md:basis-[25%]" merged="left-top">
+        <Card useGlassEffect={true} className="grow-0 shrink-0 md:basis-[25%]" merged="left-top">
           <Indicator title="" light={true} className="space-y-4 md:pt-[2rem]">
             {allEventsHover.map((event, i) => (
               <div key={event.type} className="flex items-center space-x-4">

@@ -3,9 +3,10 @@ import 'App.css'
 import 'react-toastify/dist/ReactToastify.min.css'
 
 import AppHeader from 'components/AppHeader'
-import AppTopBanner from 'components/AppTopBanner'
 import BlockHeightPolling from 'components/BlockHeightPolling'
+import GlowBackground from 'components/GlowBackground'
 import Loader from 'components/Loader'
+import TextBand from 'components/TextBand'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import Accounts from 'pages/Accounts'
@@ -65,7 +66,7 @@ function App() {
       </Suspense>
 
       <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
-        {showAppTopBar && <AppTopBanner label={topBannerLabel} />}
+        {showAppTopBar && <TextBand label={topBannerLabel} />}
         {userAtom && (
           <div
             className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
@@ -78,6 +79,21 @@ function App() {
       </div>
 
       <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
+        <div className="absolute top-0 left-0 right-0">
+          <TextBand label="" thin={true} bgColorClass="bg-info" />
+        </div>
+
+        <GlowBackground
+          style={{
+            transform: 'translateY(-120vh) translateX(-50vw)',
+          }}
+        />
+        <GlowBackground
+          style={{
+            transform: 'translateY(25vh) translateX(75vw)',
+          }}
+        />
+
         <Suspense fallback={<Loader />}>
           <Switch>
             <Route exact path="/auth" component={SignIn} />

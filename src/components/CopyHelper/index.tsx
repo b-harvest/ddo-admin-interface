@@ -1,6 +1,7 @@
 import { useCopyClipboard } from 'components/CopyHelper/hooks'
 import Icon from 'components/Icon'
 import { ButtonHTMLAttributes, useCallback } from 'react'
+import { vibrate } from 'utils/hardware'
 
 interface BaseProps {
   toCopy: string
@@ -13,6 +14,7 @@ type CopyHelperProps = BaseProps & Omit<ButtonHTMLAttributes<HTMLButtonElement>,
 export default function CopyHelper({ color, toCopy, children, iconPosition }: CopyHelperProps) {
   const [isCopied, setCopied] = useCopyClipboard()
   const copy = useCallback(() => {
+    vibrate(200)
     setCopied(toCopy)
   }, [toCopy, setCopied])
 
