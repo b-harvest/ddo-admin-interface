@@ -18,7 +18,10 @@ export default function SignIn() {
       <GlowingCard className="w-full md:w-[60%] max-w-md">
         <div className="flex flex-col justify-center items-center space-x-4 mb-10">
           <Logo className="h-12 py-2" src={CRESCENT_LOGO_IMG_URL} />
-          <h2 className="inline-flex justify-start items-center TYPO-H2 md:TYPO-H2 dark:text-white">
+          <h2
+            className="inline-flex justify-start items-center TYPO-H2 md:TYPO-H2 dark:text-white"
+            style={{ wordBreak: 'keep-all' }}
+          >
             Welcome back, <br />
             are you Admin?
           </h2>
