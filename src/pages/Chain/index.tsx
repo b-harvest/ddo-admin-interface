@@ -1,21 +1,24 @@
 import AppPage from 'components/AppPage'
+import Card from 'components/Card'
+import useChain from 'hooks/useChain'
 
 // import { useAtom } from 'jotai'
-// import { chainIdAtomRef } from 'state/atoms'
-// import { isTestnet } from 'utils/chain'
+// import { latestBlockLCDAtomRef } from 'state/atoms'
 import BlockChart from './sections/BlockChart'
 import CreAlertTimeline from './sections/CreAlertTimeline'
 import IBCVolume from './sections/IBCVolume'
 
 export default function Chain() {
-  // const { findChainById } = useChain({})
+  // const [latestBlockLCDAtom] = useAtom(latestBlockLCDAtomRef)
 
-  // chain
-  // const [chainIdAtom] = useAtom(chainIdAtomRef)
-  // const isOnTestnet = isTestnet(chainIdAtom)
+  const { blockCreationTime } = useChain()
 
   return (
     <AppPage>
+      <section className="text-black dark:text-white text-left mb-4">
+        <Card useGlassEffect={true}>{blockCreationTime}</Card>
+      </section>
+
       <section className="flex flex-col justify-between items-stretch mb-20">
         <BlockChart />
       </section>

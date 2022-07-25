@@ -24,12 +24,24 @@ export default function FarmStakedAmount({
   const { getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()
 
-  const { allStakedDataTimestamp, allStaked, allStakedLCD } = useAccountData({ address: address ?? '', interval })
+  const { allStakedDataTimestamp, allStaked, allStakedLCD, farmPositionLCD } = useAccountData({
+    address: address ?? '',
+    interval,
+  })
 
   const { stakedTableList, hasStakedDiff } = useMemo(() => {
-    const onchainStakedMap = allStakedLCD
-      .filter((item) => item.starting_epoch === '4' || item.starting_epoch === undefined) // ?
-      .reduce((accm, item) => ({ ...accm, [item.denom]: item }), {})
+    // const onchainStakedMap = allStakedLCD
+    //   .filter((item) => item.starting_epoch === '4' || item.starting_epoch === undefined) // ?
+    //   .reduce((accm, item) => ({ ...accm, [item.denom]: item }), {})
+
+    const onchainStakedAmtMap = farmPositionLCD.staked_coins.reduce(
+      (accm, item) => ({ ...accm, [item.denom]: item }),
+      {}
+    )
+    const onchainQueuedAmtMap = farmPositionLCD.queued_coins.reduce(
+      (accm, item) => ({ ...accm, [item.denom]: item }),
+      {}
+    )
 
     const stakedTableList = allStaked
       .filter((item) => findAssetByDenom(item.denom) !== undefined)
@@ -37,7 +49,9 @@ export default function FarmStakedAmount({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const assetInfo = findAssetByDenom(item.denom)!
         const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo), poolDenom: item.denom })
-        const onchainStakedAmount = onchainStakedMap[item.denom]?.amount ?? new BigNumber(0)
+        const onchainStakedAmount = onchainStakedAmtMap[item.denom]?.amount ?? new BigNumber(0)
+        const onchainQueuedAmount = onchainQueuedAmtMap[item.denom]?.amount ?? new BigNumber(0)
+
         const status: AlertStatus | undefined = item.stakedAmount.isEqualTo(onchainStakedAmount) ? undefined : 'error'
 
         return {
@@ -45,6 +59,7 @@ export default function FarmStakedAmount({
           ...item,
           poolId: findPoolByDenom(item.denom)?.poolId,
           onchainStakedAmount,
+          onchainQueuedAmount,
           status,
         }
       })
@@ -52,7 +67,7 @@ export default function FarmStakedAmount({
     const hasStakedDiff = stakedTableList.findIndex((item) => item.status === 'error') > -1
 
     return { stakedTableList, hasStakedDiff }
-  }, [allStaked, allStakedLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
+  }, [allStaked, farmPositionLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   // alert-inline data - staked amount
   const { isStakedDataTimeDiff, isStakedDataAllMatched } = useMemo(() => {
@@ -101,9 +116,17 @@ export default function FarmStakedAmount({
               responsive: true,
             },
             {
-              label: 'Queued amount',
+              label: 'Backend queued amount',
               value: 'queuedAmount',
               tag: 'Back-end',
+              type: 'bignumber',
+              toFixedFallback: 6,
+              responsive: true,
+            },
+            {
+              label: 'Onchain queued amount',
+              value: 'onchainQueuedAmount',
+              tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: 6,
               responsive: true,

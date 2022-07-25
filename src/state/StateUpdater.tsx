@@ -9,7 +9,7 @@ import {
   useAllPairLive,
   useAllPoolLive,
 } from 'data/useAPI'
-import { useLatestBlockLCD } from 'data/useLCD'
+import { useBlockLCD } from 'data/useLCD'
 import { useAtom } from 'jotai'
 import { useEffect } from 'react'
 import {
@@ -36,7 +36,7 @@ export default function StateUpdater(): null {
 
   const { data: allChainInfoData }: APIHookReturn<ChainInfo[]> = useAllChainInfo(COMMON_FETCHING_INTERVAL)
   const { data: allChainLiveData }: APIHookReturn<ChainLive[]> = useAllChainLive(COMMON_FETCHING_INTERVAL)
-  const { data: latestBlockLCDData }: LCDHookReturn<BlockLCD> = useLatestBlockLCD({}, COMMON_FETCHING_INTERVAL)
+  const { data: latestBlockLCDData }: LCDHookReturn<BlockLCD> = useBlockLCD({}, COMMON_FETCHING_INTERVAL)
 
   // all asset
   const [, setAllAssetInfoAtom] = useAtom(allAssetInfoAtomRef)

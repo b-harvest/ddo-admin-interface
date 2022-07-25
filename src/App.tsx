@@ -84,7 +84,10 @@ function App() {
             className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
             style={{ zIndex: '1' }}
           >
-            <BlockHeightPolling onchainBlockHeight={onchainBlockHeight} backendBlockHeight={backendBlockHeight} />
+            <BlockHeightPolling
+              onchainBlockHeight={onchainBlockHeight ?? '-'}
+              backendBlockHeight={backendBlockHeight ?? '-'}
+            />
           </div>
         )}
         <AppHeader />

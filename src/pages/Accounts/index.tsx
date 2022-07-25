@@ -11,6 +11,7 @@ import { useMemo, useState } from 'react'
 import { chainIdAtomRef } from 'state/atoms'
 import { isTestnet } from 'utils/chain'
 
+import AirdropClaim from './sections/AirdropClaim'
 import ClaimableRewards from './sections/ClaimableRewards'
 import FarmStakedAmount from './sections/FarmStakedAmount'
 import TokenBalance from './sections/TokenBalance'
@@ -84,6 +85,8 @@ export default function Accounts() {
         <ClaimableRewards address={address} significantTimeGap={significantTimeGap} />
         <Hr />
         <FarmStakedAmount address={address} significantTimeGap={significantTimeGap} />
+        <Hr />
+        <AirdropClaim address={address} significantTimeGap={significantTimeGap} />
       </div>
     </AppPage>
   )

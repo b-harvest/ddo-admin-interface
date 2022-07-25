@@ -80,6 +80,13 @@ export type Staked = Omit<StakedRaw, 'queuedAmount' | 'stakedAmount' | 'harvesta
   readonly harvestable: HarvestableStaked[]
 }
 
+// * farm position
+export interface FarmPositionLCDRaw {
+  readonly staked_coins: LCDTokenAmountSetRaw[]
+  readonly queued_coins: LCDTokenAmountSetRaw[]
+  readonly rewards: LCDTokenAmountSetRaw[]
+}
+
 // * farm reward
 // mainnet rpc
 export interface FarmRewardLCDMainnetRaw {
@@ -102,4 +109,28 @@ export interface FarmRewardsLCDRaw {
 
 export type FarmRewardsLCD = {
   readonly rewards: LCDTokenAmountSet[]
+}
+
+// * airdrop claim
+// mainnet rpc
+export interface AirdropClaimLCDRaw {
+  readonly claim_record: {
+    airdrop_id: string
+    recipient: string
+    initial_claimable_coins: LCDTokenAmountSetRaw[]
+    claimable_coins: LCDTokenAmountSetRaw[]
+    claimed_conditions: string[]
+  }
+}
+
+// backend
+export interface AirdropClaimRaw {
+  readonly dexAirdropTotalCre: string
+  readonly Owner: string
+  readonly AirdropId: string
+  readonly initialClaimableCoins: string
+  readonly claimableCoins: string
+  readonly claimedConditions: string
+  readonly height: number
+  readonly timestamp: number
 }

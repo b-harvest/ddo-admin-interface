@@ -1,6 +1,8 @@
 import useAppSWR, { lcdReturnGenerator } from 'data/useAppSWR'
 import type {
+  AirdropClaimLCDRaw,
   BalanceLCD,
+  FarmPositionLCDRaw,
   FarmRewardLCDMainnetRaw,
   FarmRewardsLCDRaw,
   StakedLCDMainnetRaw,
@@ -8,8 +10,8 @@ import type {
 } from 'types/account'
 import type { LCDResponseViaSWR } from 'types/api'
 import type { BlockLCD } from 'types/block'
+import type { ValidatorSetsLCDRaw } from 'types/validator'
 
-// hooks - rpc rest
 export function useAllBalanceLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
   const { data, error }: LCDResponseViaSWR<BalanceLCD> = useAppSWR(`/cosmos/bank/v1beta1/balances/${address}`, {
     interval,
@@ -43,8 +45,42 @@ export function useAllStakedLCD({ address, fetch = true }: { address: string; fe
   return lcdReturnGenerator({ data, error })
 }
 
-export function useLatestBlockLCD({ fetch = true }: { fetch?: boolean }, interval = 0) {
-  const { data, error }: LCDResponseViaSWR<BlockLCD> = useAppSWR(`/blocks/latest`, {
+export function useFarmPositionLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<FarmPositionLCDRaw> = useAppSWR(
+    `/crescent/farming/v1beta1/positions/${address}`,
+    {
+      interval,
+      type: 'rpc-rest',
+      fetch,
+    }
+  )
+  return lcdReturnGenerator({ data, error })
+}
+
+export function useAirdropClaimLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<AirdropClaimLCDRaw> = useAppSWR(
+    `/crescent/claim/v1beta1/airdrops/1/claim_records/${address}`,
+    {
+      interval,
+      type: 'rpc-rest',
+      fetch,
+    }
+  )
+  return lcdReturnGenerator({ data, error })
+}
+
+// lcd only
+export function useBlockLCD({ height, fetch = true }: { height?: string; fetch?: boolean }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<BlockLCD> = useAppSWR(`/blocks/${height ?? 'latest'}`, {
+    interval,
+    type: 'rpc-rest',
+    fetch,
+  })
+  return lcdReturnGenerator({ data, error })
+}
+
+export function useValidatorsets({ height, fetch = true }: { height?: string; fetch?: boolean }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<ValidatorSetsLCDRaw> = useAppSWR(`/validatorsets/${height ?? 'latest'}`, {
     interval,
     type: 'rpc-rest',
     fetch,

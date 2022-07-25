@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { POOL_TOKEN_EXPONENT } from 'constants/asset'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allAssetInfoAtomRef, allAssetLiveAtomRef } from 'state/atoms'
@@ -20,6 +21,7 @@ const useAsset = () => {
 
       return {
         ...assetInfo,
+        exponent: isPoolToken(assetInfo.denom) ? POOL_TOKEN_EXPONENT : assetInfo.exponent,
         live,
         isPoolToken: isPoolToken(assetInfo.denom),
       }

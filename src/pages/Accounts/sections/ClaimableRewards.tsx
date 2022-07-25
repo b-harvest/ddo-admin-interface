@@ -32,9 +32,6 @@ export default function ClaimableRewards({
     interval,
   })
 
-  // console.log('allFarmRewardsByToken', allFarmRewardsByToken)
-  // console.log('allFarmRewardsByTokenLCD', allFarmRewardsByTokenLCD)
-
   const { rewardsTablesByRewardsToken, hasRewardsDiff } = useMemo(() => {
     const rewardsTablesByRewardsToken = Object.keys(allFarmRewardsByToken)
       .filter((denom) => findAssetByDenom(denom) !== undefined)
