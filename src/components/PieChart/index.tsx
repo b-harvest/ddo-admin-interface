@@ -40,8 +40,6 @@ function PieChart({
 
   const handleMouseOn = useCallback(
     (props, index) => {
-      console.log('props', props)
-
       if (props) {
         if (typeof index === 'number') {
           setActiveIndex(props.activeTooltipIndex)

@@ -29,7 +29,10 @@ export default function AssetTableLogoCell({
         ))}
       </div>
       {hideTicker ? null : (
-        <span className="block TYPO-BODY-XS !font-black whitespace-pre-line md:whitespace-normal md:TYPO-BODY-S">
+        <span
+          style={{ wordBreak: 'keep-all' }}
+          className="block text-left TYPO-BODY-XS !font-black whitespace-pre-line md:whitespace-normal md:TYPO-BODY-S"
+        >
           <span className="block md:hidden">{poolDenom}</span>
           <span className={`${poolDenom ? 'hidden md:block' : ''}`}>{title}</span>
         </span>

@@ -3,6 +3,7 @@ import type { AirdropClaimRaw, Balance, StakedRaw } from 'types/account'
 import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { ChainInfo, ChainLive } from 'types/chain'
+import type { LiquidStakeRaw } from 'types/liquidStake'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
@@ -39,6 +40,11 @@ export function useAllPairLive(interval = 0) {
 
 export function useAllPoolLive(interval = 0) {
   const { data, error }: ResponseViaSWR<PoolLiveRaw[]> = useAppSWR('/pool/live', { interval })
+  return returnGenerator({ data, error })
+}
+
+export function useAllStakeLive(interval = 0) {
+  const { data, error }: ResponseViaSWR<LiquidStakeRaw> = useAppSWR('/stake/live', { interval })
   return returnGenerator({ data, error })
 }
 

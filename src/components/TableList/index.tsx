@@ -6,6 +6,7 @@ import SearchInput from 'components/Inputs/SearchInput'
 import { useMatchedTableList } from 'components/TableList/hooks'
 import type {
   ListField,
+  ListFieldAlign,
   ListFieldBignumber,
   ListFieldUSD,
   TableListItem,
@@ -39,6 +40,7 @@ export default function TableList({
   defaultIsSortASC,
   nowrap = false,
   filterOptions,
+  defaultFilterIndex,
 }: TableListProps) {
   // fields
   const merged = useMemo(() => fields.filter((field) => mergedFields.includes(field.value)), [fields, mergedFields])
@@ -58,9 +60,9 @@ export default function TableList({
   const [sortBy, setSortBy] = useState<string | undefined>(defaultSortBy)
   const [isSortASC, setIsSortASC] = useState<boolean>(defaultIsSortASC ?? IS_SORT_ASC_DEFAULT)
 
-  const onFieldClick = (field: ListField) => handleSorting(field.value)
+  const onFieldClick = (field: ListField) => handleSorting(field.sortValue ?? field.value)
 
-  const handleSorting = (field: ListField['value']) => {
+  const handleSorting = (field: ListField['sortValue'] | ListField['value']) => {
     const isSameFieldClicked = sortBy === field
     if (isSameFieldClicked) {
       setIsSortASC(!isSortASC)
@@ -96,8 +98,14 @@ export default function TableList({
           <h3 className="flex justify-start items-center TYPO-H3 text-black dark:text-white text-left">{title}</h3>
           <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-2">
             {filterOptions ? (
-              <FilterRadioGroup options={filterOptions} defaultIndex={1} onSelect={setFilterOption} />
-            ) : null}
+              <FilterRadioGroup
+                options={filterOptions}
+                defaultIndex={defaultFilterIndex ?? 0}
+                onSelect={setFilterOption}
+              />
+            ) : (
+              <div></div>
+            )}
             {useSearch ? (
               <div>
                 <SearchInput keyword={searchKeyword} onChange={setSearchKeyword} />{' '}
@@ -123,13 +131,19 @@ export default function TableList({
                     key={i}
                     style={{
                       flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
-                      justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
+                      justifyContent: field.align
+                        ? getFlexAlign(field.align)
+                        : field.type === 'bignumber' || field.type === 'usd' || field.type === 'change'
+                        ? 'flex-end'
+                        : 'flex-start',
                     }}
                     className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                     onClick={() => onFieldClick(field)}
                   >
                     {field.label}
-                    {sortBy === field.value ? <span className="ml-2">{isSortASC ? '↓' : '↑'}</span> : null}
+                    {sortBy === (field.sortValue ?? field.value) ? (
+                      <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
+                    ) : null}
                   </li>
                 )
               })}
@@ -142,12 +156,18 @@ export default function TableList({
                       flexBasis: `${
                         merged.reduce((m, item) => m + (field.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio
                       }%`,
-                      justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
+                      justifyContent: field.align
+                        ? getFlexAlign(field.align)
+                        : field.type === 'bignumber' || field.type === 'usd'
+                        ? 'flex-end'
+                        : 'flex-start',
                     }}
                     onClick={() => onFieldClick(field)}
                   >
                     {mergedFieldLabel ?? ''}
-                    {sortBy === field.value ? <span className="ml-2">{isSortASC ? '↓' : '↑'}</span> : null}
+                    {sortBy === (field.sortValue ?? field.value) ? (
+                      <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
+                    ) : null}
                   </li>
                 ) : null
               )}
@@ -250,7 +270,11 @@ function ListItem({
               style={{
                 flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                 flexShrink: field.type === 'imgUrl' ? '0' : '1',
-                justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
+                justifyContent: field.align
+                  ? getFlexAlign(field.align)
+                  : field.type === 'bignumber' || field.type === 'usd' || field.type === 'change'
+                  ? 'flex-end'
+                  : 'flex-start',
                 // color: field.color ?? 'inherit',
               }}
               className={`${cellClass(field)} flex space-x-2`}
@@ -274,8 +298,11 @@ function ListItem({
                   className={`${cellClass(field)} flex space-x-2`}
                   style={{
                     flexShrink: field.type === 'imgUrl' ? '0' : '1',
-                    justifyContent: field.type === 'bignumber' || field.type === 'usd' ? 'flex-end' : 'flex-start',
-                    // color: field.color ?? 'inherit',
+                    justifyContent: field.align
+                      ? getFlexAlign(field.align)
+                      : field.type === 'bignumber' || field.type === 'usd'
+                      ? 'flex-end'
+                      : 'flex-start',
                   }}
                 >
                   {ListItemCell({ data, field })}
@@ -312,13 +339,41 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
     return (
       <CopyHelper toCopy={value} iconPosition="left">
         {' '}
-        <div title={value}>{abbrVal}</div>
+        <div title={value} className="TYPO-BODY-XS md:TYPO-BODY-S">
+          {abbrVal}
+        </div>
       </CopyHelper>
     )
+  } else if (field.type === 'change' && typeof value === 'number') {
+    const changeValue = value === 0 ? '0' : Math.abs(value).toFixed(2)
+    const direction = value > 0 ? '+' : value < 0 ? '-' : null
+    const CSSByDirection = field.strong
+      ? 'text-[#dd92cb]'
+      : field.neutral
+      ? ''
+      : direction === '+'
+      ? 'text-success'
+      : direction === '-'
+      ? 'text-error'
+      : ''
+    return (
+      <div title={`${value}%`} className={`FONT-MONO TYPO-BODY-XS md:TYPO-BODY-S ${CSSByDirection}`}>
+        {!field.neutral && direction}
+        {changeValue}%
+      </div>
+    )
   } else if (typeof value === 'string') {
-    return <div title={value}>{value}</div>
+    return (
+      <div title={value} className="TYPO-BODY-XS md:TYPO-BODY-S">
+        {value}
+      </div>
+    )
   } else {
-    return <div title={value}>{value}</div>
+    return (
+      <div title={value} className="TYPO-BODY-XS md:TYPO-BODY-S">
+        {value}
+      </div>
+    )
   }
 }
 const cellClass = (field: ListField) =>
@@ -345,6 +400,19 @@ function getListItemClassByStatus(status: AlertStatus): string {
   }
 }
 
+function getFlexAlign(align?: ListFieldAlign) {
+  switch (align) {
+    case 'left':
+      return 'flex-start'
+    case 'right':
+      return 'flex-end'
+    case 'center':
+      return 'center'
+    default:
+      return ''
+  }
+}
+
 export function bignumberToFormat({
   value,
   exponent,
@@ -354,9 +422,19 @@ export function bignumberToFormat({
   exponent?: number
   field: ListFieldBignumber | ListFieldUSD
 }): string {
+  const exp = exponent ?? field.toFixedFallback ?? 0
+
+  let leastVal = '<0.'
+  for (let i = 0; i < exp - 1; i += 1) {
+    leastVal += '0'
+  }
+  leastVal += '1'
+
   return field.type === 'usd'
     ? formatUSDAmount({ value, mantissa: 0 })
     : value.isZero()
     ? '0'
-    : value.toFormat(exponent ?? field.toFixedFallback ?? 0)
+    : value.isLessThan(1 / 10 ** exp)
+    ? leastVal
+    : value.toFormat(exp)
 }

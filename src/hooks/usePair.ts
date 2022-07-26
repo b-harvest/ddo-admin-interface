@@ -13,14 +13,14 @@ const usePair = () => {
 
   const allPairLive = useMemo(() => {
     return allPairLiveAtom.map((pair) => {
-      const baseDenomExponent = allAsset.find((asset) => asset.denom === pair.baseDenom)?.exponent ?? 0
+      const baseDenomExponent = findAssetByDenom(pair.baseDenom)?.exponent ?? 0
       return {
         ...pair,
         lastPrice: new BigNumber(pair.lastPrice),
         predPrice: new BigNumber(pair.predPrice),
         vol_24: new BigNumber(pair.vol_24).dividedBy(10 ** baseDenomExponent),
         totalReserved: pair.totalReserved.map((item) => {
-          const exponent = allAsset.find((asset) => asset.denom === item.denom)?.exponent ?? 0
+          const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
           return {
             ...item,
             priceOracle: new BigNumber(item.priceOracle),
@@ -29,7 +29,7 @@ const usePair = () => {
         }),
       }
     }) as PairLive[]
-  }, [allPairLiveAtom, allAsset])
+  }, [allPairLiveAtom, findAssetByDenom])
 
   const allPairInfo = useMemo(() => {
     return allPairInfoAtom.map((pair) => {
@@ -49,6 +49,41 @@ const usePair = () => {
       }
     }) as PairInfo[]
   }, [allPairInfoAtom, findAssetByDenom])
+
+  const allPair = useMemo(() => {
+    return allPairLive
+      .filter((pair) => allPairInfo.find((info) => info.pairId === pair.pairId))
+      .map((pair) => {
+        const pairInfo = allPairInfo.find((info) => info.pairId === pair.pairId)
+        const baseAsset = findAssetByDenom(pair.baseDenom)
+        const quoteAsset = findAssetByDenom(pair.quoteDenom)
+
+        const tvlUSD = pair.totalReserved.reduce((accm, item) => {
+          const valueUSD = item.amount.multipliedBy(item.priceOracle)
+          return accm.plus(valueUSD)
+        }, new BigNumber(0))
+
+        const baseDenomPrice = baseAsset?.live?.priceOracle ?? new BigNumber(0)
+        const vol24USD = pair.vol_24.multipliedBy(baseDenomPrice)
+
+        const pools = pairInfo?.pools ?? []
+
+        return {
+          ...pair,
+          baseAsset,
+          tvlUSD,
+          vol24USD,
+          pools,
+          assetTickers: [
+            { logoUrl: baseAsset?.logoUrl ?? '', ticker: baseAsset?.ticker ?? '' },
+            { logoUrl: quoteAsset?.logoUrl ?? '', ticker: quoteAsset?.ticker ?? '' },
+          ],
+          poolAsset: pools[0] ? findAssetByDenom(pools[0].poolDenom) : undefined,
+        }
+      })
+  }, [allPairLive, allPairInfo, findAssetByDenom])
+
+  const findPairById = useCallback((pairId: number) => allPair.find((pair) => pair.pairId === pairId), [allPair])
 
   const getTVLUSDbyDenom = useCallback(
     (denom: string) => {
@@ -94,13 +129,20 @@ const usePair = () => {
     [allPairLive]
   )
 
-  const allPoolsFromPairs = useMemo(() => {
-    return allPairInfo.reduce((accm: PoolInPair[], pair) => accm.concat(pair.pools), [])
+  const allPoolsInPairs = useMemo(() => {
+    return allPairInfo.reduce((accm: PoolInPair[], pair) => {
+      return accm.concat(pair.pools.map((pool) => ({ ...pool, pairId: pair.pairId })))
+    }, [])
   }, [allPairInfo])
 
   const findPoolFromPairsByDenom = useCallback(
-    (denom: string) => allPoolsFromPairs.find((pool) => pool.poolDenom === denom),
-    [allPoolsFromPairs]
+    (denom: string) => allPoolsInPairs.find((pool) => pool.poolDenom === denom),
+    [allPoolsInPairs]
+  )
+
+  const findPoolFromPairsByPoolId = useCallback(
+    (poolId: number) => allPoolsInPairs.find((pool) => pool.poolId === poolId),
+    [allPoolsInPairs]
   )
 
   const getPoolAssets = useCallback(
@@ -146,11 +188,14 @@ const usePair = () => {
   return {
     allPairLive,
     allPairInfo,
+    allPair,
+    findPairById,
     tvlUSD,
     getTVLUSDbyDenom,
     getVol24USDbyDenom,
-    allPoolsFromPairs,
+    allPoolsInPairs,
     findPoolFromPairsByDenom,
+    findPoolFromPairsByPoolId,
     getPoolAssets,
     getAssetTickers,
   }

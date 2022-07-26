@@ -9,7 +9,7 @@ import useChainRegistry from 'hooks/useChainRegistry'
 import { useMemo } from 'react'
 import { AlertStatus } from 'types/alert'
 import { openExplorerByHeight } from 'utils/browser'
-import { COSMOS_CHAIN_NAME } from 'utils/chainRegistry'
+import { COSMOS_CHAIN_NAME, openExplorerByChain } from 'utils/chainRegistry'
 
 export default function IBCNetwork() {
   // crescent chain
@@ -83,31 +83,31 @@ export default function IBCNetwork() {
       </div>
 
       {/* cosmoshub chains */}
-      <FoldableSection>
+      <FoldableSection defaultIsOpen={false}>
         <div className="space-y-4 pt-4 border-t border-grayCRE200 dark:border-grayCRE-400">
           <Updater
             labelPrefix={<BlockTimeUpdaterPrefix logoUrl={axelar.logoUrl} label={`Axelar  `} />}
             label={axelar.blockTimeLabel}
             status="neutral"
-            onClick={() => openExplorerByHeight(onchainBlockHeight)}
+            onClick={() => openExplorerByChain(COSMOS_CHAIN_NAME.axelar)}
           />
           <Updater
-            labelPrefix={<BlockTimeUpdaterPrefix logoUrl={gbridge.logoUrl} label={`gbridge  `} />}
+            labelPrefix={<BlockTimeUpdaterPrefix logoUrl={gbridge.logoUrl} label={`Gravity Bridge  `} />}
             label={gbridge.blockTimeLabel}
             status="neutral"
-            onClick={() => openExplorerByHeight(onchainBlockHeight)}
+            onClick={() => openExplorerByChain(COSMOS_CHAIN_NAME.gbridge)}
           />
           <Updater
-            labelPrefix={<BlockTimeUpdaterPrefix logoUrl={osmosis.logoUrl} label={`osmosis  `} />}
+            labelPrefix={<BlockTimeUpdaterPrefix logoUrl={osmosis.logoUrl} label={`Osmosis  `} />}
             label={osmosis.blockTimeLabel}
             status="neutral"
-            onClick={() => openExplorerByHeight(onchainBlockHeight)}
+            onClick={() => openExplorerByChain(COSMOS_CHAIN_NAME.osmosis)}
           />
           <Updater
-            labelPrefix={<BlockTimeUpdaterPrefix logoUrl={evmos.logoUrl} label={`evmos  `} />}
+            labelPrefix={<BlockTimeUpdaterPrefix logoUrl={evmos.logoUrl} label={`Evmos  `} />}
             label={evmos.blockTimeLabel}
             status="neutral"
-            onClick={() => openExplorerByHeight(onchainBlockHeight)}
+            onClick={() => openExplorerByChain(COSMOS_CHAIN_NAME.evmos)}
           />
         </div>
       </FoldableSection>

@@ -43,7 +43,7 @@ export default function FilterRadioGroup({ defaultIndex = 0, onSelect, options }
                       ? 'bg-darkCRE dark:bg-grayCRE-300 bg-opacity-75 text-white !font-medium'
                       : 'bg-grayCRE-200 dark:bg-neutral-700'
                   }
-                    shrink-0 relative flex TYPO-BODY-S px-4 py-2 cursor-pointer rounded-xl focus:outline-none`
+                    shrink-0 relative flex TYPO-BODY-S px-3 py-1 cursor-pointer rounded-xl focus:outline-none`
               }
             >
               {({ active, checked }) => (

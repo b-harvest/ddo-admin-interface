@@ -16,7 +16,7 @@ export const useMatchedTableList = ({ list, searchKeyword, sortBy, isSortASC, fi
       filterOption.value === 'all'
         ? list
         : list.filter((item) => {
-            return item.filter === filterOption.value
+            return item.filter?.includes(filterOption.value)
           })
 
     // searching

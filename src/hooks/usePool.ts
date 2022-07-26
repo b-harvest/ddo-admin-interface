@@ -1,19 +1,24 @@
 import BigNumber from 'bignumber.js'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
-import { allAssetInfoAtomRef, allPoolLiveAtomRef } from 'state/atoms'
+import { allPoolLiveAtomRef } from 'state/atoms'
 import type { PoolLive } from 'types/pool'
+
+import useAsset from './useAsset'
+import usePair from './usePair'
 
 BigNumber.config({ RANGE: 500 })
 
 const usePool = () => {
   const [allPoolLiveAtom] = useAtom(allPoolLiveAtomRef)
-  const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
+  // const [allAssetInfoAtom] = useAtom(allAssetInfoAtomRef)
   //   const [allPairInfoAtom] = useAtom(allPairInfoAtomRef)
+  const { findAssetByDenom } = useAsset()
+  const { findPairById } = usePair()
 
   const allPoolLive = useMemo(() => {
     return allPoolLiveAtom.map((pool) => {
-      const exponent = allAssetInfoAtom.find((assetInfo) => assetInfo.denom === pool.poolDenom)?.exponent ?? 0
+      const exponent = findAssetByDenom(pool.poolDenom)?.exponent ?? 0
 
       return {
         ...pool,
@@ -26,16 +31,51 @@ const usePool = () => {
           ...reward,
           rewardAmount: new BigNumber(reward.rewardAmount), // exponent already adjusted?
         })),
+        poolPrice: new BigNumber(pool.poolPrice),
+        reserved: pool.Reserved.map((item) => {
+          const exp = findAssetByDenom(item.denom)?.exponent ?? 0
+          return {
+            denom: item.denom,
+            amount: new BigNumber(item.amount).dividedBy(10 ** exp),
+            priceOracle: new BigNumber(item.priceOracle),
+          }
+        }),
       }
     }) as PoolLive[]
-  }, [allPoolLiveAtom, allAssetInfoAtom])
+  }, [allPoolLiveAtom, findAssetByDenom])
+
+  const allPools = useMemo(() => {
+    return allPoolLive
+      .filter((pool) => {
+        const pair = findPairById(pool.pairId)
+        return pair && findAssetByDenom(pair.baseDenom)?.live && findAssetByDenom(pair.quoteDenom)?.live
+      })
+      .map((pool) => {
+        const pair = findPairById(pool.pairId)
+        const tvlUSD = pool.reserved.reduce((accm, item) => {
+          return accm.plus(item.amount.multipliedBy(item.priceOracle))
+        }, new BigNumber(0))
+
+        const bcre = pool.reserved.find((item) => item.denom === 'ubcre')
+        const bcreUSD = bcre?.amount.multipliedBy(bcre.priceOracle) ?? new BigNumber(0)
+        const bcreUSDRatio = bcreUSD.dividedBy(tvlUSD)
+
+        return {
+          ...pool,
+          pair,
+          tvlUSD,
+          isRanged: pool.poolType === 2,
+          bcreUSDRatio,
+        }
+      })
+  }, [allPoolLive, findPairById, findAssetByDenom])
 
   const findPoolByDenom = useCallback(
     (denom: string) => allPoolLive.find((pool) => pool.poolDenom === denom),
     [allPoolLive]
   )
 
-  return { allPoolLive, findPoolByDenom }
+  return { allPoolLive, allPools, findPoolByDenom }
 }
 
 export default usePool

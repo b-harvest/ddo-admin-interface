@@ -28,10 +28,6 @@ export type ChainAPISet = {
   address: string
   provider: string
 }
-;(function tmp() {
-  console.log('assets', assets)
-  console.log('chains', chains)
-})()
 
 export const findAssetsByChain = (chainName: COSMOS_CHAIN_NAME) => {
   return assets.find(({ chain_name }) => chain_name === chainName)
@@ -51,4 +47,18 @@ export const restAPIUrlOf = (chainName: COSMOS_CHAIN_NAME, APIProvider: COSMOS_A
     | string
     | undefined
   return address?.at(-1) === '/' ? address.slice(0, -1) : address
+}
+
+export const mintscanUrlOf = (chainName: COSMOS_CHAIN_NAME) => {
+  const chain = findChainByName(chainName)
+  const url = chain?.explorers?.find(({ kind }: { kind: string }) => kind === 'mintscan')?.url as string | undefined
+  return url
+}
+
+export const openExplorerByChain = (chainName: COSMOS_CHAIN_NAME, height?: string) => {
+  const url = mintscanUrlOf(chainName)
+  if (!url) return null
+
+  const tail = height ? `/${height}` : ''
+  window.open(`${url}/blocks${tail}`, '_blank')
 }

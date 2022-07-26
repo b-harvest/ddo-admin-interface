@@ -1,16 +1,20 @@
 import { FilterRadioGroupOption } from 'components/FilterRadioGroup'
 import type { AlertStatus } from 'types/alert'
 
+export type ListFieldAlign = 'left' | 'right' | 'center'
+
 // field  typing
 export interface ListFieldHTML {
   label: string
   value: string
+  sortValue?: string
   abbrOver?: number
   widthRatio?: number
   responsive?: boolean // default => false
   tag?: string
   color?: string
   type?: 'html'
+  align?: ListFieldAlign
 }
 
 export interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
@@ -28,13 +32,19 @@ export interface ListFieldUSD extends Omit<ListFieldHTML, 'type'> {
   toFixedFallback?: number
 }
 
-export type ListField = ListFieldHTML | ListFieldImgUrl | ListFieldBignumber | ListFieldUSD
+export interface ListFieldChange extends Omit<ListFieldHTML, 'type'> {
+  type: 'change'
+  neutral?: boolean
+  strong?: boolean
+}
+
+export type ListField = ListFieldHTML | ListFieldImgUrl | ListFieldBignumber | ListFieldUSD | ListFieldChange
 
 // item typing
 export interface TableListItem {
   status?: AlertStatus
   exponent?: number
-  filter?: string
+  filter?: string[]
   [key: string]: any
 }
 
@@ -58,4 +68,5 @@ export interface TableListProps {
   defaultIsSortASC?: boolean
   nowrap?: boolean
   filterOptions?: FilterRadioGroupOption[]
+  defaultFilterIndex?: number
 }
