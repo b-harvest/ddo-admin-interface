@@ -1,4 +1,5 @@
 import useAppSWR, { lcdReturnGenerator } from 'data/useAppSWR'
+import useCosmosSWR from 'data/useCosmosSWR'
 import type {
   AirdropClaimLCDRaw,
   BalanceLCD,
@@ -11,6 +12,7 @@ import type {
 import type { LCDResponseViaSWR } from 'types/api'
 import type { BlockLCD } from 'types/block'
 import type { ValidatorSetsLCDRaw } from 'types/validator'
+import { COSMOS_CHAIN_NAME } from 'utils/chainRegistry'
 
 export function useAllBalanceLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
   const { data, error }: LCDResponseViaSWR<BalanceLCD> = useAppSWR(`/cosmos/bank/v1beta1/balances/${address}`, {
@@ -83,6 +85,19 @@ export function useValidatorsets({ height, fetch = true }: { height?: string; fe
   const { data, error }: LCDResponseViaSWR<ValidatorSetsLCDRaw> = useAppSWR(`/validatorsets/${height ?? 'latest'}`, {
     interval,
     type: 'rpc-rest',
+    fetch,
+  })
+  return lcdReturnGenerator({ data, error })
+}
+
+// cosmos chains
+export function useCosmosBlockLCD(
+  { chainName, height, fetch = true }: { chainName: COSMOS_CHAIN_NAME; height?: string; fetch?: boolean },
+  interval = 0
+) {
+  const { data, error }: LCDResponseViaSWR<BlockLCD> = useCosmosSWR(`/blocks/${height ?? 'latest'}`, {
+    chainName,
+    interval,
     fetch,
   })
   return lcdReturnGenerator({ data, error })

@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 import { CHAIN_IDS } from 'constants/chain'
 import { useBlockLCD } from 'data/useLCD'
 import dayjs from 'dayjs'
@@ -8,6 +7,7 @@ import { allChainInfoAtomRef, allChainLiveAtomRef, chainIdAtomRef, latestBlockLC
 import type { LCDHookReturn } from 'types/api'
 import type { BlockLCD } from 'types/chain'
 import { Chain } from 'types/chain'
+import { getLastBlockHeightOf } from 'utils/chain'
 
 const useChain = () => {
   const [chainIdAtom] = useAtom(chainIdAtomRef)
@@ -58,7 +58,3 @@ const useChain = () => {
 }
 
 export default useChain
-
-function getLastBlockHeightOf(height?: string) {
-  return height ? new BigNumber(height).minus(1).toString() : '0'
-}

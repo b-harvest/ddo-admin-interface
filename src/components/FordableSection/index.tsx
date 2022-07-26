@@ -12,8 +12,8 @@ export default function FoldableSection({ children, label, defaultIsOpen = true 
   const onFoldButtonClick = () => setIsOpen(!isOpen)
 
   return (
-    <section className="w-full h-min">
-      <header className="flex justify-between items-center text-black text-left dark:text-white mb-4">
+    <section className="w-full h-min overflow-hidden">
+      <header className="flex justify-between items-center text-black text-left dark:text-white">
         <h3 className="flex justify-start items-center TYPO-H3 ">{label ?? ''}</h3>
         <button type="button" onClick={onFoldButtonClick}>
           <Icon type={isOpen ? `expandless` : `expandmore`} className="w-6 h-6" />
@@ -22,7 +22,7 @@ export default function FoldableSection({ children, label, defaultIsOpen = true 
 
       <div
         className={`transition-all ease-out origin-top duration-[200ms] delay-[cubic-bezier(0, 1, 0, 1)] ${
-          isOpen ? 'max-h-min scale-y-100' : 'overflow-hidden max-h-0 scale-y-0'
+          isOpen ? 'max-h-min scale-y-100 mt-4' : 'overflow-hidden max-h-0 scale-y-0'
         }`}
       >
         {children}

@@ -8,14 +8,14 @@ export default function Updater({
   className,
   onClick,
 }: {
-  label?: string
+  label?: string | JSX.Element
   labelPrefix?: string | JSX.Element
   status?: AlertStatus
   className?: string
   onClick?: () => void
 }) {
   const [isMounting, setIsMounting] = useState<boolean>(false)
-  const [mountedLabel, setMountedLabel] = useState<string>('')
+  const [mountedLabel, setMountedLabel] = useState<string | JSX.Element>('')
 
   useEffect(() => {
     if (!label) return
@@ -32,14 +32,15 @@ export default function Updater({
 
   return (
     <div
-      className={`${className} flex items-center space-x-2 TYPO-BODY-XS ${textCSSByStatus(status)} ${
+      className={`${className} w-full flex items-center space-x-2 TYPO-BODY-XS ${textCSSByStatus(status)} ${
         onClick ? 'cursor-pointer' : ''
       }`}
       onClick={onClick}
     >
       <div
-        // style={{ perspectiveOrigin: 'center', perspective: '20px' }}
-        className={`flex items-center transition-opacity hover:opacity-50 ${isMounting ? 'opacity-50' : ''}`}
+        className={`w-full flex justify-between items-center transition-opacity hover:opacity-50 ${
+          isMounting ? 'opacity-50' : ''
+        }`}
       >
         <span className="whitespace-pre-wrap">{labelPrefix}</span>
         <span className={`!font-bold ${isMounting ? 'animate-update' : ''}`}>{mountedLabel}</span>

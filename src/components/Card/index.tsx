@@ -17,7 +17,7 @@ export default function Card({ children, useGlassEffect = false, className = '',
         useGlassEffect
           ? 'bg-[rgba(217, 217, 217, 0.1)] shadow-[0_1px_1px_1px_rgb(0,0,0,0.1)] dark:shadow-none dark:bg-neutral-800/50 backdrop-blur-[40px]'
           : 'bg-neutral-900 dark:bg-neutral-800'
-      } flex flex-col  p-4 rounded-xl ${getRadiusByMergedSide(merged)} `}
+      } relative flex flex-col p-4 rounded-xl ${getRadiusByMergedSide(merged)} `}
     >
       {children}
     </div>
