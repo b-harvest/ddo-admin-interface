@@ -1,22 +1,44 @@
+import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
 import Card from 'components/Card'
+import Icon from 'components/Icon'
+import Tag from 'components/Tag'
+import Updater from 'components/Updater'
 import useChain from 'hooks/useChain'
+import { useMemo } from 'react'
+import { AlertStatus } from 'types/alert'
+import { openExplorerByHeight } from 'utils/browser'
 
-// import { useAtom } from 'jotai'
-// import { latestBlockLCDAtomRef } from 'state/atoms'
 import BlockChart from './sections/BlockChart'
 import CreAlertTimeline from './sections/CreAlertTimeline'
 import IBCVolume from './sections/IBCVolume'
 
 export default function Chain() {
-  // const [latestBlockLCDAtom] = useAtom(latestBlockLCDAtomRef)
+  const { blockCreationTime, onchainBlockHeight } = useChain()
 
-  const { blockCreationTime } = useChain()
+  const blockCreationTimeUpdaterLabel = useMemo(
+    () => `${new BigNumber(blockCreationTime).toFormat(0)}ms`,
+    [blockCreationTime]
+  )
+
+  const blockCreationTimeStatus: { label: string; status: AlertStatus } = useMemo(() => {
+    if (blockCreationTime <= 6000) return { label: 'Good', status: 'success' }
+    else if (blockCreationTime <= 15000) return { label: 'Slow', status: 'warning' }
+    else return { label: 'Delayed', status: 'error' }
+  }, [blockCreationTime])
 
   return (
     <AppPage>
       <section className="text-black dark:text-white text-left mb-4">
-        <Card useGlassEffect={true}>{blockCreationTime}</Card>
+        <Card useGlassEffect={true} className="!flex-row items-center space-x-2">
+          <Updater
+            labelPrefix={<BlockTimeUpdaterPrefix />}
+            label={blockCreationTimeUpdaterLabel}
+            status="neutral"
+            onClick={() => openExplorerByHeight(onchainBlockHeight)}
+          />
+          <Tag status={blockCreationTimeStatus.status}>{blockCreationTimeStatus.label}</Tag>
+        </Card>
       </section>
 
       <section className="flex flex-col justify-between items-stretch mb-20">
@@ -32,5 +54,14 @@ export default function Chain() {
         </div>
       </section>
     </AppPage>
+  )
+}
+
+function BlockTimeUpdaterPrefix() {
+  return (
+    <div className="flex items-center space-x-1">
+      <Icon type="blockchain" />
+      <span>Block created in </span>
+    </div>
   )
 }

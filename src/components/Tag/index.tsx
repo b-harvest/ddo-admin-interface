@@ -1,11 +1,37 @@
 import { ReactNode } from 'react'
+import { AlertStatus } from 'types/alert'
 
-export default function Tag({ children, className }: { children: ReactNode; className?: string }) {
+export default function Tag({
+  children,
+  className,
+  status,
+}: {
+  children: ReactNode
+  className?: string
+  status?: AlertStatus
+}) {
   return (
     <span
-      className={`${className} inline-block px-2 py-0.5 bg-white dark:bg-black rounded-md border border-grayCRE-200 dark:border-0 TYPO-BODY-2XS text-grayCRE-300 FONT-MONO !font-medium !whitespace-nowrap md:TYPO-BODY-XS`}
+      className={`${className} inline-block px-2 py-0.5 rounded-md border TYPO-BODY-2XS FONT-MONO !font-medium !whitespace-nowrap md:TYPO-BODY-XS ${CSSByStatus(
+        status
+      )}`}
     >
       {children}
     </span>
   )
+}
+
+function CSSByStatus(status?: AlertStatus) {
+  switch (status) {
+    case 'info':
+      return `text-info bg-[#F3F6FF] dark:bg-info-o border-info`
+    case 'success':
+      return `text-success bg-[#F5FBF8] dark:bg-success-o border-success`
+    case 'error':
+      return `text-error bg-[#FDF4F4] dark:bg-error-o border-error`
+    case 'warning':
+      return `text-warning bg-[#FFFAF1] dark:bg-warning-o border-warning`
+    default:
+      return 'text-grayCRE-300 bg-white dark:bg-black border-grayCRE-200 dark:border-0'
+  }
 }

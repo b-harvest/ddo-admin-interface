@@ -42,8 +42,8 @@ const useChain = () => {
   }, [latestBlockLCDAtom])
 
   const { data: lastBlockLCDData }: LCDHookReturn<BlockLCD> = useBlockLCD({
-    height: getLastBlockHeightOf(backendBlockHeight),
-    fetch: backendBlockHeight !== undefined,
+    height: getLastBlockHeightOf(onchainBlockHeight),
+    fetch: onchainBlockHeight !== undefined,
   })
 
   const blockCreationTime = useMemo(() => {

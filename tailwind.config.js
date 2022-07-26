@@ -68,6 +68,16 @@ module.exports = {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
         },
+        rotateX360: {
+          '0%': { transform: 'rotateX(0deg)' },
+          '100%': { transform: 'rotateX(360deg)' },
+        },
+        update: {
+          '0%': { opacity: '1' },
+          '25%': { opacity: '0', transform: 'translateY(-4px)' },
+          '50%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         'fade-out': {
           '0%': { opacity: '1' },
           '100%': { opacity: '0', display: 'none' },
@@ -75,6 +85,8 @@ module.exports = {
       },
       animation: {
         spinning: 'rotate360 1s cubic-bezier(0.83, 0, 0.17, 1) infinite',
+        spinningX: 'rotateX360 1s cubic-bezier(0.83, 0, 0.17, 1) infinite',
+        update: 'update 1s ease-out infinite',
         'fade-out': 'fade-out 1.5s 0.4s both',
       },
     },

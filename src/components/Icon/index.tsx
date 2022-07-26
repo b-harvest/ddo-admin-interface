@@ -14,7 +14,7 @@ import { IoIosMore, IoMdArrowRoundForward, IoMdClose } from 'react-icons/io'
 import { MdExpandLess, MdExpandMore, MdOutlineContentCopy, MdOutlineSearch } from 'react-icons/md'
 import { MdAccessTime } from 'react-icons/md'
 import { RiArrowLeftRightLine, RiZzzLine } from 'react-icons/ri'
-import { SiDiscord, SiGitbook } from 'react-icons/si'
+import { SiDiscord, SiGitbook, SiHiveBlockchain } from 'react-icons/si'
 
 export type IconType =
   | 'close'
@@ -48,6 +48,7 @@ export type IconType =
   | 'checked'
   | 'unchecked'
   | 'hamburger'
+  | 'blockchain'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -81,6 +82,7 @@ const Icons: { [key: string]: React.ElementType } = {
   checked: ImCheckboxChecked,
   unchecked: ImCheckboxUnchecked,
   hamburger: GiHamburgerMenu,
+  blockchain: SiHiveBlockchain,
 }
 
 interface IconProps {
