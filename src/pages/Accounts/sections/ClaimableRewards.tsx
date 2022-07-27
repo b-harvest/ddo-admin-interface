@@ -95,76 +95,6 @@ export default function ClaimableRewards({
 
   const allMatched = useMemo<boolean>(() => !hasDiff && !isDelayed, [hasDiff, isDelayed])
 
-  // const { isRewardsDataTimeDiff, isRewardsDataAllMatched } = useMemo(() => {
-  //   const isRewardsDataTimeDiff = isTimeDiffFromNowMoreThan(allFarmRewardsDataTimestamp, significantTimeGap)
-  //   const isRewardsDataAllMatched = !hasDiff && !isRewardsDataTimeDiff
-  //   // const isRewardsDataAllMatched = !isRewardsDataTimeDiff
-
-  //   return {
-  //     isRewardsDataTimeDiff,
-  //     isRewardsDataAllMatched,
-  //   }
-  // }, [allFarmRewardsDataTimestamp, hasDiff, significantTimeGap])
-
-  // const { rewardsTablesByRewardsToken, hasDiff } = useMemo(() => {
-  //   const rewardsTablesByRewardsToken = Object.keys(allFarmRewardsByToken)
-  //     .filter((denom) => findAssetByDenom(denom) !== undefined)
-  //     .map((denom) => {
-  //       const onchainList = allFarmRewardsByTokenLCD[denom] ?? []
-  //       const onchainTotal = onchainList.reduce((accm, data) => accm.plus(data.amount), new BigNumber(0))
-  //       const backendTotal = allFarmRewardsByToken[denom].reduce(
-  //         (accm, data) => accm.plus(data.amount),
-  //         new BigNumber(0)
-  //       )
-
-  //       return allFarmRewardsByToken[denom]
-  //         .filter((item) => findAssetByDenom(item.poolDenom) !== undefined)
-  //         .map((item) => {
-  //           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  //           const poolAssetInfo = findAssetByDenom(item.poolDenom)!
-  //           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  //           const rewardAssetInfo = findAssetByDenom(item.denom)!
-
-  //           const pool = AssetTableLogoCell({ assets: getAssetTickers(poolAssetInfo), poolDenom: item.poolDenom })
-
-  //           const rewardToken = AssetTableLogoCell({
-  //             assets: getAssetTickers(rewardAssetInfo),
-  //             isSingleAssetAutoSpaced: true,
-  //             nowrap: true,
-  //           })
-  //           const rewardTokenLogo = AssetTableLogoCell({
-  //             assets: getAssetTickers(rewardAssetInfo),
-  //             hideTicker: true,
-  //           })
-
-  //           const rewardsAmountLCD = onchainList.find((lcd) => lcd.poolDenom === item.poolDenom)?.amount ?? null
-
-  //           const totalDesc = TableTotalDesc({ amount: onchainTotal, prefix: rewardTokenLogo, tag: 'On-chain' })
-  //           const totalStatus: AlertStatus | undefined = onchainTotal.isEqualTo(backendTotal) ? undefined : 'error'
-
-  //           return {
-  //             pool,
-  //             poolId: findPoolByDenom(item.poolDenom)?.poolId,
-  //             poolDenom: item.poolDenom,
-  //             rewardToken,
-  //             rewardTokenLogo,
-  //             rewardDenom: item.denom,
-  //             rewardsAmount: item.amount,
-  //             rewardsAmountLCD,
-  //             totalDesc,
-  //             totalStatus,
-  //           }
-  //         })
-  //     })
-
-  //   const hasDiff =
-  //     rewardsTablesByRewardsToken.findIndex((tableList) => tableList[0]?.totalStatus === 'error') > -1
-
-  //   return { rewardsTablesByRewardsToken, hasDiff }
-  // }, [allFarmRewardsByToken, allFarmRewardsByTokenLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
-
-  // alert-inline data - staked amount
-
   return (
     <FoldableSection label="Claimable Rewards" defaultIsOpen={true}>
       <AccountDataAlertArea
@@ -181,8 +111,8 @@ export default function ClaimableRewards({
             listByToken.length ? (
               <div key={i}>
                 <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
-                  <span>Pools rewarding</span>
-                  {listByToken[0].rewardToken}
+                  <span>Rewarding</span>
+                  <span>{listByToken[0].rewardsAssetLabel}</span>
                 </h4>
 
                 <TableList
@@ -197,7 +127,7 @@ export default function ClaimableRewards({
                   defaultIsSortASC={false}
                   totalField="onchainRewardsAmount"
                   totalLabel="Total rewards"
-                  totalPrefixDesc={listByToken[0].rewardTokenLogo}
+                  totalPrefixDesc={listByToken[0].rewardsAssetLogo}
                   totalDesc={listByToken[0].totalDesc}
                   totalStatus={listByToken[0].totalStatus}
                   nowrap={false}

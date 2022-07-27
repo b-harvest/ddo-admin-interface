@@ -19,8 +19,8 @@ export default function AssetTableLogoCell({
   return (
     <div
       className={`flex ${
-        nowrap ? 'space-x-2 space-y-0' : 'flex-col space-x-0 space-y-1'
-      } md:flex-row justify-start items-start md:items-center md:space-y-0 md:space-x-2`}
+        nowrap ? 'items-center space-x-2 space-y-0' : 'flex-col items-start space-x-0 space-y-1'
+      } md:flex-row justify-start md:items-center md:space-y-0 md:space-x-2`}
       title={title}
     >
       <div className={`flex justify-start items-center ${isSingleAssetAutoSpaced || hideTicker ? 'w-fit' : 'w-12'}`}>
