@@ -7,6 +7,7 @@ import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 import type { AssetDetail } from 'types/asset'
 
 import TVLChart from './sections/TVLChart'
@@ -44,6 +45,8 @@ const PAIR_TABLE_FILTERS = [
 ]
 
 export default function Finance() {
+  const history = useHistory()
+
   const { allAsset } = useAsset()
   const { allPair, findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
   const { allPools, findPoolByDenom } = usePool()
@@ -71,10 +74,7 @@ export default function Finance() {
       })
   }, [findPoolFromPairsByDenom, allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, findPoolByDenom, getAssetTickers])
 
-  const handleTokenListRowClick = (row: AssetDetail) => {
-    console.log('row', row)
-    // route
-  }
+  const handleTokenListRowClick = (row: AssetDetail) => history.push(`/token/${row.denom}`)
 
   // All pairs
   const pairTableList = useMemo(() => {

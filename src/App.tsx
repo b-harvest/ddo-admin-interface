@@ -16,6 +16,7 @@ import Chain from 'pages/Chain'
 import DEX from 'pages/DEX'
 import Finance from 'pages/Finance'
 import SignIn from 'pages/SignIn/index'
+import Token from 'pages/Token'
 import Validators from 'pages/Validators'
 import { Suspense, useEffect, useMemo } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
@@ -118,6 +119,8 @@ function App() {
             <AuthRoute path="/accounts" component={Accounts} />
             <AuthRoute path="/validators" component={Validators} />
             <AuthRoute path="/dex" component={DEX} />
+
+            <AuthRoute path="/Token/:id" component={Token} />
 
             <Route>
               <Redirect to="/finance" />
