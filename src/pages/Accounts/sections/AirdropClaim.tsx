@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
 import useAccountData from 'hooks/useAccountData'
@@ -31,9 +32,15 @@ export default function AirdropClaim({
     return (
       airdropClaimLCD?.initial_claimable_coins.map((item) => {
         const onchainInitAmount = item.amount
-        const backendInitAmount = airdropClaim?.initialClaimableCoins.find((air) => air.denom === item.denom)?.amount
-        const onchainClaimableAmount = airdropClaimLCD?.claimable_coins.find((air) => air.denom === item.denom)?.amount
-        const backendClaimableAmount = airdropClaim?.claimableCoins.find((air) => air.denom === item.denom)?.amount
+        const backendInitAmount = airdropClaim
+          ? airdropClaim.initialClaimableCoins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
+          : undefined
+        const onchainClaimableAmount = airdropClaimLCD
+          ? airdropClaimLCD.claimable_coins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
+          : undefined
+        const backendClaimableAmount = airdropClaim
+          ? airdropClaim.claimableCoins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
+          : undefined
         const status: AlertStatus | undefined =
           backendInitAmount && onchainInitAmount.isEqualTo(backendInitAmount) ? undefined : 'error'
 
@@ -86,8 +93,11 @@ export default function AirdropClaim({
           useSearch={false}
           showFieldsBar={true}
           list={airdropList}
-          mergedFields={['onchainInitAmount', 'backendInitAmount']}
-          mergedFieldLabel="Initial airdrop amount"
+          mergedFields={[
+            ['onchainInitAmount', 'backendInitAmount'],
+            ['onchainClaimableAmount', 'backendClaimableAmount'],
+          ]}
+          mergedFieldLabels={['Initial amount', 'Claimable amount']}
           defaultSortBy="onchainInitAmount"
           defaultIsSortASC={false}
           nowrap={false}
@@ -110,7 +120,6 @@ export default function AirdropClaim({
               tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: 6,
-              responsive: true,
             },
             {
               label: 'Backend claimable',
@@ -118,7 +127,6 @@ export default function AirdropClaim({
               tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: 6,
-              responsive: true,
             },
             {
               label: 'Onchain airdrop amount',
@@ -126,6 +134,7 @@ export default function AirdropClaim({
               tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: 6,
+              responsive: true,
             },
             {
               label: 'Backend airdrop amount',
@@ -133,6 +142,7 @@ export default function AirdropClaim({
               tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: 6,
+              responsive: true,
             },
           ]}
         />

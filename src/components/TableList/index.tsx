@@ -26,7 +26,7 @@ export default function TableList({
   fields,
   useSearch = true,
   mergedFields = [],
-  mergedFieldLabel,
+  mergedFieldLabels = [],
   totalField,
   totalLabel,
   totalPrefixDesc,
@@ -43,8 +43,16 @@ export default function TableList({
   defaultFilterIndex,
 }: TableListProps) {
   // fields
-  const merged = useMemo(() => fields.filter((field) => mergedFields.includes(field.value)), [fields, mergedFields])
-  const nonMerged = useMemo(() => fields.filter((field) => !mergedFields.includes(field.value)), [fields, mergedFields])
+  const allMergedList = mergedFields.reduce((accm, list) => accm.concat(list), [])
+  const nonMerged: ListField[] = useMemo(
+    () => fields.filter((field) => !allMergedList.includes(field.value)),
+    [fields, allMergedList]
+  )
+  const merged: ListField[][] = useMemo(
+    () =>
+      mergedFields.map((list) => fields.filter((field) => list.includes(field.value))).filter((list) => list.length),
+    [mergedFields, fields]
+  )
 
   // col width ratio
   const [colWidthRatio, setColWidthRatio] = useState(100)
@@ -147,29 +155,31 @@ export default function TableList({
                   </li>
                 )
               })}
-              {merged.map((field, i) =>
-                i === 0 ? (
-                  <li
-                    key={i}
-                    className={`flex ${FIELD_CSS_CLASS}`}
-                    style={{
-                      flexBasis: `${
-                        merged.reduce((m, item) => m + (field.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio
-                      }%`,
-                      justifyContent: field.align
-                        ? getFlexAlign(field.align)
-                        : field.type === 'bignumber' || field.type === 'usd'
-                        ? 'flex-end'
-                        : 'flex-start',
-                    }}
-                    onClick={() => onFieldClick(field)}
-                  >
-                    {mergedFieldLabel ?? ''}
-                    {sortBy === (field.sortValue ?? field.value) ? (
-                      <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
-                    ) : null}
-                  </li>
-                ) : null
+              {merged.map((list, index) =>
+                list.map((field, i) =>
+                  i === 0 ? (
+                    <li
+                      key={i}
+                      className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
+                      style={{
+                        flexBasis: `${
+                          list.reduce((m, item) => m + (field.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio
+                        }%`,
+                        justifyContent: field.align
+                          ? getFlexAlign(field.align)
+                          : field.type === 'bignumber' || field.type === 'usd'
+                          ? 'flex-end'
+                          : 'flex-start',
+                      }}
+                      onClick={() => onFieldClick(field)}
+                    >
+                      {mergedFieldLabels[index] ?? ''}
+                      {sortBy === (field.sortValue ?? field.value) ? (
+                        <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
+                      ) : null}
+                    </li>
+                  ) : null
+                )
               )}
             </ul>
           </div>
@@ -243,15 +253,12 @@ function ListItem({
 }: {
   data: TableListItem
   // fields: ListField[]
-  merged: ListField[]
+  merged: ListField[][]
   nonMerged: ListField[]
   useNarrow?: boolean
   colWidthRatio: number
   nowrap: boolean
 }) {
-  // const merged = fields.filter((field) => mergedFields.includes(field.value))
-  // const nonMerged = fields.filter((field) => !mergedFields.includes(field.value))
-
   return (
     <li className="relative block w-full">
       <ul
@@ -284,17 +291,18 @@ function ListItem({
             </li>
           )
         })}
-        {merged.length > 0 ? (
+        {merged.map((list, index) => (
           <li
+            key={index}
             className="grow shrink flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
             style={{
-              flexBasis: `${merged.reduce((m, item) => m + (item.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio}%`,
+              flexBasis: `${list.reduce((m, item) => m + (item.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio}%`,
             }}
           >
-            {merged.map((field, i) => {
+            {list.map((field) => {
               return (
                 <div
-                  key={i}
+                  key={field.value}
                   className={`${cellClass(field)} flex space-x-2`}
                   style={{
                     flexShrink: field.type === 'imgUrl' ? '0' : '1',
@@ -311,7 +319,7 @@ function ListItem({
               )
             })}
           </li>
-        ) : null}
+        ))}
       </ul>
     </li>
   )

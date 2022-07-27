@@ -86,8 +86,8 @@ export default function TokenBalance({
           useSearch={false}
           showFieldsBar={true}
           list={balanceList}
-          mergedFields={['onchainBalance', 'backendBalance']}
-          mergedFieldLabel="Balance"
+          mergedFields={[['onchainBalance', 'backendBalance']]}
+          mergedFieldLabels={['Balance']}
           defaultSortBy="onchainBalance"
           defaultIsSortASC={false}
           nowrap={false}

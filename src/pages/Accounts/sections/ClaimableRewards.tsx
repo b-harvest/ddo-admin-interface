@@ -121,8 +121,8 @@ export default function ClaimableRewards({
                   useSearch={false}
                   showFieldsBar={true}
                   list={listByToken}
-                  mergedFields={['onchainRewardsAmount', 'backendRewardsAmount']}
-                  mergedFieldLabel="Rewards amount"
+                  mergedFields={[['onchainRewardsAmount', 'backendRewardsAmount']]}
+                  mergedFieldLabels={['Rewards amount']}
                   defaultSortBy="rewardsAmount"
                   defaultIsSortASC={false}
                   totalField="onchainRewardsAmount"

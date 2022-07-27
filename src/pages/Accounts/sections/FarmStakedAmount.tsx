@@ -115,8 +115,8 @@ export default function FarmStakedAmount({
           useSearch={false}
           showFieldsBar={true}
           list={farmStakedList}
-          mergedFields={['onchainStakedAmount', 'backendStakedAmount']}
-          mergedFieldLabel="Staked amount"
+          mergedFields={[['onchainStakedAmount', 'backendStakedAmount']]}
+          mergedFieldLabels={['Staked amount']}
           defaultSortBy="onchainStakedAmount"
           defaultIsSortASC={false}
           nowrap={false}
@@ -168,8 +168,8 @@ export default function FarmStakedAmount({
           useSearch={false}
           showFieldsBar={true}
           list={farmQueuedList}
-          mergedFields={['onchainQueuedAmount', 'backendQueuedAmount']}
-          mergedFieldLabel="Queued amount"
+          mergedFields={[['onchainQueuedAmount', 'backendQueuedAmount']]}
+          mergedFieldLabels={['Queued amount']}
           defaultSortBy="onchainQueuedAmount"
           defaultIsSortASC={false}
           nowrap={false}

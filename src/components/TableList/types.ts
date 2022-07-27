@@ -53,8 +53,8 @@ export interface TableListProps {
   list: TableListItem[]
   fields: ListField[]
   useSearch?: boolean
-  mergedFields?: string[]
-  mergedFieldLabel?: string
+  mergedFields?: string[][]
+  mergedFieldLabels?: string[]
   totalField?: string
   totalLabel?: string | JSX.Element
   totalPrefixDesc?: string | JSX.Element
