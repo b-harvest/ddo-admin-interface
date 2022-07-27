@@ -1,7 +1,5 @@
-import BigNumber from 'bignumber.js'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
-import dayjs from 'dayjs'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
@@ -23,71 +21,62 @@ export default function AirdropClaim({
 }) {
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePair()
-  // const { findPoolByDenom } = usePool()
 
   const { airdropClaimDataTimestamp, airdropClaim, airdropClaimLCD } = useAccountData({
     address: address ?? '',
     interval,
   })
 
-  const { airdropClaimTableList, hasDiff } = useMemo(() => {
-    const onchainClaimableMap =
-      airdropClaimLCD?.initial_claimable_coins.reduce((accm, item) => ({ ...accm, [item.denom]: item }), {}) ?? {}
+  const airdropList = useMemo<any[]>(() => {
+    return (
+      airdropClaimLCD?.initial_claimable_coins.map((item) => {
+        const onchainInitAmount = item.amount
+        const backendInitAmount = airdropClaim?.initialClaimableCoins.find((air) => air.denom === item.denom)?.amount
+        const onchainClaimableAmount = airdropClaimLCD?.claimable_coins.find((air) => air.denom === item.denom)?.amount
+        const backendClaimableAmount = airdropClaim?.claimableCoins.find((air) => air.denom === item.denom)?.amount
+        const status: AlertStatus | undefined =
+          backendInitAmount && onchainInitAmount.isEqualTo(backendInitAmount) ? undefined : 'error'
 
-    const claimableCoinsMap =
-      airdropClaim?.claimableCoins.reduce((accm, item) => ({ ...accm, [item.denom]: item }), {}) ?? {}
+        const asset = findAssetByDenom(item.denom)
+        const assetLabel = asset
+          ? AssetTableLogoCell({
+              assets: getAssetTickers(asset),
+              poolDenom: item.denom,
+              isSingleAssetAutoSpaced: true,
+            })
+          : null
 
-    const airdropClaimTableList =
-      airdropClaim?.initialClaimableCoins
-        .filter((item) => findAssetByDenom(item.denom) !== undefined)
-        .map((item) => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const assetInfo = findAssetByDenom(item.denom)!
-          const asset = AssetTableLogoCell({
-            assets: getAssetTickers(assetInfo),
-            poolDenom: item.denom,
-            isSingleAssetAutoSpaced: true,
-          })
-
-          const claimableAmount: BigNumber = claimableCoinsMap[item.denom]?.amount ?? new BigNumber(0)
-          const onchainClaimableAmount: BigNumber = onchainClaimableMap[item.denom]?.amount ?? new BigNumber(0)
-          const status: AlertStatus | undefined = item.amount.isEqualTo(onchainClaimableAmount) ? undefined : 'error'
-
-          return {
-            ...item,
-            asset,
-            airdropId: airdropClaim?.AirdropId ?? '',
-            timestamp: dayjs(airdropClaim.timestamp / 1000).format('YYYY MMM DD, H : m : s'),
-            claimableAmount,
-            onchainClaimableAmount,
-            status,
-          }
-        }) ?? []
-
-    const hasDiff = airdropClaimTableList.findIndex((item) => item.status === 'error') > -1
-
-    return { airdropClaimTableList, hasDiff }
+        return {
+          onchainInitAmount,
+          backendInitAmount,
+          onchainClaimableAmount,
+          backendClaimableAmount,
+          status,
+          assetLabel,
+          airdropId: airdropClaimLCD.airdrop_id,
+        }
+      }) ?? []
+    )
   }, [airdropClaim, airdropClaimLCD, findAssetByDenom, getAssetTickers])
 
-  // alert-inline data - AirdropClaim amount
-  const { isAirdropClaimDataTimeDiff, isAirdropClaimDataAllMatched } = useMemo(() => {
-    const isAirdropClaimDataTimeDiff = isTimeDiffFromNowMoreThan(airdropClaimDataTimestamp, significantTimeGap)
-    const isAirdropClaimDataAllMatched = !hasDiff && !isAirdropClaimDataTimeDiff
+  const hasDiff = useMemo<boolean>(() => airdropList.findIndex((item) => item.status === 'error') > -1, [airdropList])
 
-    return {
-      isAirdropClaimDataTimeDiff,
-      isAirdropClaimDataAllMatched,
-    }
-  }, [airdropClaimDataTimestamp, hasDiff, significantTimeGap])
+  // alert-inline data - AirdropClaim amount
+  const isDelayed = useMemo<boolean>(
+    () => isTimeDiffFromNowMoreThan(airdropClaimDataTimestamp, significantTimeGap),
+    [airdropClaimDataTimestamp, significantTimeGap]
+  )
+
+  const allMatched = useMemo<boolean>(() => !hasDiff && !isDelayed, [hasDiff, isDelayed])
 
   return (
-    <FoldableSection label="Airdrop Claimable" defaultIsOpen={true}>
+    <FoldableSection label="Airdrop" defaultIsOpen={true}>
       <AccountDataAlertArea
-        isActive={airdropClaimTableList.length > 0}
+        isActive={airdropList.length > 0}
         significantTimeGap={significantTimeGap}
-        isDataTimeDiff={isAirdropClaimDataTimeDiff}
+        isDataTimeDiff={isDelayed}
         isDataNotMatched={hasDiff}
-        isAllDataMatched={isAirdropClaimDataAllMatched}
+        isAllDataMatched={allMatched}
       />
 
       <div className="mt-8">
@@ -96,16 +85,16 @@ export default function AirdropClaim({
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}
-          list={airdropClaimTableList}
-          mergedFields={['amount', 'onchainClaimableAmount']}
+          list={airdropList}
+          mergedFields={['onchainInitAmount', 'backendInitAmount']}
           mergedFieldLabel="Initial airdrop amount"
-          defaultSortBy="onchainClaimableAmount"
+          defaultSortBy="onchainInitAmount"
           defaultIsSortASC={false}
           nowrap={false}
           fields={[
             {
               label: 'Token',
-              value: 'asset',
+              value: 'assetLabel',
               type: 'html',
               widthRatio: 18,
             },
@@ -116,30 +105,32 @@ export default function AirdropClaim({
               responsive: true,
             },
             {
-              label: 'Time',
-              value: 'timestamp',
-              widthRatio: 20,
-              responsive: true,
-            },
-            {
-              label: 'Claimable amount',
-              value: 'claimableAmount',
-              tag: 'Back-end',
-              type: 'bignumber',
-              toFixedFallback: 6,
-              responsive: true,
-            },
-            {
-              label: 'Backend amount',
-              value: 'amount',
-              tag: 'Back-end',
-              type: 'bignumber',
-              toFixedFallback: 6,
-            },
-            {
-              label: 'Onchain amount',
+              label: 'Onchain claimable',
               value: 'onchainClaimableAmount',
               tag: 'On-chain',
+              type: 'bignumber',
+              toFixedFallback: 6,
+              responsive: true,
+            },
+            {
+              label: 'Backend claimable',
+              value: 'backendClaimableAmount',
+              tag: 'Back-end',
+              type: 'bignumber',
+              toFixedFallback: 6,
+              responsive: true,
+            },
+            {
+              label: 'Onchain airdrop amount',
+              value: 'onchainInitAmount',
+              tag: 'On-chain',
+              type: 'bignumber',
+              toFixedFallback: 6,
+            },
+            {
+              label: 'Backend airdrop amount',
+              value: 'backendInitAmount',
+              tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: 6,
             },

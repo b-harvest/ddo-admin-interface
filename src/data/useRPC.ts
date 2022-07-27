@@ -5,7 +5,7 @@ import { useAtom } from 'jotai'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
 import { chainIdAtomRef } from 'state/atoms'
-import type { BalanceRPC } from 'types/account'
+import type { TokenAmountSetRaw } from 'types/account'
 
 const CRE_MAINNET_RPC_ENDPOINT = `https://mainnet.crescent.network:26657/`
 const CRE_TESTNET_RPC_ENDPOINT = `https://testnet-endpoint.crescent.network/rpc/crescent`
@@ -24,7 +24,7 @@ const useRPC = () => {
       const client = QueryClient.withExtensions(tc, setupBankExtension)
 
       try {
-        const balanceRPC: BalanceRPC[] = await client.bank.allBalances(address)
+        const balanceRPC: TokenAmountSetRaw[] = await client.bank.allBalances(address)
         return balanceRPC
       } catch (e) {
         console.log('[ERROR] client.bank.allBalances', e)

@@ -2,7 +2,7 @@ import useAppSWR, { lcdReturnGenerator } from 'data/useAppSWR'
 import useCosmosSWR from 'data/useCosmosSWR'
 import type {
   AirdropClaimLCDRaw,
-  BalanceLCD,
+  BalanceLCDRaw,
   FarmPositionLCDRaw,
   FarmRewardLCDMainnetRaw,
   FarmRewardsLCDRaw,
@@ -15,7 +15,7 @@ import type { ValidatorSetsLCDRaw } from 'types/validator'
 import { COSMOS_CHAIN_NAME } from 'utils/chainRegistry'
 
 export function useAllBalanceLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
-  const { data, error }: LCDResponseViaSWR<BalanceLCD> = useAppSWR(`/cosmos/bank/v1beta1/balances/${address}`, {
+  const { data, error }: LCDResponseViaSWR<BalanceLCDRaw> = useAppSWR(`/cosmos/bank/v1beta1/balances/${address}`, {
     interval,
     type: 'rpc-rest',
     fetch,

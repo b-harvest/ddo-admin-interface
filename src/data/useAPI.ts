@@ -1,5 +1,5 @@
 import useAppSWR, { returnGenerator } from 'data/useAppSWR'
-import type { AirdropClaimRaw, Balance, StakedRaw } from 'types/account'
+import type { AirdropClaimRaw, BalanceRaw, StakedRaw } from 'types/account'
 import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { ChainInfo, ChainLive } from 'types/chain'
@@ -50,7 +50,7 @@ export function useAllStakeLive(interval = 0) {
 
 // account data
 export function useAllBalance({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
-  const { data, error }: ResponseViaSWR<Balance> = useAppSWR(`/acc/${address}/balance/all`, { interval, fetch })
+  const { data, error }: ResponseViaSWR<BalanceRaw> = useAppSWR(`/acc/${address}/balance/all`, { interval, fetch })
   return returnGenerator({ data, error })
 }
 

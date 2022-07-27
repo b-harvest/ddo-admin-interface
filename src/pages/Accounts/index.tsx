@@ -21,29 +21,13 @@ export default function Accounts() {
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   const significantTimeGap = useMemo(() => CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom], [chainIdAtom])
 
-  // const { onchainBlockHeight: onchainBlockHeightRaw, backendBlockHeight: backendBlockHeightRaw } = useChain()
-
   // address
   const [searchAddress, setSearchAddress] = useState(DUMMY_ADDRESS)
   const [address, setAddress] = useState<undefined | string>(undefined)
-  // const [fetch, setFetch] = useState<boolean>(false)
 
   const handleAddressSearch = () => {
     if (address !== searchAddress) setAddress(searchAddress)
-    // setFetch(true)
   }
-
-  // refresh data
-  // const [onchainBlockHeight, setOnchainBlockHeight] = useState<string>('-')
-  // const [backendBlockHeight, setBackendBlockHeight] = useState<string>('-')
-
-  // useEffect(() => {
-  //   if (fetch) {
-  //     setFetch(false)
-  //     setOnchainBlockHeight(onchainBlockHeightRaw)
-  //     setBackendBlockHeight(backendBlockHeightRaw)
-  //   }
-  // }, [fetch, setOnchainBlockHeight, setBackendBlockHeight, onchainBlockHeightRaw, backendBlockHeightRaw])
 
   return (
     <AppPage className="pt-[calc(1.5rem+3.25rem)]">

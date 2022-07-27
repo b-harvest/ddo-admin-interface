@@ -32,92 +32,157 @@ export default function ClaimableRewards({
     interval,
   })
 
-  const { rewardsTablesByRewardsToken, hasRewardsDiff } = useMemo(() => {
-    const rewardsTablesByRewardsToken = Object.keys(allFarmRewardsByToken)
-      .filter((denom) => findAssetByDenom(denom) !== undefined)
-      .map((denom) => {
-        const onchainList = allFarmRewardsByTokenLCD[denom] ?? []
-        const onchainTotal = onchainList.reduce((accm, data) => accm.plus(data.amount), new BigNumber(0))
-        const backendTotal = allFarmRewardsByToken[denom].reduce(
-          (accm, data) => accm.plus(data.amount),
-          new BigNumber(0)
-        )
+  const rewardsListByToken = useMemo<any[][]>(() => {
+    return Object.keys(allFarmRewardsByTokenLCD).map((denom) => {
+      const onchainList = allFarmRewardsByTokenLCD[denom]
+      const backendList = allFarmRewardsByToken[denom] ?? []
 
-        return allFarmRewardsByToken[denom]
-          .filter((item) => findAssetByDenom(item.poolDenom) !== undefined)
-          .map((item) => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const poolAssetInfo = findAssetByDenom(item.poolDenom)!
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const rewardAssetInfo = findAssetByDenom(item.denom)!
+      const onchainTotal = onchainList.reduce((accm, item) => accm.plus(item.amount), new BigNumber(0))
+      const backendTotal = backendList.reduce((accm, item) => accm.plus(item.amount), new BigNumber(0))
 
-            const pool = AssetTableLogoCell({ assets: getAssetTickers(poolAssetInfo), poolDenom: item.poolDenom })
-            const rewardToken = AssetTableLogoCell({
-              assets: getAssetTickers(rewardAssetInfo),
+      return onchainList.map((item) => {
+        const onchainRewardsAmount = item.amount
+        const backendRewardsAmount = backendList.find((pool) => pool.poolDenom === item.poolDenom)?.amount
+
+        const poolAsset = findAssetByDenom(item.poolDenom)
+        const poolLabel = poolAsset
+          ? AssetTableLogoCell({ assets: getAssetTickers(poolAsset), poolDenom: item.poolDenom })
+          : undefined
+        const poolId = findPoolByDenom(item.poolDenom)?.poolId
+
+        const rewardsAsset = findAssetByDenom(item.denom)
+        const rewardsAssetLabel = rewardsAsset
+          ? AssetTableLogoCell({
+              assets: getAssetTickers(rewardsAsset),
               isSingleAssetAutoSpaced: true,
               nowrap: true,
             })
-            const rewardTokenLogo = AssetTableLogoCell({
-              assets: getAssetTickers(rewardAssetInfo),
+          : undefined
+        const rewardsAssetLogo = rewardsAsset
+          ? AssetTableLogoCell({
+              assets: getAssetTickers(rewardsAsset),
               hideTicker: true,
             })
+          : undefined
 
-            const rewardsAmountLCD = onchainList.find((lcd) => lcd.poolDenom === item.poolDenom)?.amount ?? null
+        const totalDesc = TableTotalDesc({ amount: backendTotal, prefix: rewardsAssetLogo, tag: 'Back-end' })
+        const totalStatus: AlertStatus | undefined = onchainTotal.isEqualTo(backendTotal) ? undefined : 'error'
 
-            const totalDesc = TableTotalDesc({ amount: onchainTotal, prefix: rewardTokenLogo, tag: 'On-chain' })
-            const totalStatus: AlertStatus | undefined = onchainTotal.isEqualTo(backendTotal) ? undefined : 'error'
-
-            return {
-              pool,
-              poolId: findPoolByDenom(item.poolDenom)?.poolId,
-              poolDenom: item.poolDenom,
-              rewardToken,
-              rewardTokenLogo,
-              rewardDenom: item.denom,
-              rewardsAmount: item.amount,
-              rewardsAmountLCD,
-              totalDesc,
-              totalStatus,
-            }
-          })
+        return {
+          onchainRewardsAmount,
+          backendRewardsAmount,
+          poolLabel,
+          poolId,
+          rewardsAssetLabel,
+          rewardsAssetLogo,
+          totalDesc,
+          totalStatus,
+        }
       })
+    })
+  }, [allFarmRewardsByTokenLCD, allFarmRewardsByToken, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
-    const hasRewardsDiff =
-      rewardsTablesByRewardsToken.findIndex((tableList) => tableList[0]?.totalStatus === 'error') > -1
+  const hasDiff = useMemo<boolean>(
+    () => rewardsListByToken.findIndex((listByToken) => listByToken[0] && listByToken[0].totalStatus === 'error') > -1,
+    [rewardsListByToken]
+  )
 
-    return { rewardsTablesByRewardsToken, hasRewardsDiff }
-  }, [allFarmRewardsByToken, allFarmRewardsByTokenLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
+  // alert-inline data - balance
+  const isDelayed = useMemo<boolean>(
+    () => isTimeDiffFromNowMoreThan(allFarmRewardsDataTimestamp, significantTimeGap),
+    [allFarmRewardsDataTimestamp, significantTimeGap]
+  )
+
+  const allMatched = useMemo<boolean>(() => !hasDiff && !isDelayed, [hasDiff, isDelayed])
+
+  // const { isRewardsDataTimeDiff, isRewardsDataAllMatched } = useMemo(() => {
+  //   const isRewardsDataTimeDiff = isTimeDiffFromNowMoreThan(allFarmRewardsDataTimestamp, significantTimeGap)
+  //   const isRewardsDataAllMatched = !hasDiff && !isRewardsDataTimeDiff
+  //   // const isRewardsDataAllMatched = !isRewardsDataTimeDiff
+
+  //   return {
+  //     isRewardsDataTimeDiff,
+  //     isRewardsDataAllMatched,
+  //   }
+  // }, [allFarmRewardsDataTimestamp, hasDiff, significantTimeGap])
+
+  // const { rewardsTablesByRewardsToken, hasDiff } = useMemo(() => {
+  //   const rewardsTablesByRewardsToken = Object.keys(allFarmRewardsByToken)
+  //     .filter((denom) => findAssetByDenom(denom) !== undefined)
+  //     .map((denom) => {
+  //       const onchainList = allFarmRewardsByTokenLCD[denom] ?? []
+  //       const onchainTotal = onchainList.reduce((accm, data) => accm.plus(data.amount), new BigNumber(0))
+  //       const backendTotal = allFarmRewardsByToken[denom].reduce(
+  //         (accm, data) => accm.plus(data.amount),
+  //         new BigNumber(0)
+  //       )
+
+  //       return allFarmRewardsByToken[denom]
+  //         .filter((item) => findAssetByDenom(item.poolDenom) !== undefined)
+  //         .map((item) => {
+  //           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  //           const poolAssetInfo = findAssetByDenom(item.poolDenom)!
+  //           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  //           const rewardAssetInfo = findAssetByDenom(item.denom)!
+
+  //           const pool = AssetTableLogoCell({ assets: getAssetTickers(poolAssetInfo), poolDenom: item.poolDenom })
+
+  //           const rewardToken = AssetTableLogoCell({
+  //             assets: getAssetTickers(rewardAssetInfo),
+  //             isSingleAssetAutoSpaced: true,
+  //             nowrap: true,
+  //           })
+  //           const rewardTokenLogo = AssetTableLogoCell({
+  //             assets: getAssetTickers(rewardAssetInfo),
+  //             hideTicker: true,
+  //           })
+
+  //           const rewardsAmountLCD = onchainList.find((lcd) => lcd.poolDenom === item.poolDenom)?.amount ?? null
+
+  //           const totalDesc = TableTotalDesc({ amount: onchainTotal, prefix: rewardTokenLogo, tag: 'On-chain' })
+  //           const totalStatus: AlertStatus | undefined = onchainTotal.isEqualTo(backendTotal) ? undefined : 'error'
+
+  //           return {
+  //             pool,
+  //             poolId: findPoolByDenom(item.poolDenom)?.poolId,
+  //             poolDenom: item.poolDenom,
+  //             rewardToken,
+  //             rewardTokenLogo,
+  //             rewardDenom: item.denom,
+  //             rewardsAmount: item.amount,
+  //             rewardsAmountLCD,
+  //             totalDesc,
+  //             totalStatus,
+  //           }
+  //         })
+  //     })
+
+  //   const hasDiff =
+  //     rewardsTablesByRewardsToken.findIndex((tableList) => tableList[0]?.totalStatus === 'error') > -1
+
+  //   return { rewardsTablesByRewardsToken, hasDiff }
+  // }, [allFarmRewardsByToken, allFarmRewardsByTokenLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   // alert-inline data - staked amount
-  const { isRewardsDataTimeDiff, isRewardsDataAllMatched } = useMemo(() => {
-    const isRewardsDataTimeDiff = isTimeDiffFromNowMoreThan(allFarmRewardsDataTimestamp, significantTimeGap)
-    const isRewardsDataAllMatched = !hasRewardsDiff && !isRewardsDataTimeDiff
-    // const isRewardsDataAllMatched = !isRewardsDataTimeDiff
-
-    return {
-      isRewardsDataTimeDiff,
-      isRewardsDataAllMatched,
-    }
-  }, [allFarmRewardsDataTimestamp, hasRewardsDiff, significantTimeGap])
 
   return (
     <FoldableSection label="Claimable Rewards" defaultIsOpen={true}>
       <AccountDataAlertArea
-        isActive={rewardsTablesByRewardsToken.length > 0}
+        isActive={rewardsListByToken.length > 0}
         significantTimeGap={significantTimeGap}
-        isDataTimeDiff={isRewardsDataTimeDiff}
-        isDataNotMatched={hasRewardsDiff}
-        isAllDataMatched={isRewardsDataAllMatched}
+        isDataTimeDiff={isDelayed}
+        isDataNotMatched={hasDiff}
+        isAllDataMatched={allMatched}
       />
 
       <div className="mt-8">
-        {rewardsTablesByRewardsToken.length > 0 ? (
-          rewardsTablesByRewardsToken.map((tableList, i) =>
-            tableList.length ? (
+        {rewardsListByToken.length > 0 ? (
+          rewardsListByToken.map((listByToken, i) =>
+            listByToken.length ? (
               <div key={i}>
                 <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
                   <span>Pools rewarding</span>
-                  {tableList[0].rewardToken}
+                  {listByToken[0].rewardToken}
                 </h4>
 
                 <TableList
@@ -125,21 +190,21 @@ export default function ClaimableRewards({
                   showTitle={false}
                   useSearch={false}
                   showFieldsBar={true}
-                  list={tableList}
-                  mergedFields={['rewardsAmount', 'rewardsAmountLCD']}
+                  list={listByToken}
+                  mergedFields={['onchainRewardsAmount', 'backendRewardsAmount']}
                   mergedFieldLabel="Rewards amount"
                   defaultSortBy="rewardsAmount"
                   defaultIsSortASC={false}
-                  totalField="rewardsAmount"
+                  totalField="onchainRewardsAmount"
                   totalLabel="Total rewards"
-                  totalPrefixDesc={tableList[0].rewardTokenLogo}
-                  totalDesc={tableList[0].totalDesc}
-                  totalStatus={tableList[0].totalStatus}
+                  totalPrefixDesc={listByToken[0].rewardTokenLogo}
+                  totalDesc={listByToken[0].totalDesc}
+                  totalStatus={listByToken[0].totalStatus}
                   nowrap={false}
                   fields={[
                     {
                       label: 'Pool',
-                      value: 'pool',
+                      value: 'poolLabel',
                       type: 'html',
                       widthRatio: 18,
                     },
@@ -149,23 +214,17 @@ export default function ClaimableRewards({
                       widthRatio: 12,
                       responsive: true,
                     },
-                    // {
-                    //   label: 'Rewards Token',
-                    //   value: 'rewardToken',
-                    //   type: 'html',
-                    //   widthRatio: 12,
-                    // },
                     {
-                      label: 'Rewards amount',
-                      value: 'rewardsAmount',
-                      tag: 'Back-end',
+                      label: 'On-chain rewards amount',
+                      value: 'onchainRewardsAmount',
+                      tag: 'On-chain',
                       type: 'bignumber',
                       toFixedFallback: 6,
                     },
                     {
-                      label: 'On-chain rewards amount',
-                      value: 'rewardsAmountLCD',
-                      tag: 'On-chain',
+                      label: 'Rewards amount',
+                      value: 'backendRewardsAmount',
+                      tag: 'Back-end',
                       type: 'bignumber',
                       toFixedFallback: 6,
                     },

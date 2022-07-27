@@ -1,17 +1,13 @@
-import BigNumber from 'bignumber.js'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
-import { useAllBalance } from 'data/useAPI'
-import { useAllBalanceLCD } from 'data/useLCD'
+import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
 import AccountDataAlertArea from 'pages/Accounts/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
-import type { Balance, BalanceLCD } from 'types/account'
 import type { AlertStatus } from 'types/alert'
-import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
 export default function TokenBalance({
@@ -24,86 +20,63 @@ export default function TokenBalance({
   interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
-  const { getAssetTickers, findPoolFromPairsByDenom } = usePair()
+  const { getAssetTickers } = usePair()
 
-  // fetching balance
-  const { data: allBalanceData }: APIHookReturn<Balance> = useAllBalance(
-    {
-      address: address ?? '',
-      fetch: address !== undefined,
-    },
-    interval
-  )
-  const { data: allBalanceLCDData }: LCDHookReturn<BalanceLCD> = useAllBalanceLCD(
-    {
-      address: address ?? '',
-      fetch: address !== undefined,
-    },
-    interval
-  )
+  const { allBalanceTimestamp, allBalance, allBalanceLCD } = useAccountData({ address: address ?? '' })
 
-  const { balanceTableList, hasBalanceDiff } = useMemo(() => {
-    const balanceTableList =
-      allBalanceData?.data.asset
-        .filter(
-          (item) =>
-            findAssetByDenom(item.denom) &&
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            (findAssetByDenom(item.denom)!.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true)
-        )
-        .map((item) => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const assetInfo = findAssetByDenom(item.denom)!
-          const exponent = assetInfo.exponent
+  const balanceList = useMemo(() => {
+    return allBalanceLCD.map((item) => {
+      const onchainBalance = item.amount
+      const backendBalance = allBalance.find((bal) => bal.denom === item.denom)?.amount
+      const status: AlertStatus | undefined = backendBalance
+        ? onchainBalance.isEqualTo(backendBalance)
+          ? undefined
+          : 'error'
+        : 'error'
 
-          const asset = AssetTableLogoCell({
-            assets: getAssetTickers(assetInfo),
-            poolDenom: assetInfo.isPoolToken ? item.denom : undefined,
+      const asset = findAssetByDenom(item.denom)
+      const assetLabel = asset
+        ? AssetTableLogoCell({
+            assets: getAssetTickers(asset),
+            poolDenom: asset.isPoolToken ? item.denom : undefined,
           })
-          const backendBalance = new BigNumber(item.amount).dividedBy(10 ** exponent)
-          const onchainBalance = allBalanceLCDData
-            ? new BigNumber(allBalanceLCDData.balances.find((bal) => bal.denom === item.denom)?.amount ?? 0).dividedBy(
-                10 ** exponent
-              )
-            : new BigNumber(0)
-          const status: AlertStatus | undefined = backendBalance.isEqualTo(onchainBalance) ? undefined : 'error'
+        : null
+      const ticker = asset?.ticker
+      const exponent = asset?.exponent ?? 0
 
-          return {
-            denom: item.denom,
-            ticker: assetInfo.ticker,
-            asset,
-            exponent,
-            backendBalance,
-            onchainBalance,
-            status,
-          }
-        }) ?? []
-
-    const hasBalanceDiff = balanceTableList.findIndex((item) => item.status === 'error') > -1
-
-    return { balanceTableList, hasBalanceDiff }
-  }, [allBalanceData, allBalanceLCDData, findAssetByDenom, getAssetTickers, findPoolFromPairsByDenom])
+      return {
+        ...item,
+        backendBalance,
+        onchainBalance,
+        status,
+        assetLabel,
+        ticker,
+        exponent,
+      }
+    })
+  }, [allBalance, allBalanceLCD, findAssetByDenom, getAssetTickers])
 
   // alert-inline data - balance
-  const { isBalanceDataTimeDiff, isBalanceDataAllMatched } = useMemo(() => {
-    const backEndTimestamp = allBalanceData?.curTimestamp * 1000 ?? 0
-    const isBalanceDataTimeDiff = isTimeDiffFromNowMoreThan(backEndTimestamp, significantTimeGap)
-    const isBalanceDataAllMatched = !hasBalanceDiff && !isBalanceDataTimeDiff
+  const hasBalanceDiff = useMemo<boolean>(
+    () => balanceList.findIndex((item) => item.status === 'error') > -1,
+    [balanceList]
+  )
 
-    return {
-      isBalanceDataTimeDiff,
-      isBalanceDataAllMatched,
-    }
-  }, [allBalanceData, hasBalanceDiff, significantTimeGap])
+  const isDelayed = useMemo<boolean>(
+    () => isTimeDiffFromNowMoreThan(allBalanceTimestamp, significantTimeGap),
+    [allBalanceTimestamp, significantTimeGap]
+  )
+
+  const allMatched = useMemo<boolean>(() => !hasBalanceDiff && !isDelayed, [hasBalanceDiff, isDelayed])
 
   return (
     <FoldableSection label="Token Balance" defaultIsOpen={true}>
       <AccountDataAlertArea
-        isActive={balanceTableList.length > 0}
+        isActive={balanceList.length > 0}
         significantTimeGap={significantTimeGap}
-        isDataTimeDiff={isBalanceDataTimeDiff}
+        isDataTimeDiff={isDelayed}
         isDataNotMatched={hasBalanceDiff}
-        isAllDataMatched={isBalanceDataAllMatched}
+        isAllDataMatched={allMatched}
       />
 
       <div className="mt-8">
@@ -112,8 +85,8 @@ export default function TokenBalance({
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}
-          list={balanceTableList}
-          mergedFields={['backendBalance', 'onchainBalance']}
+          list={balanceList}
+          mergedFields={['onchainBalance', 'backendBalance']}
           mergedFieldLabel="Balance"
           defaultSortBy="onchainBalance"
           defaultIsSortASC={false}
@@ -121,7 +94,7 @@ export default function TokenBalance({
           fields={[
             {
               label: 'Token',
-              value: 'asset',
+              value: 'assetLabel',
               type: 'html',
               widthRatio: 18,
             },
@@ -133,16 +106,16 @@ export default function TokenBalance({
               responsive: true,
             },
             {
-              label: 'Backend Data',
-              value: 'backendBalance',
-              tag: 'Back-end',
+              label: 'Onchain Data',
+              value: 'onchainBalance',
+              tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: MAX_AMOUNT_FIXED,
             },
             {
-              label: 'Onchain Data',
-              value: 'onchainBalance',
-              tag: 'On-chain',
+              label: 'Backend Data',
+              value: 'backendBalance',
+              tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: MAX_AMOUNT_FIXED,
             },

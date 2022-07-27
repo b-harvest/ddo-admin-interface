@@ -1,51 +1,89 @@
 import BigNumber from 'bignumber.js'
 import { useAirdropClaim, useAllStaked } from 'data/useAPI'
+import { useAllBalance } from 'data/useAPI'
 import { useAirdropClaimLCD, useAllFarmRewardsLCD, useAllStakedLCD, useFarmPositionLCD } from 'data/useLCD'
+import { useAllBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useCallback, useMemo } from 'react'
 import type {
   AirdropClaimLCDRaw,
   AirdropClaimRaw,
+  Balance,
+  BalanceLCDRaw,
+  BalanceRaw,
   FarmPositionLCDRaw,
   FarmRewardLCDMainnetRaw,
   FarmRewardsLCDRaw,
   HarvestableStaked,
   HarvestableStakedRaw,
-  LCDTokenAmountSet,
-  LCDTokenAmountSetRaw,
   Staked,
   StakedByPoolLCD,
   StakedLCDMainnetRaw,
   StakedLCDRaw,
   StakedRaw,
+  TokenAmountSet,
+  TokenAmountSetRaw,
 } from 'types/account'
+// import type { Balance } from 'types/account'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
 
 const useAccountData = ({ address, interval = 0 }: { address: string; interval?: number }) => {
   const { findAssetByDenom } = useAsset()
 
   const getBigNumberedAmountSet = useCallback(
-    (item: LCDTokenAmountSetRaw) => {
+    (item: TokenAmountSetRaw) => {
       const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
-
-      return {
-        denom: item.denom,
-        amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
-      }
+      return parseAmountSetToBigNumber(item, exponent)
     },
     [findAssetByDenom]
   )
 
   const parseDenomAmount = useCallback(
     (str: string) => {
-      const amount = str.match(/\d+/gi)
-      const denom = str.match(/[a-z]+/gi)
+      const amounts = str.match(/\d+/gi)
+      const denoms = str.match(/[a-z]+/gi)
 
-      if (!amount || !denom) return { denom: '-', amount: new BigNumber(0) }
+      if (!amounts || !denoms) return { denom: '-', amount: new BigNumber(0) }
 
-      return getBigNumberedAmountSet({ denom: denom[0], amount: amount[0] })
+      const denom = denoms[0]
+      return getBigNumberedAmountSet({ denom, amount: amounts[0] })
     },
     [getBigNumberedAmountSet]
+  )
+
+  // * balance
+  const { data: allBalanceData }: APIHookReturn<BalanceRaw> = useAllBalance(
+    {
+      address: address ?? '',
+      fetch: address !== undefined,
+    },
+    interval
+  )
+  const { data: allBalanceLCDData }: LCDHookReturn<BalanceLCDRaw> = useAllBalanceLCD(
+    {
+      address: address ?? '',
+      fetch: address !== undefined,
+    },
+    interval
+  )
+
+  const allBalanceTimestamp = useMemo(() => (allBalanceData?.curTimestamp ?? 0) * 1000, [allBalanceData])
+
+  const allBalance = useMemo<Balance>(() => {
+    return (
+      allBalanceData?.data.asset.map((item) => {
+        const set = getBigNumberedAmountSet({ denom: item.denom, amount: item.amount })
+        return {
+          ...set,
+          reserved: item.reserved,
+        }
+      }) ?? []
+    )
+  }, [allBalanceData, getBigNumberedAmountSet])
+
+  const allBalanceLCD = useMemo<TokenAmountSet[]>(
+    () => allBalanceLCDData?.balances.map(getBigNumberedAmountSet) ?? [],
+    [allBalanceLCDData, getBigNumberedAmountSet]
   )
 
   // * staked amount
@@ -129,7 +167,7 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 
   const allFarmRewardsByToken = useMemo(() => {
     const allRewards =
-      allStaked?.reduce((accm: (LCDTokenAmountSet & { poolDenom: string })[], pool) => {
+      allStaked?.reduce((accm: (TokenAmountSet & { poolDenom: string })[], pool) => {
         return accm.concat(
           pool.harvestable?.map((item) => ({
             poolDenom: pool.denom,
@@ -147,7 +185,7 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     // if (isOnTestnet) {
     const allRewards =
       (allFarmRewardsLCDData as FarmRewardsLCDRaw)?.rewards.reduce(
-        (accm: (LCDTokenAmountSet & { poolDenom: string })[], item) => {
+        (accm: (TokenAmountSet & { poolDenom: string })[], item) => {
           const rewards = item.rewards.map((re) => {
             const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
             return {
@@ -199,30 +237,19 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     const data = airdropClaimLCDData?.claim_record
     if (!data) return null
 
-    const initial_claimable_coins = data.initial_claimable_coins.map((item) => {
-      const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
-      return {
-        denom: item.denom,
-        amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
-      }
-    })
-
-    const claimable_coins = data.claimable_coins.map((item) => {
-      const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
-      return {
-        denom: item.denom,
-        amount: new BigNumber(item.amount).dividedBy(10 ** exponent),
-      }
-    })
-
+    const initial_claimable_coins = data.initial_claimable_coins.map(getBigNumberedAmountSet)
+    const claimable_coins = data.claimable_coins.map(getBigNumberedAmountSet)
     return {
       ...data,
       initial_claimable_coins,
       claimable_coins,
     }
-  }, [airdropClaimLCDData, findAssetByDenom])
+  }, [airdropClaimLCDData, getBigNumberedAmountSet])
 
   return {
+    allBalanceTimestamp,
+    allBalance,
+    allBalanceLCD,
     farmPositionLCD,
     allStakedDataTimestamp,
     allStaked,
@@ -238,12 +265,19 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 
 export default useAccountData
 
-function getTokenWideFarmRewards(allRewards: (LCDTokenAmountSet & { poolDenom: string })[]) {
-  const tokenWideRewards: { [key: string]: (LCDTokenAmountSet & { poolDenom: string })[] } = {}
+function getTokenWideFarmRewards(allRewards: (TokenAmountSet & { poolDenom: string })[]) {
+  const tokenWideRewards: { [key: string]: (TokenAmountSet & { poolDenom: string })[] } = {}
   allRewards.forEach((item) => {
     const key = tokenWideRewards[item.denom]
     if (key) tokenWideRewards[item.denom].push(item)
     else tokenWideRewards[item.denom] = [item]
   })
   return tokenWideRewards
+}
+
+function parseAmountSetToBigNumber(item: TokenAmountSetRaw, exponent: number): TokenAmountSet {
+  return {
+    denom: item.denom,
+    amount: new BigNumber(item.amount).div(10 ** exponent),
+  }
 }

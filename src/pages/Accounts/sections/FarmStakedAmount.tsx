@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
 import useAccountData from 'hooks/useAccountData'
@@ -29,65 +28,84 @@ export default function FarmStakedAmount({
     interval,
   })
 
-  const { stakedTableList, hasStakedDiff } = useMemo(() => {
-    // const onchainStakedMap = allStakedLCD
-    //   .filter((item) => item.starting_epoch === '4' || item.starting_epoch === undefined) // ?
-    //   .reduce((accm, item) => ({ ...accm, [item.denom]: item }), {})
+  const farmStakedList = useMemo(() => {
+    return farmPositionLCD.staked_coins.map((item) => {
+      const onchainStakedAmount = item.amount
+      const backendStakedAmount = allStaked.find((pool) => pool.denom === item.denom)?.stakedAmount
+      const status: AlertStatus | undefined = backendStakedAmount
+        ? onchainStakedAmount.isEqualTo(backendStakedAmount)
+          ? undefined
+          : 'error'
+        : 'error'
 
-    const onchainStakedAmtMap = farmPositionLCD.staked_coins.reduce(
-      (accm, item) => ({ ...accm, [item.denom]: item }),
-      {}
-    )
-    const onchainQueuedAmtMap = farmPositionLCD.queued_coins.reduce(
-      (accm, item) => ({ ...accm, [item.denom]: item }),
-      {}
-    )
+      const asset = findAssetByDenom(item.denom)
+      const assetLabel = asset ? AssetTableLogoCell({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
+      const poolId = findPoolByDenom(item.denom)?.poolId
 
-    const stakedTableList = allStaked
-      .filter((item) => findAssetByDenom(item.denom) !== undefined)
-      .map((item) => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const assetInfo = findAssetByDenom(item.denom)!
-        const asset = AssetTableLogoCell({ assets: getAssetTickers(assetInfo), poolDenom: item.denom })
-        const onchainStakedAmount = onchainStakedAmtMap[item.denom]?.amount ?? new BigNumber(0)
-        const onchainQueuedAmount = onchainQueuedAmtMap[item.denom]?.amount ?? new BigNumber(0)
+      return {
+        onchainStakedAmount,
+        backendStakedAmount,
+        status,
+        ...asset,
+        assetLabel,
+        poolId,
+      }
+    })
+  }, [allStaked, farmPositionLCD, findAssetByDenom, findPoolByDenom, getAssetTickers])
 
-        const status: AlertStatus | undefined = item.stakedAmount.isEqualTo(onchainStakedAmount) ? undefined : 'error'
+  const farmQueuedList = useMemo(() => {
+    return farmPositionLCD.queued_coins.map((item) => {
+      const onchainQueuedAmount = item.amount
+      const backendQueuedAmount = allStaked.find((pool) => pool.denom === item.denom)?.queuedAmount
+      const status: AlertStatus | undefined = backendQueuedAmount
+        ? onchainQueuedAmount.isEqualTo(backendQueuedAmount)
+          ? undefined
+          : 'error'
+        : 'error'
 
-        return {
-          asset,
-          ...item,
-          poolId: findPoolByDenom(item.denom)?.poolId,
-          onchainStakedAmount,
-          onchainQueuedAmount,
-          status,
-        }
-      })
+      const asset = findAssetByDenom(item.denom)
+      const assetLabel = asset ? AssetTableLogoCell({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
+      const poolId = findPoolByDenom(item.denom)?.poolId
 
-    const hasStakedDiff = stakedTableList.findIndex((item) => item.status === 'error') > -1
+      return {
+        onchainQueuedAmount,
+        backendQueuedAmount,
+        status,
+        ...asset,
+        assetLabel,
+        poolId,
+      }
+    })
+  }, [allStaked, farmPositionLCD, findAssetByDenom, findPoolByDenom, getAssetTickers])
 
-    return { stakedTableList, hasStakedDiff }
-  }, [allStaked, farmPositionLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
+  // alert-inline data - balance
+  const isDelayed = useMemo<boolean>(
+    () => isTimeDiffFromNowMoreThan(allStakedDataTimestamp, significantTimeGap),
+    [allStakedDataTimestamp, significantTimeGap]
+  )
 
-  // alert-inline data - staked amount
-  const { isStakedDataTimeDiff, isStakedDataAllMatched } = useMemo(() => {
-    const isStakedDataTimeDiff = isTimeDiffFromNowMoreThan(allStakedDataTimestamp, significantTimeGap)
-    const isStakedDataAllMatched = !hasStakedDiff && !isStakedDataTimeDiff
+  const hasStakedDiff = useMemo<boolean>(
+    () => farmStakedList.findIndex((item) => item.status === 'error') > -1,
+    [farmStakedList]
+  )
 
-    return {
-      isStakedDataTimeDiff,
-      isStakedDataAllMatched,
-    }
-  }, [allStakedDataTimestamp, hasStakedDiff, significantTimeGap])
+  const allStakedMatched = useMemo<boolean>(() => !hasStakedDiff && !isDelayed, [hasStakedDiff, isDelayed])
+
+  const hasQueuedDiff = useMemo<boolean>(
+    () => farmQueuedList.findIndex((item) => item.status === 'error') > -1,
+    [farmQueuedList]
+  )
+
+  const allQueuedMatched = useMemo<boolean>(() => !hasQueuedDiff && !isDelayed, [hasQueuedDiff, isDelayed])
 
   return (
     <FoldableSection label="Farm Staked Amount" defaultIsOpen={true}>
       <AccountDataAlertArea
-        isActive={stakedTableList.length > 0}
+        isActive={farmStakedList.length > 0}
         significantTimeGap={significantTimeGap}
-        isDataTimeDiff={isStakedDataTimeDiff}
+        isDataTimeDiff={isDelayed}
         isDataNotMatched={hasStakedDiff}
-        isAllDataMatched={isStakedDataAllMatched}
+        isAllDataMatched={allStakedMatched}
       />
 
       <div className="mt-8">
@@ -96,8 +114,8 @@ export default function FarmStakedAmount({
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}
-          list={stakedTableList}
-          mergedFields={['stakedAmount', 'onchainStakedAmount']}
+          list={farmStakedList}
+          mergedFields={['onchainStakedAmount', 'backendStakedAmount']}
           mergedFieldLabel="Staked amount"
           defaultSortBy="onchainStakedAmount"
           defaultIsSortASC={false}
@@ -105,7 +123,7 @@ export default function FarmStakedAmount({
           fields={[
             {
               label: 'Pool',
-              value: 'asset',
+              value: 'assetLabel',
               type: 'html',
               widthRatio: 18,
             },
@@ -116,32 +134,69 @@ export default function FarmStakedAmount({
               responsive: true,
             },
             {
-              label: 'Backend queued amount',
-              value: 'queuedAmount',
+              label: 'Onchain amount',
+              value: 'onchainStakedAmount',
+              tag: 'On-chain',
+              type: 'bignumber',
+              toFixedFallback: 6,
+            },
+            {
+              label: 'Backend amount',
+              value: 'backendStakedAmount',
               tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: 6,
+            },
+          ]}
+        />
+      </div>
+
+      <div className="space-y-6 mt-20">
+        <h3 className="flex justify-start items-center TYPO-H3 text-black dark:text-white text-left">Queued</h3>
+
+        <AccountDataAlertArea
+          isActive={farmQueuedList.length > 0}
+          significantTimeGap={significantTimeGap}
+          isDataTimeDiff={isDelayed}
+          isDataNotMatched={hasQueuedDiff}
+          isAllDataMatched={allQueuedMatched}
+        />
+
+        <TableList
+          title="Queued"
+          showTitle={false}
+          useSearch={false}
+          showFieldsBar={true}
+          list={farmQueuedList}
+          mergedFields={['onchainQueuedAmount', 'backendQueuedAmount']}
+          mergedFieldLabel="Queued amount"
+          defaultSortBy="onchainQueuedAmount"
+          defaultIsSortASC={false}
+          nowrap={false}
+          fields={[
+            {
+              label: 'Pool',
+              value: 'assetLabel',
+              type: 'html',
+              widthRatio: 18,
+            },
+            {
+              label: 'Pool #',
+              value: 'poolId',
+              widthRatio: 12,
               responsive: true,
             },
             {
-              label: 'Onchain queued amount',
+              label: 'Onchain amount',
               value: 'onchainQueuedAmount',
               tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: 6,
-              responsive: true,
             },
             {
               label: 'Backend amount',
-              value: 'stakedAmount',
+              value: 'backendQueuedAmount',
               tag: 'Back-end',
-              type: 'bignumber',
-              toFixedFallback: 6,
-            },
-            {
-              label: 'Onchain amount',
-              value: 'onchainStakedAmount',
-              tag: 'On-chain',
               type: 'bignumber',
               toFixedFallback: 6,
             },

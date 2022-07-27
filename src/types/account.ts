@@ -1,42 +1,44 @@
 import BigNumber from 'bignumber.js'
 
 // * common subset for LCD response
-export interface LCDTokenAmountSetRaw {
+export interface TokenAmountSetRaw {
   readonly denom: string
   readonly amount: string
 }
 
-export type LCDTokenAmountSet = Omit<LCDTokenAmountSetRaw, 'amount'> & {
+export type TokenAmountSet = Omit<TokenAmountSetRaw, 'amount'> & {
   readonly amount: BigNumber
 }
 
 // * balance
 // rpc
-export type BalanceRPC = LCDTokenAmountSetRaw
+// export type BalanceLCD = TokenAmountSetRaw
 
 // rpc rest
-export interface BalanceLCD {
-  readonly balances: BalanceRPC[]
+export interface BalanceLCDRaw {
+  readonly balances: TokenAmountSetRaw[]
   pagination: { next_key: any; total: string }
 }
 
 // backend
-export interface Balance {
+export interface BalanceRaw {
   readonly address: string
-  readonly asset: (BalanceRPC & { reserved: string })[]
+  readonly asset: (TokenAmountSetRaw & { reserved: string })[]
   readonly unbonding?: { CompleteTimestamp: number; txhash: string; amount: string; unbondingAmount: string }[] | null
 }
+
+export type Balance = (TokenAmountSet & { reserved: string })[]
 
 // * staked
 // mainnet rpc
 export interface StakedLCDMainnetRaw {
-  staked_coins: LCDTokenAmountSetRaw[]
-  queued_coins: LCDTokenAmountSetRaw[]
+  staked_coins: TokenAmountSetRaw[]
+  queued_coins: TokenAmountSetRaw[]
 }
 
 export type StakedLCDMainnet = {
-  staked_coins: LCDTokenAmountSet[]
-  queued_coins: LCDTokenAmountSet[]
+  staked_coins: TokenAmountSet[]
+  queued_coins: TokenAmountSet[]
 }
 
 // testnet rpc
@@ -82,24 +84,24 @@ export type Staked = Omit<StakedRaw, 'queuedAmount' | 'stakedAmount' | 'harvesta
 
 // * farm position
 export interface FarmPositionLCDRaw {
-  readonly staked_coins: LCDTokenAmountSetRaw[]
-  readonly queued_coins: LCDTokenAmountSetRaw[]
-  readonly rewards: LCDTokenAmountSetRaw[]
+  readonly staked_coins: TokenAmountSetRaw[]
+  readonly queued_coins: TokenAmountSetRaw[]
+  readonly rewards: TokenAmountSetRaw[]
 }
 
 // * farm reward
 // mainnet rpc
 export interface FarmRewardLCDMainnetRaw {
-  readonly rewards: LCDTokenAmountSetRaw[]
+  readonly rewards: TokenAmountSetRaw[]
 }
 export type FarmRewardLCDMainnet = Omit<FarmRewardLCDMainnetRaw, 'rewards'> & {
-  readonly rewards: LCDTokenAmountSet[]
+  readonly rewards: TokenAmountSet[]
 }
 
 // testnet rpc
 export interface FarmRewardLCDRaw {
   readonly staking_coin_denom: string
-  readonly rewards: LCDTokenAmountSetRaw[]
+  readonly rewards: TokenAmountSetRaw[]
 }
 
 export interface FarmRewardsLCDRaw {
@@ -108,7 +110,7 @@ export interface FarmRewardsLCDRaw {
 }
 
 export type FarmRewardsLCD = {
-  readonly rewards: LCDTokenAmountSet[]
+  readonly rewards: TokenAmountSet[]
 }
 
 // * airdrop claim
@@ -117,8 +119,8 @@ export interface AirdropClaimLCDRaw {
   readonly claim_record: {
     airdrop_id: string
     recipient: string
-    initial_claimable_coins: LCDTokenAmountSetRaw[]
-    claimable_coins: LCDTokenAmountSetRaw[]
+    initial_claimable_coins: TokenAmountSetRaw[]
+    claimable_coins: TokenAmountSetRaw[]
     claimed_conditions: string[]
   }
 }
