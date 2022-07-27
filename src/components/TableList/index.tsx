@@ -137,7 +137,7 @@ export default function TableList<T>({
               {nonMerged.map((field, i) => {
                 return (
                   <li
-                    key={i}
+                    key={field.value}
                     style={{
                       flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                       justifyContent: field.align
@@ -160,7 +160,7 @@ export default function TableList<T>({
                 list.map((field, i) =>
                   i === 0 ? (
                     <li
-                      key={i}
+                      key={field.value}
                       className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                       style={{
                         flexBasis: `${
@@ -282,7 +282,7 @@ function ListItem<T extends TableListItem>({
         {nonMerged.map((field, i) => {
           return (
             <li
-              key={i}
+              key={field.value}
               style={{
                 flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                 flexShrink: field.type === 'imgUrl' ? '0' : '1',
@@ -302,7 +302,7 @@ function ListItem<T extends TableListItem>({
         })}
         {merged.map((list, index) => (
           <li
-            key={index}
+            key={list[0]?.value ?? index}
             className="grow shrink flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
             style={{
               flexBasis: `${list.reduce((m, item) => m + (item.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio}%`,
