@@ -15,6 +15,7 @@ export default function Validators() {
     return validatorsetsLCD?.validators ?? []
   }, [validatorsetsLCD])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setHeight(backendBlockHeight), [])
 
   return (
@@ -25,8 +26,6 @@ export default function Validators() {
         useSearch={false}
         showFieldsBar={true}
         list={validatorsTableList}
-        // mergedFields={['stakedAmount', 'onchainStakedAmount']}
-        // mergedFieldLabel="Staked amount"
         defaultSortBy="voting_power"
         defaultIsSortASC={false}
         nowrap={false}
@@ -36,29 +35,14 @@ export default function Validators() {
             value: 'address',
             abbrOver: 10,
             widthRatio: 30,
-            // responsive: true,
           },
-          // {
-          //   label: 'Onchain queued amount',
-          //   value: 'onchainQueuedAmount',
-          //   tag: 'On-chain',
-          //   type: 'bignumber',
-          //   toFixedFallback: 6,
-          //   responsive: true,
-          // },
           {
             label: 'Proposer priority',
             value: 'proposer_priority',
-            // tag: 'Back-end',
-            // type: 'bignumber',
-            // toFixedFallback: 6,
           },
           {
             label: 'Voting power',
             value: 'voting_power',
-            // tag: 'On-chain',
-            // type: 'bignumber',
-            // toFixedFallback: 6,
           },
         ]}
       />

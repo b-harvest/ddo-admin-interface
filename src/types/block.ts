@@ -44,3 +44,26 @@ export interface BlockLCD {
     }
   }
 }
+
+// metric api response data
+interface BlockDataRaw {
+  timestamp_nano: number
+  height: number
+  var_int: number // flush time
+  var_str: string // events' count
+}
+
+export interface BlocksFlushRaw {
+  type: 'flush_ts_diff_nano'
+  rows: BlockDataRaw[]
+}
+
+export interface BlocksEventsRaw {
+  type: 'event_row_count'
+  rows: BlockDataRaw[]
+}
+
+export interface BlockEventIndicatorsRaw {
+  type: 'event_row_count'
+  indicator: string[]
+}

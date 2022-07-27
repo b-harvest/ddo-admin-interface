@@ -19,7 +19,7 @@ const getBaseUrl = ({ chainId, type }: { chainId: CHAIN_IDS; type: DataType }): 
     case CHAIN_IDS.MOONCAT:
       return type === 'backend' ? process.env.REACT_APP_MOONCAT_V2_API_ENDPOINT : CRE_TESTNET_RPC_REST_API_URL
     default:
-      return type === 'backend' ? process.env.REACT_APP_MAINNET_V2_API_ENDPOINT : CRE_MAINNET_RPC_REST_API_URL
+      return undefined
   }
 }
 
@@ -83,10 +83,12 @@ export default function useAppSWR(
   }
 ) {
   const [chainIdAtom] = useAtom(chainIdAtomRef)
+  const baseUrl = getBaseUrl({ chainId: chainIdAtom, type })
+
   // doesn't use suspense as true currently to handle error with Toast, not ErrorBoundary
   // see https://swr.vercel.app/docs/suspense
   // see discussion https://github.com/vercel/swr/discussions/959
-  const { data, error } = useSWR(fetch ? `${getBaseUrl({ chainId: chainIdAtom, type })}${url}` : null, fetcher, {
+  const { data, error } = useSWR(baseUrl && fetch ? `${baseUrl}${url}` : null, fetcher, {
     refreshInterval: interval,
     // suspense: true,
   })

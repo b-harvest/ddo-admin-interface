@@ -41,6 +41,7 @@ export default function TableList<T>({
   nowrap = false,
   filterOptions,
   defaultFilterIndex,
+  memo,
   onRowClick,
 }: TableListProps<T>) {
   // fields
@@ -102,27 +103,25 @@ export default function TableList<T>({
   return (
     <div>
       {/* list header */}
-      {showTitle ? (
-        <header className="flex flex-col justify-start align-stretch space-y-6 mb-4">
-          <h3 className="flex justify-start items-center TYPO-H3 text-black dark:text-white text-left">{title}</h3>
-          <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-2">
-            {filterOptions ? (
-              <FilterRadioGroup
-                options={filterOptions}
-                defaultIndex={defaultFilterIndex ?? 0}
-                onSelect={setFilterOption}
-              />
-            ) : (
-              <div></div>
-            )}
-            {useSearch ? (
-              <div>
-                <SearchInput keyword={searchKeyword} onChange={setSearchKeyword} />{' '}
-              </div>
-            ) : null}
-          </div>
-        </header>
-      ) : null}
+
+      <header className="flex flex-col justify-start align-stretch space-y-6 text-black dark:text-white text-left mb-4">
+        {showTitle && <h3 className="flex justify-start items-center TYPO-H3">{title}</h3>}
+        <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-end md:space-y-0 md:space-x-2">
+          {memo}
+          {filterOptions && (
+            <FilterRadioGroup
+              options={filterOptions}
+              defaultIndex={defaultFilterIndex ?? 0}
+              onSelect={setFilterOption}
+            />
+          )}
+          {useSearch && (
+            <div>
+              <SearchInput keyword={searchKeyword} onChange={setSearchKeyword} />{' '}
+            </div>
+          )}
+        </div>
+      </header>
 
       <div>
         {/* list fields */}

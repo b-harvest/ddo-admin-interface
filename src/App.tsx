@@ -10,6 +10,7 @@ import TextBand from 'components/TextBand'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
+import Account from 'pages/Account'
 import Accounts from 'pages/Accounts'
 import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
@@ -117,6 +118,7 @@ function App() {
             <AuthRoute path="/finance" component={Finance} />
             <AuthRoute path="/chain" component={Chain} />
             <AuthRoute path="/accounts" component={Accounts} />
+            <AuthRoute path="/account" component={Account} />
             <AuthRoute path="/validators" component={Validators} />
             <AuthRoute path="/dex" component={DEX} />
 

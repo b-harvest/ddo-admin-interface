@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { useAirdropClaim, useFarmStaked } from 'data/useAPI'
 import { useBalance } from 'data/useAPI'
-import { useAirdropClaimLCD, useAllFarmRewardsLCD, useFarmStakedLCD, useFarmPositionLCD } from 'data/useLCD'
+import { useAirdropClaimLCD, useAllFarmRewardsLCD, useFarmPositionLCD, useFarmStakedLCD } from 'data/useLCD'
 import { useBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useCallback, useMemo } from 'react'

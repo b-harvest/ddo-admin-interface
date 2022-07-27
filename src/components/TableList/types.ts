@@ -69,5 +69,6 @@ export interface TableListProps<T extends TableListItem> {
   nowrap?: boolean
   filterOptions?: FilterRadioGroupOption[]
   defaultFilterIndex?: number
+  memo?: string | JSX.Element
   onRowClick?: (item: T) => void
 }

@@ -1,8 +1,10 @@
 import useAppSWR, { returnGenerator } from 'data/useAppSWR'
 import useInfoSWR from 'data/useInfoSWR'
 import type { AirdropClaimRaw, BalanceRaw, StakedRaw } from 'types/account'
+import type { AccountRankRaw, TVLUSDByDateRaw, VolUSDByDateRaw } from 'types/accounts'
 import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLiveRaw } from 'types/asset'
+import type { BlockEventIndicatorsRaw, BlocksEventsRaw, BlocksFlushRaw } from 'types/block'
 import type { ChainInfo, ChainLive } from 'types/chain'
 import type { LiquidStakeRaw } from 'types/liquidStake'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
@@ -72,7 +74,38 @@ export function useAirdropClaim({ address, fetch = true }: { address: string; fe
 }
 
 // info
-export function useAllAccountBalance(interval = 0) {
-  const { data, error }: ResponseViaSWR<LiquidStakeRaw> = useInfoSWR('/a1/rank', { interval })
+export function useAllAccountsRank(interval = 0) {
+  const { data, error }: ResponseViaSWR<AccountRankRaw[]> = useInfoSWR('/a1/rank', { interval })
+  return returnGenerator({ data, error })
+}
+
+export function useDateWideTVLUSD(interval = 0) {
+  const { data, error }: ResponseViaSWR<TVLUSDByDateRaw[]> = useInfoSWR('/a1/tvl', { interval })
+  return returnGenerator({ data, error })
+}
+
+export function useDateWideVolUSD(interval = 0) {
+  const { data, error }: ResponseViaSWR<VolUSDByDateRaw[]> = useInfoSWR('/a1/vol', { interval })
+  return returnGenerator({ data, error })
+}
+
+// metric
+export function useAllBlocksFlush(interval = 0) {
+  const { data, error }: ResponseViaSWR<BlocksFlushRaw[]> = useInfoSWR('/a1/metric/flush_ts_diff_nano', { interval })
+  return returnGenerator({ data, error })
+}
+
+export function useAllBlocksEvents(interval = 0) {
+  const { data, error }: ResponseViaSWR<BlocksEventsRaw[]> = useInfoSWR('/a1/metric/event_row_count', { interval })
+  return returnGenerator({ data, error })
+}
+
+export function useBlockEventIndicators(interval = 0) {
+  const { data, error }: ResponseViaSWR<BlockEventIndicatorsRaw[]> = useInfoSWR(
+    '/a1/metric/event_row_count/indicator',
+    {
+      interval,
+    }
+  )
   return returnGenerator({ data, error })
 }

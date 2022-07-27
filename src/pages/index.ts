@@ -17,7 +17,12 @@ export const pages: Page[] = [
   },
   {
     path: '/accounts',
-    label: 'Account',
+    label: 'Accounts',
+    pageName: 'Top Accounts',
+  },
+  {
+    path: '/account',
+    label: 'Account Sync',
     pageName: 'Account Sync Status',
   },
   {
