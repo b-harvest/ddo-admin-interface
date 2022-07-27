@@ -3,11 +3,11 @@ import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import useAsset from 'hooks/useAsset'
-import useLiquidStake from 'hooks/useLiquidStake'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
+import type { AssetDetail } from 'types/asset'
 
 import TVLChart from './sections/TVLChart'
 import VolumeChart from './sections/VolumeChart'
@@ -47,13 +47,12 @@ export default function Finance() {
   const { allAsset } = useAsset()
   const { allPair, findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
   const { allPools, findPoolByDenom } = usePool()
-  const { liquidStakeAPR } = useLiquidStake()
 
   // All Tokens
-  const tokenTableList = useMemo(() => {
+  const tokenTableList = useMemo<AssetDetail[]>(() => {
     return allAsset
       .filter((item) => (item.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
-      .map((item, index) => {
+      .map((item) => {
         const asset = AssetTableLogoCell({ assets: getAssetTickers(item) })
         const vol24USD = getVol24USDbyDenom(item.denom)
         const tvlUSD = getTVLUSDbyDenom(item.denom)
@@ -62,15 +61,11 @@ export default function Finance() {
         const filter = [item.denom.includes('pool') ? TOKEN_TABLE_FILTERS[1].value : TOKEN_TABLE_FILTERS[0].value]
 
         return {
-          index,
-          denom: item.denom,
-          ticker: item.ticker,
+          ...item,
           asset,
-          chainName: item.chainName,
           priceOracle,
           vol24USD,
           tvlUSD,
-          exponent: item.exponent,
           filter,
         }
       })
@@ -79,11 +74,9 @@ export default function Finance() {
   // All pairs
   const pairTableList = useMemo(() => {
     return allPair.map((pair) => {
-      const asset = pair.poolAsset ? AssetTableLogoCell({ assets: pair.assetTickers }) : undefined
+      const asset = AssetTableLogoCell({ assets: pair.assetTickers })
       const baseTicker = pair.assetTickers[0].ticker
       const quoteTicker = pair.assetTickers[1].ticker
-      const poolIds = pair.pools.map((pool) => `#${pool.poolId}`)
-      const poolIdsLabel = poolIds.length > 1 ? `${poolIds[0]} and ${poolIds.length - 1} more` : poolIds[0] ?? ''
       const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
       const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
 
@@ -91,8 +84,6 @@ export default function Finance() {
         ...pair,
         asset,
         baseTicker,
-        poolIds,
-        poolIdsLabel,
         filter: [filter1, filter2],
       }
     })
@@ -105,18 +96,22 @@ export default function Finance() {
       const quoteTicker = pool.pair?.assetTickers[1].ticker ?? ''
       const asset = AssetTableLogoCell({ assets: pool.pair?.assetTickers ?? [] })
       const apr = pool.apr.toNumber()
-      const addiApr = pool.bcreUSDRatio.isZero()
-        ? null
-        : pool.isRanged
-        ? pool.bcreUSDRatio.multipliedBy(liquidStakeAPR).multipliedBy(2).decimalPlaces(2).toNumber()
-        : liquidStakeAPR
+      const bcreApr = pool.bcreApr.isZero() ? null : pool.bcreApr.toNumber()
       const poolTypeTag = pool.isRanged ? <Tag status="strong">Ranged</Tag> : null
       const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
       const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
 
-      return { ...pool, baseTicker, asset, apr, addiApr, poolTypeTag, filter: [filter1, filter2] }
+      return {
+        ...pool,
+        baseTicker,
+        asset,
+        apr,
+        bcreApr,
+        poolTypeTag,
+        filter: [filter1, filter2],
+      }
     })
-  }, [allPools, liquidStakeAPR])
+  }, [allPools])
 
   return (
     <AppPage>
@@ -283,7 +278,7 @@ export default function Finance() {
             },
             {
               label: '+bCRE',
-              value: 'addiApr',
+              value: 'bcreApr',
               type: 'change',
               strong: true,
               align: 'left',

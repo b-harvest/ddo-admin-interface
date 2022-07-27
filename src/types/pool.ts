@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import type { PairDetail } from 'types/pair'
 
 interface RewardPerTokenRaw {
   end: number
@@ -6,6 +7,12 @@ interface RewardPerTokenRaw {
   planId: number
   rewardDenom: string
   rewardAmount: number
+}
+
+interface ReservedTokenRaw {
+  denom: string
+  amount: string
+  priceOracle: number
 }
 
 export interface PoolLiveRaw {
@@ -22,11 +29,16 @@ export interface PoolLiveRaw {
   minPrice: number
   maxPrice: number
   poolPrice: string
-  Reserved: { denom: string; amount: string; priceOracle: number }[]
+  Reserved: ReservedTokenRaw[]
 }
 
 export type RewardPerToken = Omit<RewardPerTokenRaw, 'rewardAmount'> & {
   rewardAmount: BigNumber
+}
+
+export type ReservedToken = Pick<ReservedTokenRaw, 'denom'> & {
+  amount: BigNumber
+  priceOracle: BigNumber
 }
 
 export type PoolLive = Pick<PoolLiveRaw, 'poolId' | 'poolDenom' | 'pairId' | 'poolType' | 'minPrice' | 'maxPrice'> & {
@@ -37,5 +49,15 @@ export type PoolLive = Pick<PoolLiveRaw, 'poolId' | 'poolDenom' | 'pairId' | 'po
   apr: BigNumber
   RewardsPerToken: RewardPerToken[] | null
   poolPrice: BigNumber
-  reserved: { denom: string; amount: BigNumber; priceOracle: BigNumber }[]
+  reserved: ReservedToken[]
+}
+
+export interface PoolDetail extends PoolLive {
+  pair: PairDetail
+  xRatio: BigNumber
+  yRatio: BigNumber
+  tvlUSD: BigNumber
+  isRanged: boolean
+  bcreUSDRatio: BigNumber
+  bcreApr: BigNumber
 }

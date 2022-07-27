@@ -4,7 +4,7 @@ import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allPairInfoAtomRef, allPairLiveAtomRef } from 'state/atoms'
 import type { Asset } from 'types/asset'
-import type { PairInfo, PairLive, PoolInPair } from 'types/pair'
+import type { PairDetail, PairInfo, PairLive, PoolInPair } from 'types/pair'
 
 const usePair = () => {
   const [allPairInfoAtom] = useAtom(allPairInfoAtomRef)
@@ -50,7 +50,7 @@ const usePair = () => {
     }) as PairInfo[]
   }, [allPairInfoAtom, findAssetByDenom])
 
-  const allPair = useMemo(() => {
+  const allPair = useMemo<PairDetail[]>(() => {
     return allPairLive
       .filter((pair) => allPairInfo.find((info) => info.pairId === pair.pairId))
       .map((pair) => {
@@ -71,6 +71,7 @@ const usePair = () => {
         return {
           ...pair,
           baseAsset,
+          quoteAsset,
           tvlUSD,
           vol24USD,
           pools,
@@ -78,7 +79,7 @@ const usePair = () => {
             { logoUrl: baseAsset?.logoUrl ?? '', ticker: baseAsset?.ticker ?? '' },
             { logoUrl: quoteAsset?.logoUrl ?? '', ticker: quoteAsset?.ticker ?? '' },
           ],
-          poolAsset: pools[0] ? findAssetByDenom(pools[0].poolDenom) : undefined,
+          // poolAsset: pools[0] ? findAssetByDenom(pools[0].poolDenom) : undefined,
         }
       })
   }, [allPairLive, allPairInfo, findAssetByDenom])

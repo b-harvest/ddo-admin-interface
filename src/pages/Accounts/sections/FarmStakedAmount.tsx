@@ -24,7 +24,7 @@ export default function FarmStakedAmount({
   const { getAssetTickers } = usePair()
   const { findPoolByDenom } = usePool()
 
-  const { allStakedDataTimestamp, allStaked, allStakedLCD, farmPositionLCD } = useAccountData({
+  const { allStakedDataTimestamp, allStaked, farmPositionLCD } = useAccountData({
     address: address ?? '',
     interval,
   })

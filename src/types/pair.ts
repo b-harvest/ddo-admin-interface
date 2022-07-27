@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import type { Asset, AssetTicker } from 'types/asset'
 
 // info
 interface PoolInPairRaw {
@@ -48,4 +49,13 @@ export type PairLive = Omit<PairLiveRaw, 'lastPrice' | 'predPrice' | 'vol_24' | 
   predPrice: BigNumber
   vol_24: BigNumber
   totalReserved: { denom: string; priceOracle: BigNumber; amount: BigNumber }[]
+}
+
+export interface PairDetail extends PairLive {
+  baseAsset: Asset | undefined
+  quoteAsset: Asset | undefined
+  tvlUSD: BigNumber
+  vol24USD: BigNumber
+  pools: PoolInPair[]
+  assetTickers: AssetTicker[]
 }

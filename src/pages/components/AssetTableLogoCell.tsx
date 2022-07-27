@@ -1,5 +1,7 @@
+import type { AssetTicker } from 'types/asset'
+
 interface AssetTableLogoCellProps {
-  assets: { logoUrl: string; ticker: string }[]
+  assets: AssetTicker[]
   poolDenom?: string
   isSingleAssetAutoSpaced?: boolean
   hideTicker?: boolean

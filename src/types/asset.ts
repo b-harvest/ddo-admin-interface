@@ -29,3 +29,15 @@ export type Asset = AssetInfo & {
   live?: Omit<AssetLive, 'denom'>
   isPoolToken: boolean
 }
+
+// util type
+export type AssetTicker = {
+  logoUrl: string
+  ticker: string
+}
+
+export interface AssetDetail extends Asset {
+  vol24USD: BigNumber
+  tvlUSD: BigNumber
+  priceOracle: BigNumber
+}
