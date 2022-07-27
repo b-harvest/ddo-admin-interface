@@ -48,9 +48,9 @@ export interface TableListItem {
   [key: string]: any
 }
 
-export interface TableListProps {
+export interface TableListProps<T extends TableListItem> {
   title?: string
-  list: TableListItem[]
+  list: T[]
   fields: ListField[]
   useSearch?: boolean
   mergedFields?: string[][]
@@ -69,4 +69,5 @@ export interface TableListProps {
   nowrap?: boolean
   filterOptions?: FilterRadioGroupOption[]
   defaultFilterIndex?: number
+  onRowClick?: (item: T) => void
 }

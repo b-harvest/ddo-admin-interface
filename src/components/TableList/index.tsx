@@ -20,7 +20,7 @@ import { formatUSDAmount } from 'utils/amount'
 const IS_SORT_ASC_DEFAULT = false
 const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`
 
-export default function TableList({
+export default function TableList<T>({
   title,
   list,
   fields,
@@ -41,7 +41,8 @@ export default function TableList({
   nowrap = false,
   filterOptions,
   defaultFilterIndex,
-}: TableListProps) {
+  onRowClick,
+}: TableListProps<T>) {
   // fields
   const allMergedList = mergedFields.reduce((accm, list) => accm.concat(list), [])
   const nonMerged: ListField[] = useMemo(
@@ -197,7 +198,7 @@ export default function TableList({
             >
               {matchedList.map((item, i) => {
                 return (
-                  <ListItem
+                  <ListItem<T>
                     key={i}
                     data={item}
                     merged={merged}
@@ -205,6 +206,7 @@ export default function TableList({
                     useNarrow={useNarrow}
                     colWidthRatio={colWidthRatio}
                     nowrap={nowrap}
+                    onClick={onRowClick}
                   />
                 )
               })}
@@ -242,7 +244,7 @@ export default function TableList({
 }
 
 //   ListItem
-function ListItem({
+function ListItem<T extends TableListItem>({
   data,
   // fields,
   merged,
@@ -250,14 +252,16 @@ function ListItem({
   useNarrow,
   colWidthRatio,
   nowrap,
+  onClick,
 }: {
-  data: TableListItem
+  data: T
   // fields: ListField[]
   merged: ListField[][]
   nonMerged: ListField[]
   useNarrow?: boolean
   colWidthRatio: number
   nowrap: boolean
+  onClick?: (item: T) => void
 }) {
   return (
     <li className="relative block w-full">
@@ -268,7 +272,12 @@ function ListItem({
           nowrap
             ? 'flex-row items-center space-x-2'
             : 'flex-col md:flex-row items-strecth md:items-center space-y-1 md:space-y-0 space-x-0 md:space-x-2'
-        } flex  justify-between w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md`}
+        } flex  justify-between w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md ${
+          onClick ? 'cursor-pointer' : ''
+        }`}
+        onClick={() => {
+          if (onClick) onClick(data)
+        }}
       >
         {nonMerged.map((field, i) => {
           return (

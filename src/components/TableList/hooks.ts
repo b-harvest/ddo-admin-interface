@@ -1,15 +1,21 @@
 import { FilterRadioGroupOption } from 'components/FilterRadioGroup'
-import type { TableListProps } from 'components/TableList/types'
+import type { TableListItem, TableListProps } from 'components/TableList/types'
 import { useMemo } from 'react'
 
-type MatchedListParams = Pick<TableListProps, 'list'> & {
+type MatchedListParams<T> = Pick<TableListProps<T>, 'list'> & {
   searchKeyword: string
   sortBy?: string
   isSortASC: boolean
   filterOption: FilterRadioGroupOption
 }
 
-export const useMatchedTableList = ({ list, searchKeyword, sortBy, isSortASC, filterOption }: MatchedListParams) => {
+export function useMatchedTableList<T extends TableListItem>({
+  list,
+  searchKeyword,
+  sortBy,
+  isSortASC,
+  filterOption,
+}: MatchedListParams<T>) {
   return useMemo(() => {
     // filtering
     const filteredList =

@@ -71,6 +71,11 @@ export default function Finance() {
       })
   }, [findPoolFromPairsByDenom, allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, findPoolByDenom, getAssetTickers])
 
+  const handleTokenListRowClick = (row: AssetDetail) => {
+    console.log('row', row)
+    // route
+  }
+
   // All pairs
   const pairTableList = useMemo(() => {
     return allPair.map((pair) => {
@@ -131,6 +136,7 @@ export default function Finance() {
           filterOptions={TOKEN_TABLE_FILTERS}
           defaultFilterIndex={1}
           nowrap={true}
+          onRowClick={handleTokenListRowClick}
           fields={[
             {
               label: 'Token',
