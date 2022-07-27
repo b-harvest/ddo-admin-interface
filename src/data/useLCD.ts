@@ -14,7 +14,7 @@ import type { BlockLCD } from 'types/block'
 import type { ValidatorSetsLCDRaw } from 'types/validator'
 import { COSMOS_CHAIN_NAME } from 'utils/chainRegistry'
 
-export function useAllBalanceLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+export function useBalanceLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
   const { data, error }: LCDResponseViaSWR<BalanceLCDRaw> = useAppSWR(`/cosmos/bank/v1beta1/balances/${address}`, {
     interval,
     type: 'rpc-rest',
@@ -35,7 +35,7 @@ export function useAllFarmRewardsLCD({ address, fetch = true }: { address: strin
   return lcdReturnGenerator({ data, error })
 }
 
-export function useAllStakedLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+export function useFarmStakedLCD({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
   const { data, error }: LCDResponseViaSWR<StakedLCDMainnetRaw | StakedLCDRaw> = useAppSWR(
     `/crescent/farming/v1beta1/stakings/${address}`,
     {

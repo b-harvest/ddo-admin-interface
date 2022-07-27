@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
-import { useAirdropClaim, useAllStaked } from 'data/useAPI'
-import { useAllBalance } from 'data/useAPI'
-import { useAirdropClaimLCD, useAllFarmRewardsLCD, useAllStakedLCD, useFarmPositionLCD } from 'data/useLCD'
-import { useAllBalanceLCD } from 'data/useLCD'
+import { useAirdropClaim, useFarmStaked } from 'data/useAPI'
+import { useBalance } from 'data/useAPI'
+import { useAirdropClaimLCD, useAllFarmRewardsLCD, useFarmStakedLCD, useFarmPositionLCD } from 'data/useLCD'
+import { useBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useCallback, useMemo } from 'react'
 import type {
@@ -52,14 +52,14 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   )
 
   // * balance
-  const { data: allBalanceData }: APIHookReturn<BalanceRaw> = useAllBalance(
+  const { data: allBalanceData }: APIHookReturn<BalanceRaw> = useBalance(
     {
       address: address ?? '',
       fetch: address !== undefined,
     },
     interval
   )
-  const { data: allBalanceLCDData }: LCDHookReturn<BalanceLCDRaw> = useAllBalanceLCD(
+  const { data: allBalanceLCDData }: LCDHookReturn<BalanceLCDRaw> = useBalanceLCD(
     {
       address: address ?? '',
       fetch: address !== undefined,
@@ -87,12 +87,12 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   )
 
   // * staked amount
-  const { data: allStakedData }: APIHookReturn<StakedRaw[]> = useAllStaked({
+  const { data: allStakedData }: APIHookReturn<StakedRaw[]> = useFarmStaked({
     address,
     fetch: address !== '',
   })
 
-  const { data: allStakedLCDData }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useAllStakedLCD({
+  const { data: allStakedLCDData }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD({
     address,
     fetch: address !== '',
   })

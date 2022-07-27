@@ -1,4 +1,5 @@
 import useAppSWR, { returnGenerator } from 'data/useAppSWR'
+import useInfoSWR from 'data/useInfoSWR'
 import type { AirdropClaimRaw, BalanceRaw, StakedRaw } from 'types/account'
 import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLiveRaw } from 'types/asset'
@@ -7,7 +8,7 @@ import type { LiquidStakeRaw } from 'types/liquidStake'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
-// hooks - backend
+// hooks
 export function useAllChainInfo(interval = 0) {
   const { data, error }: ResponseViaSWR<ChainInfo[]> = useAppSWR('/chain/info', { interval })
   return returnGenerator({ data, error })
@@ -49,12 +50,12 @@ export function useAllStakeLive(interval = 0) {
 }
 
 // account data
-export function useAllBalance({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+export function useBalance({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
   const { data, error }: ResponseViaSWR<BalanceRaw> = useAppSWR(`/acc/${address}/balance/all`, { interval, fetch })
   return returnGenerator({ data, error })
 }
 
-export function useAllStaked({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+export function useFarmStaked({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
   const { data, error }: ResponseViaSWR<StakedRaw[]> = useAppSWR(`/acc/${address}/farm/staking`, {
     interval,
     fetch,
@@ -67,5 +68,11 @@ export function useAirdropClaim({ address, fetch = true }: { address: string; fe
     interval,
     fetch,
   })
+  return returnGenerator({ data, error })
+}
+
+// info
+export function useAllAccountBalance(interval = 0) {
+  const { data, error }: ResponseViaSWR<LiquidStakeRaw> = useInfoSWR('/a1/rank', { interval })
   return returnGenerator({ data, error })
 }
