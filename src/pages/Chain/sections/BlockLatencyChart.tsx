@@ -30,7 +30,9 @@ export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlo
     [flushHeightHover, chartData]
   )
   const flushChartHead = useMemo(() => {
-    return new BigNumber(flushHover ?? blockFlushChartList.at(-1)?.value ?? 0).toFormat(0)
+    const flush = flushHover ?? blockFlushChartList.at(-1)?.value
+
+    return flush !== undefined ? new BigNumber(flush).toFormat(0) + ' ns' : '-'
   }, [flushHover, blockFlushChartList])
 
   return (
