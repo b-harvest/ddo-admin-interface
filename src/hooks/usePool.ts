@@ -21,31 +21,32 @@ const usePool = () => {
 
   const allPoolLive = useMemo(() => {
     return allPoolLiveAtom.map((pool) => {
-      const exponent = findAssetByDenom(pool.poolDenom)?.exponent ?? 0
+      const poolTokenExpo = findAssetByDenom(pool.poolDenom)?.exponent ?? 0
+      const exponentDiff = findPairById(pool.pairId)?.exponentDiff ?? 0
 
       return {
         ...pool,
-        totalStakedAmount: new BigNumber(pool.totalStakedAmount).div(10 ** exponent),
-        totalQueuedAmount: new BigNumber(pool.totalQueuedAmount).div(10 ** exponent),
-        totalSupplyAmount: new BigNumber(pool.totalSupplyAmount).div(10 ** exponent),
+        totalStakedAmount: new BigNumber(pool.totalStakedAmount).div(10 ** poolTokenExpo),
+        totalQueuedAmount: new BigNumber(pool.totalQueuedAmount).div(10 ** poolTokenExpo),
+        totalSupplyAmount: new BigNumber(pool.totalSupplyAmount).div(10 ** poolTokenExpo),
         priceOracle: new BigNumber(pool.priceOracle),
         apr: new BigNumber(pool.apr),
         RewardsPerToken: pool.RewardsPerToken?.map((reward) => ({
           ...reward,
           rewardAmount: new BigNumber(reward.rewardAmount), // exponent already adjusted?
         })),
-        poolPrice: new BigNumber(pool.poolPrice),
+        poolPrice: new BigNumber(pool.poolPrice).multipliedBy(10 ** exponentDiff),
         reserved: pool.Reserved.map((item) => {
-          const exp = findAssetByDenom(item.denom)?.exponent ?? 0
+          const expo = findAssetByDenom(item.denom)?.exponent ?? 0
           return {
             denom: item.denom,
-            amount: new BigNumber(item.amount).div(10 ** exp),
+            amount: new BigNumber(item.amount).div(10 ** expo),
             priceOracle: new BigNumber(item.priceOracle),
           }
         }),
       }
     }) as PoolLive[]
-  }, [allPoolLiveAtom, findAssetByDenom])
+  }, [allPoolLiveAtom, findAssetByDenom, findPairById])
 
   const allPools = useMemo<PoolDetail[]>(() => {
     return allPoolLive

@@ -13,12 +13,15 @@ const usePair = () => {
 
   const allPairLive = useMemo(() => {
     return allPairLiveAtom.map((pair) => {
-      const baseDenomExponent = findAssetByDenom(pair.baseDenom)?.exponent ?? 0
+      const baseExpo = findAssetByDenom(pair.baseDenom)?.exponent ?? 0
+      const quoteExpo = findAssetByDenom(pair.quoteDenom)?.exponent ?? 0
+      const diffExpo = baseExpo - quoteExpo
+
       return {
         ...pair,
-        lastPrice: new BigNumber(pair.lastPrice),
-        predPrice: new BigNumber(pair.predPrice),
-        vol_24: new BigNumber(pair.vol_24).dividedBy(10 ** baseDenomExponent),
+        lastPrice: new BigNumber(pair.lastPrice).multipliedBy(10 ** diffExpo),
+        predPrice: new BigNumber(pair.predPrice).multipliedBy(10 ** diffExpo),
+        vol_24: new BigNumber(pair.vol_24),
         totalReserved: pair.totalReserved.map((item) => {
           const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
           return {
@@ -33,9 +36,13 @@ const usePair = () => {
 
   const allPairInfo = useMemo(() => {
     return allPairInfoAtom.map((pair) => {
+      const baseExpo = findAssetByDenom(pair.baseDenom)?.exponent ?? 0
+      const quoteExpo = findAssetByDenom(pair.quoteDenom)?.exponent ?? 0
+      const diffExpo = baseExpo - quoteExpo
+
       return {
         ...pair,
-        lastPrice: new BigNumber(pair.lastPrice),
+        lastPrice: new BigNumber(pair.lastPrice).multipliedBy(10 ** diffExpo),
         pools: pair.pools.map((item) => {
           return {
             ...item,
@@ -57,6 +64,7 @@ const usePair = () => {
         const pairInfo = allPairInfo.find((info) => info.pairId === pair.pairId)
         const baseAsset = findAssetByDenom(pair.baseDenom)
         const quoteAsset = findAssetByDenom(pair.quoteDenom)
+        const exponentDiff = (baseAsset?.exponent ?? 0) - (quoteAsset?.exponent ?? 0)
 
         const tvlUSD = pair.totalReserved.reduce((accm, item) => {
           const valueUSD = item.amount.multipliedBy(item.priceOracle)
@@ -72,6 +80,7 @@ const usePair = () => {
           ...pair,
           baseAsset,
           quoteAsset,
+          exponentDiff,
           tvlUSD,
           vol24USD,
           pools,
@@ -118,16 +127,16 @@ const usePair = () => {
 
   const getVol24USDbyDenom = useCallback(
     (denom: string) => {
-      return allPairLive
+      return allPair
         .filter((pair) => pair.baseDenom === denom || pair.quoteDenom === denom)
         .reduce((accm, pair) => {
-          const vol24 = pair.vol_24 // vol_24 in baseDenom
-          const baseAsset = pair.totalReserved.find((item) => item.denom === pair.baseDenom)
-          const vol24USD = vol24.multipliedBy(baseAsset?.priceOracle ?? 0)
-          return accm.plus(vol24USD)
+          // const vol24 = pair.vol_24 // vol_24 in baseDenom
+          // const baseAsset = pair.totalReserved.find((item) => item.denom === pair.baseDenom)
+          // const vol24USD = vol24.multipliedBy(baseAsset?.priceOracle ?? 0)
+          return accm.plus(pair.vol24USD)
         }, new BigNumber(0))
     },
-    [allPairLive]
+    [allPair]
   )
 
   const allPoolsInPairs = useMemo(() => {

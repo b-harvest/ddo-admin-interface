@@ -54,6 +54,7 @@ export type PairLive = Omit<PairLiveRaw, 'lastPrice' | 'predPrice' | 'vol_24' | 
 export interface PairDetail extends PairLive {
   baseAsset: Asset | undefined
   quoteAsset: Asset | undefined
+  exponentDiff: number
   tvlUSD: BigNumber
   vol24USD: BigNumber
   pools: PoolInPair[]
