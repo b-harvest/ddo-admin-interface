@@ -3,6 +3,7 @@ import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import useAsset from 'hooks/useAsset'
+import useChartData from 'hooks/useChartData'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
@@ -50,6 +51,9 @@ export default function Finance() {
   const { allAsset } = useAsset()
   const { allPair, findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
   const { allPools, findPoolByDenom } = usePool()
+
+  // Charts
+  const { tvlUSDChartData, volUSDChartData } = useChartData()
 
   // All Tokens
   const tokenTableList = useMemo<AssetDetail[]>(() => {
@@ -121,8 +125,8 @@ export default function Finance() {
   return (
     <AppPage>
       <section className="flex flex-col justify-between items-stretch space-y-4 md:flex-row md:space-x-4 md:space-y-0 mb-20">
-        <TVLChart />
-        <VolumeChart />
+        <TVLChart chartData={tvlUSDChartData} />
+        <VolumeChart chartData={volUSDChartData} />
       </section>
 
       <section className="mb-20">

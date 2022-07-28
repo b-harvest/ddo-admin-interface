@@ -2,11 +2,11 @@ import BigNumber from 'bignumber.js'
 import AmountOfDate from 'components/AmountOfDate'
 import { TimeTick } from 'components/BarChart'
 import BarChart from 'components/BarChart'
-import dummyChartData from 'components/LineChart/dummy/data.json'
 import SelectTab from 'components/SelectTab'
 import { GLOW_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
+import type { VolUSDByDate } from 'types/accounts'
 import type { GenericChartEntry } from 'types/chart'
 
 const VOLUME_CHART_WINDOW_TAB_ITEMS = [
@@ -24,41 +24,34 @@ const VOLUME_CHART_WINDOW_TAB_ITEMS = [
   },
 ]
 
-export default function VolumeChart() {
+export default function VolumeChart({ chartData }: { chartData: VolUSDByDate[] }) {
   // chart time tick selected
   const [chartTimeTick, setChartTimeTick] = useState<TimeTick>(TimeTick.Daily)
   const handleChartTimeTickSelect = (value: TimeTick | undefined) => setChartTimeTick(value ?? TimeTick.Daily)
 
-  // chart data
-  const chartData: GenericChartEntry[] = useMemo(() => {
-    type DexDailyData = { id: string; date: number; tvlUSD: string; volumeUSD: string }
-    const {
-      data: { uniswapDayDatas },
-    } = dummyChartData as { data: { uniswapDayDatas: DexDailyData[] } }
-
-    if (!uniswapDayDatas) return []
-
-    return uniswapDayDatas.map((data) => {
+  // chartData
+  const volUSDChartList = useMemo<GenericChartEntry[]>(() => {
+    return chartData.map((item) => {
       return {
-        time: data.date * 1000,
-        value: Number(new BigNumber(data.tvlUSD).toFixed(0)),
+        time: item.date,
+        value: item.vol,
       }
     })
-  }, [])
+  }, [chartData])
 
   // volume total
   const [volumeHover, setVolumeHover] = useState<number | undefined>()
   const [volumeTimeLabelHover, setVolumeTimeLabelHover] = useState<string | undefined>()
 
   const volumeChartHeadAmt = useMemo(() => {
-    return volumeHover ? new BigNumber(volumeHover) : new BigNumber(chartData.at(-1)?.value ?? 0)
-  }, [volumeHover, chartData])
+    return volumeHover ? new BigNumber(volumeHover) : new BigNumber(volUSDChartList.at(-1)?.value ?? 0)
+  }, [volumeHover, volUSDChartList])
 
   return (
     <BarChart
       height={220}
       minHeight={360}
-      data={chartData}
+      data={volUSDChartList}
       color={GLOW_CRE}
       setValue={setVolumeHover}
       setLabel={setVolumeTimeLabelHover}

@@ -34,6 +34,17 @@ export interface TVLUSDByDateRaw {
   detail: TVLUSDByPoolRaw[]
 }
 
+export type TVLUSDByPool = {
+  tvl: number
+  pool: number
+}
+
+export type TVLUSDByDate = {
+  date: number
+  tvl: number
+  detail: TVLUSDByPool[]
+}
+
 // vol usd
 interface VolUSDByPairRaw {
   pair: number
@@ -44,4 +55,15 @@ export interface VolUSDByDateRaw {
   date: string
   vol: number
   detail: VolUSDByPairRaw[]
+}
+
+export type VolUSDByPair = {
+  pair: number
+  usd_vol: number
+}
+
+export type VolUSDByDate = {
+  date: number
+  vol: number
+  detail: VolUSDByPair[]
 }

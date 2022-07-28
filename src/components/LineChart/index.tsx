@@ -104,7 +104,7 @@ export default function LineChart({
               dataKey="time"
               axisLine={false}
               tickLine={false}
-              tickFormatter={(time: GenericChartEntry['time']) => dayjs(time).format('MM')}
+              tickFormatter={(time: GenericChartEntry['time']) => dayjs(time).format('DD')}
               minTickGap={10}
             />
             <Tooltip cursor={{ stroke: LIGHT_CRE }} contentStyle={{ display: 'none' }} />

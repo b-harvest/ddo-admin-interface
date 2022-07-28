@@ -38,7 +38,7 @@ export default function TopFarmStaking({
               value: 'addr',
             },
             {
-              label: 'Last act block',
+              label: 'Last change block',
               value: 'lastAct',
               align: 'right',
               responsive: true,
