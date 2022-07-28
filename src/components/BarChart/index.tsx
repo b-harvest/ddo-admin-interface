@@ -1,5 +1,5 @@
 import Card from 'components/Card'
-import { LIGHT_CRE } from 'constants/style'
+import { LIGHT_CRE_O } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import weekOfYear from 'dayjs/plugin/weekOfYear'
@@ -159,7 +159,7 @@ export default function BarChart({
               }
               minTickGap={10}
             />
-            <Tooltip cursor={{ fill: LIGHT_CRE }} contentStyle={{ display: 'none' }} />
+            <Tooltip cursor={{ fill: LIGHT_CRE_O }} contentStyle={{ display: 'none' }} />
             <Bar
               dataKey="value"
               fill={color}
