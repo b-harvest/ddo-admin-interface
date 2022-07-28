@@ -1,12 +1,11 @@
 import AppPage from 'components/AppPage'
 import Hr from 'components/Hr'
+import { TIMESTAMP_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useAccounts from 'hooks/useAccounts'
 import { useMemo } from 'react'
 
 import Ranks from './components/Ranks'
-
-const TIMESTAMP_FORMAT = 'YYYY MMM DD, HH:mm:ss'
 
 export default function Accounts() {
   const { farmRanks, farmRanksTimestamp, balanceRanks, balanceRanksTimestamp, totalRanks, totalRanksTimestamp } =

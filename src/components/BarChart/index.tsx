@@ -102,8 +102,10 @@ export default function BarChart({
           } else if (chartTimeTick === TimeTick.Monthly) {
             const isCurrent = formattedTimePlusMonth.isAfter(now)
             setLabel(formattedTime + '-' + (isCurrent ? 'current' : formattedTimePlusMonth.format('MMM D, YYYY')))
-          } else {
+          } else if (chartTimeTick) {
             setLabel(formattedTimeDaily)
+          } else {
+            setLabel(props.activeLabel)
           }
         }
       }
@@ -137,7 +139,7 @@ export default function BarChart({
           <Chart
             width={400}
             height={220}
-            data={chartData}
+            data={chartTimeTick !== undefined ? chartData : data}
             margin={{
               top: 5,
               right: 30,
@@ -152,7 +154,9 @@ export default function BarChart({
               dataKey="time"
               axisLine={false}
               tickLine={false}
-              tickFormatter={(time) => dayjs(time).format(chartTimeTick === TimeTick.Monthly ? 'MMM' : 'DD')}
+              tickFormatter={(time) =>
+                chartTimeTick !== undefined ? dayjs(time).format(chartTimeTick === TimeTick.Monthly ? 'MMM' : 'DD') : ''
+              }
               minTickGap={10}
             />
             <Tooltip cursor={{ fill: LIGHT_CRE }} contentStyle={{ display: 'none' }} />

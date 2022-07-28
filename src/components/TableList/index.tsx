@@ -364,7 +364,7 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
     const changeValue = value === 0 ? '0' : Math.abs(value).toFixed(2)
     const direction = value > 0 ? '+' : value < 0 ? '-' : null
     const CSSByDirection = field.strong
-      ? 'text-[#dd92cb]'
+      ? 'text-pinkCRE'
       : field.neutral
       ? ''
       : direction === '+'

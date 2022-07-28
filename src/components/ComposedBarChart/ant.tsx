@@ -46,6 +46,7 @@ export default function ComposedBarChart({
   const config = useMemo(
     () => ({
       data,
+      animation: false,
       autoFit: true,
       height: height ?? DEFAULT_HEIGHT,
       xField: 'time',
@@ -85,9 +86,9 @@ export default function ComposedBarChart({
       },
       tooltip: {
         title: '',
-        container: '',
+        container: '<div></div>',
         // formatter: (item) => {
-        //   return { title: new BigNumber(item.time).toFormat(0), name: item.type, value: item.value }
+        //   return ''
         // },
       },
       lineOpacity: 0,
@@ -115,6 +116,7 @@ export default function ComposedBarChart({
       style={{
         minWidth: '0',
         minHeight: `${height}px`,
+        // maxHeight: `${height}px`,
       }}
     >
       <div className="shrink-0 grow-0 flex justify-between">
@@ -122,7 +124,7 @@ export default function ComposedBarChart({
         {topRight ?? null}
       </div>
 
-      <div className="w-full h-full text-left !FONT-MONO pr-2">
+      <div className="w-full h-full text-left !FONT-MONO pt-10 pl-3 pr-4">
         <Column {...config} />
       </div>
 

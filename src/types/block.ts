@@ -53,11 +53,6 @@ interface BlockDataRaw {
   var_str: string // events' count
 }
 
-export interface BlocksFlushRaw {
-  type: 'flush_ts_diff_nano'
-  rows: BlockDataRaw[]
-}
-
 export interface BlocksEventsRaw {
   type: 'event_row_count'
   rows: BlockDataRaw[]
@@ -66,4 +61,23 @@ export interface BlocksEventsRaw {
 export interface BlockEventIndicatorsRaw {
   type: 'event_row_count'
   indicator: string[]
+}
+
+export type EventsByBlock = {
+  height: number
+  timestamp_nano: number
+  timestamp: number
+  events: { label: string; value: number }[]
+}
+
+export interface BlocksFlushRaw {
+  type: 'flush_ts_diff_nano'
+  rows: BlockDataRaw[]
+}
+
+export type FlushByBlock = {
+  height: number
+  timestamp_nano: number
+  timestamp: number
+  flush: number
 }

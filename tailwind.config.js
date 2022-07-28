@@ -18,6 +18,7 @@ module.exports = {
         'darkCRE-o': 'rgba(30,14,10, 0.4)',
         glowCRE: 'rgb(255, 199, 127)',
         glowDarkCRE: 'rgb(127, 71, 0)',
+        pinkCRE: '#dd92cb',
         // gray palette
         'grayCRE-50': '#f2f4f6',
         'grayCRE-100': '#EEEEEE',

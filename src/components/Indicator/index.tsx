@@ -8,7 +8,7 @@ export default function Indicator({
   light = false,
 }: {
   title?: string
-  label?: string
+  label?: string | JSX.Element
   children: ReactNode
   className?: string
   light?: boolean
@@ -26,7 +26,7 @@ export default function Indicator({
       )}
       <div className="flex flex-col justify-start items-start space-y-2">
         {children}
-        {label && <div className="TYPO-BODY-XS !font-medium">{label}</div>}
+        {label ? <div className="TYPO-BODY-XS !font-medium whitespace-pre">{label}</div> : null}
       </div>
     </div>
   )
