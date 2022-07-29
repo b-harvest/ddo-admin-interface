@@ -105,7 +105,7 @@ export default function ClaimableRewards({
         isAllDataMatched={allMatched}
       />
 
-      <div className="mt-8">
+      <div className="mt-8 space-y-10">
         {rewardsListByToken.length > 0 ? (
           rewardsListByToken.map((listByToken, i) =>
             listByToken.length ? (

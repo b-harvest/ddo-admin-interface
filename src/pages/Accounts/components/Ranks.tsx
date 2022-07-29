@@ -1,5 +1,6 @@
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
+import { useHistory } from 'react-router-dom'
 import type { RankData } from 'types/accounts'
 
 export default function TopFarmStaking({
@@ -13,10 +14,15 @@ export default function TopFarmStaking({
   memo: JSX.Element
   amountLabel?: string
 }) {
+  const history = useHistory()
+  const handleCellClick = (cell, field: string) => {
+    if (field === 'addr') history.push(`/account/${cell}`)
+  }
+
   return (
     <FoldableSection label={title} defaultIsOpen={true}>
       <div className="mt-4">
-        <TableList
+        <TableList<RankData>
           title={title}
           showTitle={false}
           memo={memo}
@@ -26,6 +32,7 @@ export default function TopFarmStaking({
           defaultSortBy="usd"
           defaultIsSortASC={false}
           defaultFilterIndex={1}
+          onCellClick={handleCellClick}
           fields={[
             {
               label: 'Rank',
@@ -36,6 +43,7 @@ export default function TopFarmStaking({
             {
               label: 'Address',
               value: 'addr',
+              clickable: true,
             },
             {
               label: 'Last change block',

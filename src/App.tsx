@@ -15,7 +15,7 @@ import Accounts from 'pages/Accounts'
 import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
 import DEX from 'pages/DEX'
-import Finance from 'pages/Finance'
+import Overview from 'pages/Overview'
 import SignIn from 'pages/SignIn/index'
 import Token from 'pages/Token'
 import Validators from 'pages/Validators'
@@ -115,9 +115,10 @@ function App() {
           <Switch>
             <Route exact path="/auth" component={SignIn} />
 
-            <AuthRoute path="/finance" component={Finance} />
+            <AuthRoute path="/overview" component={Overview} />
             <AuthRoute path="/chain" component={Chain} />
             <AuthRoute path="/accounts" component={Accounts} />
+            <AuthRoute path="/account/:id" component={Account} />
             <AuthRoute path="/account" component={Account} />
             <AuthRoute path="/validators" component={Validators} />
             <AuthRoute path="/dex" component={DEX} />
@@ -125,7 +126,7 @@ function App() {
             <AuthRoute path="/Token/:id" component={Token} />
 
             <Route>
-              <Redirect to="/finance" />
+              <Redirect to="/overview" />
             </Route>
           </Switch>
         </Suspense>

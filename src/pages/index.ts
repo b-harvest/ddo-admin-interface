@@ -6,9 +6,9 @@ interface Page {
 
 export const pages: Page[] = [
   {
-    path: '/finance',
-    label: 'Finance',
-    pageName: 'Finance',
+    path: '/overview',
+    label: 'Overview',
+    pageName: 'Overview',
   },
   {
     path: '/chain',
@@ -22,8 +22,8 @@ export const pages: Page[] = [
   },
   {
     path: '/account',
-    label: 'Account Sync',
-    pageName: 'Account Sync Status',
+    label: 'Account',
+    pageName: 'Account Detail',
   },
   {
     path: '/validators',
@@ -39,6 +39,7 @@ export const pages: Page[] = [
 
 // utils
 export const getPageName = (pathName: string): string => {
+  pathName.split('/')
   const i = pages.findIndex((page) => page.path === pathName)
   return i > -1 ? pages[i].pageName : ''
 }

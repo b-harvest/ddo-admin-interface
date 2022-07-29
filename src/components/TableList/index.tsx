@@ -43,6 +43,7 @@ export default function TableList<T>({
   defaultFilterIndex,
   memo,
   onRowClick,
+  onCellClick,
 }: TableListProps<T>) {
   // fields
   const allMergedList = mergedFields.reduce((accm, list) => accm.concat(list), [])
@@ -206,6 +207,7 @@ export default function TableList<T>({
                     colWidthRatio={colWidthRatio}
                     nowrap={nowrap}
                     onClick={onRowClick}
+                    onCellClick={onCellClick}
                   />
                 )
               })}
@@ -252,6 +254,7 @@ function ListItem<T extends TableListItem>({
   colWidthRatio,
   nowrap,
   onClick,
+  onCellClick,
 }: {
   data: T
   // fields: ListField[]
@@ -261,6 +264,7 @@ function ListItem<T extends TableListItem>({
   colWidthRatio: number
   nowrap: boolean
   onClick?: (item: T) => void
+  onCellClick?: (cell: any, field: string) => void
 }) {
   return (
     <li className="relative block w-full">
@@ -282,6 +286,10 @@ function ListItem<T extends TableListItem>({
           return (
             <li
               key={field.value}
+              onClick={() => {
+                if (onCellClick && field.clickable) onCellClick(data[field.value], field.value)
+              }}
+              className={`${cellClass(field)} flex space-x-2 ${onCellClick && field.clickable ? 'cursor-pointer' : ''}`}
               style={{
                 flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                 flexShrink: field.type === 'imgUrl' ? '0' : '1',
@@ -292,7 +300,6 @@ function ListItem<T extends TableListItem>({
                   : 'flex-start',
                 // color: field.color ?? 'inherit',
               }}
-              className={`${cellClass(field)} flex space-x-2`}
             >
               {ListItemCell({ data, field })}
               {field.tag ? <Tag>{field.tag}</Tag> : null}
@@ -311,7 +318,12 @@ function ListItem<T extends TableListItem>({
               return (
                 <div
                   key={field.value}
-                  className={`${cellClass(field)} flex space-x-2`}
+                  onClick={() => {
+                    if (onCellClick && field.clickable) onCellClick(data[field.value], field.value)
+                  }}
+                  className={`${cellClass(field)} flex space-x-2 ${
+                    onCellClick && field.clickable ? 'cursor-pointer' : ''
+                  }`}
                   style={{
                     flexShrink: field.type === 'imgUrl' ? '0' : '1',
                     justifyContent: field.align

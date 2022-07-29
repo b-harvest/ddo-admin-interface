@@ -15,6 +15,7 @@ export interface ListFieldHTML {
   color?: string
   type?: 'html'
   align?: ListFieldAlign
+  clickable?: boolean
 }
 
 export interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
@@ -71,4 +72,5 @@ export interface TableListProps<T extends TableListItem> {
   defaultFilterIndex?: number
   memo?: string | JSX.Element
   onRowClick?: (item: T) => void
+  onCellClick?: (cell: any, field: string) => void
 }

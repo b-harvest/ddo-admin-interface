@@ -5,9 +5,11 @@ import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { DUMMY_ADDRESS } from 'constants/msg'
+import { MINTSCAN_LOGO_IMG_URL } from 'constants/resources'
 // import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { chainIdAtomRef } from 'state/atoms'
 import { isTestnet } from 'utils/chain'
 
@@ -15,19 +17,24 @@ import AirdropClaim from './sections/AirdropClaim'
 import ClaimableRewards from './sections/ClaimableRewards'
 import FarmStakedAmount from './sections/FarmStakedAmount'
 import TokenBalance from './sections/TokenBalance'
-
 export default function Accounts() {
+  const { id }: { id?: string } = useParams()
+
   // chainId atom
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   const significantTimeGap = useMemo(() => CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom], [chainIdAtom])
 
   // address
-  const [searchAddress, setSearchAddress] = useState(DUMMY_ADDRESS)
+  const [searchAddress, setSearchAddress] = useState(id ?? DUMMY_ADDRESS)
   const [address, setAddress] = useState<undefined | string>(undefined)
 
   const handleAddressSearch = () => {
     if (address !== searchAddress) setAddress(searchAddress)
   }
+
+  useEffect(() => {
+    if (id) handleAddressSearch()
+  })
 
   return (
     <AppPage className="pt-[calc(1.5rem+3.25rem)]">
@@ -54,12 +61,19 @@ export default function Accounts() {
           onChange={setSearchAddress}
           onSearch={handleAddressSearch}
         />
-
-        {/* refactoring wip */}
-        {/* <div className="flex justify-start items-start md:items-center md:space-x-4">
-          <div className="hidden md:block TYPO-BODY-XS text-grayCRE-400">Latest fetched block</div>
-          <BlockHeightPolling onchainBlockHeight={onchainBlockHeight} backendBlockHeight={backendBlockHeight} />
-        </div> */}
+        {address ? (
+          <div className="text-black hover:text-grayCRE-400 dark:text-white dark:hover:text-grayCRE-200 text-left">
+            <a
+              href={`https://www.mintscan.io/crescent/account/${address}`}
+              target="_blank"
+              className="inline-flex flex-row items-center TYPO-BODY-XS underline"
+              rel="noreferrer"
+            >
+              <img src={MINTSCAN_LOGO_IMG_URL} alt="" className="w-3 h-3 mr-1" />
+              <div>Mintscan →</div>
+            </a>
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-col justify-start items-stretch space-y-12">

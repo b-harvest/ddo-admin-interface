@@ -3,3 +3,5 @@ export const CRESCENT_LOGO_IMG_URL =
 
 export const CRESCENT_ASSET_IMG_URL =
   'https://raw.githubusercontent.com/crescent-network/asset/main/images/coin/CRE.png'
+
+export const MINTSCAN_LOGO_IMG_URL = 'https://www.mintscan.io/apple-touch-icon.png'
