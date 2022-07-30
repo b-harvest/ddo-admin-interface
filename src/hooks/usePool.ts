@@ -3,7 +3,7 @@ import useLiquidStake from 'hooks/useLiquidStake'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allPoolLiveAtomRef } from 'state/atoms'
-import type { Asset } from 'types/asset'
+import type { Asset, AssetTicker } from 'types/asset'
 import type { PairDetail } from 'types/pair'
 import type { PoolDetail, PoolLive } from 'types/pool'
 
@@ -97,7 +97,7 @@ const usePool = () => {
 
   const findPoolByDenom = useCallback((denom: string) => allPools.find((pool) => pool.poolDenom === denom), [allPools])
 
-  const getPoolAssets = useCallback(
+  const getPoolAssets = useCallback<(denom: string) => [AssetTicker, AssetTicker] | null>(
     (denom: string) => {
       const pool = findPoolByDenom(denom)
       const base = pool?.pair.baseAsset
@@ -107,7 +107,7 @@ const usePool = () => {
     [findPoolByDenom]
   )
 
-  const getAssetTickers = useCallback(
+  const getAssetTickers = useCallback<(item: Asset) => AssetTicker[]>(
     (item: Asset) => {
       return item.isPoolToken ? getPoolAssets(item.denom) ?? [] : [{ logoUrl: item.logoUrl, ticker: item.ticker }]
     },
