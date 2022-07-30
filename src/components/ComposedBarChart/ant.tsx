@@ -9,8 +9,21 @@ dayjs.extend(utc)
 
 const DEFAULT_HEIGHT = 300
 
-const ACTIVE_EVENTS = ['mouseenter', 'mousemove', 'touchstart', 'touchmove']
-const DEACTIVE_EVENTS = ['mouseout', 'mouseleave', 'touchend', 'touchcancel']
+const ACTIVE_EVENTS = [
+  // 'plot:mouseenter',
+  // 'plot:mousemove',
+  // 'plot:touchstart',
+  // 'plot:touchmove',
+  // 'tooltip:show',
+  'tooltip:change',
+]
+const DEACTIVE_EVENTS = [
+  'mouseout',
+  'mouseleave',
+  'touchend',
+  'touchcancel',
+  // 'tooltip:hide',
+]
 
 export type AntComposedBarChartProps = {
   data: ComposedChartEntry[]
@@ -18,6 +31,7 @@ export type AntComposedBarChartProps = {
   height?: number
   setLabel?: (value: number | undefined) => void
   label?: number
+  setItems?: (items: ComposedChartEntry[] | undefined) => void
   topLeft?: ReactNode | undefined
   topRight?: ReactNode | undefined
   bottomLeft?: ReactNode | undefined
@@ -33,6 +47,7 @@ export default function ComposedBarChart({
   height = DEFAULT_HEIGHT,
   //   setIndex,
   setLabel,
+  setItems,
   //   index,
   label,
   topLeft,
@@ -86,21 +101,23 @@ export default function ComposedBarChart({
       },
       tooltip: {
         title: '',
-        container: '<div></div>',
-        // formatter: (item) => {
-        //   return ''
-        // },
+        container: '',
+        formatter: () => {
+          return { name: '', value: '' }
+        },
       },
       lineOpacity: 0,
       intervalPadding: 0,
       onEvent: (_, event) => {
         if (ACTIVE_EVENTS.includes(event.type)) {
-          const item = event.data?.data
-          if (setLabel && item && label !== item.time) {
-            setLabel(item.time)
-          }
+          const time = event.data?.title ? Number(event.data?.title) : undefined
+          const items = event.data?.items?.map((item) => item.data) ?? undefined
+
+          if (setLabel && time && label !== time) setLabel(time)
+          if (setItems && items) setItems(items)
         } else if (DEACTIVE_EVENTS.includes(event.type)) {
           if (setLabel) setLabel(undefined)
+          if (setItems) setItems(undefined)
         }
       },
     }),

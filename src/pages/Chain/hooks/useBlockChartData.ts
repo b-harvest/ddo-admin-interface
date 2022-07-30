@@ -17,21 +17,20 @@ const useBlockChartData = () => {
 
     if (!eventIndicators.length || !countsData) return [] // length check needed (wip)
 
-    return countsData.rows
-      .map((item) => {
-        const counts = item.var_str.split(',')
-        const events = counts
-          .map((count, index) => ({ value: Number(count), label: eventIndicators[index] ?? '-' }))
-          .filter((item) => item.value && item.value > 0)
+    return countsData.rows.map((item) => {
+      const counts = item.var_str.split(',')
+      const events = counts
+        .map((count, index) => ({ value: Number(count), label: eventIndicators[index] ?? '-' }))
+        .filter((item) => item.value && item.value > 0)
 
-        return {
-          height: item.height,
-          timestamp_nano: item.timestamp_nano,
-          timestamp: item.timestamp_nano / 1000000,
-          events,
-        }
-      })
-      .sort((a, b) => a.height - b.height)
+      return {
+        height: item.height,
+        timestamp_nano: item.timestamp_nano,
+        timestamp: item.timestamp_nano / 1000000,
+        events,
+      }
+    })
+    // .sort((a, b) => a.height - b.height)
   }, [eventIndicators, blockEventCountsData])
 
   // block flush records
@@ -41,16 +40,16 @@ const useBlockChartData = () => {
     const flushData = blocksFlushData?.data.length ? blocksFlushData.data[0] : undefined
 
     return (
-      flushData?.rows
-        .map((item) => {
-          return {
-            height: item.height,
-            timestamp_nano: item.timestamp_nano,
-            timestamp: item.timestamp_nano / 1000000,
-            flush: item.var_int, // ms
-          }
-        })
-        .sort((a, b) => a.height - b.height) ?? []
+      flushData?.rows.map((item) => {
+        return {
+          height: item.height,
+          timestamp_nano: item.timestamp_nano,
+          timestamp: item.timestamp_nano / 1000000,
+          flush: item.var_int, // ms
+        }
+      }) ??
+      // .sort((a, b) => a.height - b.height)
+      []
     )
   }, [blocksFlushData])
 

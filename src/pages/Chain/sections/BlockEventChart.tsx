@@ -38,23 +38,27 @@ export default function BlockEventChart({
 
   // volume total
   const [blockHeightHover, setBlockHeightHover] = useState<number | undefined>()
+  const [eventsHover, setEventsHover] = useState<ComposedChartEntry[] | undefined>()
 
-  const timestamp = useMemo(
-    () => chartData.find((item) => item.height === (blockHeightHover ?? chartData.at(-1)?.height))?.timestamp,
+  const blockHeight = useMemo<number>(
+    () => blockHeightHover ?? chartData.at(-1)?.height ?? 0,
     [blockHeightHover, chartData]
   )
 
-  const allEventsHover = useMemo(() => {
-    return (
-      chartData
-        .find((item) => item.height === (blockHeightHover ?? chartData.at(-1)?.height ?? 0))
-        ?.events.sort((a, b) => b.value - a.value) ?? []
-    )
-  }, [chartData, blockHeightHover])
+  const timestamp = useMemo(
+    () => chartData.find((item) => item.height === blockHeight)?.timestamp,
+    [blockHeight, chartData]
+  )
 
-  const topEventHover = useMemo(() => {
-    return allEventsHover[0] ?? { label: 'No event', value: 0 }
-  }, [allEventsHover])
+  const allEvents = useMemo<{ label: string; value: number }[]>(() => {
+    const events =
+      eventsHover?.map((item) => ({ label: item.type, value: item.value })) ?? chartData.at(-1)?.events ?? []
+    return events.sort((a, b) => b.value - a.value)
+  }, [chartData, eventsHover])
+
+  const topEvent = useMemo(() => {
+    return allEvents[0] ?? { label: 'No event', value: 0 }
+  }, [allEvents])
 
   if (!colorMap) return <></>
   return (
@@ -66,14 +70,15 @@ export default function BlockEventChart({
           data={blockChartList}
           colorMap={colorMap}
           setLabel={setBlockHeightHover}
+          setItems={setEventsHover}
           label={blockHeightHover}
           topLeft={
-            topEventHover && (
+            topEvent && (
               <BlockChartHead
                 title="Block-wide top event"
-                height={(blockHeightHover ?? chartData.at(-1)?.height)?.toString()}
+                height={blockHeight.toString()}
                 timestamp={timestamp}
-                value={<TopEvent event={topEventHover} colorMap={colorMap} />}
+                value={<TopEvent event={topEvent} colorMap={colorMap} />}
               />
             )
           }
@@ -87,7 +92,7 @@ export default function BlockEventChart({
           // style={{ maxHeight: '420px' }}
         >
           <Indicator title="" light={true} className="space-y-4 md:pt-[2rem] overflow-auto">
-            {allEventsHover.map((event, i) => (
+            {allEvents.map((event, i) => (
               <div key={event.label} className="flex items-center space-x-4">
                 {colorMap && <Dot color={colorMap[event.label]} />}
                 <div className="flex items-center space-x-4 TYPO-BODY-XS md:TYPO-BODY-S">
