@@ -6,7 +6,6 @@ import type { ListFieldBignumber } from 'components/TableList/types'
 import Tag from 'components/Tag'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
-import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
@@ -24,8 +23,7 @@ export default function ClaimableRewards({
   interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
-  const { getAssetTickers } = usePair()
-  const { findPoolByDenom } = usePool()
+  const { findPoolByDenom, getAssetTickers } = usePool()
 
   const { allFarmRewardsDataTimestamp, allFarmRewardsByToken, allFarmRewardsByTokenLCD } = useAccountData({
     address: address ?? '',

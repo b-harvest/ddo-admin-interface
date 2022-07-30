@@ -27,7 +27,7 @@ const VOLUME_CHART_WINDOW_TAB_ITEMS = [
 export default function VolumeChart({ chartData }: { chartData: VolUSDByDate[] }) {
   // chart time tick selected
   const [chartTimeTick, setChartTimeTick] = useState<TimeTick>(TimeTick.Daily)
-  const handleChartTimeTickSelect = (value: TimeTick | undefined) => setChartTimeTick(value ?? TimeTick.Daily)
+  const handleChartTimeTickSelect = (value: TimeTick) => setChartTimeTick(value)
 
   // chartData
   const volUSDChartList = useMemo<GenericChartEntry[]>(() => {

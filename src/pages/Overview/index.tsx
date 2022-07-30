@@ -49,8 +49,8 @@ export default function Finance() {
   const history = useHistory()
 
   const { allAsset } = useAsset()
-  const { allPair, findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom, getAssetTickers } = usePair()
-  const { allPools, findPoolByDenom } = usePool()
+  const { allPair, findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom } = usePair()
+  const { allPools, findPoolByDenom, getAssetTickers } = usePool()
 
   // Charts
   const { tvlUSDChartData, volUSDChartData } = useChartData()
@@ -208,16 +208,16 @@ export default function Finance() {
               responsive: true,
             },
             {
+              label: 'Price 24h',
+              value: 'change_24',
+              type: 'change',
+            },
+            {
               label: 'Last price',
               value: 'lastPrice',
               type: 'bignumber',
               toFixedFallback: 6,
               responsive: true,
-            },
-            {
-              label: 'Price 24h',
-              value: 'change_24',
-              type: 'change',
             },
             {
               label: 'Predicted price',
@@ -238,6 +238,13 @@ export default function Finance() {
               value: 'tvlUSD',
               type: 'usd',
               toFixedFallback: 0,
+            },
+            {
+              label: 'Volume/TVL',
+              value: 'volTvlRatio',
+              type: 'change',
+              neutral: true,
+              responsive: true,
             },
           ]}
         />

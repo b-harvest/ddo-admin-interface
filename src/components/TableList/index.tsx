@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import CopyHelper from 'components/CopyHelper'
 import EmptyData from 'components/EmptyData'
 import FilterRadioGroup, { FilterRadioGroupOption, TAB_RADIO_GROUP_DEFAULT_OPTION } from 'components/FilterRadioGroup'
+import H3 from 'components/H3'
 import SearchInput from 'components/Inputs/SearchInput'
 import { useMatchedTableList } from 'components/TableList/hooks'
 import type {
@@ -104,10 +105,9 @@ export default function TableList<T>({
   return (
     <div>
       {/* list header */}
-
-      <header className="flex flex-col justify-start align-stretch space-y-6 text-black dark:text-white text-left mb-4">
-        {showTitle && <h3 className="flex justify-start items-center TYPO-H3">{title}</h3>}
-        <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-end md:space-y-0 md:space-x-2">
+      <header className="flex flex-col justify-start align-stretch space-y-6  mb-4">
+        {showTitle && title && <H3 title={title} />}
+        <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-end md:space-y-0 md:space-x-2 text-black dark:text-white">
           {memo}
           {filterOptions && (
             <FilterRadioGroup
@@ -373,7 +373,9 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
       </CopyHelper>
     )
   } else if (field.type === 'change' && typeof value === 'number') {
-    const changeValue = value === 0 ? '0' : Math.abs(value).toFixed(2)
+    const absValue = Math.abs(value)
+    const changeValue = absValue === 0 ? '0' : absValue < 0.01 ? '<0.01' : absValue.toFixed(2)
+
     const direction = value > 0 ? '+' : value < 0 ? '-' : null
     const CSSByDirection = field.strong
       ? 'text-pinkCRE'
@@ -459,7 +461,7 @@ export function bignumberToFormat({
   leastVal += '1'
 
   return field.type === 'usd'
-    ? formatUSDAmount({ value, mantissa: 0 })
+    ? formatUSDAmount({ value, mantissa: field.toFixedFallback ?? 0 })
     : value.isZero()
     ? '0'
     : value.isLessThan(1 / 10 ** exp)

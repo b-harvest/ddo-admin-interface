@@ -3,7 +3,6 @@ import useAsset from 'hooks/useAsset'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allPairInfoAtomRef, allPairLiveAtomRef } from 'state/atoms'
-import type { Asset } from 'types/asset'
 import type { PairDetail, PairInfo, PairLive, PoolInPair } from 'types/pair'
 
 const usePair = () => {
@@ -73,6 +72,7 @@ const usePair = () => {
 
         const baseDenomPrice = baseAsset?.live?.priceOracle ?? new BigNumber(0)
         const vol24USD = pair.vol_24.multipliedBy(baseDenomPrice)
+        const volTvlRatio = vol24USD.div(tvlUSD).toNumber() * 100
 
         const pools = pairInfo?.pools ?? []
 
@@ -83,6 +83,7 @@ const usePair = () => {
           exponentDiff,
           tvlUSD,
           vol24USD,
+          volTvlRatio,
           pools,
           assetTickers: [
             { logoUrl: baseAsset?.logoUrl ?? '', ticker: baseAsset?.ticker ?? '' },
@@ -155,26 +156,26 @@ const usePair = () => {
     [allPoolsInPairs]
   )
 
-  const getPoolAssets = useCallback(
-    (denom: string) =>
-      findPoolFromPairsByDenom(denom)?.reserved.map((reserve) => {
-        const asset = findAssetByDenom(reserve.denom)
-        return {
-          ...reserve,
-          ...(asset ?? {}),
-        }
-      }) ?? [],
-    [findPoolFromPairsByDenom, findAssetByDenom]
-  )
+  // const getPoolAssets = useCallback(
+  //   (denom: string) =>
+  //     findPoolFromPairsByDenom(denom)?.reserved.map((reserve) => {
+  //       const asset = findAssetByDenom(reserve.denom)
+  //       return {
+  //         ...reserve,
+  //         ...(asset ?? {}),
+  //       }
+  //     }) ?? [],
+  //   [findPoolFromPairsByDenom, findAssetByDenom]
+  // )
 
-  const getAssetTickers = useCallback(
-    (item: Asset) => {
-      return item.isPoolToken
-        ? getPoolAssets(item.denom).map((asset) => ({ logoUrl: asset?.logoUrl ?? '', ticker: asset?.ticker ?? '' }))
-        : [{ logoUrl: item.logoUrl, ticker: item.ticker }]
-    },
-    [getPoolAssets]
-  )
+  // const getAssetTickers = useCallback(
+  //   (item: Asset) => {
+  //     return item.isPoolToken
+  //       ? getPoolAssets(item.denom).map((asset) => ({ logoUrl: asset?.logoUrl ?? '', ticker: asset?.ticker ?? '' }))
+  //       : [{ logoUrl: item.logoUrl, ticker: item.ticker }]
+  //   },
+  //   [getPoolAssets]
+  // )
 
   // const getPoolTokenPriceOracle = useCallback(
   //   (denom: string) => {
@@ -206,8 +207,8 @@ const usePair = () => {
     allPoolsInPairs,
     findPoolFromPairsByDenom,
     findPoolFromPairsByPoolId,
-    getPoolAssets,
-    getAssetTickers,
+    // getPoolAssets,
+    // getAssetTickers,
   }
 }
 

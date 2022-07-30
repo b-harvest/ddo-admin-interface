@@ -3,7 +3,7 @@ import TableList from 'components/TableList'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
-import usePair from 'hooks/usePair'
+import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
 import { useMemo } from 'react'
@@ -20,7 +20,7 @@ export default function TokenBalance({
   interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
-  const { getAssetTickers } = usePair()
+  const { getAssetTickers } = usePool()
 
   const { allBalanceTimestamp, allBalance, allBalanceLCD } = useAccountData({ address: address ?? '' })
 

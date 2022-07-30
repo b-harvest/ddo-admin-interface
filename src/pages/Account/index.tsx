@@ -1,11 +1,11 @@
 import AppPage from 'components/AppPage'
+import ExplorerLink from 'components/ExplorerLink'
 // import BlockHeightPolling from 'components/BlockHeightPolling'
 import Hr from 'components/Hr'
 import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { DUMMY_ADDRESS } from 'constants/msg'
-import { MINTSCAN_LOGO_IMG_URL } from 'constants/resources'
 // import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
@@ -62,16 +62,8 @@ export default function Accounts() {
           onSearch={handleAddressSearch}
         />
         {address ? (
-          <div className="text-black hover:text-grayCRE-400 dark:text-white dark:hover:text-grayCRE-200 text-left">
-            <a
-              href={`https://www.mintscan.io/crescent/account/${address}`}
-              target="_blank"
-              className="inline-flex flex-row items-center TYPO-BODY-XS underline"
-              rel="noreferrer"
-            >
-              <img src={MINTSCAN_LOGO_IMG_URL} alt="" className="w-3 h-3 mr-1" />
-              <div>Mintscan →</div>
-            </a>
+          <div className="flex">
+            <ExplorerLink address={address} />
           </div>
         ) : null}
       </div>

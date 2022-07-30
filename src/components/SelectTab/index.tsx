@@ -9,7 +9,7 @@ interface SelectTabProps<T> {
   label?: string
   tabItems: SelectTabItem<T>[]
   selectedValue: T
-  onChange?: (value: T | undefined) => void
+  onChange?: (value: T) => void
   className?: string
   getVerticalIfMobile?: boolean
 }
@@ -29,8 +29,10 @@ export default function SelectTab<T>({
 
   const handleOnChange = (selectedIndex: number) => {
     const selectedItem = tabItems.find((_, index) => index === selectedIndex)
-    if (onChange) onChange(selectedItem?.value)
+    if (onChange && selectedItem) onChange(selectedItem.value)
   }
+
+  if (tabItems.length < 1) return null
   return (
     <div className={`text-[rgba(0,0,0,0.5)] dark:text-[rgba(255,255,255,0.5)] ${className}`}>
       {label ? <div className="text-left py-2">{label}</div> : null}

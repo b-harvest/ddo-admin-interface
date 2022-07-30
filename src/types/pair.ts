@@ -57,6 +57,7 @@ export interface PairDetail extends PairLive {
   exponentDiff: number
   tvlUSD: BigNumber
   vol24USD: BigNumber
+  volTvlRatio: number
   pools: PoolInPair[]
-  assetTickers: AssetTicker[]
+  assetTickers: [AssetTicker, AssetTicker]
 }

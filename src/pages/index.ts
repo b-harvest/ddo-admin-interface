@@ -18,7 +18,7 @@ export const pages: Page[] = [
   {
     path: '/accounts',
     label: 'Accounts',
-    pageName: 'Top Accounts',
+    pageName: 'Accounts',
   },
   {
     path: '/account',

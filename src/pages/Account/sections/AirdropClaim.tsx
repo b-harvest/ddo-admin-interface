@@ -3,7 +3,7 @@ import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
-import usePair from 'hooks/usePair'
+import usePool from 'hooks/usePool'
 // import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
@@ -21,7 +21,7 @@ export default function AirdropClaim({
   interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
-  const { getAssetTickers } = usePair()
+  const { getAssetTickers } = usePool()
 
   const { airdropClaimDataTimestamp, airdropClaim, airdropClaimLCD } = useAccountData({
     address: address ?? '',

@@ -2,7 +2,6 @@ import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
-import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
@@ -20,8 +19,7 @@ export default function FarmStakedAmount({
   interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
-  const { getAssetTickers } = usePair()
-  const { findPoolByDenom } = usePool()
+  const { findPoolByDenom, getAssetTickers } = usePool()
 
   const { allStakedDataTimestamp, allStaked, farmPositionLCD } = useAccountData({
     address: address ?? '',
