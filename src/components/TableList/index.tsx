@@ -466,5 +466,5 @@ export function bignumberToFormat({
     ? '0'
     : value.isLessThan(1 / 10 ** exp)
     ? leastVal
-    : value.toFormat(exp)
+    : value.dp(exp, BigNumber.ROUND_DOWN).toFormat()
 }
