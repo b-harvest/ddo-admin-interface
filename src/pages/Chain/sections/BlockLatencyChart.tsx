@@ -4,6 +4,7 @@ import { INFO } from 'constants/style'
 import { useMemo, useState } from 'react'
 import type { FlushByBlock } from 'types/block'
 import type { GenericChartEntry } from 'types/chart'
+import { openExplorerByHeight } from 'utils/browser'
 
 import BlockChartHead from './../components/BlockChartHead'
 
@@ -35,6 +36,10 @@ export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlo
     return flush !== undefined ? new BigNumber(flush).toFormat(0) + ' ns' : '-'
   }, [flushHover, blockFlushChartList])
 
+  const handleBarClick = (time: number | undefined) => {
+    if (time) openExplorerByHeight(time.toString())
+  }
+
   return (
     <BarChart
       height={220}
@@ -45,6 +50,7 @@ export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlo
       setLabel={setFlushHeightHover}
       value={flushHover}
       label={flushHeightHover}
+      onClick={handleBarClick}
       topLeft={
         <BlockChartHead
           title="Block flushing time"

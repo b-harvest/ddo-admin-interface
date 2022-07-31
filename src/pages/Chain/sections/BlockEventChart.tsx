@@ -61,8 +61,9 @@ export default function BlockEventChart({
     return allEvents[0] ?? { label: 'No event', value: 0 }
   }, [allEvents])
 
-  const handleBarClick = (item: ComposedChartEntry | undefined) =>
-    item ? openExplorerByHeight(item.time.toString()) : null
+  const handleBarClick = (item: ComposedChartEntry | undefined) => {
+    if (item) openExplorerByHeight(item.time.toString())
+  }
 
   if (!colorMap) return <></>
   return (

@@ -34,7 +34,8 @@ export type LineChartProps = {
   bottomLeft?: ReactNode | undefined
   bottomRight?: ReactNode | undefined
   className?: string
-} & HTMLAttributes<HTMLDivElement>
+  onClick?: (time: number | undefined) => void
+} & Omit<HTMLAttributes<HTMLDivElement>, 'onClick'>
 
 export default function BarChart({
   data,
@@ -50,6 +51,7 @@ export default function BarChart({
   bottomRight,
   minHeight = DEFAULT_HEIGHT,
   className = '',
+  onClick,
   ...rest
 }: LineChartProps) {
   // const parsedValue = value
@@ -118,6 +120,13 @@ export default function BarChart({
     setValue && setValue(undefined)
   }, [setLabel, setValue])
 
+  const handleClick = useCallback(
+    (props: CategoricalChartState) => {
+      if (onClick) onClick(props.activeLabel as number | undefined)
+    },
+    [onClick]
+  )
+
   return (
     <Card
       className={`${className} w-full`}
@@ -149,6 +158,7 @@ export default function BarChart({
             onMouseEnter={handleMouseOn}
             onMouseMove={handleMouseOn}
             onMouseLeave={handleMouseLeave}
+            onClick={handleClick}
           >
             <XAxis
               dataKey="time"
