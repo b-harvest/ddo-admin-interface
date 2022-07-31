@@ -8,6 +8,7 @@ import { CRE_CHART_COLOR_MAP } from 'constants/style'
 import { useMemo, useState } from 'react'
 import type { EventsByBlock } from 'types/block'
 import type { ComposedChartEntry } from 'types/chart'
+import { openExplorerByHeight } from 'utils/browser'
 import { firstCharToUpperCase } from 'utils/text'
 
 import BlockChartHead from '../components/BlockChartHead'
@@ -60,6 +61,9 @@ export default function BlockEventChart({
     return allEvents[0] ?? { label: 'No event', value: 0 }
   }, [allEvents])
 
+  const handleBarClick = (item: ComposedChartEntry | undefined) =>
+    item ? openExplorerByHeight(item.time.toString()) : null
+
   if (!colorMap) return <></>
   return (
     <section className="min-w-[50%]">
@@ -72,6 +76,7 @@ export default function BlockEventChart({
           setLabel={setBlockHeightHover}
           setItems={setEventsHover}
           label={blockHeightHover}
+          onClick={handleBarClick}
           topLeft={
             topEvent && (
               <BlockChartHead

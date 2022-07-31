@@ -306,9 +306,9 @@ function ListItem<T extends TableListItem>({
             </li>
           )
         })}
-        {merged.map((list) => (
+        {merged.map((list, index) => (
           <li
-            key={list[0]?.value}
+            key={index}
             className="grow shrink flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
             style={{
               flexBasis: `${list.reduce((m, item) => m + (item.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio}%`,

@@ -1,3 +1,5 @@
+import './ant.css'
+
 import { Column } from '@ant-design/charts'
 import Card, { CardMergedSide } from 'components/Card'
 import dayjs from 'dayjs'
@@ -17,13 +19,16 @@ const ACTIVE_EVENTS = [
   // 'tooltip:show',
   'tooltip:change',
 ]
+
 const DEACTIVE_EVENTS = [
   'mouseout',
-  'mouseleave',
+  // 'mouseleave',
   'touchend',
   'touchcancel',
   // 'tooltip:hide',
 ]
+
+const CLICK_EVENTS = ['click']
 
 export type AntComposedBarChartProps = {
   data: ComposedChartEntry[]
@@ -39,6 +44,7 @@ export type AntComposedBarChartProps = {
   className?: string
   cardMerged?: CardMergedSide
   legend?: boolean
+  onClick?: (item: ComposedChartEntry | undefined) => void
 }
 
 export default function ComposedBarChart({
@@ -57,6 +63,7 @@ export default function ComposedBarChart({
   className = '',
   cardMerged,
   legend = false,
+  onClick,
 }: AntComposedBarChartProps) {
   const config = useMemo(
     () => ({
@@ -101,7 +108,7 @@ export default function ComposedBarChart({
       },
       tooltip: {
         title: '',
-        container: '',
+        container: undefined,
         formatter: () => {
           return { name: '', value: '' }
         },
@@ -111,7 +118,7 @@ export default function ComposedBarChart({
       onEvent: (_, event) => {
         if (ACTIVE_EVENTS.includes(event.type)) {
           const time = event.data?.title ? Number(event.data?.title) : undefined
-          const items = event.data?.items?.map((item) => item.data) ?? undefined
+          const items: ComposedChartEntry[] | undefined = event.data?.items?.map((item) => item.data) ?? undefined
 
           if (setLabel && time && label !== time) setLabel(time)
           if (setItems && items) setItems(items)
@@ -119,10 +126,14 @@ export default function ComposedBarChart({
           if (setLabel) setLabel(undefined)
           if (setItems) setItems(undefined)
         }
+
+        if (CLICK_EVENTS.includes(event.type)) {
+          const time: ComposedChartEntry | undefined = event.data?.data ?? label
+          if (onClick) onClick(time)
+        }
       },
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [colorMap, height, data, setLabel] // shouldn't include label as dependency
+    [colorMap, height, data, setLabel, label, setItems, onClick]
   )
 
   return (

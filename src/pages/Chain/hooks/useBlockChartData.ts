@@ -17,19 +17,21 @@ const useBlockChartData = () => {
 
     if (!eventIndicators.length || !countsData) return [] // length check needed (wip)
 
-    return countsData.rows.map((item) => {
-      const counts = item.var_str.split(',')
-      const events = counts
-        .map((count, index) => ({ value: Number(count), label: eventIndicators[index] ?? '-' }))
-        .filter((item) => item.value && item.value > 0)
+    return countsData.rows
+      .map((item) => {
+        const counts = item.var_str.split(',')
+        const events = counts
+          .map((count, index) => ({ value: Number(count), label: eventIndicators[index] ?? '-' }))
+          .filter((item) => item.value && item.value > 0)
 
-      return {
-        height: item.height,
-        timestamp_nano: item.timestamp_nano,
-        timestamp: item.timestamp_nano / 1000000,
-        events,
-      }
-    })
+        return {
+          height: item.height,
+          timestamp_nano: item.timestamp_nano,
+          timestamp: item.timestamp_nano / 1000000,
+          events,
+        }
+      })
+      .reverse()
     // .sort((a, b) => a.height - b.height)
   }, [eventIndicators, blockEventCountsData])
 
@@ -40,14 +42,16 @@ const useBlockChartData = () => {
     const flushData = blocksFlushData?.data.length ? blocksFlushData.data[0] : undefined
 
     return (
-      flushData?.rows.map((item) => {
-        return {
-          height: item.height,
-          timestamp_nano: item.timestamp_nano,
-          timestamp: item.timestamp_nano / 1000000,
-          flush: item.var_int, // ms
-        }
-      }) ??
+      flushData?.rows
+        .map((item) => {
+          return {
+            height: item.height,
+            timestamp_nano: item.timestamp_nano,
+            timestamp: item.timestamp_nano / 1000000,
+            flush: item.var_int, // ms
+          }
+        })
+        .reverse() ??
       // .sort((a, b) => a.height - b.height)
       []
     )
