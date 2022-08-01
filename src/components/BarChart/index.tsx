@@ -1,4 +1,4 @@
-import Card from 'components/Card'
+import Card, { CardMergedSide } from 'components/Card'
 import { LIGHT_CRE_O } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -34,6 +34,7 @@ export type LineChartProps = {
   bottomLeft?: ReactNode | undefined
   bottomRight?: ReactNode | undefined
   className?: string
+  cardMerged?: CardMergedSide
   onClick?: (time: number | undefined) => void
 } & Omit<HTMLAttributes<HTMLDivElement>, 'onClick'>
 
@@ -51,6 +52,7 @@ export default function BarChart({
   bottomRight,
   minHeight = DEFAULT_HEIGHT,
   className = '',
+  cardMerged,
   onClick,
   ...rest
 }: LineChartProps) {
@@ -131,6 +133,7 @@ export default function BarChart({
     <Card
       className={`${className} w-full`}
       useGlassEffect={true}
+      merged={cardMerged}
       style={{
         minWidth: '0',
         height: `${minHeight}px`,
