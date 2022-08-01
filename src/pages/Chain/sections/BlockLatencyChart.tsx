@@ -108,18 +108,16 @@ export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlo
         // style={{ maxHeight: '420px' }}
       >
         <Indicator title="" light={true} className="space-y-4 overflow-auto">
-          <div className="w-full flex flex-col items-start space-y-2 TYPO-BODY-M !font-medium">
-            <div>
-              <div className="text-grayCRE-300 dark:text-grayCRE-400 mb-2 mr-2">{avgInterval}-block-avg.</div>
-              <div className="TYPO-BODY-L !font-bold">{avgFlushTime} ns</div>
-            </div>
-            <div className="flex items-center justify-between space-x-2">
+          <div className="w-full flex flex-col items-start TYPO-BODY-M !font-medium">
+            <div className="w-full flex items-center justify-between text-grayCRE-300 dark:text-grayCRE-400">
+              {avgInterval}-block-avg.{' '}
               <Toggler<BLOCK_INTERVAL>
                 tabItems={BLOCK_FLUSH_TIME_AVG_PERIOD_TAB_ITEMS}
-                selectedValue={avgInterval}
+                defaultIndex={0}
                 onChange={setAvgInterval}
               />
             </div>
+            <div className="TYPO-BODY-L !font-bold">{avgFlushTime} ns</div>
           </div>
         </Indicator>
       </Card>
