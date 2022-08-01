@@ -17,22 +17,24 @@ export default function NavigationTab({ onClick }: NavigationTabProps) {
       <ul
         className={`w-fit min-w-fit flex flex-nowrap justify-between items-center md:space-x-6 md:justify-start p-[2px] md:p-0`}
       >
-        {pages.map((page) => (
-          <li className="shrink-0" key={page.path}>
-            <NavLink
-              id={`${page.label}-nav-link`}
-              to={`${page.path}`}
-              onClick={onClick}
-              className={(isActive) =>
-                `TYPO-BODY-M rounded-lg px-4 py-2 md:bg-transparent text-black dark:text-grayCRE-400 ${getNavLinkClass(
-                  isActive
-                )}`
-              }
-            >
-              {page.label}
-            </NavLink>
-          </li>
-        ))}
+        {pages
+          .filter((page) => page.nav)
+          .map((page) => (
+            <li className="shrink-0" key={page.path}>
+              <NavLink
+                id={`${page.label}-nav-link`}
+                to={`${page.path}`}
+                onClick={onClick}
+                className={(isActive) =>
+                  `TYPO-BODY-M rounded-lg px-4 py-2 md:bg-transparent text-black dark:text-grayCRE-400 ${getNavLinkClass(
+                    isActive
+                  )}`
+                }
+              >
+                {page.label}
+              </NavLink>
+            </li>
+          ))}
       </ul>
     </nav>
   )

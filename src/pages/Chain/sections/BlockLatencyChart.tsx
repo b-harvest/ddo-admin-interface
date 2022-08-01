@@ -110,7 +110,7 @@ export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlo
         <Indicator title="" light={true} className="space-y-4 overflow-auto">
           <div className="w-full flex flex-col items-start TYPO-BODY-M !font-medium">
             <div className="w-full flex items-center justify-between text-grayCRE-300 dark:text-grayCRE-400">
-              {avgInterval}-block-avg.{' '}
+              {avgInterval}-block-average{' '}
               <Toggler<BLOCK_INTERVAL>
                 tabItems={BLOCK_FLUSH_TIME_AVG_PERIOD_TAB_ITEMS}
                 defaultIndex={0}

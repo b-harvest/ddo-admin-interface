@@ -6,6 +6,7 @@ import SelectTab from 'components/SelectTab'
 import { GLOW_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import type { VolUSDByDate } from 'types/accounts'
 import type { GenericChartEntry } from 'types/chart'
 
@@ -24,7 +25,13 @@ const VOLUME_CHART_WINDOW_TAB_ITEMS = [
   },
 ]
 
-export default function VolumeChart({ chartData }: { chartData: VolUSDByDate[] }) {
+export default function VolumeChart({
+  chartData,
+  highlightTime,
+}: {
+  chartData: VolUSDByDate[]
+  highlightTime?: number
+}) {
   // chart time tick selected
   const [chartTimeTick, setChartTimeTick] = useState<TimeTick>(TimeTick.Daily)
   const handleChartTimeTickSelect = (value: TimeTick) => setChartTimeTick(value)
@@ -44,26 +51,40 @@ export default function VolumeChart({ chartData }: { chartData: VolUSDByDate[] }
   const [volumeTimeLabelHover, setVolumeTimeLabelHover] = useState<string | undefined>()
 
   const volumeChartHeadAmt = useMemo(() => {
-    return volumeHover ? new BigNumber(volumeHover) : new BigNumber(volUSDChartList.at(-1)?.value ?? 0)
-  }, [volumeHover, volUSDChartList])
+    return new BigNumber(
+      volumeHover
+        ? volumeHover
+        : highlightTime
+        ? volUSDChartList.find((item) => item.time === highlightTime)?.value ?? 0
+        : volUSDChartList.at(-1)?.value ?? 0
+    )
+  }, [volumeHover, volUSDChartList, highlightTime])
+
+  // routing
+  const history = useHistory()
+  const onBarClick = (time: number | undefined) => {
+    if (time) history.push(`/volume/${time}`)
+  }
 
   return (
     <BarChart
       height={220}
       minHeight={360}
       data={volUSDChartList}
+      highlightTime={highlightTime}
       color={GLOW_CRE}
       setValue={setVolumeHover}
       setLabel={setVolumeTimeLabelHover}
       value={volumeHover}
       label={volumeTimeLabelHover}
       chartTimeTick={chartTimeTick}
+      onClick={onBarClick}
       topLeft={
         <AmountOfDate
           title="Volume 24h"
           className="mb-4"
           value={volumeChartHeadAmt}
-          dateLabel={dayjs(volumeTimeLabelHover).format('MMM DD, YYYY')}
+          dateLabel={(volumeTimeLabelHover ? dayjs(volumeTimeLabelHover) : dayjs(highlightTime)).format('MMM DD, YYYY')}
         />
       }
       topRight={

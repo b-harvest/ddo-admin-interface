@@ -1,5 +1,5 @@
 import Card, { CardMergedSide } from 'components/Card'
-import { LIGHT_CRE_O } from 'constants/style'
+import { LIGHT_CRE_O, PINK_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import weekOfYear from 'dayjs/plugin/weekOfYear'
@@ -21,6 +21,7 @@ export enum TimeTick {
 
 export type LineChartProps = {
   data: GenericChartEntry[]
+  highlightTime?: GenericChartEntry['time']
   color?: string | undefined
   height?: number | undefined
   minHeight?: number
@@ -40,6 +41,7 @@ export type LineChartProps = {
 
 export default function BarChart({
   data,
+  highlightTime,
   color = '#56B2A4',
   setValue,
   setLabel,
@@ -177,7 +179,16 @@ export default function BarChart({
               dataKey="value"
               fill={color}
               shape={(props) => {
-                return <CustomBar height={props.height} width={props.width} x={props.x} y={props.y} fill={color} />
+                console.log(props)
+                return (
+                  <CustomBar
+                    height={props.height}
+                    width={props.width}
+                    x={props.x}
+                    y={props.y}
+                    fill={props.time === highlightTime ? PINK_CRE : color}
+                  />
+                )
               }}
             />
           </Chart>

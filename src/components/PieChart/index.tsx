@@ -34,6 +34,7 @@ function PieChart({
   className,
   cardMerged,
 }: PieChartProps) {
+  // colors
   const color = GLOW_CRE
 
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
@@ -82,7 +83,7 @@ function PieChart({
                 return (
                   <defs key={item.type}>
                     <linearGradient id={`gradient-${item.type}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={colorMap[item.type] ?? GLOW_CRE} stopOpacity={0.5} />
+                      <stop offset="5%" stopColor={colorMap?.[item.type] ?? GLOW_CRE} stopOpacity={0.5} />
                       <stop offset="100%" stopColor={color} stopOpacity={0} />
                     </linearGradient>
                   </defs>

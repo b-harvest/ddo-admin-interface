@@ -35,6 +35,8 @@ const useChartData = () => {
     )
   }, [volUSDData])
 
+  console.log('tvl', tvlUSDChartData)
+
   return { tvlUSDChartData, volUSDChartData }
 }
 

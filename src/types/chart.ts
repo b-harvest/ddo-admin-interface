@@ -14,6 +14,6 @@ export type ComposedChartEntry = {
 }
 
 export type PieChartEntry = {
-  type: string
-  value: number | string
+  type: string | number
+  value: number
 }

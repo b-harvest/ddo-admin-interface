@@ -19,6 +19,7 @@ import Overview from 'pages/Overview'
 import SignIn from 'pages/SignIn/index'
 import Token from 'pages/Token'
 import Validators from 'pages/Validators'
+import Volume from 'pages/Volume'
 import { Suspense, useEffect, useMemo } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
@@ -123,7 +124,8 @@ function App() {
             <AuthRoute path="/validators" component={Validators} />
             <AuthRoute path="/dex" component={DEX} />
 
-            <AuthRoute path="/Token/:id" component={Token} />
+            <AuthRoute path="/token/:id" component={Token} />
+            <AuthRoute path="/volume/:id" component={Volume} />
 
             <Route>
               <Redirect to="/overview" />
