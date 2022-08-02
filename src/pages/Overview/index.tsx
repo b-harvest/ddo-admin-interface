@@ -85,48 +85,6 @@ export default function Overview() {
     history.push(`/token/${denom}`)
   }
 
-  // All pairs
-  // const pairTableList = useMemo(() => {
-  //   return allPair.map((pair) => {
-  //     const asset = AssetLogoLabel({ assets: pair.assetTickers })
-  //     const baseTicker = pair.assetTickers[0].ticker
-  //     const quoteTicker = pair.assetTickers[1].ticker
-  //     const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
-  //     const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
-
-  //     return {
-  //       ...pair,
-  //       asset,
-  //       baseTicker,
-  //       filter: [filter1, filter2],
-  //     }
-  //   })
-  // }, [allPair])
-
-  // All pools
-  // const poolTableList = useMemo(() => {
-  //   return allPools.map((pool) => {
-  //     const baseTicker = pool.pair?.assetTickers[0].ticker ?? ''
-  //     const quoteTicker = pool.pair?.assetTickers[1].ticker ?? ''
-  //     const asset = AssetLogoLabel({ assets: pool.pair?.assetTickers ?? [] })
-  //     const apr = pool.apr.toNumber()
-  //     const bcreApr = pool.bcreApr.isZero() ? null : pool.bcreApr.toNumber()
-  //     const poolTypeTag = pool.isRanged ? <Tag status="strong">Ranged</Tag> : null
-  //     const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
-  //     const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
-
-  //     return {
-  //       ...pool,
-  //       baseTicker,
-  //       asset,
-  //       apr,
-  //       bcreApr,
-  //       poolTypeTag,
-  //       filter: [filter1, filter2],
-  //     }
-  //   })
-  // }, [allPools])
-
   return (
     <AppPage>
       <section className="flex flex-col justify-between items-stretch space-y-4 md:flex-row md:space-x-4 md:space-y-0 mb-20">
@@ -189,70 +147,6 @@ export default function Overview() {
       </section>
 
       <section className="mb-20">
-        {/* <TableList
-          title="All Pairs"
-          useSearch={true}
-          useNarrow={true}
-          list={pairTableList}
-          filterOptions={PAIR_TABLE_FILTERS}
-          defaultSortBy="tvlUSD"
-          defaultIsSortASC={false}
-          nowrap={true}
-          fields={[
-            {
-              label: 'Pair base/quote',
-              value: 'asset',
-              sortValue: 'baseTicker',
-              type: 'html',
-              widthRatio: 22,
-            },
-            {
-              label: 'Pair #',
-              value: 'pairId',
-              widthRatio: 4,
-              responsive: true,
-            },
-            {
-              label: 'Price 24h',
-              value: 'change_24',
-              type: 'change',
-            },
-            {
-              label: 'Last price',
-              value: 'lastPrice',
-              type: 'bignumber',
-              toFixedFallback: 6,
-              responsive: true,
-            },
-            {
-              label: 'Predicted price',
-              value: 'predPrice',
-              type: 'bignumber',
-              toFixedFallback: 6,
-              responsive: true,
-            },
-            {
-              label: 'Volume 24h',
-              value: 'vol24USD',
-              type: 'usd',
-              toFixedFallback: 0,
-              responsive: true,
-            },
-            {
-              label: 'TVL',
-              value: 'tvlUSD',
-              type: 'usd',
-              toFixedFallback: 0,
-            },
-            {
-              label: 'Volume/TVL',
-              value: 'volTvlRatio',
-              type: 'change',
-              neutral: true,
-              responsive: true,
-            },
-          ]}
-        /> */}
         <PairsTable filters={PAIR_TABLE_FILTERS} />
       </section>
 
