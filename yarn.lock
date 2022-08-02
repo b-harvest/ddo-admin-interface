@@ -312,10 +312,10 @@
     size-sensor "^1.0.1"
     tslib "^2.0.3"
 
-"@antv/g6-core@0.6.16":
-  version "0.6.16"
-  resolved "https://registry.yarnpkg.com/@antv/g6-core/-/g6-core-0.6.16.tgz#c593b8e78db004d716eef84fae51708d74d8eb23"
-  integrity sha512-QgkzWTSYlCjLiPVsPLWgAZUVnafyVLbOUWtT85tVhAXL/v/iBDd4XQ5w7Ko21hmvidn7KINkt2qtDs17OkQHpQ==
+"@antv/g6-core@0.6.17":
+  version "0.6.17"
+  resolved "https://registry.yarnpkg.com/@antv/g6-core/-/g6-core-0.6.17.tgz#fc0ed60c6dce8ac5e3f68903a40ab6421e39d9fc"
+  integrity sha512-SZ8TAZnOePgGBxwOPpRn2dpw8g8QR1rT0I1yYG7ZK9OgXHBD2NQZ/Im8+VClRAsp3dAO6OSugFrG0lFi/CgMNw==
   dependencies:
     "@antv/algorithm" "^0.1.8"
     "@antv/dom-util" "^2.0.1"
@@ -328,19 +328,19 @@
     ml-matrix "^6.5.0"
     tslib "^2.1.0"
 
-"@antv/g6-element@0.6.16":
-  version "0.6.16"
-  resolved "https://registry.yarnpkg.com/@antv/g6-element/-/g6-element-0.6.16.tgz#9698c91bbc2837d1faece03c5f4fa9f9dc4a7057"
-  integrity sha512-+BaXumZYXvcJ3n6RzPbcryPc6G6UppJua8o0cfe9XyXOiYzj+BmrBjNDpFZvmqmGF+UeinP2Qvejmj09zwNGHw==
+"@antv/g6-element@0.6.17":
+  version "0.6.17"
+  resolved "https://registry.yarnpkg.com/@antv/g6-element/-/g6-element-0.6.17.tgz#40c6ca03728f811dc7d06260e69874481c741e6f"
+  integrity sha512-3aAHDeCSBr3iYVrHYRwmRkTqUZB/aHEdtQhEXs08x4a4J/QKFSaqxD6JFHqfE2eLkjztCqs+0cr/4tPNcwlACQ==
   dependencies:
     "@antv/g-base" "^0.5.1"
-    "@antv/g6-core" "0.6.16"
+    "@antv/g6-core" "0.6.17"
     "@antv/util" "~2.0.5"
 
-"@antv/g6-pc@0.6.16":
-  version "0.6.16"
-  resolved "https://registry.yarnpkg.com/@antv/g6-pc/-/g6-pc-0.6.16.tgz#22675028a19dc24ce7fe3837c8993e1f108ec464"
-  integrity sha512-+2keDvnc5v7Wn3Dl9t4xwj0GSBPQ2tlNk2/DyI3jjmMg9miCk5Ea0DJ9HztdRAX3c0DF175Zjb7p82eE+ffiug==
+"@antv/g6-pc@0.6.17":
+  version "0.6.17"
+  resolved "https://registry.yarnpkg.com/@antv/g6-pc/-/g6-pc-0.6.17.tgz#e5f20a417e2f75a0f1a5e5ce480597b62e91e5a5"
+  integrity sha512-GHGeLLar5gArul9D0lRSJcQNX5lqg9uiGQBRBKXNeXcFynk2FykpvHZzw6msM5NL57wUmj2xaI7PZkO75IM1jw==
   dependencies:
     "@ant-design/colors" "^4.0.5"
     "@antv/algorithm" "^0.1.8"
@@ -350,9 +350,9 @@
     "@antv/g-canvas" "^0.5.2"
     "@antv/g-math" "^0.1.1"
     "@antv/g-svg" "^0.5.1"
-    "@antv/g6-core" "0.6.16"
-    "@antv/g6-element" "0.6.16"
-    "@antv/g6-plugin" "0.6.16"
+    "@antv/g6-core" "0.6.17"
+    "@antv/g6-element" "0.6.17"
+    "@antv/g6-plugin" "0.6.17"
     "@antv/hierarchy" "^0.6.7"
     "@antv/layout" "^0.2.5"
     "@antv/matrix-util" "^3.1.0-beta.3"
@@ -364,28 +364,28 @@
     insert-css "^2.0.0"
     ml-matrix "^6.5.0"
 
-"@antv/g6-plugin@0.6.16":
-  version "0.6.16"
-  resolved "https://registry.yarnpkg.com/@antv/g6-plugin/-/g6-plugin-0.6.16.tgz#7998cb612cbcaecd825d0f57957abf36fb9d4f61"
-  integrity sha512-DN35NiMtLtyncpmUrIDfJHtIUf3ofIUJ+/rzOVEVWWyKO2qwGZtvffSUHPrhI4KblVAjjondaXofO4nGVlND6w==
+"@antv/g6-plugin@0.6.17":
+  version "0.6.17"
+  resolved "https://registry.yarnpkg.com/@antv/g6-plugin/-/g6-plugin-0.6.17.tgz#ad44e4470425552b34da6697c2e5a19aec5ae387"
+  integrity sha512-Q3DDnDyfqIWyHs7ieeePBSu4p8gSk/bHHdDiS8BTk4xENqsaPBHjRG2L+xAOAUSifNZPFVB7qEv8qANpQO7AfQ==
   dependencies:
     "@antv/dom-util" "^2.0.2"
     "@antv/g-base" "^0.5.1"
     "@antv/g-canvas" "^0.5.2"
     "@antv/g-svg" "^0.5.2"
-    "@antv/g6-core" "0.6.16"
-    "@antv/g6-element" "0.6.16"
+    "@antv/g6-core" "0.6.17"
+    "@antv/g6-element" "0.6.17"
     "@antv/matrix-util" "^3.1.0-beta.3"
     "@antv/scale" "^0.3.4"
     "@antv/util" "^2.0.9"
     insert-css "^2.0.0"
 
 "@antv/g6@^4.2.4":
-  version "4.6.16"
-  resolved "https://registry.yarnpkg.com/@antv/g6/-/g6-4.6.16.tgz#d2e80d69e89720bdbaa4cc8d29c15992258e7cb6"
-  integrity sha512-dD94Uh8oP6fhS/+vT/RgxRYQvsMIkFhUgNuzx3ng1WERosAoagS6FUBfqxCAIW6zGF4US88dAOjhQH9t9apKoA==
+  version "4.6.17"
+  resolved "https://registry.yarnpkg.com/@antv/g6/-/g6-4.6.17.tgz#a83763f031e0ef01ea4f43d96ecee8c90787370a"
+  integrity sha512-leRX4HNiOIqSy+ERbKgvFhZPM4AmrJeM3yhuk44L6BHIzBg/7X+1rM6HXzf1Ed5bKqIw+qVV0LGCJbfNjWymew==
   dependencies:
-    "@antv/g6-pc" "0.6.16"
+    "@antv/g6-pc" "0.6.17"
 
 "@antv/graphlib@^1.0.0":
   version "1.2.0"
@@ -399,13 +399,13 @@
   dependencies:
     "@antv/util" "^2.0.7"
 
-"@antv/l7-component@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-component/-/l7-component-2.9.18.tgz#cb439f989658fee45ef25a1d22e7f268089c2a9d"
-  integrity sha512-y873Piw2vD1XPstB6HCKDztm0gptz5n7+gl2XjCeHlO+6NLMyaxANDx7OUtQUmSWfDVywElPclsdWTZaaGeU8Q==
+"@antv/l7-component@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-component/-/l7-component-2.9.19.tgz#09e429f081e8ff089b5adc0a1ba6b73b006dd399"
+  integrity sha512-Wd1iWoRwCLWbtpfotBJEh2nLcVvwAqj4gdZK/4aLkgOBC1B004cGSMjbU09ij9oFdOODx/y9cu2CNSQOqLHhGA==
   dependencies:
-    "@antv/l7-core" "2.9.18"
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-core" "2.9.19"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
     eventemitter3 "^4.0.0"
     inversify "^5.0.1"
@@ -413,13 +413,13 @@
     reflect-metadata "^0.1.13"
     supercluster "^7.0.0"
 
-"@antv/l7-core@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-core/-/l7-core-2.9.18.tgz#4adf13227b44c505f57758df0ff116038f84177d"
-  integrity sha512-itMU94Dk4f/thYZBp9mHbPmOdQiCcm1hlQARNNtOxXTNIdaiy2BHFew05waCoG9HQRJ0em24XzcNmWsk7aCi3g==
+"@antv/l7-core@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-core/-/l7-core-2.9.19.tgz#68b901a5bd3e70698ff032e80d4c8b46700c0ce7"
+  integrity sha512-dYK7vk41hAYDb2StlwY3v/ri2AIBtuXP1B4jh0AKofaO73Jm1o8aDwZPck52zEsftXPgZneDgMPs7QlgF14jIg==
   dependencies:
     "@antv/async-hook" "^2.1.0"
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
     ajv "^6.10.2"
     element-resize-event "^3.0.3"
@@ -433,14 +433,14 @@
     reflect-metadata "^0.1.13"
     viewport-mercator-project "^6.2.1"
 
-"@antv/l7-layers@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-layers/-/l7-layers-2.9.18.tgz#89261afd96bea9995a068082ab39e1652d13ad02"
-  integrity sha512-nO5UeIcBvesVXVWfwKVG3tKrVM6p+zJvEiRcRUw0bvI4uyF1FZ5KM6YLtsuOoSBzBU54LAeWQiEs8SHo4IDAsA==
+"@antv/l7-layers@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-layers/-/l7-layers-2.9.19.tgz#5923fff1fd0ed380a208f27be0217c5176c0ca20"
+  integrity sha512-oBeTWKxeuTu0N6JxCG9BuS2iw/Yl3lo5TO1OflfcM0/0RW60uzcwOWdhZvHFSWAPO/QubPvSA9ND9P9E++aHvQ==
   dependencies:
-    "@antv/l7-core" "2.9.18"
-    "@antv/l7-source" "2.9.18"
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-core" "2.9.19"
+    "@antv/l7-source" "2.9.19"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
     "@mapbox/martini" "^0.2.0"
     "@turf/helpers" "^6.1.4"
@@ -461,27 +461,27 @@
     polyline-miter-util "^1.0.1"
     reflect-metadata "^0.1.13"
 
-"@antv/l7-map@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-map/-/l7-map-2.9.18.tgz#d4aa0b00786682517ee1534b764066a33ea93af0"
-  integrity sha512-g2lVjRkWw88kmLXiv9+jdbaMYVk90iSOrzG49UIZgiwum+K725mRt1GZWYH7UoEwGBiuh9yIcn0OkC0i1arfvQ==
+"@antv/l7-map@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-map/-/l7-map-2.9.19.tgz#c21a1014a475c285d7c5411680593cc2408ba244"
+  integrity sha512-mBW3HZSMtr8+jFr8pCuMUbJ7xnz98sjdQbLyaK9JkBMzewSHdk3fp7+Cmce+p+slMQSDK2+8h5mnnggi1eKMkQ==
   dependencies:
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
     "@mapbox/point-geometry" "^0.1.0"
     "@mapbox/unitbezier" "^0.0.0"
     eventemitter3 "^4.0.4"
     lodash "^4.17.15"
 
-"@antv/l7-maps@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-maps/-/l7-maps-2.9.18.tgz#78ed05c7f79d2155d41e60c133f405da28ed05ec"
-  integrity sha512-TskpUHvKddJbVrKGXXAH99s3qdEUg4QC/7nB6eIvFb2urydcCUE3yPF2hM72jgfhnzMKZYFFLPuQTsWomKtoAQ==
+"@antv/l7-maps@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-maps/-/l7-maps-2.9.19.tgz#35d8ade95b79b73997cb51cacce566088341ba82"
+  integrity sha512-cDuNyDDG27eUeyhMR9lB3w8K4e0c6q7mslYO/jXAB3Pkn1jR4hep/a0OD0fwB6QVqxZLP2vPlfGskNADRI/EgQ==
   dependencies:
     "@amap/amap-jsapi-loader" "^0.0.3"
-    "@antv/l7-core" "2.9.18"
-    "@antv/l7-map" "2.9.18"
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-core" "2.9.19"
+    "@antv/l7-map" "2.9.19"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
     "@types/amap-js-api" "^1.4.6"
     "@types/mapbox-gl" "^1.11.2"
@@ -491,42 +491,42 @@
     reflect-metadata "^0.1.13"
     viewport-mercator-project "^6.2.1"
 
-"@antv/l7-renderer@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-renderer/-/l7-renderer-2.9.18.tgz#68f69a65989d52d51815e72253dc40780fcc5d8d"
-  integrity sha512-xMUNHUtmSoRUO8BE2DLL7qEOI6r/VPUP/tOiYtbMkrTTWqNTpCjDgSdS2v+pASVh+P8clwD1aHyMo+r0D6cgEw==
+"@antv/l7-renderer@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-renderer/-/l7-renderer-2.9.19.tgz#78a4248b2d01386d7895fe68d8ea6618d1c40f97"
+  integrity sha512-1oqXOgw8A4NfoqvtG2AY4pnu6MFEW34+vNUjz0o7OYr500eWji5l6aqvPonEw9wXRyVDStWowRB7YBxyXt5nhA==
   dependencies:
-    "@antv/l7-core" "2.9.18"
+    "@antv/l7-core" "2.9.19"
     "@babel/runtime" "^7.7.7"
     inversify "^5.0.1"
     l7regl "^0.0.20"
     lodash "^4.17.15"
     reflect-metadata "^0.1.13"
 
-"@antv/l7-scene@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-scene/-/l7-scene-2.9.18.tgz#e2544790868c488c2e9954ec434f09867e289d7e"
-  integrity sha512-q2G79M4gpCdaVkqdHSBRQ4y8+CqgoBJY3OVYUsesOXQlhciKP0dYg/nbj0PXiuDtWQNUCcy8+DbH280gtUbEXQ==
+"@antv/l7-scene@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-scene/-/l7-scene-2.9.19.tgz#55b4aab08f5b9225e7274c2f80962dbede4b4ef4"
+  integrity sha512-PIW5KzbxmCdFA/e8BYZ3MX+N+whN/U6Gs8OliVs3DKahAFtRdeRnP5VxPFlG8wH5WpzsdQ6dh91K/52a6T88TA==
   dependencies:
-    "@antv/l7-component" "2.9.18"
-    "@antv/l7-core" "2.9.18"
-    "@antv/l7-layers" "2.9.18"
-    "@antv/l7-maps" "2.9.18"
-    "@antv/l7-renderer" "2.9.18"
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-component" "2.9.19"
+    "@antv/l7-core" "2.9.19"
+    "@antv/l7-layers" "2.9.19"
+    "@antv/l7-maps" "2.9.19"
+    "@antv/l7-renderer" "2.9.19"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
     inversify "^5.0.1"
     mapbox-gl "^1.2.1"
     reflect-metadata "^0.1.13"
 
-"@antv/l7-source@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-source/-/l7-source-2.9.18.tgz#b2153c4afccbf1174753d830cabe38a3bedfafd8"
-  integrity sha512-Tp13+PPoApIJKqRlWEM48TZti9cT4aMWB7M5HMbRNkeGmeHnrQ9DdhIJmT0GkJPG70fLARotDMhLj+ldGLz4vQ==
+"@antv/l7-source@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-source/-/l7-source-2.9.19.tgz#64c1d8e529d66cacae37561fd794c2ff6cc1cf0d"
+  integrity sha512-Gm90WeCRBvZ6Ro/r0WbWb9njCODEnmSPapkwA9acuVZBbE9+2VB86DCbZQUVwjA+5PiqeRWK7Njdwv4SW53AZQ==
   dependencies:
     "@antv/async-hook" "^2.1.0"
-    "@antv/l7-core" "2.9.18"
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-core" "2.9.19"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
     "@mapbox/geojson-rewind" "^0.5.2"
     "@mapbox/vector-tile" "^1.3.1"
@@ -542,28 +542,30 @@
     reflect-metadata "^0.1.13"
     supercluster "^7.0.0"
 
-"@antv/l7-utils@2.9.18":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7-utils/-/l7-utils-2.9.18.tgz#eb27b939d1b709082c22105479f44047915a5603"
-  integrity sha512-x61KB5Z/k02pMRfZAXAxPKlBigdctzrJCkiBSvZZfY8oFvYhboDSiziQ3Fhl3uM3+gnkeUfzAlKuteo5lTfPKA==
+"@antv/l7-utils@2.9.19":
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7-utils/-/l7-utils-2.9.19.tgz#8fa5d062ee239fe10d846a1202bd4c472b9ddc6e"
+  integrity sha512-EFuB8AOWIrb4TChZqGktPhFJfGKayswnmSl7xsD36d0hHIt7KjyTrBsEAtS41puYSrbx798r8zTqCkML04q2QA==
   dependencies:
     "@babel/runtime" "^7.7.7"
     "@turf/bbox-polygon" "^6.5.0"
     "@turf/helpers" "^6.1.4"
     d3-color "^1.4.0"
+    earcut "^2.2.1"
+    web-worker-helper "^0.0.3"
 
 "@antv/l7@^2.9.14":
-  version "2.9.18"
-  resolved "https://registry.yarnpkg.com/@antv/l7/-/l7-2.9.18.tgz#7061431de4e195164e6d038f54cde5ce195f1371"
-  integrity sha512-D575riHBeGPAMTmN6z4JCd1770B/MMqUOtjpjwaTyzfp3KPPxG/S8Rz//cdXps4RcWnucXjPC10Ml/WN+AIuxQ==
+  version "2.9.19"
+  resolved "https://registry.yarnpkg.com/@antv/l7/-/l7-2.9.19.tgz#bcdf9a5e855034ae2cae540aa4a4e2c861e5de20"
+  integrity sha512-/IlmaQpfRBAyZwOliOIttZRq6+iUbbhWhgt0k+d7XxppLnrq+XiV9lmF3z9zbAkHMd+QB9xADgZ+MyrX8dSufw==
   dependencies:
-    "@antv/l7-component" "2.9.18"
-    "@antv/l7-core" "2.9.18"
-    "@antv/l7-layers" "2.9.18"
-    "@antv/l7-maps" "2.9.18"
-    "@antv/l7-scene" "2.9.18"
-    "@antv/l7-source" "2.9.18"
-    "@antv/l7-utils" "2.9.18"
+    "@antv/l7-component" "2.9.19"
+    "@antv/l7-core" "2.9.19"
+    "@antv/l7-layers" "2.9.19"
+    "@antv/l7-maps" "2.9.19"
+    "@antv/l7-scene" "2.9.19"
+    "@antv/l7-source" "2.9.19"
+    "@antv/l7-utils" "2.9.19"
     "@babel/runtime" "^7.7.7"
 
 "@antv/l7plot-component@^0.0.7":
@@ -12946,6 +12948,11 @@ web-vitals@^2.1.0:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/web-vitals/-/web-vitals-2.1.4.tgz#76563175a475a5e835264d373704f9dde718290c"
   integrity sha512-sVWcwhU5mX6crfI5Vd2dC4qchyTqxV8URinzt25XqVh+bHEPGH4C3NPrNionCP7Obx59wrYEbNlw4Z8sjALzZg==
+
+web-worker-helper@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/web-worker-helper/-/web-worker-helper-0.0.3.tgz#9ef60b9c463970dc324c381b9aaf2a22c5d0b77a"
+  integrity sha512-/TllNPjGenDwjE67M16TD9ALwuY847/zIoH7r+e5rSeG4kEa3HiMTAsUDj80yzIzhtshkv215KfsnQ/RXR3nVA==
 
 webidl-conversions@^4.0.2:
   version "4.0.2"
