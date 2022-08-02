@@ -178,18 +178,16 @@ export default function BarChart({
             <Bar
               dataKey="value"
               fill={color}
-              shape={(props) => {
-                console.log(props)
-                return (
-                  <CustomBar
-                    height={props.height}
-                    width={props.width}
-                    x={props.x}
-                    y={props.y}
-                    fill={props.time === highlightTime ? PINK_CRE : color}
-                  />
-                )
-              }}
+              shape={(props) => (
+                <CustomBar
+                  height={props.height}
+                  width={props.width}
+                  x={props.x}
+                  y={props.y}
+                  fill={props.time === highlightTime ? PINK_CRE : color}
+                  cursor={onClick ? 'pointer' : 'default'}
+                />
+              )}
             />
           </Chart>
         </ResponsiveContainer>
@@ -209,16 +207,18 @@ function CustomBar({
   width,
   height,
   fill,
+  cursor,
 }: {
   x: number
   y: number
   width: number
   height: number
   fill: string
+  cursor?: string
 }) {
   return (
     <g>
-      <rect x={x} y={y} fill={fill} width={width} height={height} rx="2" />
+      <rect x={x} y={y} fill={fill} width={width} height={height} rx="2" cursor={cursor} />
     </g>
   )
 }

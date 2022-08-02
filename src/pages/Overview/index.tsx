@@ -7,12 +7,13 @@ import useChartData from 'hooks/useChartData'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
+import usePages from 'pages/hooks/usePages'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { AssetDetail } from 'types/asset'
 
-import TVLChart from './sections/TVLChart'
-import VolumeChart from './sections/VolumeChart'
+import TVLChart from '../components/TVLChart'
+import VolumeChart from '../components/VolumeChart'
 
 // filtering
 const TOKEN_TABLE_FILTERS = [
@@ -54,6 +55,7 @@ export default function Finance() {
 
   // Charts
   const { tvlUSDChartData, volUSDChartData } = useChartData()
+  const { routeTVLByTime, routeVolumeByTime } = usePages()
 
   // All Tokens
   const tokenTableList = useMemo<AssetDetail[]>(() => {
@@ -125,8 +127,8 @@ export default function Finance() {
   return (
     <AppPage>
       <section className="flex flex-col justify-between items-stretch space-y-4 md:flex-row md:space-x-4 md:space-y-0 mb-20">
-        <TVLChart chartData={tvlUSDChartData} />
-        <VolumeChart chartData={volUSDChartData} />
+        <TVLChart chartData={tvlUSDChartData} onClick={routeTVLByTime} />
+        <VolumeChart chartData={volUSDChartData} onClick={routeVolumeByTime} />
       </section>
 
       <section className="mb-20">

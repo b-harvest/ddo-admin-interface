@@ -1,5 +1,5 @@
 import { useDateWideTVLUSD, useDateWideVolUSD } from 'data/useAPI'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { TVLUSDByDate, VolUSDByDate } from 'types/accounts'
 
 const useChartData = () => {
@@ -35,9 +35,17 @@ const useChartData = () => {
     )
   }, [volUSDData])
 
-  console.log('tvl', tvlUSDChartData)
+  const getMinDate = useCallback((list: TVLUSDByDate[] | VolUSDByDate[]) => {
+    const date = list.at(0)?.date
+    return date ? new Date(date) : new Date()
+  }, [])
 
-  return { tvlUSDChartData, volUSDChartData }
+  const getMaxDate = useCallback((list: TVLUSDByDate[] | VolUSDByDate[]) => {
+    const date = list.at(-1)?.date
+    return date ? new Date(date) : new Date()
+  }, [])
+
+  return { tvlUSDChartData, volUSDChartData, getMinDate, getMaxDate }
 }
 
 export default useChartData

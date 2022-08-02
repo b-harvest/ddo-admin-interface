@@ -48,6 +48,11 @@ export const pages: Page[] = [
     pageName: 'Volume 24h',
   },
   {
+    path: '/tvl',
+    label: 'TVL',
+    pageName: 'TVL',
+  },
+  {
     path: '/token',
     label: 'Token Detail',
     pageName: 'Token Detail',

@@ -2,7 +2,6 @@ import Card, { CardMergedSide } from 'components/Card'
 import { GLOW_CRE } from 'constants/style'
 import { ReactNode, useCallback, useState } from 'react'
 import { Cell, Pie, PieChart as Chart, ResponsiveContainer, Sector } from 'recharts'
-import { pure } from 'recompose'
 import type { PieChartEntry } from 'types/chart'
 
 const DEFAULT_HEIGHT = 300
@@ -20,9 +19,7 @@ type PieChartProps = {
   cardMerged?: CardMergedSide
 }
 
-export default pure(PieChart)
-
-function PieChart({
+export default function PieChart({
   data,
   colorMap,
   value,
@@ -69,7 +66,7 @@ function PieChart({
   }, [setLabel, setValue])
 
   return (
-    <Card useGlassEffect={true} className={`${className} items-center md:items-start`} merged={cardMerged}>
+    <Card useGlassEffect={true} className={`${className} items-center`} merged={cardMerged}>
       <div className="shrink-0 grow-0 flex justify-between w-full">
         {topLeft ?? null}
         {topRight ?? null}

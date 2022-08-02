@@ -18,6 +18,7 @@ import DEX from 'pages/DEX'
 import Overview from 'pages/Overview'
 import SignIn from 'pages/SignIn/index'
 import Token from 'pages/Token'
+import TVL from 'pages/TVL'
 import Validators from 'pages/Validators'
 import Volume from 'pages/Volume'
 import { Suspense, useEffect, useMemo } from 'react'
@@ -124,8 +125,9 @@ function App() {
             <AuthRoute path="/validators" component={Validators} />
             <AuthRoute path="/dex" component={DEX} />
 
-            <AuthRoute path="/token/:id" component={Token} />
             <AuthRoute path="/volume/:id" component={Volume} />
+            <AuthRoute path="/tvl/:id" component={TVL} />
+            <AuthRoute path="/token/:id" component={Token} />
 
             <Route>
               <Redirect to="/overview" />

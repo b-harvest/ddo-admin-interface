@@ -9,34 +9,34 @@ import { DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import { transparentize } from 'polished'
 import { useMemo, useState } from 'react'
-import { VolUSDByDate } from 'types/accounts'
+import type { TVLUSDByDate } from 'types/accounts'
 import type { PieChartEntry } from 'types/chart'
 import { formatUSDAmount } from 'utils/amount'
 
-export default function VolumeByPairChart({ date, chartData }: { date: number; chartData: VolUSDByDate[] }) {
+export default function TVLByPoolChart({ date, chartData }: { date: number; chartData: TVLUSDByDate[] }) {
   const { getRatioByType, getColorMap } = usePieChart()
 
   const dateLabel = useMemo(() => dayjs(date).format(DATE_FORMAT), [date])
 
-  const totalVolUSD = useMemo(() => {
-    return new BigNumber(chartData.find((item) => item.date === date)?.vol ?? 0)
+  const totalTvlUSD = useMemo(() => {
+    return new BigNumber(chartData.find((item) => item.date === date)?.tvl ?? 0)
   }, [chartData, date])
 
-  const pairWideVolUSDList = useMemo<PieChartEntry[]>(
+  const poolWideTvlUSDList = useMemo<PieChartEntry[]>(
     () =>
       chartData
         .find((item) => item.date === date)
         ?.detail.map((item) => ({
-          type: item.pair,
-          value: item.usd_vol,
+          type: item.pool,
+          value: item.tvl,
         })) ?? [],
     [chartData, date]
   )
 
-  const colorMap = getColorMap(pairWideVolUSDList)
+  const colorMap = getColorMap(poolWideTvlUSDList)
 
-  const [volHover, setVolHover] = useState<number | undefined>()
-  const [pairHover, setPairHover] = useState<string | undefined>()
+  const [tvlHover, setTvlHover] = useState<number | undefined>()
+  const [poolHover, setPoolHover] = useState<string | undefined>()
 
   return (
     <div className="space-y-4">
@@ -44,18 +44,18 @@ export default function VolumeByPairChart({ date, chartData }: { date: number; c
       <div className="flex flex-col md:flex-row items-stretch">
         <PieChart
           className="grow-0 shrink-0 basis-[100%] md:basis-[50%]"
-          data={pairWideVolUSDList}
+          data={poolWideTvlUSDList}
           colorMap={colorMap}
-          value={volHover}
-          setValue={setVolHover}
-          label={pairHover}
-          setLabel={setPairHover}
+          value={tvlHover}
+          setValue={setTvlHover}
+          label={poolHover}
+          setLabel={setPoolHover}
           cardMerged="right-bottom"
           topLeft={
-            <Indicator title="Volume 24h by pair" light={true} label={pairHover ? `#${pairHover}` : 'Total'}>
+            <Indicator title="TVL by pool" light={true} label={poolHover ? `#${poolHover}` : 'Total'}>
               <div className="flex items-center space-x-3 TYPO-BODY-XL !font-black FONT-MONO">
                 {formatUSDAmount({
-                  value: volHover ? new BigNumber(volHover) : totalVolUSD,
+                  value: tvlHover ? new BigNumber(tvlHover) : totalTvlUSD,
                   mantissa: 0,
                 })}
               </div>
@@ -64,7 +64,7 @@ export default function VolumeByPairChart({ date, chartData }: { date: number; c
         />
         <Card useGlassEffect={true} className="min-w-[300px] md:basis-[50%]" merged="left-top">
           <Indicator light={true} className="md:pt-[2rem]">
-            {pairWideVolUSDList
+            {poolWideTvlUSDList
               .sort((a, b) => b.value - a.value)
               .map((item, i) => (
                 <div key={item.type} className="w-full flex items-center space-x-4">
@@ -77,7 +77,7 @@ export default function VolumeByPairChart({ date, chartData }: { date: number; c
                         mantissa: 0,
                       })}
                     </span>
-                    <span className="TYPO-BODY-XS md:TYPO-BODY-S">{getRatioByType(item, totalVolUSD)}</span>
+                    <span className="TYPO-BODY-XS md:TYPO-BODY-S">{getRatioByType(item, totalTvlUSD)}</span>
                   </div>
                 </div>
               ))}
