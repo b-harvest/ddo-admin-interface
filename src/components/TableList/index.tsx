@@ -17,6 +17,7 @@ import Tag from 'components/Tag'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import type { AlertStatus } from 'types/alert'
 import { formatUSDAmount } from 'utils/amount'
+import { abbrOver } from 'utils/text'
 
 const IS_SORT_ASC_DEFAULT = false
 const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`
@@ -105,8 +106,8 @@ export default function TableList<T>({
   return (
     <div>
       {/* list header */}
-      <header className="flex flex-col justify-start align-stretch space-y-6  mb-4">
-        {showTitle && title && <H3 title={title} />}
+      <header className="flex flex-col justify-start align-stretch mb-4">
+        {showTitle && title && <H3 title={title} className="mb-4" />}
         <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-end md:space-y-0 md:space-x-2 text-black dark:text-white">
           {memo}
           {filterOptions && (
@@ -363,7 +364,7 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
     )
   } else if (field.abbrOver && typeof value === 'string') {
     const abbrLength = field.abbrOver ?? value.length
-    const abbrVal = value.length > abbrLength ? `${value.slice(0, abbrLength)}・・・${value.slice(-3)}` : value
+    const abbrVal = abbrOver(value, abbrLength)
     return (
       <CopyHelper toCopy={value} iconPosition="left">
         {' '}

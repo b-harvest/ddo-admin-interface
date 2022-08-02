@@ -39,5 +39,5 @@ export type AssetTicker = {
 export interface AssetDetail extends Asset {
   vol24USD: BigNumber
   tvlUSD: BigNumber
-  priceOracle: BigNumber
+  priceOracle: BigNumber | undefined
 }

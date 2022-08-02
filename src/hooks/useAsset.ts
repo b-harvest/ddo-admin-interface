@@ -12,7 +12,11 @@ const useAsset = () => {
   const isPoolToken = useCallback((denom: string) => denom.includes('pool'), [])
 
   const allAssetLive = useMemo(() => {
-    return allAssetLiveAtom.map((asset) => ({ ...asset, priceOracle: new BigNumber(asset.priceOracle) })) as AssetLive[]
+    return allAssetLiveAtom.map((asset) => ({
+      ...asset,
+      priceOracle: new BigNumber(asset.priceOracle),
+      updateTimestamp: asset.updateTimestamp * 1000,
+    })) as AssetLive[]
   }, [allAssetLiveAtom])
 
   const allAsset = useMemo(() => {

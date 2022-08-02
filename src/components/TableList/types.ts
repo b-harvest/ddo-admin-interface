@@ -1,4 +1,4 @@
-import { FilterRadioGroupOption } from 'components/FilterRadioGroup'
+import type { FilterRadioGroupOption } from 'components/FilterRadioGroup'
 import type { AlertStatus } from 'types/alert'
 
 export type ListFieldAlign = 'left' | 'right' | 'center'

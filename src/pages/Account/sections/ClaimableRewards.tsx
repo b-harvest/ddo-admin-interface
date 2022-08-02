@@ -8,7 +8,7 @@ import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
-import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
+import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
 import { AlertStatus } from 'types/alert'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
@@ -44,20 +44,20 @@ export default function ClaimableRewards({
 
         const poolAsset = findAssetByDenom(item.poolDenom)
         const poolLabel = poolAsset
-          ? AssetTableLogoCell({ assets: getAssetTickers(poolAsset), poolDenom: item.poolDenom })
+          ? AssetLogoLabel({ assets: getAssetTickers(poolAsset), poolDenom: item.poolDenom })
           : undefined
         const poolId = findPoolByDenom(item.poolDenom)?.poolId
 
         const rewardsAsset = findAssetByDenom(item.denom)
         const rewardsAssetLabel = rewardsAsset
-          ? AssetTableLogoCell({
+          ? AssetLogoLabel({
               assets: getAssetTickers(rewardsAsset),
               isSingleAssetAutoSpaced: true,
               nowrap: true,
             })
           : undefined
         const rewardsAssetLogo = rewardsAsset
-          ? AssetTableLogoCell({
+          ? AssetLogoLabel({
               assets: getAssetTickers(rewardsAsset),
               hideTicker: true,
             })

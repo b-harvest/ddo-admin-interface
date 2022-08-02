@@ -4,7 +4,7 @@ import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
-import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
+import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
 import type { AlertStatus } from 'types/alert'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
@@ -37,7 +37,7 @@ export default function FarmStakedAmount({
         : 'error'
 
       const asset = findAssetByDenom(item.denom)
-      const assetLabel = asset ? AssetTableLogoCell({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
+      const assetLabel = asset ? AssetLogoLabel({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
       const poolId = findPoolByDenom(item.denom)?.poolId
 
       return {
@@ -62,7 +62,7 @@ export default function FarmStakedAmount({
         : 'error'
 
       const asset = findAssetByDenom(item.denom)
-      const assetLabel = asset ? AssetTableLogoCell({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
+      const assetLabel = asset ? AssetLogoLabel({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
       const poolId = findPoolByDenom(item.denom)?.poolId
 
       return {

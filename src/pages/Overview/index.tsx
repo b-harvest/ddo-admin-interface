@@ -1,12 +1,12 @@
-import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
-import Tag from 'components/Tag'
 import useAsset from 'hooks/useAsset'
 import useChartData from 'hooks/useChartData'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
-import AssetTableLogoCell from 'pages/components/AssetTableLogoCell'
+import AssetLogoLabel from 'pages/components/AssetLogoLabel'
+import PairsTable from 'pages/components/PairsTable'
+import PoolsTable from 'pages/components/PoolsTable'
 import usePages from 'pages/hooks/usePages'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -46,12 +46,12 @@ const PAIR_TABLE_FILTERS = [
   },
 ]
 
-export default function Finance() {
+export default function Overview() {
   const history = useHistory()
 
   const { allAsset } = useAsset()
-  const { allPair, findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom } = usePair()
-  const { allPools, findPoolByDenom, getAssetTickers } = usePool()
+  const { findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom } = usePair()
+  const { findPoolByDenom, getAssetTickers } = usePool()
 
   // Charts
   const { tvlUSDChartData, volUSDChartData } = useChartData()
@@ -62,11 +62,11 @@ export default function Finance() {
     return allAsset
       .filter((item) => (item.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
       .map((item) => {
-        const asset = AssetTableLogoCell({ assets: getAssetTickers(item) })
+        const asset = AssetLogoLabel({ assets: getAssetTickers(item) })
         const vol24USD = getVol24USDbyDenom(item.denom)
         const tvlUSD = getTVLUSDbyDenom(item.denom)
-        const priceOracle =
-          (item.isPoolToken ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle) ?? new BigNumber(0)
+        const priceOracle = item.isPoolToken ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle
+        // ?? new BigNumber(0)
         const filter = [item.denom.includes('pool') ? TOKEN_TABLE_FILTERS[1].value : TOKEN_TABLE_FILTERS[0].value]
 
         return {
@@ -80,49 +80,52 @@ export default function Finance() {
       })
   }, [findPoolFromPairsByDenom, allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, findPoolByDenom, getAssetTickers])
 
-  const handleTokenListRowClick = (row: AssetDetail) => history.push(`/token/${row.denom}`)
+  const handleTokenListRowClick = (row: AssetDetail) => {
+    const denom = row.denom.split('/').join('-')
+    history.push(`/token/${denom}`)
+  }
 
   // All pairs
-  const pairTableList = useMemo(() => {
-    return allPair.map((pair) => {
-      const asset = AssetTableLogoCell({ assets: pair.assetTickers })
-      const baseTicker = pair.assetTickers[0].ticker
-      const quoteTicker = pair.assetTickers[1].ticker
-      const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
-      const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
+  // const pairTableList = useMemo(() => {
+  //   return allPair.map((pair) => {
+  //     const asset = AssetLogoLabel({ assets: pair.assetTickers })
+  //     const baseTicker = pair.assetTickers[0].ticker
+  //     const quoteTicker = pair.assetTickers[1].ticker
+  //     const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
+  //     const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
 
-      return {
-        ...pair,
-        asset,
-        baseTicker,
-        filter: [filter1, filter2],
-      }
-    })
-  }, [allPair])
+  //     return {
+  //       ...pair,
+  //       asset,
+  //       baseTicker,
+  //       filter: [filter1, filter2],
+  //     }
+  //   })
+  // }, [allPair])
 
   // All pools
-  const poolTableList = useMemo(() => {
-    return allPools.map((pool) => {
-      const baseTicker = pool.pair?.assetTickers[0].ticker ?? ''
-      const quoteTicker = pool.pair?.assetTickers[1].ticker ?? ''
-      const asset = AssetTableLogoCell({ assets: pool.pair?.assetTickers ?? [] })
-      const apr = pool.apr.toNumber()
-      const bcreApr = pool.bcreApr.isZero() ? null : pool.bcreApr.toNumber()
-      const poolTypeTag = pool.isRanged ? <Tag status="strong">Ranged</Tag> : null
-      const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
-      const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
+  // const poolTableList = useMemo(() => {
+  //   return allPools.map((pool) => {
+  //     const baseTicker = pool.pair?.assetTickers[0].ticker ?? ''
+  //     const quoteTicker = pool.pair?.assetTickers[1].ticker ?? ''
+  //     const asset = AssetLogoLabel({ assets: pool.pair?.assetTickers ?? [] })
+  //     const apr = pool.apr.toNumber()
+  //     const bcreApr = pool.bcreApr.isZero() ? null : pool.bcreApr.toNumber()
+  //     const poolTypeTag = pool.isRanged ? <Tag status="strong">Ranged</Tag> : null
+  //     const filter1 = PAIR_TABLE_FILTERS.find((item) => baseTicker.includes(item.value))?.value ?? ''
+  //     const filter2 = PAIR_TABLE_FILTERS.find((item) => quoteTicker.includes(item.value))?.value ?? ''
 
-      return {
-        ...pool,
-        baseTicker,
-        asset,
-        apr,
-        bcreApr,
-        poolTypeTag,
-        filter: [filter1, filter2],
-      }
-    })
-  }, [allPools])
+  //     return {
+  //       ...pool,
+  //       baseTicker,
+  //       asset,
+  //       apr,
+  //       bcreApr,
+  //       poolTypeTag,
+  //       filter: [filter1, filter2],
+  //     }
+  //   })
+  // }, [allPools])
 
   return (
     <AppPage>
@@ -186,7 +189,7 @@ export default function Finance() {
       </section>
 
       <section className="mb-20">
-        <TableList
+        {/* <TableList
           title="All Pairs"
           useSearch={true}
           useNarrow={true}
@@ -249,68 +252,12 @@ export default function Finance() {
               responsive: true,
             },
           ]}
-        />
+        /> */}
+        <PairsTable filters={PAIR_TABLE_FILTERS} />
       </section>
 
       <section>
-        <TableList
-          title="All Pools"
-          useSearch={true}
-          useNarrow={true}
-          list={poolTableList}
-          filterOptions={PAIR_TABLE_FILTERS}
-          defaultSortBy="tvlUSD"
-          defaultIsSortASC={false}
-          nowrap={true}
-          fields={[
-            {
-              label: 'Pool base/quote',
-              value: 'asset',
-              sortValue: 'baseTicker',
-              type: 'html',
-              widthRatio: 22,
-            },
-            {
-              label: 'Pool #',
-              value: 'poolId',
-              widthRatio: 4,
-              responsive: true,
-            },
-            {
-              label: 'Pool price',
-              value: 'poolPrice',
-              type: 'bignumber',
-              toFixedFallback: 6,
-              responsive: true,
-            },
-            {
-              label: '',
-              value: 'poolTypeTag',
-              type: 'html',
-              responsive: true,
-            },
-            {
-              label: 'APR',
-              value: 'apr',
-              type: 'change',
-              neutral: true,
-            },
-            {
-              label: '+bCRE',
-              value: 'bcreApr',
-              type: 'change',
-              strong: true,
-              align: 'left',
-              responsive: true,
-            },
-            {
-              label: 'TVL',
-              value: 'tvlUSD',
-              type: 'usd',
-              toFixedFallback: 0,
-            },
-          ]}
-        />
+        <PoolsTable filters={PAIR_TABLE_FILTERS} />
       </section>
     </AppPage>
   )
