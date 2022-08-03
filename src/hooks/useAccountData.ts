@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { useAirdropClaim, useFarmStaked } from 'data/useAPI'
 import { useBalance } from 'data/useAPI'
+import { willFetch } from 'data/useAppSWR'
 import { useAirdropClaimLCD, useAllFarmRewardsLCD, useFarmPositionLCD, useFarmStakedLCD } from 'data/useLCD'
 import { useBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
@@ -54,15 +55,15 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   // * balance
   const { data: allBalanceData }: APIHookReturn<BalanceRaw> = useBalance(
     {
-      address: address ?? '',
-      fetch: address !== undefined,
+      address,
+      fetch: willFetch(address),
     },
     interval
   )
   const { data: allBalanceLCDData }: LCDHookReturn<BalanceLCDRaw> = useBalanceLCD(
     {
-      address: address ?? '',
-      fetch: address !== undefined,
+      address,
+      fetch: willFetch(address),
     },
     interval
   )
@@ -89,17 +90,17 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   // * staked amount
   const { data: allStakedData }: APIHookReturn<StakedRaw[]> = useFarmStaked({
     address,
-    fetch: address !== '',
+    fetch: willFetch(address),
   })
 
   const { data: allStakedLCDData }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD({
     address,
-    fetch: address !== '',
+    fetch: willFetch(address),
   })
 
   const { data: farmPositionLCDData }: LCDHookReturn<FarmPositionLCDRaw> = useFarmPositionLCD({
     address,
-    fetch: address !== '',
+    fetch: willFetch(address),
   })
 
   // backend
@@ -129,20 +130,13 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 
   // onchain
   const allStakedLCD = useMemo(() => {
-    // if (isOnTestnet) {
     return (
       ((allStakedLCDData as StakedLCDRaw)?.stakings.map((item) => {
         const exponent = findAssetByDenom(item.staking_coin_denom)?.exponent ?? 0
         return { denom: item.staking_coin_denom, amount: new BigNumber(item.amount).dividedBy(10 ** exponent) }
       }) as StakedByPoolLCD[]) ?? []
     )
-
-    // return farmPositionLCDData?.staked_coins
-  }, [
-    // isOnTestnet,
-    allStakedLCDData,
-    findAssetByDenom,
-  ])
+  }, [allStakedLCDData, findAssetByDenom])
 
   const farmPositionLCD = useMemo(() => {
     const staked_coins = farmPositionLCDData?.staked_coins.map(getBigNumberedAmountSet) ?? []
@@ -159,7 +153,7 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   const { data: allFarmRewardsLCDData }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> =
     useAllFarmRewardsLCD({
       address,
-      fetch: address !== '',
+      fetch: willFetch(address),
     })
 
   // backend
@@ -208,12 +202,12 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   // * airdrop claim
   const { data: airdropClaimData }: APIHookReturn<AirdropClaimRaw> = useAirdropClaim({
     address,
-    fetch: address !== '',
+    fetch: willFetch(address),
   })
 
   const { data: airdropClaimLCDData }: LCDHookReturn<AirdropClaimLCDRaw> = useAirdropClaimLCD({
     address,
-    fetch: address !== '',
+    fetch: willFetch(address),
   })
 
   const airdropClaimDataTimestamp = useMemo(() => (airdropClaimData?.curTimestamp ?? 0) * 1000, [airdropClaimData])

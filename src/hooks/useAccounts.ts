@@ -6,8 +6,6 @@ import type { AccountRankRaw, RankData } from 'types/accounts'
 const useAccounts = () => {
   const { data: allAccountsRankData } = useAllAccountsRank()
 
-  console.log('allAccountsRankData', allAccountsRankData)
-
   // farm ranks
   const farmRanksData = useMemo<AccountRankRaw | undefined>(
     () => allAccountsRankData?.data.find((item) => item.rankType === 'farming'),

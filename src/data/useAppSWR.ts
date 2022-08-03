@@ -54,6 +54,10 @@ function handleError(error: any) {
   return error
 }
 
+export function willFetch(value?: string): boolean {
+  return value !== undefined && value.length > 0
+}
+
 export function returnGenerator<T>({ data, error }: ResponseViaSWR<T>): APIHookReturn<T> {
   return {
     data,

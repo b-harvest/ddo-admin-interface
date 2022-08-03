@@ -25,18 +25,23 @@ export default function Accounts() {
   const significantTimeGap = useMemo(() => CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom], [chainIdAtom])
 
   // address
-  const [inputAddr, setInputAddr] = useState(id ?? DUMMY_ADDRESS)
+  const [inputAddr, setInputAddr] = useState(DUMMY_ADDRESS)
   const [addr, setAddr] = useState<undefined | string>(undefined)
 
   const history = useHistory()
   const onSearch = () => {
-    setAddr(inputAddr)
-    history.push(`/account/${inputAddr}`)
+    if (inputAddr.length) {
+      setAddr(inputAddr)
+      history.push(`/account/${inputAddr}`)
+    }
   }
 
   useEffect(() => {
-    if (id) setAddr(inputAddr)
-  }, [])
+    if (id) {
+      setInputAddr(id)
+      setAddr(id)
+    }
+  }, [id, setInputAddr, setAddr])
 
   return (
     <AppPage className="pt-[calc(1.5rem+3.25rem)]">

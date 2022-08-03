@@ -3,15 +3,16 @@ import SelectTab from 'components/SelectTab'
 import { TIMESTAMP_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useAccounts from 'hooks/useAccounts'
-import { useMemo, useState } from 'react'
+import usePages from 'pages/hooks/usePages'
+import { useEffect, useMemo, useState } from 'react'
 import type { RankData } from 'types/accounts'
 
 import Ranks from './../components/Ranks'
 
 export enum RankType {
-  FarmStaking = 'Farm Staking',
-  Balance = 'Balance',
-  Total = 'Farm Staking + Balance',
+  FarmStaking = 'farming',
+  Balance = 'balance',
+  Total = 'total',
 }
 
 const TOP_ACCOUNTS_TYPE_TAB_ITEMS = [
@@ -30,15 +31,34 @@ const TOP_ACCOUNTS_TYPE_TAB_ITEMS = [
 ]
 
 export default function TopAccounts() {
+  // route data
+  const { history, searchMap } = usePages()
+
+  const searchRankType = useMemo<RankType | undefined>(() => {
+    const search = searchMap?.get('rank')
+    const i = search ? (Object.values(RankType) as string[]).indexOf(search) : -1
+    const key = Object.keys(RankType)[i]
+    return RankType[key]
+  }, [searchMap])
+
+  // rank type
+  const [rankType, setRankType] = useState<RankType>(searchRankType ?? RankType.Total)
+  const handleRankTypeSelect = (value: RankType) => {
+    history.push(`/accounts?rank=${value}`)
+    setRankType(value)
+  }
+
+  useEffect(() => {
+    if (searchRankType) setRankType(searchRankType)
+  }, [searchRankType])
+
+  // fetch data
   const { farmRanks, farmRanksTimestamp, balanceRanks, balanceRanksTimestamp, totalRanks, totalRanksTimestamp } =
     useAccounts()
 
   const farmRanksTime = useMemo(() => getTimeMemo(farmRanksTimestamp), [farmRanksTimestamp])
   const balanceRanksTime = useMemo(() => getTimeMemo(balanceRanksTimestamp), [balanceRanksTimestamp])
   const totalRanksTime = useMemo(() => getTimeMemo(totalRanksTimestamp), [totalRanksTimestamp])
-
-  const [rankType, setRankType] = useState<RankType>(RankType.Total)
-  const handleRankTypeSelect = (value: RankType) => setRankType(value)
 
   const { ranks, ranksTime, amountLabel } = useMemo<{
     ranks: RankData[]

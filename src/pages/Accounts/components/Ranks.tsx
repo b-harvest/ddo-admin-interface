@@ -4,6 +4,10 @@ import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { RankData } from 'types/accounts'
 
+type AliasTag = {
+  aliasTag: JSX.Element | null
+}
+
 export default function Ranks({
   title,
   ranks,
@@ -20,7 +24,7 @@ export default function Ranks({
     if (field === 'addr') history.push(`/account/${cell}`)
   }
 
-  const ranksTableList = useMemo(
+  const ranksTableList = useMemo<(RankData & AliasTag)[]>(
     () =>
       ranks.map((rank) => {
         const aliasTag = rank.alias.length ? <Tag status="info">{rank.alias}</Tag> : null
@@ -33,7 +37,7 @@ export default function Ranks({
   )
 
   return (
-    <TableList<RankData>
+    <TableList<RankData & AliasTag>
       title={title}
       showTitle={false}
       memo={memo}
@@ -59,6 +63,7 @@ export default function Ranks({
         {
           label: '',
           value: 'aliasTag',
+          sortValue: 'alias',
           type: 'html',
           widthRatio: 4,
         },
