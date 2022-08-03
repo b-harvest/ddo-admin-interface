@@ -1,4 +1,6 @@
 import TableList from 'components/TableList'
+import Tag from 'components/Tag'
+import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { RankData } from 'types/accounts'
 
@@ -18,6 +20,18 @@ export default function Ranks({
     if (field === 'addr') history.push(`/account/${cell}`)
   }
 
+  const ranksTableList = useMemo(
+    () =>
+      ranks.map((rank) => {
+        const aliasTag = rank.alias.length ? <Tag status="info">{rank.alias}</Tag> : null
+        return {
+          ...rank,
+          aliasTag,
+        }
+      }),
+    [ranks]
+  )
+
   return (
     <TableList<RankData>
       title={title}
@@ -25,7 +39,7 @@ export default function Ranks({
       memo={memo}
       useSearch={true}
       useNarrow={true}
-      list={ranks}
+      list={ranksTableList}
       defaultSortBy="usd"
       defaultIsSortASC={false}
       defaultFilterIndex={1}
@@ -43,6 +57,12 @@ export default function Ranks({
           clickable: true,
         },
         {
+          label: '',
+          value: 'aliasTag',
+          type: 'html',
+          widthRatio: 4,
+        },
+        {
           label: 'Last change block',
           value: 'lastAct',
           align: 'right',
@@ -55,6 +75,5 @@ export default function Ranks({
         },
       ]}
     />
-    // </FoldableSection>
   )
 }

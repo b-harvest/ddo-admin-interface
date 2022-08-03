@@ -5,6 +5,8 @@ interface RankDataRaw {
   addr: string
   usd: number
   lastAct: number
+  alias: string
+  memo: string
 }
 
 export type RankData = Omit<RankDataRaw, 'usd'> & {

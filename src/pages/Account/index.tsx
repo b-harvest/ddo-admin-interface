@@ -9,7 +9,7 @@ import { DUMMY_ADDRESS } from 'constants/msg'
 // import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { chainIdAtomRef } from 'state/atoms'
 import { isTestnet } from 'utils/chain'
 
@@ -25,16 +25,18 @@ export default function Accounts() {
   const significantTimeGap = useMemo(() => CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom], [chainIdAtom])
 
   // address
-  const [searchAddress, setSearchAddress] = useState(id ?? DUMMY_ADDRESS)
-  const [address, setAddress] = useState<undefined | string>(undefined)
+  const [inputAddr, setInputAddr] = useState(id ?? DUMMY_ADDRESS)
+  const [addr, setAddr] = useState<undefined | string>(undefined)
 
-  const handleAddressSearch = () => {
-    if (address !== searchAddress) setAddress(searchAddress)
+  const history = useHistory()
+  const onSearch = () => {
+    setAddr(inputAddr)
+    history.push(`/account/${inputAddr}`)
   }
 
   useEffect(() => {
-    if (id) handleAddressSearch()
-  })
+    if (id) setAddr(inputAddr)
+  }, [])
 
   return (
     <AppPage className="pt-[calc(1.5rem+3.25rem)]">
@@ -48,35 +50,30 @@ export default function Accounts() {
               Current Address
             </span>
             <span className="TYPO-BODY-XS text-black dark:text-white !font-black FONT-MONO text-left">
-              {address ?? 'No address yet'}
+              {addr ?? 'No address yet'}
             </span>
           </div>
         </Sticker>
       </div>
 
       <div className="flex flex-col justify-start items-stretch space-y-4 mb-20">
-        <SearchInput
-          placeholder="Address"
-          keyword={searchAddress}
-          onChange={setSearchAddress}
-          onSearch={handleAddressSearch}
-        />
-        {address ? (
+        <SearchInput placeholder="Address" keyword={inputAddr} onChange={setInputAddr} onSearch={onSearch} />
+        {addr ? (
           <div className="flex">
-            <ExplorerLink address={address} />
+            <ExplorerLink address={addr} />
           </div>
         ) : null}
       </div>
 
       <div className="flex flex-col justify-start items-stretch space-y-12">
         {/* refactoring wip */}
-        <TokenBalance address={address} significantTimeGap={significantTimeGap} />
+        <TokenBalance address={addr} significantTimeGap={significantTimeGap} />
         <Hr />
-        <ClaimableRewards address={address} significantTimeGap={significantTimeGap} />
+        <ClaimableRewards address={addr} significantTimeGap={significantTimeGap} />
         <Hr />
-        <FarmStakedAmount address={address} significantTimeGap={significantTimeGap} />
+        <FarmStakedAmount address={addr} significantTimeGap={significantTimeGap} />
         <Hr />
-        <AirdropClaim address={address} significantTimeGap={significantTimeGap} />
+        <AirdropClaim address={addr} significantTimeGap={significantTimeGap} />
       </div>
     </AppPage>
   )

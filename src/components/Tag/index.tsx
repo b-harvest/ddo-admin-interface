@@ -12,7 +12,7 @@ export default function Tag({
 }) {
   return (
     <span
-      className={`${className} inline-block px-2 py-0.5 rounded-md border TYPO-BODY-2XS FONT-MONO !font-medium !whitespace-nowrap md:TYPO-BODY-XS ${CSSByStatus(
+      className={`${className} inline-block px-2 py-0.5 rounded-md border TYPO-BODY-XS FONT-MONO !font-medium !whitespace-nowrap ${CSSByStatus(
         status
       )}`}
     >
@@ -32,7 +32,7 @@ function CSSByStatus(status?: AlertStatus | 'strong') {
     case 'warning':
       return `text-warning bg-[#FFFAF1] dark:bg-warning-o border-warning`
     case 'strong':
-      return `text-black bg-glowCRE dark:bg-glowDarkCRE border-0`
+      return `text-black bg-glowCRE border-0`
     default:
       return 'text-grayCRE-300 bg-white dark:bg-black border-grayCRE-200 dark:border-0'
   }
