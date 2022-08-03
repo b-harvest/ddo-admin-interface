@@ -65,7 +65,7 @@ export default function Ranks({
           value: 'aliasTag',
           sortValue: 'alias',
           type: 'html',
-          widthRatio: 4,
+          widthRatio: 10,
         },
         {
           label: 'Last change block',

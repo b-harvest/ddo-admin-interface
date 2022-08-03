@@ -31,9 +31,9 @@ export const pages: Page[] = [
     nav: true,
   },
   {
-    path: '/validators',
-    label: 'Validators',
-    pageName: 'Validators',
+    path: '/lsv',
+    label: 'LSV',
+    pageName: 'LSV Monitoring',
     nav: true,
   },
   {

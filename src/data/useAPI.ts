@@ -7,6 +7,7 @@ import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { BlockEventIndicatorsRaw, BlocksEventsRaw, BlocksFlushRaw } from 'types/block'
 import type { ChainInfo, ChainLive } from 'types/chain'
 import type { LiquidStakeRaw } from 'types/liquidStake'
+import type { LSVRaw } from 'types/lsv'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
@@ -74,6 +75,11 @@ export function useAirdropClaim({ address, fetch = true }: { address: string; fe
 }
 
 // info
+export function useAllLSV(interval = 0) {
+  const { data, error }: ResponseViaSWR<LSVRaw[]> = useInfoSWR('/a1/lsv', { interval })
+  return returnGenerator({ data, error })
+}
+
 export function useAllAccountsRank(interval = 0) {
   const { data, error }: ResponseViaSWR<AccountRankRaw[]> = useInfoSWR('/a1/rank', { interval })
   return returnGenerator({ data, error })

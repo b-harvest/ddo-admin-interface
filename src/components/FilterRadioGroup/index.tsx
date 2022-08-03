@@ -12,9 +12,15 @@ interface FilterRadioGroupProps {
   defaultIndex?: number
   onSelect: (selected: FilterRadioGroupOption) => void
   options: FilterRadioGroupOption[]
+  className?: string
 }
 
-export default function FilterRadioGroup({ defaultIndex = 0, onSelect, options }: FilterRadioGroupProps) {
+export default function FilterRadioGroup({
+  defaultIndex = 0,
+  onSelect,
+  options,
+  className = '',
+}: FilterRadioGroupProps) {
   const radioOptions = useMemo(() => [TAB_RADIO_GROUP_DEFAULT_OPTION].concat(options), [options])
 
   const [selected, setSelected] = useState<FilterRadioGroupOption>(radioOptions[defaultIndex] ?? radioOptions[0])
@@ -24,7 +30,7 @@ export default function FilterRadioGroup({ defaultIndex = 0, onSelect, options }
   }, [selected, onSelect])
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${className}`}>
       <RadioGroup value={selected} onChange={setSelected}>
         <RadioGroup.Label className="sr-only">Table Filters</RadioGroup.Label>
         <div className="flex space-x-2 p-[2px] overflow-x-auto overflow-y-hidden">

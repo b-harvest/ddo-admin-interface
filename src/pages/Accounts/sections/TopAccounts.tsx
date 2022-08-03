@@ -1,7 +1,6 @@
 import H3 from 'components/H3'
 import SelectTab from 'components/SelectTab'
-import { TIMESTAMP_FORMAT } from 'constants/time'
-import dayjs from 'dayjs'
+import TimestampMemo from 'components/TimestampMemo'
 import useAccounts from 'hooks/useAccounts'
 import usePages from 'pages/hooks/usePages'
 import { useEffect, useMemo, useState } from 'react'
@@ -56,9 +55,9 @@ export default function TopAccounts() {
   const { farmRanks, farmRanksTimestamp, balanceRanks, balanceRanksTimestamp, totalRanks, totalRanksTimestamp } =
     useAccounts()
 
-  const farmRanksTime = useMemo(() => getTimeMemo(farmRanksTimestamp), [farmRanksTimestamp])
-  const balanceRanksTime = useMemo(() => getTimeMemo(balanceRanksTimestamp), [balanceRanksTimestamp])
-  const totalRanksTime = useMemo(() => getTimeMemo(totalRanksTimestamp), [totalRanksTimestamp])
+  const farmRanksTime = useMemo(() => <TimestampMemo timestamp={farmRanksTimestamp} />, [farmRanksTimestamp])
+  const balanceRanksTime = useMemo(() => <TimestampMemo timestamp={balanceRanksTimestamp} />, [balanceRanksTimestamp])
+  const totalRanksTime = useMemo(() => <TimestampMemo timestamp={totalRanksTimestamp} />, [totalRanksTimestamp])
 
   const { ranks, ranksTime, amountLabel } = useMemo<{
     ranks: RankData[]
@@ -99,14 +98,14 @@ export default function TopAccounts() {
   )
 }
 
-function AccountsRankTableMemo(memo: string) {
-  return (
-    <div className="flex items-center space-x-2 TYPO-BODY-XS !font-medium">
-      <div>Last synced</div> <div className="">{memo}</div>
-    </div>
-  )
-}
+// export function TimestampMemo(memo: string) {
+//   return (
+//     <div className="flex items-center space-x-2 TYPO-BODY-XS !font-medium">
+//       <div>Last synced</div> <div className="">{memo}</div>
+//     </div>
+//   )
+// }
 
-function getTimeMemo(timestamp: number | undefined) {
-  return AccountsRankTableMemo(timestamp ? `${dayjs(timestamp).format(TIMESTAMP_FORMAT)}` : '-')
-}
+// export function TimestampMemo(timestamp: number | undefined) {
+//   return TimestampMemo(timestamp ? `${dayjs(timestamp).format(TIMESTAMP_FORMAT)}` : '-')
+// }

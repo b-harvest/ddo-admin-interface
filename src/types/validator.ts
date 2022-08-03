@@ -16,3 +16,5 @@ export interface ValidatorSetsLCDRaw {
     total: string
   }
 }
+
+export type ValidatorsByHeightLCD = ValidatorSetsLCDRaw['result']
