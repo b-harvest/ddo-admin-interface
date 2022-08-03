@@ -1,4 +1,4 @@
-interface Page {
+export type Page = {
   path: string
   label: string
   pageName: string
@@ -60,8 +60,12 @@ export const pages: Page[] = [
 ]
 
 // utils
-export const getPageName = (pathName: string): string => {
-  pathName.split('/')
-  const i = pages.findIndex((page) => page.path === pathName)
+export const getPageName = (pathname: string): string => {
+  // pathname.split('/')
+  const i = pages.findIndex((page) => page.path === pathname)
   return i > -1 ? pages[i].pageName : ''
+}
+
+export const findPage = (pathname: string): Page | undefined => {
+  return pages.find((page) => page.path === pathname)
 }

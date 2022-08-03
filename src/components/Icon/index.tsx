@@ -11,6 +11,7 @@ import { GiReceiveMoney, GiToken } from 'react-icons/gi'
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { ImCheckboxChecked, ImCheckboxUnchecked } from 'react-icons/im'
 import { IoIosMore, IoMdArrowRoundForward, IoMdClose } from 'react-icons/io'
+import { IoMdArrowBack } from 'react-icons/io'
 import { MdExpandLess, MdExpandMore, MdOutlineContentCopy, MdOutlineSearch } from 'react-icons/md'
 import { MdAccessTime } from 'react-icons/md'
 import { MdCalendarToday } from 'react-icons/md'
@@ -51,6 +52,7 @@ export type IconType =
   | 'hamburger'
   | 'blockchain'
   | 'calendar'
+  | 'back'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -86,6 +88,7 @@ const Icons: { [key: string]: React.ElementType } = {
   hamburger: GiHamburgerMenu,
   blockchain: SiHiveBlockchain,
   calendar: MdCalendarToday,
+  back: IoMdArrowBack,
 }
 
 interface IconProps {
