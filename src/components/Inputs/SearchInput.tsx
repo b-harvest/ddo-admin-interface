@@ -15,7 +15,7 @@ export default function SearchInput({ placeholder = 'Search', keyword, onChange,
         type="text"
         value={keyword}
         placeholder={placeholder}
-        onChange={({ target }) => onChange(target.value)}
+        onChange={({ target }) => onChange(target.value.trim())}
         onKeyPress={(evt) => {
           if (onSearch && evt.key === 'Enter') onSearch()
         }}
