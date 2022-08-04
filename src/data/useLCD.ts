@@ -11,6 +11,7 @@ import type {
 } from 'types/account'
 import type { LCDResponseViaSWR } from 'types/api'
 import type { BlockLCD } from 'types/block'
+import type { ProposalLCDRaw } from 'types/proposal'
 import type { ValidatorSetsLCDRaw } from 'types/validator'
 import { COSMOS_CHAIN_NAME } from 'utils/chainRegistry'
 
@@ -83,6 +84,15 @@ export function useBlockLCD({ height, fetch = true }: { height?: string; fetch?:
 
 export function useValidatorsets({ height, fetch = true }: { height?: string; fetch?: boolean }, interval = 0) {
   const { data, error }: LCDResponseViaSWR<ValidatorSetsLCDRaw> = useAppSWR(`/validatorsets/${height ?? 'latest'}`, {
+    interval,
+    type: 'rpc-rest',
+    fetch,
+  })
+  return lcdReturnGenerator({ data, error })
+}
+
+export function useAllProposalsLCD({ fetch = true }: { fetch?: boolean }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<{ proposals: ProposalLCDRaw[] }> = useAppSWR(`/proposals`, {
     interval,
     type: 'rpc-rest',
     fetch,

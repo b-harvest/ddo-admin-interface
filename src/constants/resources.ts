@@ -5,3 +5,13 @@ export const CRESCENT_ASSET_IMG_URL =
   'https://raw.githubusercontent.com/crescent-network/asset/main/images/coin/CRE.png'
 
 export const MINTSCAN_LOGO_IMG_URL = 'https://www.mintscan.io/apple-touch-icon.png'
+
+// lsv
+export const LSV_DOKIA_CAPITAL_LOGO_URL = 'https://dokia.capital/assets/svg/logo-tipWhite.svg'
+
+export const LSV_COSMOSTATION_LOGO_URL =
+  'https://lh3.google.com/u/0/d/1MqOl-b6V1mQgK2h5Kx269xfPuFjUg7UU=w3024-h1666-iv1'
+
+export const LSV_IMPERATOR_LOGO_URL = 'https://imperator.co/Logo.png'
+
+export const LSV_PROVALIDATOR_LOGO_URL = 'https://provalidator.com/wp-content/uploads/2020/12/fab-1-150x150.png'

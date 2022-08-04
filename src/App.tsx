@@ -16,6 +16,7 @@ import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
 import DEX from 'pages/DEX'
 import LSV from 'pages/LSV'
+import LSVs from 'pages/LSVs'
 import Overview from 'pages/Overview'
 import SignIn from 'pages/SignIn/index'
 import Token from 'pages/Token'
@@ -122,7 +123,8 @@ function App() {
             <AuthRoute path="/accounts" component={Accounts} />
             <AuthRoute path="/account/:id" component={Account} />
             <AuthRoute path="/account" component={Account} />
-            <AuthRoute path="/lsv" component={LSV} />
+            <AuthRoute path="/lsvs" component={LSVs} />
+            <AuthRoute path="/lsv/:id" component={LSV} />
             <AuthRoute path="/dex" component={DEX} />
 
             <AuthRoute path="/volume/:id" component={Volume} />

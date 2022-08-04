@@ -109,7 +109,7 @@ export default function TableList<T>({
       <header className="flex flex-col justify-start align-stretch mb-4">
         {showTitle && title && <H3 title={title} className="mb-4" />}
         <div className="flex flex-col justify-between items-stretch space-y-2 md:flex-row md:items-end md:space-y-0 md:space-x-2 text-black dark:text-white">
-          <div className="">{memo}</div>
+          {memo && <div className="">{memo}</div>}
           {filterOptions && (
             <FilterRadioGroup
               className="grow shrink"

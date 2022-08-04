@@ -31,7 +31,7 @@ export const pages: Page[] = [
     nav: true,
   },
   {
-    path: '/lsv',
+    path: '/lsvs',
     label: 'LSV',
     pageName: 'LSV Monitoring',
     nav: true,
@@ -55,6 +55,11 @@ export const pages: Page[] = [
   {
     path: '/token',
     label: 'Token Detail',
+    pageName: '',
+  },
+  {
+    path: '/lsv',
+    label: 'LSV Detail',
     pageName: '',
   },
 ]

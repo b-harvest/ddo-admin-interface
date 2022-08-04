@@ -2,10 +2,9 @@ import BigNumber from 'bignumber.js'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
-import { DATE_FORMAT } from 'constants/time'
-import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
 import { useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 import type { LSV } from 'types/lsv'
 
 const LSV_FILTER_OPTIONS = [
@@ -20,7 +19,7 @@ const LSV_FILTER_OPTIONS = [
 ]
 
 type LSVAdditional = {
-  since: string
+  // since: string
   aliasLabel: JSX.Element
   missingBlocks: BigNumber
   kickoutTag: JSX.Element | null
@@ -32,7 +31,7 @@ export default function LSVList() {
 
   const allLSVTableList = useMemo<(LSV & LSVAdditional)[]>(() => {
     return allLSV.map((item) => {
-      const since = dayjs(item.lsvStartTimestamp).format(DATE_FORMAT)
+      // const since = dayjs(item.lsvStartTimestamp).format(DATE_FORMAT)
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
       const missingBlocks = new BigNumber(item.missingBlockCounter)
       const jailedTag = item.jailed ? <Tag status="error">Jailed</Tag> : null
@@ -48,7 +47,7 @@ export default function LSVList() {
 
       return {
         ...item,
-        since,
+        // since,
         aliasLabel,
         missingBlocks,
         kickoutTag,
@@ -57,6 +56,11 @@ export default function LSVList() {
     })
   }, [allLSV])
 
+  const history = useHistory()
+  const onRowClick = (item: LSV & LSVAdditional) => {
+    history.push(`/lsv/${item.addr}`)
+  }
+
   return (
     <TableList<LSV & LSVAdditional>
       title="All LSV"
@@ -64,13 +68,14 @@ export default function LSVList() {
       useNarrow={true}
       memo={<TimestampMemo timestamp={allLSVTimestamp} />}
       list={allLSVTableList}
-      filterOptions={LSV_FILTER_OPTIONS}
+      //   filterOptions={LSV_FILTER_OPTIONS}
       defaultSortBy={'kickout'}
       defaultIsSortASC={false}
       nowrap={true}
+      onRowClick={onRowClick}
       fields={[
         {
-          label: 'LSV',
+          label: 'Validator',
           value: 'aliasLabel',
           sortValue: 'alias',
           type: 'html',
@@ -82,13 +87,13 @@ export default function LSVList() {
           widthRatio: 30,
           responsive: true,
         },
-        {
-          label: 'Since',
-          value: 'since',
-          sortValue: 'lsvStartTimestamp',
-          widthRatio: 2,
-          responsive: true,
-        },
+        // {
+        //   label: 'Since',
+        //   value: 'since',
+        //   sortValue: 'lsvStartTimestamp',
+        //   widthRatio: 2,
+        //   responsive: true,
+        // },
         {
           label: 'Missed blocks',
           value: 'missingBlocks',

@@ -30,10 +30,10 @@ export default function FilterRadioGroup({
   }, [selected, onSelect])
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`${className}`}>
       <RadioGroup value={selected} onChange={setSelected}>
         <RadioGroup.Label className="sr-only">Table Filters</RadioGroup.Label>
-        <div className="flex space-x-2 p-[2px] overflow-x-auto overflow-y-hidden">
+        <div className={`flex space-x-2 p-[2px] overflow-x-auto overflow-y-hidden`}>
           {radioOptions.map((option) => (
             <RadioGroup.Option
               key={option.value}
