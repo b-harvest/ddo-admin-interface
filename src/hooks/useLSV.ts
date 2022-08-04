@@ -56,6 +56,7 @@ const useLSV = () => {
 
         // vote
         const voteData = allLSVVote.find((lsv) => lsv.addr === item.addr)
+        const votingRatio = voteData ? (voteData.voteCnt / voteData.mustVoteCnt) * 100 : 0
 
         return {
           ...item,
@@ -65,12 +66,16 @@ const useLSV = () => {
           jailed,
           immediateKickout: jailed || commission > 20,
           voteData,
+          votingRatio,
         }
       }) ?? [],
     [allLSVData, allLSVVote]
   )
 
-  const findLSVByAddr = useCallback((addr: string) => allLSV.find((item) => item.addr === addr), [allLSV])
+  const findLSVByAddr = useCallback(
+    (valOperAddr: string) => allLSV.find((item) => item.valOperAddr === valOperAddr),
+    [allLSV]
+  )
 
   return { allLSVTimestamp, allLSVVoteTimestamp, allLSVVote, allLSV, findLSVByAddr }
 }

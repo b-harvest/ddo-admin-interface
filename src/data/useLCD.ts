@@ -92,11 +92,14 @@ export function useValidatorsets({ height, fetch = true }: { height?: string; fe
 }
 
 export function useAllProposalsLCD({ fetch = true }: { fetch?: boolean }, interval = 0) {
-  const { data, error }: LCDResponseViaSWR<{ proposals: ProposalLCDRaw[] }> = useAppSWR(`/proposals`, {
-    interval,
-    type: 'rpc-rest',
-    fetch,
-  })
+  const { data, error }: LCDResponseViaSWR<{ proposals: ProposalLCDRaw[] }> = useAppSWR(
+    `/cosmos/gov/v1beta1/proposals`,
+    {
+      interval,
+      type: 'rpc-rest',
+      fetch,
+    }
+  )
   return lcdReturnGenerator({ data, error })
 }
 

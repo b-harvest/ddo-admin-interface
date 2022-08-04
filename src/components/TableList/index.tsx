@@ -266,7 +266,7 @@ function ListItem<T extends TableListItem>({
   colWidthRatio: number
   nowrap: boolean
   onClick?: (item: T) => void
-  onCellClick?: (cell: any, field: string) => void
+  onCellClick?: (cell: any, field: string, row: T) => void
 }) {
   return (
     <li className="relative block w-full">
@@ -289,7 +289,7 @@ function ListItem<T extends TableListItem>({
             <li
               key={field.value}
               onClick={() => {
-                if (onCellClick && field.clickable) onCellClick(data[field.value], field.value)
+                if (onCellClick && field.clickable) onCellClick(data[field.value], field.value, data)
               }}
               className={`${cellClass(field)} flex space-x-2 ${onCellClick && field.clickable ? 'cursor-pointer' : ''}`}
               style={{
@@ -321,7 +321,7 @@ function ListItem<T extends TableListItem>({
                 <div
                   key={field.value}
                   onClick={() => {
-                    if (onCellClick && field.clickable) onCellClick(data[field.value], field.value)
+                    if (onCellClick && field.clickable) onCellClick(data[field.value], field.value, data)
                   }}
                   className={`${cellClass(field)} flex space-x-2 ${
                     onCellClick && field.clickable ? 'cursor-pointer' : ''

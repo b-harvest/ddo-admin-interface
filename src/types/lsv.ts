@@ -43,4 +43,5 @@ export type LSV = Omit<LSVRaw, 'tokens' | 'commission'> & {
   immediateKickout: boolean
   // vote
   voteData: LSVVote | undefined
+  votingRatio: number
 }

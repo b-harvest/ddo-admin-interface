@@ -72,5 +72,5 @@ export interface TableListProps<T extends TableListItem> {
   defaultFilterIndex?: number
   memo?: string | JSX.Element
   onRowClick?: (item: T) => void
-  onCellClick?: (cell: any, field: string) => void
+  onCellClick?: (cell: any, field: string, item: T) => void
 }

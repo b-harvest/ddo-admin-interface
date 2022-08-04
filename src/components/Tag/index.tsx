@@ -12,7 +12,7 @@ export default function Tag({
 }) {
   return (
     <span
-      className={`${className} inline-block px-2 py-0.5 rounded-md border TYPO-BODY-XS FONT-MONO !font-medium !whitespace-nowrap ${CSSByStatus(
+      className={`${className} inline-block px-2 py-0.5 rounded-md border TYPO-BODY-XS FONT-MONO !font-medium !whitespace-pre ${CSSByStatus(
         status
       )}`}
     >

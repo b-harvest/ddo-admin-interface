@@ -7,22 +7,10 @@ import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { LSV } from 'types/lsv'
 
-const LSV_FILTER_OPTIONS = [
-  {
-    label: 'Immediate Kick-out',
-    value: 'kickout',
-  },
-  {
-    label: 'Safe',
-    value: 'safe',
-  },
-]
-
 type LSVAdditional = {
-  // since: string
   aliasLabel: JSX.Element
   missingBlocks: BigNumber
-  kickoutTag: JSX.Element | null
+  statusTag: JSX.Element | null
   filter?: string[]
 }
 
@@ -35,22 +23,21 @@ export default function LSVList() {
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
       const missingBlocks = new BigNumber(item.missingBlockCounter)
       const jailedTag = item.jailed ? <Tag status="error">Jailed</Tag> : null
-      const commissionTag = item.commission > 20 ? <Tag status="error">Over 20%</Tag> : null
-      const kickoutTag = item.immediateKickout ? (
-        <div className="flex justify-end items-center space-x-2">
+      const commissionTag = item.commission > 20 ? <Tag status="error">Commission over 20%</Tag> : null
+      const statusTag = item.immediateKickout ? (
+        <div className="flex flex-col justify-end items-end gap-y-1">
           {jailedTag}
           {commissionTag}
         </div>
       ) : (
-        <Tag status="success">Safe</Tag>
+        <Tag status="success">Good</Tag>
       )
 
       return {
         ...item,
-        // since,
         aliasLabel,
         missingBlocks,
-        kickoutTag,
+        statusTag,
         filter: item.immediateKickout ? ['kickout'] : ['safe'],
       }
     })
@@ -58,7 +45,7 @@ export default function LSVList() {
 
   const history = useHistory()
   const onRowClick = (item: LSV & LSVAdditional) => {
-    history.push(`/lsv/${item.addr}`)
+    history.push(`/lsv/${item.valOperAddr}`)
   }
 
   return (
@@ -68,7 +55,6 @@ export default function LSVList() {
       useNarrow={true}
       memo={<TimestampMemo timestamp={allLSVTimestamp} />}
       list={allLSVTableList}
-      //   filterOptions={LSV_FILTER_OPTIONS}
       defaultSortBy={'kickout'}
       defaultIsSortASC={false}
       nowrap={true}
@@ -83,22 +69,24 @@ export default function LSVList() {
         },
         {
           label: 'Address',
-          value: 'addr',
+          value: 'valOperAddr',
           widthRatio: 30,
           responsive: true,
         },
-        // {
-        //   label: 'Since',
-        //   value: 'since',
-        //   sortValue: 'lsvStartTimestamp',
-        //   widthRatio: 2,
-        //   responsive: true,
-        // },
         {
           label: 'Missed blocks',
           value: 'missingBlocks',
           widthRatio: 2,
           type: 'bignumber',
+          align: 'center',
+          responsive: true,
+        },
+        {
+          label: 'Voting rate',
+          value: 'votingRatio',
+          type: 'change',
+          neutral: true,
+          widthRatio: 2,
           responsive: true,
         },
         {
@@ -110,40 +98,12 @@ export default function LSVList() {
           responsive: true,
         },
         {
-          label: 'Immediate kick-out',
-          value: 'kickoutTag',
+          label: 'Status',
+          value: 'statusTag',
           sortValue: 'kickout',
           type: 'html',
-          widthRatio: 10,
           align: 'right',
         },
-        // {
-        //   label: 'Kickout',
-        //   value: 'kickout',
-        //   type: 'change',
-        //   neutral: true,
-        //   responsive: true,
-        // },
-        // {
-        //   label: 'APR',
-        //   value: 'apr',
-        //   type: 'change',
-        //   neutral: true,
-        // },
-        // {
-        //   label: '+bCRE',
-        //   value: 'bcreApr',
-        //   type: 'change',
-        //   strong: true,
-        //   align: 'left',
-        //   responsive: true,
-        // },
-        // {
-        //   label: 'TVL',
-        //   value: 'tvlUSD',
-        //   type: 'usd',
-        //   toFixedFallback: 0,
-        // },
       ]}
     />
   )

@@ -1,14 +1,16 @@
 import React from 'react'
 import { IconContext } from 'react-icons'
 import { AiOutlineInfoCircle, AiOutlineLoading3Quarters, AiOutlinePlus, AiOutlineWarning } from 'react-icons/ai'
+import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai'
 import { BiLinkExternal } from 'react-icons/bi'
 import { BsGithub, BsMedium, BsTwitter } from 'react-icons/bs'
 import { CgFileDocument } from 'react-icons/cg'
 import { FaRegBell } from 'react-icons/fa'
-import { FaBan, FaRegCheckCircle, FaTelegramPlane } from 'react-icons/fa'
+import { FaAdn, FaBan, FaRegCheckCircle, FaTelegramPlane } from 'react-icons/fa'
 import { FiBookOpen } from 'react-icons/fi'
 import { GiReceiveMoney, GiToken } from 'react-icons/gi'
 import { GiHamburgerMenu } from 'react-icons/gi'
+import { HiOutlineMinusSm } from 'react-icons/hi'
 import { ImCheckboxChecked, ImCheckboxUnchecked } from 'react-icons/im'
 import { IoIosMore, IoMdArrowRoundForward, IoMdClose } from 'react-icons/io'
 import { IoMdArrowBack } from 'react-icons/io'
@@ -53,6 +55,10 @@ export type IconType =
   | 'blockchain'
   | 'calendar'
   | 'back'
+  | 'like'
+  | 'dislike'
+  | 'abstain'
+  | 'hyphen'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -89,6 +95,10 @@ const Icons: { [key: string]: React.ElementType } = {
   blockchain: SiHiveBlockchain,
   calendar: MdCalendarToday,
   back: IoMdArrowBack,
+  like: AiOutlineLike,
+  dislike: AiOutlineDislike,
+  abstain: FaAdn,
+  hyphen: HiOutlineMinusSm,
 }
 
 interface IconProps {
