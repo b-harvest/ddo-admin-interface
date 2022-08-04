@@ -3,7 +3,7 @@ import { pages } from 'pages'
 import usePages from 'pages/hooks/usePages'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
-import { isIOS } from 'utils/userAgent'
+import { isMobile } from 'utils/userAgent'
 
 // helpers
 const getNavLinkClass = (isActive: boolean): string =>
@@ -15,7 +15,7 @@ interface NavigationTabProps {
 
 export default function NavigationTab({ onClick }: NavigationTabProps) {
   const { page } = usePages()
-  const showPageBackButton = useMemo<boolean>(() => isIOS && !page?.nav, [page])
+  const showPageBackButton = useMemo<boolean>(() => isMobile && !page?.nav, [page])
 
   return (
     <nav className="fixed md:static bottom-8 right-4 w-fit max-w-[calc(100vw-2rem)] flex items-center">
