@@ -1,47 +1,44 @@
-import BigNumber from 'bignumber.js'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
-import useLSV from 'hooks/useLSV'
+import { SAFE_VOTING_RATE } from 'constants/lsv'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { LSV } from 'types/lsv'
 
 type LSVAdditional = {
   aliasLabel: JSX.Element
-  missingBlocks: BigNumber
   statusTag: JSX.Element | null
   filter?: string[]
 }
 
-export default function LSVList() {
-  const { allLSVTimestamp, allLSV } = useLSV()
-
+export default function LSVList({ timestamp, list }: { timestamp?: number; list: LSV[] }) {
   const allLSVTableList = useMemo<(LSV & LSVAdditional)[]>(() => {
-    return allLSV.map((item) => {
-      // const since = dayjs(item.lsvStartTimestamp).format(DATE_FORMAT)
+    return list.map((item) => {
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
-      const missingBlocks = new BigNumber(item.missingBlockCounter)
+
       const jailedTag = item.jailed ? <Tag status="error">Jailed</Tag> : null
-      const commissionTag = item.commission > 20 ? <Tag status="error">Commission over 20%</Tag> : null
-      const statusTag = item.immediateKickout ? (
-        <div className="flex flex-col justify-end items-end gap-y-1">
-          {jailedTag}
-          {commissionTag}
-        </div>
-      ) : (
-        <Tag status="success">Good</Tag>
-      )
+      const commissionTag = item.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
+      const lowVotingTag = item.votingRate < SAFE_VOTING_RATE ? <Tag status="error">Low voting rate</Tag> : null
+      const statusTag =
+        jailedTag || commissionTag || lowVotingTag ? (
+          <div className="flex flex-col justify-end items-end gap-y-1">
+            {jailedTag}
+            {commissionTag}
+            {lowVotingTag}
+          </div>
+        ) : (
+          <Tag status="success">Good</Tag>
+        )
 
       return {
         ...item,
         aliasLabel,
-        missingBlocks,
         statusTag,
         filter: item.immediateKickout ? ['kickout'] : ['safe'],
       }
     })
-  }, [allLSV])
+  }, [list])
 
   const history = useHistory()
   const onRowClick = (item: LSV & LSVAdditional) => {
@@ -53,7 +50,7 @@ export default function LSVList() {
       title="All LSV"
       useSearch={true}
       useNarrow={true}
-      memo={<TimestampMemo timestamp={allLSVTimestamp} />}
+      memo={<TimestampMemo timestamp={timestamp} />}
       list={allLSVTableList}
       defaultSortBy={'kickout'}
       defaultIsSortASC={false}
@@ -65,7 +62,7 @@ export default function LSVList() {
           value: 'aliasLabel',
           sortValue: 'alias',
           type: 'html',
-          widthRatio: 2,
+          widthRatio: 10,
         },
         {
           label: 'Address',
@@ -75,17 +72,15 @@ export default function LSVList() {
         },
         {
           label: 'Missed blocks',
-          value: 'missingBlocks',
+          value: 'missingBlockCounter',
           widthRatio: 2,
-          type: 'bignumber',
           align: 'center',
           responsive: true,
         },
         {
-          label: 'Voting rate',
-          value: 'votingRatio',
-          type: 'change',
-          neutral: true,
+          label: 'Jail time',
+          value: 'jailUntilTimestamp',
+          align: 'center',
           widthRatio: 2,
           responsive: true,
         },

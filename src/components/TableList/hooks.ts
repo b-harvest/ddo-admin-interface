@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 type MatchedListParams<T> = Pick<TableListProps<T>, 'list'> & {
   searchKeyword: string
   sortBy?: string
+  objSortValue?: string
   isSortASC: boolean
   filterOption: FilterRadioGroupOption
 }
@@ -13,6 +14,7 @@ export function useMatchedTableList<T extends TableListItem>({
   list,
   searchKeyword,
   sortBy,
+  objSortValue,
   isSortASC,
   filterOption,
 }: MatchedListParams<T>) {
@@ -33,8 +35,14 @@ export function useMatchedTableList<T extends TableListItem>({
     // sorting
     return sortBy
       ? searchedList.sort((a, b) => {
-          return isSortASC ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]
+          if (typeof a[sortBy] === 'object' && objSortValue) {
+            return isSortASC
+              ? a[sortBy][objSortValue] - b[sortBy][objSortValue]
+              : b[sortBy][objSortValue] - a[sortBy][objSortValue]
+          } else {
+            return isSortASC ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]
+          }
         })
       : searchedList
-  }, [list, searchKeyword, sortBy, isSortASC, filterOption])
+  }, [list, searchKeyword, sortBy, objSortValue, isSortASC, filterOption])
 }

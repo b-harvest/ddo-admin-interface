@@ -1,6 +1,6 @@
 import VotingOptionIcon from 'components/VotingOptionIcon'
 
-const OPTIONS = [1, 2, 3, 4, 5]
+const OPTIONS = [1, 2, 3, 4, 5, 6]
 
 export default function VotingOptionsLegend() {
   return (
@@ -28,7 +28,9 @@ function getVotingOptionLabel(option: number, mobile: boolean) {
       return mobile ? 'Veto' : 'No /w veto' // no w/ veto
     case 4:
       return 'Abstain' // abstain
-    default:
+    case 5:
       return 'Did not' // didn't vote
+    default:
+      return 'NA'
   }
 }

@@ -5,7 +5,7 @@ export type ListFieldAlign = 'left' | 'right' | 'center'
 
 // field  typing
 export interface ListFieldHTML {
-  label: string
+  label: string | JSX.Element
   value: string
   sortValue?: string
   abbrOver?: number
@@ -16,6 +16,7 @@ export interface ListFieldHTML {
   type?: 'html'
   align?: ListFieldAlign
   clickable?: boolean
+  excludeMinWidth?: boolean
 }
 
 export interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
@@ -39,7 +40,20 @@ export interface ListFieldChange extends Omit<ListFieldHTML, 'type'> {
   strong?: boolean
 }
 
-export type ListField = ListFieldHTML | ListFieldImgUrl | ListFieldBignumber | ListFieldUSD | ListFieldChange
+export interface ListFieldObj extends Omit<ListFieldHTML, 'type'> {
+  type: 'object'
+  displayValue: string
+  displayType?: 'html' | 'imgUrl' | 'bignumber' | 'usd' | 'change'
+  objSortValue: string
+}
+
+export type ListField =
+  | ListFieldHTML
+  | ListFieldImgUrl
+  | ListFieldBignumber
+  | ListFieldUSD
+  | ListFieldChange
+  | ListFieldObj
 
 // item typing
 export interface TableListItem {
@@ -53,6 +67,8 @@ export interface TableListProps<T extends TableListItem> {
   title?: string
   list: T[]
   fields: ListField[]
+  overflow?: boolean
+  cellMinWidthPx?: number
   useSearch?: boolean
   mergedFields?: string[][]
   mergedFieldLabels?: string[]

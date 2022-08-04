@@ -5,10 +5,11 @@ import CopyHelper from 'components/CopyHelper'
 import ExplorerLink from 'components/ExplorerLink'
 import H3 from 'components/H3'
 import Hr from 'components/Hr'
-import Icon from 'components/Icon'
+// import Icon from 'components/Icon'
 import Indicator from 'components/Indicator'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
+import TimestampMemo from 'components/TimestampMemo'
 import VotingOptionIcon from 'components/VotingOptionIcon'
 import { DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
@@ -24,8 +25,6 @@ import { abbrOver } from 'utils/text'
 type LSVVoteRecord = {
   proposalId: number
   title: string
-  voted: boolean
-  votedLabel: JSX.Element | null
   optionLabel: JSX.Element | null
   option: number
   optionAlias?: string | undefined
@@ -40,6 +39,7 @@ export default function LSVDetail() {
   const { findLSVByAddr } = useLSV()
   const lsv = useMemo<LSV | undefined>(() => findLSVByAddr(id), [id, findLSVByAddr])
 
+  // voting history
   const { allProposals } = useProposal()
   const engagementTableList = useMemo<LSVVoteRecord[]>(() => {
     return lsv
@@ -47,11 +47,10 @@ export default function LSVDetail() {
           const proposalId = Number(proposal.proposal_id)
           const title = proposal.content.title
           const vote = lsv.voteData?.votes.find((v) => v.proposalId === proposalId)
-          const voted = vote !== undefined
-          const votedLabel = voted ? <Icon type="success" /> : null
 
-          const option = vote?.vote.option ?? 5
-          const optionLabel = <VotingOptionIcon option={vote?.vote.option} />
+          const na = lsv.lsvStartTimestamp > new Date(proposal.voting_end_time).getTime()
+          const option = na ? 6 : vote?.vote.option ?? 5
+          const optionLabel = <VotingOptionIcon option={option} />
           const votingEndTime = new Date(proposal.voting_end_time).getTime()
           const votingEndTimeLabel = dayjs(proposal.voting_end_time).format(DATE_FORMAT)
           const liveTag = votingEndTime >= new Date().getTime() ? <Tag status="info">Live</Tag> : null
@@ -61,8 +60,6 @@ export default function LSVDetail() {
             ...vote?.vote,
             proposalId,
             title,
-            voted,
-            votedLabel,
             option,
             optionLabel,
             votingEndTime,
@@ -76,19 +73,24 @@ export default function LSVDetail() {
 
   const onCellClick = (cell: any, field: string, row: LSVVoteRecord) => openProposalById(row.proposalId)
 
-  // console.log(lsv)
-
   return (
     <AppPage>
       {lsv ? (
         <>
-          <header className="flex justify-between items-center gap-x-2 mb-8">
+          <header className="flex justify-between items-center gap-x-2 mb-2">
             <div className="flex items-center gap-x-3">
               <H3 title={`${lsv.alias}`} />
               {lsv.immediateKickout ? <Tag status="error">Immediate Kick-out</Tag> : <Tag status="success">Good</Tag>}
             </div>
             <ExplorerLink validator={lsv.addr} />
           </header>
+
+          <div className="TYPO-BODY-XS md:TYPO-BODY-S mb-8">
+            <TimestampMemo
+              label={`Since block height ${lsv.blockStartHeight}    • `}
+              timestamp={lsv.lsvStartTimestamp}
+            />
+          </div>
 
           <section className="flex flex-col items-start gap-y-2 mb-8">
             <ValAddr title="Operator address " addr={lsv.valOperAddr} />
@@ -97,6 +99,7 @@ export default function LSVDetail() {
           </section>
 
           <section className="flex flex-col md:flex-row items-stretch md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-10">
+            {/* <ValIndicatorCard title="CRE" value={`${lsv.tokens.toFormat()}`} /> */}
             <ValIndicatorCard title="Jail time" value={`${lsv.jailUntilTimestamp}`} error={lsv.jailed} />
             <ValIndicatorCard title="Commission rate" value={`${lsv.commission}%`} error={lsv.commission > 20} />
             <ValIndicatorCard
@@ -105,15 +108,6 @@ export default function LSVDetail() {
               warning={lsv.missingBlockCounter > 0}
             />
           </section>
-          {/* 
-          <section className="flex flex-col md:flex-row items-stretch md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-10">
-            <ValIndicatorCard
-              title="Tombstoned"
-              value={`${lsv.tombstoned === 0 ? 'Never' : ''}`}
-              error={lsv.tombstoned !== 0}
-            />
-            
-          </section> */}
 
           <Hr />
 
@@ -122,7 +116,7 @@ export default function LSVDetail() {
             <div className="mt-2 mb-4">
               <span className="TYPO-BODY-S mr-2">Participated</span>
               <span title={lsv.addr} className="FONT-MONO">
-                {new BigNumber(lsv.votingRatio).decimalPlaces(2, BigNumber.ROUND_DOWN).toFormat()}%{' '}
+                {new BigNumber(lsv.votingRate).decimalPlaces(2, BigNumber.ROUND_DOWN).toFormat()}%{' '}
                 {lsv.voteData ? `(${lsv.voteData.voteCnt}/${lsv.voteData.mustVoteCnt})` : null}
               </span>
             </div>
@@ -165,20 +159,10 @@ export default function LSVDetail() {
                   type: 'html',
                   widthRatio: 1,
                   align: 'left',
-                  // responsive: true,
                   clickable: true,
                 },
                 {
                   label: 'Voted',
-                  value: 'votedLabel',
-                  sortValue: 'voted',
-                  type: 'html',
-                  align: 'center',
-                  widthRatio: 2,
-                  responsive: true,
-                },
-                {
-                  label: 'Option',
                   value: 'optionLabel',
                   sortValue: 'option',
                   widthRatio: 2,

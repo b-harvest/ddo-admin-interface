@@ -1,7 +1,7 @@
 import React from 'react'
 import { IconContext } from 'react-icons'
 import { AiOutlineInfoCircle, AiOutlineLoading3Quarters, AiOutlinePlus, AiOutlineWarning } from 'react-icons/ai'
-import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai'
+import { AiFillDislike, AiOutlineDislike, AiOutlineExclamation, AiOutlineLike } from 'react-icons/ai'
 import { BiLinkExternal } from 'react-icons/bi'
 import { BsGithub, BsMedium, BsTwitter } from 'react-icons/bs'
 import { CgFileDocument } from 'react-icons/cg'
@@ -57,8 +57,10 @@ export type IconType =
   | 'back'
   | 'like'
   | 'dislike'
+  | 'filldislike'
   | 'abstain'
   | 'hyphen'
+  | 'exclamation'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -97,8 +99,10 @@ const Icons: { [key: string]: React.ElementType } = {
   back: IoMdArrowBack,
   like: AiOutlineLike,
   dislike: AiOutlineDislike,
+  filldislike: AiFillDislike,
   abstain: FaAdn,
   hyphen: HiOutlineMinusSm,
+  exclamation: AiOutlineExclamation,
 }
 
 interface IconProps {

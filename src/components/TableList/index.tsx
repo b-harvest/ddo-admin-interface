@@ -20,12 +20,14 @@ import { formatUSDAmount } from 'utils/amount'
 import { abbrOver } from 'utils/text'
 
 const IS_SORT_ASC_DEFAULT = false
-const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S`
+const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S whitespace-pre`
 
 export default function TableList<T>({
   title,
   list,
   fields,
+  overflow,
+  cellMinWidthPx,
   useSearch = true,
   mergedFields = [],
   mergedFieldLabels = [],
@@ -71,17 +73,21 @@ export default function TableList<T>({
 
   // table sorting setting
   const [sortBy, setSortBy] = useState<string | undefined>(defaultSortBy)
+  const [objSortValue, setObjSortValue] = useState<string | undefined>()
   const [isSortASC, setIsSortASC] = useState<boolean>(defaultIsSortASC ?? IS_SORT_ASC_DEFAULT)
 
-  const onFieldClick = (field: ListField) => handleSorting(field.sortValue ?? field.value)
+  const onFieldClick = (field: ListField) => handleSorting(field)
 
-  const handleSorting = (field: ListField['sortValue'] | ListField['value']) => {
-    const isSameFieldClicked = sortBy === field
+  const handleSorting = (field: ListField) => {
+    const newSortBy = field.sortValue ?? field.value
+    const isSameFieldClicked = sortBy === newSortBy
+
     if (isSameFieldClicked) {
       setIsSortASC(!isSortASC)
     } else {
       setIsSortASC(IS_SORT_ASC_DEFAULT)
-      setSortBy(field)
+      setSortBy(newSortBy)
+      if (field.type === 'object') setObjSortValue(field.objSortValue)
     }
   }
 
@@ -89,7 +95,7 @@ export default function TableList<T>({
   const [filterOption, setFilterOption] = useState<FilterRadioGroupOption>(TAB_RADIO_GROUP_DEFAULT_OPTION)
 
   // final table list to display
-  const matchedList = useMatchedTableList({ list, searchKeyword, sortBy, isSortASC, filterOption })
+  const matchedList = useMatchedTableList({ list, searchKeyword, sortBy, objSortValue, isSortASC, filterOption })
 
   // total derieved from the matched list only
   const validTotalField = useMemo(() => {
@@ -126,120 +132,127 @@ export default function TableList<T>({
         </div>
       </header>
 
-      <div>
-        {/* list fields */}
-        {showFieldsBar ? (
-          <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-1' : 'mb-2'}`}>
-            <ul
-              className={`flex justify-between items-center bg-grayCRE-50 dark:bg-neutral-800 px-4 py-1 hover:shadow-md transition-all ${
-                useNarrow ? 'md:py-1 rounded-md md:space-x-2' : 'rounded-lg md:space-x-4'
-                // useNarrow ? 'rounded-lg px-4 md:space-x-2' : 'rounded-xl p-4 md:space-x-4'
-              }`}
-            >
-              {nonMerged.map((field, i) => {
-                return (
-                  <li
-                    key={field.value}
-                    style={{
-                      flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
-                      justifyContent: field.align
-                        ? getFlexAlign(field.align)
-                        : field.type === 'bignumber' || field.type === 'usd' || field.type === 'change'
-                        ? 'flex-end'
-                        : 'flex-start',
-                    }}
-                    className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
-                    onClick={() => onFieldClick(field)}
-                  >
-                    {field.label}
-                    {sortBy === (field.sortValue ?? field.value) ? (
-                      <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
-                    ) : null}
-                  </li>
-                )
-              })}
-              {merged.map((list, index) =>
-                list.map((field, i) =>
-                  i === 0 ? (
+      <div className={overflow ? 'overflow-x-scroll' : ''}>
+        <div className={overflow ? 'min-w-full w-max' : ''}>
+          {/* list fields */}
+          {showFieldsBar ? (
+            <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-1' : 'mb-2'}`}>
+              <ul
+                className={`flex justify-between items-center bg-grayCRE-50 dark:bg-neutral-800 px-4 py-1 hover:shadow-md transition-all ${
+                  useNarrow ? 'md:py-1 rounded-md md:space-x-2' : 'rounded-lg md:space-x-4'
+                  // useNarrow ? 'rounded-lg px-4 md:space-x-2' : 'rounded-xl p-4 md:space-x-4'
+                }`}
+              >
+                {nonMerged.map((field, i) => {
+                  return (
                     <li
                       key={field.value}
-                      className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                       style={{
-                        flexBasis: `${
-                          list.reduce((m, item) => m + (field.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio
-                        }%`,
+                        minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
+                        flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                         justifyContent: field.align
                           ? getFlexAlign(field.align)
-                          : field.type === 'bignumber' || field.type === 'usd'
+                          : field.type === 'bignumber' || field.type === 'usd' || field.type === 'change'
                           ? 'flex-end'
                           : 'flex-start',
                       }}
+                      className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                       onClick={() => onFieldClick(field)}
                     >
-                      {mergedFieldLabels[index] ?? ''}
+                      {field.label}
                       {sortBy === (field.sortValue ?? field.value) ? (
                         <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
                       ) : null}
                     </li>
-                  ) : null
-                )
-              )}
-            </ul>
-          </div>
-        ) : null}
-
-        {/* data list */}
-        <div>
-          {matchedList.length <= 0 ? (
-            <EmptyData useNarrow={useNarrow} label={emptyListLabel} />
-          ) : (
-            <ul
-              className={`flex flex-col justify-start items-stretch transition-all ${
-                useNarrow ? 'space-y-1' : 'space-y-2'
-              }`}
-            >
-              {matchedList.map((item, i) => {
-                return (
-                  <ListItem<T>
-                    key={i}
-                    data={item}
-                    merged={merged}
-                    nonMerged={nonMerged}
-                    useNarrow={useNarrow}
-                    colWidthRatio={colWidthRatio}
-                    nowrap={nowrap}
-                    onClick={onRowClick}
-                    onCellClick={onCellClick}
-                  />
-                )
-              })}
-            </ul>
-          )}
-        </div>
-
-        {/* total */}
-        <div className="relative block w-full">
-          {validTotalField && total ? (
-            <div
-              className={`flex flex-col md:flex-row justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
-                useNarrow ? 'rounded-lg px-4 space-y-1 md:space-x-2 mt-1' : 'rounded-xl p-4 space-y-2 md:space-x-4 mt-2'
-              } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400 ${
-                totalStatus ? getListItemClassByStatus(totalStatus) : ''
-              }`}
-            >
-              <div className="text-left !font-black">
-                <span>{totalLabel ?? `Total ${validTotalField.label}`}</span>
-              </div>
-              <div className="flex flex-col justify-start items-end space-y-2">
-                <div className="flex space-x-2 !font-black FONT-MONO">
-                  <div className="mr-2">{totalPrefixDesc ?? null}</div>
-                  <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
-                  {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
-                </div>
-                {totalDesc ?? null}
-              </div>
+                  )
+                })}
+                {merged.map((list, index) =>
+                  list.map((field, i) =>
+                    i === 0 ? (
+                      <li
+                        key={field.value}
+                        className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
+                        style={{
+                          minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
+                          flexBasis: `${
+                            list.reduce((m, item) => m + (field.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio
+                          }%`,
+                          justifyContent: field.align
+                            ? getFlexAlign(field.align)
+                            : field.type === 'bignumber' || field.type === 'usd'
+                            ? 'flex-end'
+                            : 'flex-start',
+                        }}
+                        onClick={() => onFieldClick(field)}
+                      >
+                        {mergedFieldLabels[index] ?? ''}
+                        {sortBy === (field.sortValue ?? field.value) ? (
+                          <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
+                        ) : null}
+                      </li>
+                    ) : null
+                  )
+                )}
+              </ul>
             </div>
           ) : null}
+
+          {/* data list */}
+          <div>
+            {matchedList.length <= 0 ? (
+              <EmptyData useNarrow={useNarrow} label={emptyListLabel} />
+            ) : (
+              <ul
+                className={`flex flex-col justify-start items-stretch transition-all ${
+                  useNarrow ? 'space-y-1' : 'space-y-2'
+                }`}
+              >
+                {matchedList.map((item, i) => {
+                  return (
+                    <ListItem<T>
+                      key={i}
+                      data={item}
+                      merged={merged}
+                      nonMerged={nonMerged}
+                      useNarrow={useNarrow}
+                      colWidthRatio={colWidthRatio}
+                      nowrap={nowrap}
+                      cellMinWidthPx={cellMinWidthPx}
+                      onClick={onRowClick}
+                      onCellClick={onCellClick}
+                    />
+                  )
+                })}
+              </ul>
+            )}
+          </div>
+
+          {/* total */}
+          <div className="relative block w-full">
+            {validTotalField && total ? (
+              <div
+                className={`flex flex-col md:flex-row justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
+                  useNarrow
+                    ? 'rounded-lg px-4 space-y-1 md:space-x-2 mt-1'
+                    : 'rounded-xl p-4 space-y-2 md:space-x-4 mt-2'
+                } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400 ${
+                  totalStatus ? getListItemClassByStatus(totalStatus) : ''
+                }`}
+              >
+                <div className="text-left !font-black">
+                  <span>{totalLabel ?? <span>Total {validTotalField.label}</span>}</span>
+                </div>
+                <div className="flex flex-col justify-start items-end space-y-2">
+                  <div className="flex space-x-2 !font-black FONT-MONO">
+                    <div className="mr-2">{totalPrefixDesc ?? null}</div>
+                    <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
+                    {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
+                  </div>
+                  {totalDesc ?? null}
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
@@ -249,7 +262,7 @@ export default function TableList<T>({
 //   ListItem
 function ListItem<T extends TableListItem>({
   data,
-  // fields,
+  cellMinWidthPx,
   merged,
   nonMerged,
   useNarrow,
@@ -259,7 +272,7 @@ function ListItem<T extends TableListItem>({
   onCellClick,
 }: {
   data: T
-  // fields: ListField[]
+  cellMinWidthPx?: number
   merged: ListField[][]
   nonMerged: ListField[]
   useNarrow?: boolean
@@ -293,6 +306,7 @@ function ListItem<T extends TableListItem>({
               }}
               className={`${cellClass(field)} flex space-x-2 ${onCellClick && field.clickable ? 'cursor-pointer' : ''}`}
               style={{
+                minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
                 flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                 flexShrink: field.type === 'imgUrl' ? '0' : '1',
                 justifyContent: field.align
@@ -300,7 +314,6 @@ function ListItem<T extends TableListItem>({
                   : field.type === 'bignumber' || field.type === 'usd' || field.type === 'change'
                   ? 'flex-end'
                   : 'flex-start',
-                // color: field.color ?? 'inherit',
               }}
             >
               {ListItemCell({ data, field })}
@@ -313,6 +326,7 @@ function ListItem<T extends TableListItem>({
             key={index}
             className="grow shrink flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
             style={{
+              // minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
               flexBasis: `${list.reduce((m, item) => m + (item.widthRatio ?? colWidthRatio), 0) ?? colWidthRatio}%`,
             }}
           >
@@ -398,6 +412,13 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
     return (
       <div title={value} className="TYPO-BODY-XS md:TYPO-BODY-S">
         {value}
+      </div>
+    )
+  } else if (field.type === 'object' && typeof value === 'object') {
+    const display = value[field.displayValue]
+    return (
+      <div title={display} className="TYPO-BODY-XS md:TYPO-BODY-S">
+        {display}
       </div>
     )
   } else {

@@ -6,15 +6,17 @@ export default function VotingOptionIcon({ option }: { option?: number }) {
   const iconColor = useMemo<string>(() => {
     switch (option) {
       case 1:
-        return 'text-success'
+        return 'text-grayCRE-300 dark:text-grayCRE-200'
       case 2:
-        return 'text-error' // no
+        return 'text-pinkCRE' // no
       case 3:
-        return 'text-error' // no w/ veto
+        return 'text-pinkCRE' // no w/ veto
       case 4:
         return 'text-warning' // abstain
+      case 5:
+        return 'text-error' // didn't vote
       default:
-        return 'text-grayCRE-400' // didn't vote
+        return 'text-grayCRE-300 dark:text-grayCRE-400' // didn't vote
     }
   }, [option])
 
@@ -28,8 +30,10 @@ export default function VotingOptionIcon({ option }: { option?: number }) {
         return 'No with veto' // no w/ veto
       case 4:
         return 'Abstain' // abstain
-      default:
+      case 5:
         return 'Did not vote' // didn't vote
+      default:
+        return '-'
     }
   }, [option])
 
@@ -40,11 +44,13 @@ export default function VotingOptionIcon({ option }: { option?: number }) {
       case 2:
         return 'dislike' // no
       case 3:
-        return 'close' // no w/ veto
+        return 'filldislike' // no w/ veto
       case 4:
         return 'abstain' // abstain
+      case 5:
+        return 'close' // didn't vote
       default:
-        return 'hyphen' // didn't vote
+        return 'hyphen'
     }
   }, [option])
 

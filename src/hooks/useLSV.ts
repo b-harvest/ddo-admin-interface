@@ -13,6 +13,8 @@ function getVoteAlias(option: number): string {
       return 'No w/ veto'
     case 4:
       return 'Abstain'
+    case 5:
+      return 'Did not'
     default:
       return '-'
   }
@@ -36,9 +38,10 @@ const useLSV = () => {
     return (
       allLSVVoteData?.data.map((item) => {
         const votes = item.votes.map((v) => {
+          const option = v.vote.option
           const optionAlias = getVoteAlias(v.vote.option)
           const weight = Number(v.vote.weight)
-          return { ...v, vote: { ...v.vote, optionAlias, weight } }
+          return { ...v, vote: { ...v.vote, option, optionAlias, weight } }
         })
 
         return { ...item, votes }
@@ -50,13 +53,13 @@ const useLSV = () => {
     () =>
       allLSVData?.data.map((item) => {
         const lsvStartTimestamp = item.lsvStartTimestamp * 1000
-        const tokens = new BigNumber(item.tokens) // exponent wip
+        const tokens = new BigNumber(item.tokens).div(10 ** 6) // exponent wip
         const commission = Number(item.commission) * 100
         const jailed = item.jailUntilTimestamp !== 0
 
         // vote
         const voteData = allLSVVote.find((lsv) => lsv.addr === item.addr)
-        const votingRatio = voteData ? (voteData.voteCnt / voteData.mustVoteCnt) * 100 : 0
+        const votingRate = voteData ? (voteData.voteCnt / voteData.mustVoteCnt) * 100 : 0
 
         return {
           ...item,
@@ -66,7 +69,7 @@ const useLSV = () => {
           jailed,
           immediateKickout: jailed || commission > 20,
           voteData,
-          votingRatio,
+          votingRate,
         }
       }) ?? [],
     [allLSVData, allLSVVote]
