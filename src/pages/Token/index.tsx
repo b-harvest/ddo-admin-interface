@@ -3,8 +3,7 @@ import Card from 'components/Card'
 import CopyHelper from 'components/CopyHelper'
 import ExplorerLink from 'components/ExplorerLink'
 import Indicator from 'components/Indicator'
-import { TIMESTAMP_FORMAT } from 'constants/time'
-import dayjs from 'dayjs'
+import TimestampMemo from 'components/TimestampMemo'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
@@ -55,10 +54,6 @@ export default function Token() {
     [asset, getAssetTickers]
   )
 
-  const lastSynced = useMemo<string>(() => {
-    return assetDetail?.live?.updateTimestamp ? dayjs(assetDetail.live.updateTimestamp).format(TIMESTAMP_FORMAT) : '-'
-  }, [assetDetail])
-
   return (
     <AppPage>
       {assetDetail ? (
@@ -98,10 +93,7 @@ export default function Token() {
             {assetDetail.isPoolToken ? (
               <div></div>
             ) : (
-              <div className="flex items-center space-x-2 TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300">
-                <div className="">Price last synced</div>
-                <div className="FONT-MONO">{lastSynced}</div>
-              </div>
+              <TimestampMemo label="Price last synced" timestamp={assetDetail?.live?.updateTimestamp} />
             )}
             <ExplorerLink denom={denom} />
           </section>
