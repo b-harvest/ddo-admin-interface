@@ -40,9 +40,13 @@ export default function FarmStakedAmount({
       const assetLabel = asset ? AssetLogoLabel({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
       const poolId = findPoolByDenom(item.denom)?.poolId
 
+      const priceOracle = findPoolByDenom(item.denom)?.priceOracle
+      const onchainStakedUSD = onchainStakedAmount.multipliedBy(priceOracle ?? 0)
+
       return {
         onchainStakedAmount,
         backendStakedAmount,
+        onchainStakedUSD,
         status,
         ...asset,
         assetLabel,
@@ -65,9 +69,13 @@ export default function FarmStakedAmount({
       const assetLabel = asset ? AssetLogoLabel({ assets: getAssetTickers(asset), poolDenom: item.denom }) : null
       const poolId = findPoolByDenom(item.denom)?.poolId
 
+      const priceOracle = findPoolByDenom(item.denom)?.priceOracle
+      const onchainQueuedUSD = onchainQueuedAmount.multipliedBy(priceOracle ?? 0)
+
       return {
         onchainQueuedAmount,
         backendQueuedAmount,
+        onchainQueuedUSD,
         status,
         ...asset,
         assetLabel,
@@ -113,10 +121,12 @@ export default function FarmStakedAmount({
           useSearch={false}
           showFieldsBar={true}
           list={farmStakedList}
-          mergedFields={[['onchainStakedAmount', 'backendStakedAmount']]}
-          mergedFieldLabels={['Staked amount']}
+          mergedFields={[['onchainStakedAmount', 'backendStakedAmount'], ['onchainStakedUSD']]}
+          mergedFieldLabels={['Staked amount', 'Staked amount (≈)']}
           defaultSortBy="onchainStakedAmount"
           defaultIsSortASC={false}
+          totalField="onchainStakedUSD"
+          totalLabel="Total"
           nowrap={false}
           fields={[
             {
@@ -145,6 +155,13 @@ export default function FarmStakedAmount({
               type: 'bignumber',
               toFixedFallback: 6,
             },
+            {
+              label: 'Staked USD (≈)',
+              value: 'onchainStakedUSD',
+              type: 'usd',
+              toFixedFallback: 2,
+              responsive: true,
+            },
           ]}
         />
       </div>
@@ -166,10 +183,12 @@ export default function FarmStakedAmount({
           useSearch={false}
           showFieldsBar={true}
           list={farmQueuedList}
-          mergedFields={[['onchainQueuedAmount', 'backendQueuedAmount']]}
-          mergedFieldLabels={['Queued amount']}
+          mergedFields={[['onchainQueuedAmount', 'backendQueuedAmount'], ['onchainQueuedUSD']]}
+          mergedFieldLabels={['Queued amount', 'Queued amount (≈)']}
           defaultSortBy="onchainQueuedAmount"
           defaultIsSortASC={false}
+          totalField="onchainQueuedUSD"
+          totalLabel="Total"
           nowrap={false}
           fields={[
             {
@@ -197,6 +216,13 @@ export default function FarmStakedAmount({
               tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: 6,
+            },
+            {
+              label: 'Queued USD (≈)',
+              value: 'onchainQueuedUSD',
+              type: 'usd',
+              toFixedFallback: 2,
+              responsive: true,
             },
           ]}
         />

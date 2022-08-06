@@ -33,7 +33,7 @@ export default function TableList<T>({
   mergedFieldLabels = [],
   totalField,
   totalLabel,
-  totalPrefixDesc,
+  totalLabelSuffix,
   totalDesc,
   totalStatus,
   showTitle = true,
@@ -228,8 +228,8 @@ export default function TableList<T>({
           </div>
 
           {/* total */}
-          <div className="relative block w-full">
-            {validTotalField && total ? (
+          {list.length && validTotalField && total ? (
+            <div className="relative block w-full">
               <div
                 className={`flex flex-col md:flex-row justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
                   useNarrow
@@ -239,20 +239,20 @@ export default function TableList<T>({
                   totalStatus ? getListItemClassByStatus(totalStatus) : ''
                 }`}
               >
-                <div className="text-left !font-black">
+                <div className="flex items-center text-left !font-black">
                   <span>{totalLabel ?? <span>Total {validTotalField.label}</span>}</span>
+                  <span className="ml-2">{totalLabelSuffix ?? null}</span>
                 </div>
                 <div className="flex flex-col justify-start items-end space-y-2">
                   <div className="flex space-x-2 !font-black FONT-MONO">
-                    <div className="mr-2">{totalPrefixDesc ?? null}</div>
                     <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
                     {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
                   </div>
                   {totalDesc ?? null}
                 </div>
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

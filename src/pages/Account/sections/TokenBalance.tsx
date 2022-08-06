@@ -20,12 +20,22 @@ export default function TokenBalance({
   interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
-  const { getAssetTickers } = usePool()
+  const { findPoolByDenom, getAssetTickers } = usePool()
 
   const { allBalanceTimestamp, allBalance, allBalanceLCD } = useAccountData({ address: address ?? '' })
 
   const balanceList = useMemo(() => {
     return allBalanceLCD.map((item) => {
+      const asset = findAssetByDenom(item.denom)
+      const ticker = asset?.ticker
+      const assetLabel = asset
+        ? AssetLogoLabel({
+            assets: getAssetTickers(asset),
+            poolDenom: asset.isPoolToken ? item.denom : undefined,
+          })
+        : null
+      const exponent = asset?.exponent ?? 0
+
       const onchainBalance = item.amount
       const backendBalance = allBalance.find((bal) => bal.denom === item.denom)?.amount
       const status: AlertStatus | undefined = backendBalance
@@ -34,27 +44,21 @@ export default function TokenBalance({
           : 'error'
         : 'error'
 
-      const asset = findAssetByDenom(item.denom)
-      const assetLabel = asset
-        ? AssetLogoLabel({
-            assets: getAssetTickers(asset),
-            poolDenom: asset.isPoolToken ? item.denom : undefined,
-          })
-        : null
-      const ticker = asset?.ticker
-      const exponent = asset?.exponent ?? 0
+      const priceOracle = asset?.isPoolToken ? findPoolByDenom(asset.denom)?.priceOracle : asset?.live?.priceOracle
+      const onchainBalanceUSD = item.amount.multipliedBy(priceOracle ?? 0)
 
       return {
         ...item,
-        backendBalance,
-        onchainBalance,
-        status,
-        assetLabel,
         ticker,
+        assetLabel,
+        onchainBalance,
+        backendBalance,
+        onchainBalanceUSD,
         exponent,
+        status,
       }
     })
-  }, [allBalance, allBalanceLCD, findAssetByDenom, getAssetTickers])
+  }, [allBalance, allBalanceLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   // alert-inline data - balance
   const hasBalanceDiff = useMemo<boolean>(
@@ -86,10 +90,12 @@ export default function TokenBalance({
           useSearch={false}
           showFieldsBar={true}
           list={balanceList}
-          mergedFields={[['onchainBalance', 'backendBalance']]}
-          mergedFieldLabels={['Balance']}
+          mergedFields={[['onchainBalance', 'backendBalance'], ['onchainBalanceUSD']]}
+          mergedFieldLabels={['Balance', 'Balance (≈)']}
           defaultSortBy="onchainBalance"
           defaultIsSortASC={false}
+          totalField="onchainBalanceUSD"
+          totalLabel="Total balance USD"
           nowrap={false}
           fields={[
             {
@@ -118,6 +124,13 @@ export default function TokenBalance({
               tag: 'Back-end',
               type: 'bignumber',
               toFixedFallback: MAX_AMOUNT_FIXED,
+            },
+            {
+              label: 'Balance USD (≈)',
+              value: 'onchainBalanceUSD',
+              type: 'usd',
+              toFixedFallback: 2,
+              responsive: true,
             },
           ]}
         />
