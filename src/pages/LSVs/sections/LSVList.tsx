@@ -48,6 +48,7 @@ export default function LSVList({ timestamp, list }: { timestamp?: number; list:
   return (
     <TableList<LSV & LSVAdditional>
       title="All LSV"
+      showTitle={false}
       useSearch={true}
       useNarrow={true}
       memo={<TimestampMemo timestamp={timestamp} />}

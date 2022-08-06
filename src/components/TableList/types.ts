@@ -74,7 +74,7 @@ export interface TableListProps<T extends TableListItem> {
   mergedFieldLabels?: string[]
   totalField?: string
   totalLabel?: string | JSX.Element
-  totalPrefixDesc?: string | JSX.Element
+  totalLabelSuffix?: string | JSX.Element
   totalDesc?: string | JSX.Element
   totalStatus?: AlertStatus
   showTitle?: boolean

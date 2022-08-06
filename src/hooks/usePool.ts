@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { POOL_TOKEN_EXPONENT } from 'constants/asset'
 import useLiquidStake from 'hooks/useLiquidStake'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
@@ -22,15 +23,14 @@ const usePool = () => {
 
   const allPoolLive = useMemo(() => {
     return allPoolLiveAtom.map((pool) => {
-      const poolTokenExpo = findAssetByDenom(pool.poolDenom)?.exponent ?? 0
       const exponentDiff = findPairById(pool.pairId)?.exponentDiff ?? 0
 
       return {
         ...pool,
-        totalStakedAmount: new BigNumber(pool.totalStakedAmount).div(10 ** poolTokenExpo),
-        totalQueuedAmount: new BigNumber(pool.totalQueuedAmount).div(10 ** poolTokenExpo),
-        totalSupplyAmount: new BigNumber(pool.totalSupplyAmount).div(10 ** poolTokenExpo),
-        priceOracle: new BigNumber(pool.priceOracle),
+        totalStakedAmount: new BigNumber(pool.totalStakedAmount).div(10 ** POOL_TOKEN_EXPONENT),
+        totalQueuedAmount: new BigNumber(pool.totalQueuedAmount).div(10 ** POOL_TOKEN_EXPONENT),
+        totalSupplyAmount: new BigNumber(pool.totalSupplyAmount).div(10 ** POOL_TOKEN_EXPONENT),
+        priceOracle: new BigNumber(pool.priceOracle).multipliedBy(10 ** POOL_TOKEN_EXPONENT),
         apr: new BigNumber(pool.apr),
         RewardsPerToken: pool.RewardsPerToken?.map((reward) => ({
           ...reward,

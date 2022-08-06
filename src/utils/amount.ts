@@ -19,7 +19,7 @@ export const formatUSDAmount = ({
   if (value.isLessThan(1) && mantissa === 0) mantissa = 2
 
   if (abbr) {
-    const number = value.toNumber()
+    const number = value.dp(mantissa, BigNumber.ROUND_DOWN).toNumber()
     return numbro(number).formatCurrency({
       average: true,
       mantissa: number > 1000 ? 2 : mantissa,

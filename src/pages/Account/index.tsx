@@ -74,9 +74,9 @@ export default function Accounts() {
         {/* refactoring wip */}
         <TokenBalance address={addr} significantTimeGap={significantTimeGap} />
         <Hr />
-        <ClaimableRewards address={addr} significantTimeGap={significantTimeGap} />
-        <Hr />
         <FarmStakedAmount address={addr} significantTimeGap={significantTimeGap} />
+        <Hr />
+        <ClaimableRewards address={addr} significantTimeGap={significantTimeGap} />
         <Hr />
         <AirdropClaim address={addr} significantTimeGap={significantTimeGap} />
       </div>

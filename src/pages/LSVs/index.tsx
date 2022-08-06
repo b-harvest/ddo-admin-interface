@@ -1,33 +1,31 @@
 import AppPage from 'components/AppPage'
-// import useChain from 'hooks/useChain'
-// import useValidators from 'hooks/useValidators'
-// import { useEffect, useState } from 'react'
+import CommonwealthLink from 'components/CommonwealthLink'
+import ExplorerLink from 'components/ExplorerLink'
+import H3 from 'components/H3'
 import useLSV from 'hooks/useLSV'
 
 import LSVList from './sections/LSVList'
 import VotingTable from './sections/VotingTable'
-// import ValidatorsSet from './sections/ValidatorsSet'
-
 export default function LSVs() {
-  // lsv monitoring
-
-  // validators set
-  // const { onchainBlockHeight } = useChain()
-  // const [height, setHeight] = useState<string | undefined>()
-  // useEffect(() => setHeight(onchainBlockHeight), [onchainBlockHeight])
-  // const { validatorsetsLCD } = useValidators(height)
-
   const { allLSVTimestamp, allLSV } = useLSV()
 
   return (
     <AppPage>
-      <section className="mb-20">
+      <section className="mt-20 mb-20">
+        <div className="flex items-center justify-between gap-x-4 mb-4">
+          <H3 title="All LSV" /> <ExplorerLink validator="all" />
+        </div>
+
         <LSVList timestamp={allLSVTimestamp} list={allLSV} />
       </section>
 
-      <section>
+      <section className="mb-20">
         <VotingTable timestamp={allLSVTimestamp} list={allLSV} />
       </section>
+
+      <div className="flex justify-end items-center mt-4">
+        <CommonwealthLink discussionId={5983} label="3 strike-out & immediate kick-out discussion" />
+      </div>
 
       {/* <section>{validatorsetsLCD ? <ValidatorsSet validatorsSet={validatorsetsLCD} /> : null}</section> */}
     </AppPage>

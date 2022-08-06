@@ -6,6 +6,8 @@ export const CRESCENT_ASSET_IMG_URL =
 
 export const MINTSCAN_LOGO_IMG_URL = 'https://www.mintscan.io/apple-touch-icon.png'
 
+export const COMMONWEALTH_LOGO_IMG_URL = 'https://commonwealth.im/static/img/logo.png'
+
 // lsv
 export const LSV_DOKIA_CAPITAL_LOGO_URL = 'https://dokia.capital/assets/svg/logo-tipWhite.svg'
 

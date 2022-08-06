@@ -42,6 +42,9 @@ export default function ClaimableRewards({
         const onchainRewardsAmount = item.amount
         const backendRewardsAmount = backendList.find((pool) => pool.poolDenom === item.poolDenom)?.amount
 
+        // const priceOracle = findAssetByDenom(denom)?.live?.priceOracle
+        // const onchainRewardsAmountUSD = onchainRewardsAmount.multipliedBy(priceOracle ?? 0)
+
         const poolAsset = findAssetByDenom(item.poolDenom)
         const poolLabel = poolAsset
           ? AssetLogoLabel({ assets: getAssetTickers(poolAsset), poolDenom: item.poolDenom })
@@ -63,12 +66,13 @@ export default function ClaimableRewards({
             })
           : undefined
 
-        const totalDesc = TableTotalDesc({ amount: backendTotal, prefix: rewardsAssetLogo, tag: 'Back-end' })
+        const totalDesc = TableTotalDesc({ amount: backendTotal, tag: 'Back-end' })
         const totalStatus: AlertStatus | undefined = onchainTotal.isEqualTo(backendTotal) ? undefined : 'error'
 
         return {
           onchainRewardsAmount,
           backendRewardsAmount,
+          // onchainRewardsAmountUSD,
           poolLabel,
           poolId,
           rewardsAssetLabel,
@@ -109,7 +113,6 @@ export default function ClaimableRewards({
             listByToken.length ? (
               <div key={i}>
                 <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
-                  <span>Rewarding</span>
                   <span>{listByToken[0].rewardsAssetLabel}</span>
                 </h4>
 
@@ -125,7 +128,7 @@ export default function ClaimableRewards({
                   defaultIsSortASC={false}
                   totalField="onchainRewardsAmount"
                   totalLabel="Total rewards"
-                  totalPrefixDesc={listByToken[0].rewardsAssetLogo}
+                  totalLabelSuffix={listByToken[0].rewardsAssetLogo}
                   totalDesc={listByToken[0].totalDesc}
                   totalStatus={listByToken[0].totalStatus}
                   nowrap={false}
@@ -172,7 +175,7 @@ export default function ClaimableRewards({
 function TableTotalDesc({ amount, tag, prefix }: { amount: BigNumber; tag?: string; prefix?: JSX.Element }) {
   return (
     <div className="flex space-x-2 !font-black FONT-MONO">
-      <div className="mr-2">{prefix ?? null}</div>
+      {prefix ? <div className="mr-2">{prefix}</div> : null}
       <div>
         {bignumberToFormat({
           value: amount,
