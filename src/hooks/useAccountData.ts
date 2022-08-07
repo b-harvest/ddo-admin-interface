@@ -7,6 +7,8 @@ import { useBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useCallback, useMemo } from 'react'
 import type {
+  AirdropClaim,
+  AirdropClaimLCD,
   AirdropClaimLCDRaw,
   AirdropClaimRaw,
   Balance,
@@ -53,14 +55,14 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   )
 
   // * balance
-  const { data: allBalanceData }: APIHookReturn<BalanceRaw> = useBalance(
+  const { data: allBalanceData, isLoading: allBalanceDataLoading }: APIHookReturn<BalanceRaw> = useBalance(
     {
       address,
       fetch: willFetch(address),
     },
     interval
   )
-  const { data: allBalanceLCDData }: LCDHookReturn<BalanceLCDRaw> = useBalanceLCD(
+  const { data: allBalanceLCDData, isLoading: allBalanceLCDDataLoading }: LCDHookReturn<BalanceLCDRaw> = useBalanceLCD(
     {
       address,
       fetch: willFetch(address),
@@ -88,7 +90,7 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   )
 
   // * staked amount
-  const { data: allStakedData }: APIHookReturn<StakedRaw[]> = useFarmStaked(
+  const { data: allStakedData, isLoading: allStakedDataLoading }: APIHookReturn<StakedRaw[]> = useFarmStaked(
     {
       address,
       fetch: willFetch(address),
@@ -96,7 +98,10 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     interval
   )
 
-  const { data: allStakedLCDData }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD(
+  const {
+    data: allStakedLCDData,
+    isLoading: allStakedLCDDataLoading,
+  }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD(
     {
       address,
       fetch: willFetch(address),
@@ -104,13 +109,14 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     interval
   )
 
-  const { data: farmPositionLCDData }: LCDHookReturn<FarmPositionLCDRaw> = useFarmPositionLCD(
-    {
-      address,
-      fetch: willFetch(address),
-    },
-    interval
-  )
+  const { data: farmPositionLCDData, isLoading: farmPositionLCDDataLoading }: LCDHookReturn<FarmPositionLCDRaw> =
+    useFarmPositionLCD(
+      {
+        address,
+        fetch: willFetch(address),
+      },
+      interval
+    )
 
   // backend
   const allStakedDataTimestamp = useMemo(() => (allStakedData?.curTimestamp ?? 0) * 1000, [allStakedData])
@@ -159,14 +165,16 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   }, [farmPositionLCDData, getBigNumberedAmountSet])
 
   // * rewards by pool
-  const { data: allFarmRewardsLCDData }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> =
-    useAllFarmRewardsLCD(
-      {
-        address,
-        fetch: willFetch(address),
-      },
-      interval
-    )
+  const {
+    data: allFarmRewardsLCDData,
+    isLoading: allFarmRewardsLCDDataLoading,
+  }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> = useAllFarmRewardsLCD(
+    {
+      address,
+      fetch: willFetch(address),
+    },
+    interval
+  )
 
   // backend
   const allFarmRewardsDataTimestamp = allStakedDataTimestamp
@@ -212,25 +220,27 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   ])
 
   // * airdrop claim
-  const { data: airdropClaimData }: APIHookReturn<AirdropClaimRaw> = useAirdropClaim(
-    {
-      address,
-      fetch: willFetch(address),
-    },
-    interval
-  )
+  const { data: airdropClaimData, isLoading: airdropClaimDataLoading }: APIHookReturn<AirdropClaimRaw> =
+    useAirdropClaim(
+      {
+        address,
+        fetch: willFetch(address),
+      },
+      interval
+    )
 
-  const { data: airdropClaimLCDData }: LCDHookReturn<AirdropClaimLCDRaw> = useAirdropClaimLCD(
-    {
-      address,
-      fetch: willFetch(address),
-    },
-    interval
-  )
+  const { data: airdropClaimLCDData, isLoading: airdropClaimLCDDataLoading }: LCDHookReturn<AirdropClaimLCDRaw> =
+    useAirdropClaimLCD(
+      {
+        address,
+        fetch: willFetch(address),
+      },
+      interval
+    )
 
   const airdropClaimDataTimestamp = useMemo(() => (airdropClaimData?.curTimestamp ?? 0) * 1000, [airdropClaimData])
 
-  const airdropClaim = useMemo(() => {
+  const airdropClaim = useMemo<AirdropClaim | null>(() => {
     const data = airdropClaimData?.data
     if (!data) return null
 
@@ -245,7 +255,7 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     }
   }, [airdropClaimData, parseDenomAmount])
 
-  const airdropClaimLCD = useMemo(() => {
+  const airdropClaimLCD = useMemo<AirdropClaimLCD | null>(() => {
     const data = airdropClaimLCDData?.claim_record
     if (!data) return null
 
@@ -257,6 +267,30 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
       claimable_coins,
     }
   }, [airdropClaimLCDData, getBigNumberedAmountSet])
+
+  // isLoading
+  const isLoading = useMemo<boolean>(
+    () =>
+      allBalanceDataLoading ||
+      allBalanceLCDDataLoading ||
+      allStakedDataLoading ||
+      allStakedLCDDataLoading ||
+      farmPositionLCDDataLoading ||
+      allFarmRewardsLCDDataLoading ||
+      allFarmRewardsLCDDataLoading ||
+      airdropClaimDataLoading ||
+      airdropClaimLCDDataLoading,
+    [
+      allBalanceDataLoading,
+      allBalanceLCDDataLoading,
+      allStakedDataLoading,
+      allStakedLCDDataLoading,
+      farmPositionLCDDataLoading,
+      allFarmRewardsLCDDataLoading,
+      airdropClaimDataLoading,
+      airdropClaimLCDDataLoading,
+    ]
+  )
 
   return {
     allBalanceTimestamp,
@@ -272,6 +306,7 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     airdropClaimDataTimestamp,
     airdropClaim,
     airdropClaimLCD,
+    isLoading,
   }
 }
 

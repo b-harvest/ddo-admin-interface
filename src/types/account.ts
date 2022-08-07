@@ -125,6 +125,14 @@ export interface AirdropClaimLCDRaw {
   }
 }
 
+export type AirdropClaimLCD = {
+  readonly initial_claimable_coins: TokenAmountSet[]
+  readonly claimable_coins: TokenAmountSet[]
+  readonly airdrop_id: string
+  readonly recipient: string
+  readonly claimed_conditions: string[]
+}
+
 // backend
 export interface AirdropClaimRaw {
   readonly dexAirdropTotalCre: string
@@ -135,4 +143,10 @@ export interface AirdropClaimRaw {
   readonly claimedConditions: string
   readonly height: number
   readonly timestamp: number
+}
+
+export type AirdropClaim = Omit<AirdropClaimRaw, 'initialClaimableCoins' | 'claimableCoins' | 'claimedConditions'> & {
+  readonly initialClaimableCoins: TokenAmountSet[]
+  readonly claimableCoins: TokenAmountSet[]
+  readonly claimedConditions: string[]
 }

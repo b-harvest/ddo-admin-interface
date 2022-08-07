@@ -34,14 +34,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.log('error', error)
-    console.log('errorInfo', errorInfo)
     handleError(error)
-
-    // sendEvent('exception', {
-    //   description: error.toString() + errorInfo.toString(),
-    //   fatal: true,
-    // })
   }
 
   render(): JSX.Element {
@@ -50,7 +43,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
     if (error !== null) {
       return (
         <>
-          <div>Error Page</div>
+          <div className="w-full h-full flex justify-center items-center text-black dark:text-white">Error Page</div>
         </>
       )
     }

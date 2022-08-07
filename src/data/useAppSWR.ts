@@ -80,10 +80,12 @@ export default function useAppSWR(
     interval = 0,
     type = 'backend',
     fetch = true,
+    suspense = false,
   }: {
     interval?: number
     type?: DataType
     fetch?: boolean
+    suspense?: boolean
   }
 ) {
   const [chainIdAtom] = useAtom(chainIdAtomRef)
@@ -94,7 +96,7 @@ export default function useAppSWR(
   // see discussion https://github.com/vercel/swr/discussions/959
   const { data, error } = useSWR(baseUrl && fetch ? `${baseUrl}${url}` : null, fetcher, {
     refreshInterval: interval,
-    // suspense: true,
+    suspense,
   })
 
   return { data, error }
