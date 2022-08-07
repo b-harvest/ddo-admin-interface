@@ -4,6 +4,7 @@ import FoldableSection from 'components/FordableSection'
 import TableList, { bignumberToFormat } from 'components/TableList'
 import type { ListFieldBignumber } from 'components/TableList/types'
 import Tag from 'components/Tag'
+import TimestampMemo from 'components/TimestampMemo'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
@@ -16,18 +17,16 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function ClaimableRewards({
   address,
   significantTimeGap,
-  interval = 0,
 }: {
   address: string | undefined
   significantTimeGap: number
-  interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
 
   const { allFarmRewardsDataTimestamp, allFarmRewardsByToken, allFarmRewardsByTokenLCD } = useAccountData({
     address: address ?? '',
-    interval,
+    interval: 15000,
   })
 
   const rewardsListByToken = useMemo<any[][]>(() => {
@@ -106,6 +105,10 @@ export default function ClaimableRewards({
         isDataNotMatched={hasDiff}
         isAllDataMatched={allMatched}
       />
+
+      <div className="mt-4">
+        <TimestampMemo label="Back-end last synced" timestamp={allFarmRewardsDataTimestamp} />
+      </div>
 
       <div className="mt-8 space-y-10">
         {rewardsListByToken.length > 0 ? (

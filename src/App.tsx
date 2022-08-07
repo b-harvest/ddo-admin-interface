@@ -15,6 +15,7 @@ import Accounts from 'pages/Accounts'
 import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
 import DEX from 'pages/DEX'
+import ErrorBoundary from 'pages/ErrorBoundary'
 import LSV from 'pages/LSV'
 import LSVs from 'pages/LSVs'
 import Overview from 'pages/Overview'
@@ -76,83 +77,82 @@ function App() {
   }, [history])
 
   return (
-    <div className="App">
-      {/* suspense doesn't work as long as useSWR suspense option is false */}
-      <Suspense fallback={null}>
-        <Updaters />
-      </Suspense>
-
-      <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
-        {showAppTopBar && <TextBand label={topBannerLabel} />}
-        {userAtom && (
-          <div
-            className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
-            style={{ zIndex: '1' }}
-          >
-            <BlockHeightPolling
-              onchainBlockHeight={onchainBlockHeight ?? '-'}
-              backendBlockHeight={backendBlockHeight ?? '-'}
-            />
+    <ErrorBoundary>
+      <Suspense fallback={<Loader />}>
+        <div className="App">
+          {/* suspense doesn't work as long as useSWR suspense option is false */}
+          <Updaters />
+          <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
+            {showAppTopBar && <TextBand label={topBannerLabel} />}
+            {userAtom && (
+              <div
+                className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
+                style={{ zIndex: '1' }}
+              >
+                <BlockHeightPolling
+                  onchainBlockHeight={onchainBlockHeight ?? '-'}
+                  backendBlockHeight={backendBlockHeight ?? '-'}
+                />
+              </div>
+            )}
+            <AppHeader />
           </div>
-        )}
-        <AppHeader />
-      </div>
 
-      <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
-        <div className="absolute top-0 left-0 right-0">
-          <TextBand label={hiddenBarLabel} thin={true} bgColorClass="bg-info" />
+          <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
+            <div className="absolute top-0 left-0 right-0">
+              <TextBand label={hiddenBarLabel} thin={true} bgColorClass="bg-info" />
+            </div>
+
+            <GlowBackground
+              style={{
+                transform: 'translateY(-120vh) translateX(-50vw)',
+              }}
+            />
+            <GlowBackground
+              style={{
+                transform: 'translateY(25vh) translateX(75vw)',
+              }}
+            />
+
+            <Switch>
+              <Route exact path="/auth" component={SignIn} />
+
+              <AuthRoute path="/overview" component={Overview} />
+              <AuthRoute path="/chain" component={Chain} />
+              <AuthRoute path="/accounts" component={Accounts} />
+              <AuthRoute path="/account/:id" component={Account} />
+              <AuthRoute path="/account" component={Account} />
+              <AuthRoute path="/lsvs" component={LSVs} />
+              <AuthRoute path="/lsv/:id" component={LSV} />
+              <AuthRoute path="/dex" component={DEX} />
+
+              <AuthRoute path="/volume/:id" component={Volume} />
+              <AuthRoute path="/tvl/:id" component={TVL} />
+              <AuthRoute path="/token/:id" component={Token} />
+
+              <Route>
+                <Redirect to="/overview" />
+              </Route>
+            </Switch>
+          </main>
+
+          <ToastContainer
+            limit={3}
+            transition={Slide}
+            position="top-right"
+            autoClose={8000}
+            hideProgressBar={false}
+            closeOnClick
+            closeButton={() => <div>𝗫</div>}
+            toastClassName={'bg-white text-black dark:bg-black dark:text-white TYPO-BODY-M text-left'}
+            newestOnTop
+            rtl={false}
+            pauseOnFocusLoss
+            pauseOnHover
+          />
         </div>
-
-        <GlowBackground
-          style={{
-            transform: 'translateY(-120vh) translateX(-50vw)',
-          }}
-        />
-        <GlowBackground
-          style={{
-            transform: 'translateY(25vh) translateX(75vw)',
-          }}
-        />
-
-        <Suspense fallback={<Loader />}>
-          <Switch>
-            <Route exact path="/auth" component={SignIn} />
-
-            <AuthRoute path="/overview" component={Overview} />
-            <AuthRoute path="/chain" component={Chain} />
-            <AuthRoute path="/accounts" component={Accounts} />
-            <AuthRoute path="/account/:id" component={Account} />
-            <AuthRoute path="/account" component={Account} />
-            <AuthRoute path="/lsvs" component={LSVs} />
-            <AuthRoute path="/lsv/:id" component={LSV} />
-            <AuthRoute path="/dex" component={DEX} />
-
-            <AuthRoute path="/volume/:id" component={Volume} />
-            <AuthRoute path="/tvl/:id" component={TVL} />
-            <AuthRoute path="/token/:id" component={Token} />
-
-            <Route>
-              <Redirect to="/overview" />
-            </Route>
-          </Switch>
-        </Suspense>
-
-        <ToastContainer
-          limit={3}
-          transition={Slide}
-          position="top-right"
-          autoClose={8000}
-          hideProgressBar={false}
-          closeOnClick
-          closeButton={() => <div>𝗫</div>}
-          toastClassName={'bg-white text-black dark:bg-black dark:text-white TYPO-BODY-M text-left'}
-          newestOnTop
-          rtl={false}
-          pauseOnFocusLoss
-          pauseOnHover
-        />
-      </main>
-    </div>
+      </Suspense>
+    </ErrorBoundary>
   )
 }
 

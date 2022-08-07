@@ -33,6 +33,7 @@ export default function AppSettingWidget() {
 
   useEffect(() => {
     colorBodyDarkIf(isDarkModeAtom)
+    return colorBodyDarkIf(isDarkModeAtom)
   }, [isDarkModeAtom])
 
   // auth

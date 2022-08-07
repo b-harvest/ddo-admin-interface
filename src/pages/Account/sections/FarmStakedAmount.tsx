@@ -1,5 +1,6 @@
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
+import TimestampMemo from 'components/TimestampMemo'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
@@ -12,18 +13,16 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function FarmStakedAmount({
   address,
   significantTimeGap,
-  interval = 0,
 }: {
   address: string | undefined
   significantTimeGap: number
-  interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
 
   const { allStakedDataTimestamp, allStaked, farmPositionLCD } = useAccountData({
     address: address ?? '',
-    interval,
+    interval: 5000,
   })
 
   const farmStakedList = useMemo(() => {
@@ -117,6 +116,7 @@ export default function FarmStakedAmount({
       <div className="mt-8">
         <TableList
           title="Farm Staked Amount"
+          memo={<TimestampMemo label="Back-end last synced" timestamp={allStakedDataTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}
@@ -179,6 +179,7 @@ export default function FarmStakedAmount({
 
         <TableList
           title="Queued"
+          memo={<TimestampMemo label="Back-end last synced" timestamp={allStakedDataTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}

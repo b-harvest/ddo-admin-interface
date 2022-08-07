@@ -64,7 +64,7 @@ export default function Accounts() {
       <div className="flex flex-col justify-start items-stretch space-y-4 mb-20">
         <SearchInput placeholder="Address" keyword={inputAddr} onChange={setInputAddr} onSearch={onSearch} />
         {addr ? (
-          <div className="flex">
+          <div className="flex justify-end">
             <ExplorerLink address={addr} />
           </div>
         ) : null}

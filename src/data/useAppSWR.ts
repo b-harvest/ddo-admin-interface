@@ -26,7 +26,7 @@ const getBaseUrl = ({ chainId, type }: { chainId: CHAIN_IDS; type: DataType }): 
 // should throw error to get returned as error from useSWR hook
 const fetcher = (url: string) => axios.get(url).then((res) => res.data)
 
-function handleError(error: any) {
+export function handleError(error: any) {
   if (error) {
     let msg: string
     console.group()

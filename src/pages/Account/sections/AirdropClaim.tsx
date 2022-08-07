@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
+import TimestampMemo from 'components/TimestampMemo'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
@@ -14,18 +15,16 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function AirdropClaim({
   address,
   significantTimeGap,
-  interval = 0,
 }: {
   address: string | undefined
   significantTimeGap: number
-  interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePool()
 
   const { airdropClaimDataTimestamp, airdropClaim, airdropClaimLCD } = useAccountData({
     address: address ?? '',
-    interval,
+    interval: 0,
   })
 
   const airdropList = useMemo<any[]>(() => {
@@ -89,6 +88,7 @@ export default function AirdropClaim({
       <div className="mt-8">
         <TableList
           title={`Airdrop ${airdropClaim?.AirdropId ?? ''}`}
+          memo={<TimestampMemo label="Back-end last synced" timestamp={airdropClaimDataTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}

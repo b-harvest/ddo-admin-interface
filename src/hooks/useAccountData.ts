@@ -88,20 +88,29 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   )
 
   // * staked amount
-  const { data: allStakedData }: APIHookReturn<StakedRaw[]> = useFarmStaked({
-    address,
-    fetch: willFetch(address),
-  })
+  const { data: allStakedData }: APIHookReturn<StakedRaw[]> = useFarmStaked(
+    {
+      address,
+      fetch: willFetch(address),
+    },
+    interval
+  )
 
-  const { data: allStakedLCDData }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD({
-    address,
-    fetch: willFetch(address),
-  })
+  const { data: allStakedLCDData }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD(
+    {
+      address,
+      fetch: willFetch(address),
+    },
+    interval
+  )
 
-  const { data: farmPositionLCDData }: LCDHookReturn<FarmPositionLCDRaw> = useFarmPositionLCD({
-    address,
-    fetch: willFetch(address),
-  })
+  const { data: farmPositionLCDData }: LCDHookReturn<FarmPositionLCDRaw> = useFarmPositionLCD(
+    {
+      address,
+      fetch: willFetch(address),
+    },
+    interval
+  )
 
   // backend
   const allStakedDataTimestamp = useMemo(() => (allStakedData?.curTimestamp ?? 0) * 1000, [allStakedData])
@@ -151,10 +160,13 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 
   // * rewards by pool
   const { data: allFarmRewardsLCDData }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> =
-    useAllFarmRewardsLCD({
-      address,
-      fetch: willFetch(address),
-    })
+    useAllFarmRewardsLCD(
+      {
+        address,
+        fetch: willFetch(address),
+      },
+      interval
+    )
 
   // backend
   const allFarmRewardsDataTimestamp = allStakedDataTimestamp
@@ -200,15 +212,21 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   ])
 
   // * airdrop claim
-  const { data: airdropClaimData }: APIHookReturn<AirdropClaimRaw> = useAirdropClaim({
-    address,
-    fetch: willFetch(address),
-  })
+  const { data: airdropClaimData }: APIHookReturn<AirdropClaimRaw> = useAirdropClaim(
+    {
+      address,
+      fetch: willFetch(address),
+    },
+    interval
+  )
 
-  const { data: airdropClaimLCDData }: LCDHookReturn<AirdropClaimLCDRaw> = useAirdropClaimLCD({
-    address,
-    fetch: willFetch(address),
-  })
+  const { data: airdropClaimLCDData }: LCDHookReturn<AirdropClaimLCDRaw> = useAirdropClaimLCD(
+    {
+      address,
+      fetch: willFetch(address),
+    },
+    interval
+  )
 
   const airdropClaimDataTimestamp = useMemo(() => (airdropClaimData?.curTimestamp ?? 0) * 1000, [airdropClaimData])
 

@@ -1,5 +1,6 @@
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
+import TimestampMemo from 'components/TimestampMemo'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
 import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
@@ -13,16 +14,14 @@ import { isTimeDiffFromNowMoreThan } from 'utils/time'
 export default function TokenBalance({
   address,
   significantTimeGap,
-  interval = 0,
 }: {
   address?: string
   significantTimeGap: number
-  interval?: number
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
 
-  const { allBalanceTimestamp, allBalance, allBalanceLCD } = useAccountData({ address: address ?? '' })
+  const { allBalanceTimestamp, allBalance, allBalanceLCD } = useAccountData({ address: address ?? '', interval: 5000 })
 
   const balanceList = useMemo(() => {
     return allBalanceLCD.map((item) => {
@@ -86,6 +85,7 @@ export default function TokenBalance({
       <div className="mt-8">
         <TableList
           title="Balance by Token"
+          memo={<TimestampMemo label="Back-end last synced" timestamp={allBalanceTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}
