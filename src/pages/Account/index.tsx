@@ -1,28 +1,22 @@
 import AppPage from 'components/AppPage'
 import ExplorerLink from 'components/ExplorerLink'
 // import BlockHeightPolling from 'components/BlockHeightPolling'
-import Hr from 'components/Hr'
 import SearchInput from 'components/Inputs/SearchInput'
 import Sticker from 'components/Sticker'
-import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import { DUMMY_ADDRESS } from 'constants/msg'
 // import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { chainIdAtomRef } from 'state/atoms'
 import { isTestnet } from 'utils/chain'
 
-import AirdropClaim from './sections/AirdropClaim'
-import ClaimableRewards from './sections/ClaimableRewards'
-import FarmStakedAmount from './sections/FarmStakedAmount'
-import TokenBalance from './sections/TokenBalance'
+import AccountData from './sections/AccountData'
 export default function Accounts() {
   const { id }: { id?: string } = useParams()
 
   // chainId atom
   const [chainIdAtom] = useAtom(chainIdAtomRef)
-  const significantTimeGap = useMemo(() => CHAINS_VALID_TIME_DIFF_MAP[chainIdAtom], [chainIdAtom])
 
   // address
   const [inputAddr, setInputAddr] = useState(DUMMY_ADDRESS)
@@ -64,22 +58,13 @@ export default function Accounts() {
       <div className="flex flex-col justify-start items-stretch space-y-4 mb-20">
         <SearchInput placeholder="Address" keyword={inputAddr} onChange={setInputAddr} onSearch={onSearch} />
         {addr ? (
-          <div className="flex">
+          <div className="flex justify-end">
             <ExplorerLink address={addr} />
           </div>
         ) : null}
       </div>
 
-      <div className="flex flex-col justify-start items-stretch space-y-12">
-        {/* refactoring wip */}
-        <TokenBalance address={addr} significantTimeGap={significantTimeGap} />
-        <Hr />
-        <FarmStakedAmount address={addr} significantTimeGap={significantTimeGap} />
-        <Hr />
-        <ClaimableRewards address={addr} significantTimeGap={significantTimeGap} />
-        <Hr />
-        <AirdropClaim address={addr} significantTimeGap={significantTimeGap} />
-      </div>
+      <AccountData address={addr ?? ''} />
     </AppPage>
   )
 }

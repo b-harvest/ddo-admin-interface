@@ -146,7 +146,7 @@ export default function TableList<T>({
                 {nonMerged.map((field, i) => {
                   return (
                     <li
-                      key={field.value}
+                      key={`field-${field.value}`}
                       style={{
                         minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
                         flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
@@ -170,7 +170,7 @@ export default function TableList<T>({
                   list.map((field, i) =>
                     i === 0 ? (
                       <li
-                        key={field.value}
+                        key={`field-${field.value}`}
                         className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                         style={{
                           minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
@@ -300,7 +300,7 @@ function ListItem<T extends TableListItem>({
         {nonMerged.map((field, i) => {
           return (
             <li
-              key={field.value}
+              key={`item-field-${field.value}`}
               onClick={() => {
                 if (onCellClick && field.clickable) onCellClick(data[field.value], field.value, data)
               }}
@@ -323,7 +323,7 @@ function ListItem<T extends TableListItem>({
         })}
         {merged.map((list, index) => (
           <li
-            key={index}
+            key={`item-merged-field-${index}`}
             className="grow shrink flex flex-col justify-start items-stretch space-y-1 md:space-y-2"
             style={{
               // minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
@@ -333,7 +333,7 @@ function ListItem<T extends TableListItem>({
             {list.map((field) => {
               return (
                 <div
-                  key={field.value}
+                  key={`item-merged-field-${field.value}`}
                   onClick={() => {
                     if (onCellClick && field.clickable) onCellClick(data[field.value], field.value, data)
                   }}

@@ -1,35 +1,37 @@
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
-import useAccountData from 'hooks/useAccountData'
+import TimestampMemo from 'components/TimestampMemo'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
+import type { Staked, TokenAmountSet } from 'types/account'
 import type { AlertStatus } from 'types/alert'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
 export default function FarmStakedAmount({
-  address,
   significantTimeGap,
-  interval = 0,
+  backendTimestamp,
+  backendData,
+  onchainData,
 }: {
-  address: string | undefined
   significantTimeGap: number
-  interval?: number
+  backendTimestamp: number
+  backendData: Staked[]
+  onchainData: {
+    staked_coins: TokenAmountSet[]
+    queued_coins: TokenAmountSet[]
+    rewards: TokenAmountSet[]
+  }
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
 
-  const { allStakedDataTimestamp, allStaked, farmPositionLCD } = useAccountData({
-    address: address ?? '',
-    interval,
-  })
-
   const farmStakedList = useMemo(() => {
-    return farmPositionLCD.staked_coins.map((item) => {
+    return onchainData.staked_coins.map((item) => {
       const onchainStakedAmount = item.amount
-      const backendStakedAmount = allStaked.find((pool) => pool.denom === item.denom)?.stakedAmount
+      const backendStakedAmount = backendData.find((pool) => pool.denom === item.denom)?.stakedAmount
       const status: AlertStatus | undefined = backendStakedAmount
         ? onchainStakedAmount.isEqualTo(backendStakedAmount)
           ? undefined
@@ -53,12 +55,12 @@ export default function FarmStakedAmount({
         poolId,
       }
     })
-  }, [allStaked, farmPositionLCD, findAssetByDenom, findPoolByDenom, getAssetTickers])
+  }, [backendData, onchainData, findAssetByDenom, findPoolByDenom, getAssetTickers])
 
   const farmQueuedList = useMemo(() => {
-    return farmPositionLCD.queued_coins.map((item) => {
+    return onchainData.queued_coins.map((item) => {
       const onchainQueuedAmount = item.amount
-      const backendQueuedAmount = allStaked.find((pool) => pool.denom === item.denom)?.queuedAmount
+      const backendQueuedAmount = backendData.find((pool) => pool.denom === item.denom)?.queuedAmount
       const status: AlertStatus | undefined = backendQueuedAmount
         ? onchainQueuedAmount.isEqualTo(backendQueuedAmount)
           ? undefined
@@ -82,12 +84,12 @@ export default function FarmStakedAmount({
         poolId,
       }
     })
-  }, [allStaked, farmPositionLCD, findAssetByDenom, findPoolByDenom, getAssetTickers])
+  }, [backendData, onchainData, findAssetByDenom, findPoolByDenom, getAssetTickers])
 
   // alert-inline data - balance
   const isDelayed = useMemo<boolean>(
-    () => isTimeDiffFromNowMoreThan(allStakedDataTimestamp, significantTimeGap),
-    [allStakedDataTimestamp, significantTimeGap]
+    () => isTimeDiffFromNowMoreThan(backendTimestamp, significantTimeGap),
+    [backendTimestamp, significantTimeGap]
   )
 
   const hasStakedDiff = useMemo<boolean>(
@@ -117,6 +119,7 @@ export default function FarmStakedAmount({
       <div className="mt-8">
         <TableList
           title="Farm Staked Amount"
+          memo={<TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}
@@ -179,6 +182,7 @@ export default function FarmStakedAmount({
 
         <TableList
           title="Queued"
+          memo={<TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}

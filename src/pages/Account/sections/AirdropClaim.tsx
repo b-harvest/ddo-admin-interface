@@ -1,45 +1,43 @@
 import BigNumber from 'bignumber.js'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
-import useAccountData from 'hooks/useAccountData'
+import TimestampMemo from 'components/TimestampMemo'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
 // import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
+import type { AirdropClaim, AirdropClaimLCD } from 'types/account'
 import type { AlertStatus } from 'types/alert'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
-export default function AirdropClaim({
-  address,
+export default function AirdropClaimSection({
   significantTimeGap,
-  interval = 0,
+  backendTimestamp,
+  backendData,
+  onchainData,
 }: {
-  address: string | undefined
   significantTimeGap: number
-  interval?: number
+  backendTimestamp: number
+  backendData: AirdropClaim | null
+  onchainData: AirdropClaimLCD | null
 }) {
   const { findAssetByDenom } = useAsset()
   const { getAssetTickers } = usePool()
 
-  const { airdropClaimDataTimestamp, airdropClaim, airdropClaimLCD } = useAccountData({
-    address: address ?? '',
-    interval,
-  })
-
   const airdropList = useMemo<any[]>(() => {
     return (
-      airdropClaimLCD?.initial_claimable_coins.map((item) => {
+      onchainData?.initial_claimable_coins.map((item) => {
         const onchainInitAmount = item.amount
-        const backendInitAmount = airdropClaim
-          ? airdropClaim.initialClaimableCoins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
+        const backendInitAmount = backendData
+          ? backendData.initialClaimableCoins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
           : undefined
-        const onchainClaimableAmount = airdropClaimLCD
-          ? airdropClaimLCD.claimable_coins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
+        const onchainClaimableAmount = onchainData
+          ? onchainData.claimable_coins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
           : undefined
-        const backendClaimableAmount = airdropClaim
-          ? airdropClaim.claimableCoins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
+        const backendClaimableAmount = backendData
+          ? backendData.claimableCoins.find((air) => air.denom === item.denom)?.amount ?? new BigNumber(0)
           : undefined
         const status: AlertStatus | undefined =
           backendInitAmount && onchainInitAmount.isEqualTo(backendInitAmount) ? undefined : 'error'
@@ -60,18 +58,18 @@ export default function AirdropClaim({
           backendClaimableAmount,
           status,
           assetLabel,
-          airdropId: airdropClaimLCD.airdrop_id,
+          airdropId: onchainData.airdrop_id,
         }
       }) ?? []
     )
-  }, [airdropClaim, airdropClaimLCD, findAssetByDenom, getAssetTickers])
+  }, [backendData, onchainData, findAssetByDenom, getAssetTickers])
 
   const hasDiff = useMemo<boolean>(() => airdropList.findIndex((item) => item.status === 'error') > -1, [airdropList])
 
   // alert-inline data - AirdropClaim amount
   const isDelayed = useMemo<boolean>(
-    () => isTimeDiffFromNowMoreThan(airdropClaimDataTimestamp, significantTimeGap),
-    [airdropClaimDataTimestamp, significantTimeGap]
+    () => isTimeDiffFromNowMoreThan(backendTimestamp, significantTimeGap),
+    [backendTimestamp, significantTimeGap]
   )
 
   const allMatched = useMemo<boolean>(() => !hasDiff && !isDelayed, [hasDiff, isDelayed])
@@ -88,7 +86,8 @@ export default function AirdropClaim({
 
       <div className="mt-8">
         <TableList
-          title={`Airdrop ${airdropClaim?.AirdropId ?? ''}`}
+          title={`Airdrop ${backendData?.AirdropId ?? ''}`}
+          memo={<TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}

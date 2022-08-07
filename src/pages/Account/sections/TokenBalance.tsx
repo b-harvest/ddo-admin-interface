@@ -1,31 +1,33 @@
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
+import TimestampMemo from 'components/TimestampMemo'
 import { MAX_AMOUNT_FIXED } from 'constants/asset'
-import useAccountData from 'hooks/useAccountData'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
+import type { Balance } from 'types/account'
+import type { TokenAmountSet } from 'types/account'
 import type { AlertStatus } from 'types/alert'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
 export default function TokenBalance({
-  address,
   significantTimeGap,
-  interval = 0,
+  backendTimestamp,
+  backendData,
+  onchainData,
 }: {
-  address?: string
   significantTimeGap: number
-  interval?: number
+  backendTimestamp: number
+  backendData: Balance
+  onchainData: TokenAmountSet[]
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
 
-  const { allBalanceTimestamp, allBalance, allBalanceLCD } = useAccountData({ address: address ?? '' })
-
   const balanceList = useMemo(() => {
-    return allBalanceLCD.map((item) => {
+    return onchainData.map((item) => {
       const asset = findAssetByDenom(item.denom)
       const ticker = asset?.ticker
       const assetLabel = asset
@@ -37,7 +39,7 @@ export default function TokenBalance({
       const exponent = asset?.exponent ?? 0
 
       const onchainBalance = item.amount
-      const backendBalance = allBalance.find((bal) => bal.denom === item.denom)?.amount
+      const backendBalance = backendData.find((bal) => bal.denom === item.denom)?.amount
       const status: AlertStatus | undefined = backendBalance
         ? onchainBalance.isEqualTo(backendBalance)
           ? undefined
@@ -58,7 +60,7 @@ export default function TokenBalance({
         status,
       }
     })
-  }, [allBalance, allBalanceLCD, findAssetByDenom, getAssetTickers, findPoolByDenom])
+  }, [backendData, onchainData, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   // alert-inline data - balance
   const hasBalanceDiff = useMemo<boolean>(
@@ -67,8 +69,8 @@ export default function TokenBalance({
   )
 
   const isDelayed = useMemo<boolean>(
-    () => isTimeDiffFromNowMoreThan(allBalanceTimestamp, significantTimeGap),
-    [allBalanceTimestamp, significantTimeGap]
+    () => isTimeDiffFromNowMoreThan(backendTimestamp, significantTimeGap),
+    [backendTimestamp, significantTimeGap]
   )
 
   const allMatched = useMemo<boolean>(() => !hasBalanceDiff && !isDelayed, [hasBalanceDiff, isDelayed])
@@ -86,6 +88,7 @@ export default function TokenBalance({
       <div className="mt-8">
         <TableList
           title="Balance by Token"
+          memo={<TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />}
           showTitle={false}
           useSearch={false}
           showFieldsBar={true}

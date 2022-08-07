@@ -4,36 +4,42 @@ import FoldableSection from 'components/FordableSection'
 import TableList, { bignumberToFormat } from 'components/TableList'
 import type { ListFieldBignumber } from 'components/TableList/types'
 import Tag from 'components/Tag'
-import useAccountData from 'hooks/useAccountData'
+import TimestampMemo from 'components/TimestampMemo'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
+import type { TokenAmountSet } from 'types/account'
 import { AlertStatus } from 'types/alert'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
 
 export default function ClaimableRewards({
-  address,
   significantTimeGap,
-  interval = 0,
+  backendTimestamp,
+  backendData,
+  onchainData,
 }: {
-  address: string | undefined
   significantTimeGap: number
-  interval?: number
+  backendTimestamp: number
+  backendData: {
+    [key: string]: (TokenAmountSet & {
+      poolDenom: string
+    })[]
+  }
+  onchainData: {
+    [key: string]: (TokenAmountSet & {
+      poolDenom: string
+    })[]
+  }
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
 
-  const { allFarmRewardsDataTimestamp, allFarmRewardsByToken, allFarmRewardsByTokenLCD } = useAccountData({
-    address: address ?? '',
-    interval,
-  })
-
   const rewardsListByToken = useMemo<any[][]>(() => {
-    return Object.keys(allFarmRewardsByTokenLCD).map((denom) => {
-      const onchainList = allFarmRewardsByTokenLCD[denom]
-      const backendList = allFarmRewardsByToken[denom] ?? []
+    return Object.keys(onchainData).map((denom) => {
+      const onchainList = onchainData[denom]
+      const backendList = backendData[denom] ?? []
 
       const onchainTotal = onchainList.reduce((accm, item) => accm.plus(item.amount), new BigNumber(0))
       const backendTotal = backendList.reduce((accm, item) => accm.plus(item.amount), new BigNumber(0))
@@ -82,7 +88,7 @@ export default function ClaimableRewards({
         }
       })
     })
-  }, [allFarmRewardsByTokenLCD, allFarmRewardsByToken, findAssetByDenom, getAssetTickers, findPoolByDenom])
+  }, [onchainData, backendData, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   const hasDiff = useMemo<boolean>(
     () => rewardsListByToken.findIndex((listByToken) => listByToken[0] && listByToken[0].totalStatus === 'error') > -1,
@@ -91,8 +97,8 @@ export default function ClaimableRewards({
 
   // alert-inline data - balance
   const isDelayed = useMemo<boolean>(
-    () => isTimeDiffFromNowMoreThan(allFarmRewardsDataTimestamp, significantTimeGap),
-    [allFarmRewardsDataTimestamp, significantTimeGap]
+    () => isTimeDiffFromNowMoreThan(backendTimestamp, significantTimeGap),
+    [backendTimestamp, significantTimeGap]
   )
 
   const allMatched = useMemo<boolean>(() => !hasDiff && !isDelayed, [hasDiff, isDelayed])
@@ -106,6 +112,10 @@ export default function ClaimableRewards({
         isDataNotMatched={hasDiff}
         isAllDataMatched={allMatched}
       />
+
+      <div className="mt-4">
+        <TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />
+      </div>
 
       <div className="mt-8 space-y-10">
         {rewardsListByToken.length > 0 ? (
