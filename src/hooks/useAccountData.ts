@@ -271,16 +271,18 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   // isLoading
   const isLoading = useMemo<boolean>(
     () =>
-      allBalanceDataLoading ||
-      allBalanceLCDDataLoading ||
-      allStakedDataLoading ||
-      allStakedLCDDataLoading ||
-      farmPositionLCDDataLoading ||
-      allFarmRewardsLCDDataLoading ||
-      allFarmRewardsLCDDataLoading ||
-      airdropClaimDataLoading ||
-      airdropClaimLCDDataLoading,
+      willFetch(address) &&
+      (allBalanceDataLoading ||
+        allBalanceLCDDataLoading ||
+        allStakedDataLoading ||
+        allStakedLCDDataLoading ||
+        farmPositionLCDDataLoading ||
+        allFarmRewardsLCDDataLoading ||
+        allFarmRewardsLCDDataLoading ||
+        airdropClaimDataLoading ||
+        airdropClaimLCDDataLoading),
     [
+      address,
       allBalanceDataLoading,
       allBalanceLCDDataLoading,
       allStakedDataLoading,
