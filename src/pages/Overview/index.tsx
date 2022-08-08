@@ -54,7 +54,7 @@ export default function Overview() {
   const { findPoolByDenom, getAssetTickers } = usePool()
 
   // Charts
-  const { tvlUSDChartData, volUSDChartData } = useChartData()
+  const { tvlUSDChartData, volUSDChartData, tvlUSDDataLoading, volUSDDataLoading } = useChartData()
   const { routeTVLByTime, routeVolumeByTime } = usePages()
 
   // All Tokens
@@ -88,8 +88,8 @@ export default function Overview() {
   return (
     <AppPage>
       <section className="flex flex-col justify-between items-stretch space-y-4 md:flex-row md:space-x-4 md:space-y-0 mb-20">
-        <TVLChart chartData={tvlUSDChartData} onClick={routeTVLByTime} />
-        <VolumeChart chartData={volUSDChartData} onClick={routeVolumeByTime} />
+        <TVLChart chartData={tvlUSDChartData} onClick={routeTVLByTime} isLoading={tvlUSDDataLoading} />
+        <VolumeChart chartData={volUSDChartData} onClick={routeVolumeByTime} isLoading={volUSDDataLoading} />
       </section>
 
       <section className="mb-20">

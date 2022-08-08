@@ -52,8 +52,15 @@ export default function TopAccounts() {
   }, [searchRankType])
 
   // fetch data
-  const { farmRanks, farmRanksTimestamp, balanceRanks, balanceRanksTimestamp, totalRanks, totalRanksTimestamp } =
-    useAccounts()
+  const {
+    farmRanks,
+    farmRanksTimestamp,
+    balanceRanks,
+    balanceRanksTimestamp,
+    totalRanks,
+    totalRanksTimestamp,
+    isLoading,
+  } = useAccounts()
 
   const farmRanksTime = useMemo(() => <TimestampMemo timestamp={farmRanksTimestamp} />, [farmRanksTimestamp])
   const balanceRanksTime = useMemo(() => <TimestampMemo timestamp={balanceRanksTimestamp} />, [balanceRanksTimestamp])
@@ -74,6 +81,12 @@ export default function TopAccounts() {
     }
   }, [farmRanks, farmRanksTime, balanceRanks, balanceRanksTime, totalRanks, totalRanksTime, rankType])
 
+  // loader
+  const [showLoader, setShowLoader] = useState<boolean>(true)
+  useEffect(() => {
+    setShowLoader(isLoading)
+  }, [isLoading])
+
   return (
     <>
       <div className="flex justify-between items-center space-x-4 mb-4">
@@ -89,6 +102,7 @@ export default function TopAccounts() {
       </div>
 
       <Ranks
+        isLoading={showLoader}
         title={`${rankType} Top ${ranks.length ? ranks.length : ''}`}
         ranks={ranks}
         memo={ranksTime}
@@ -97,15 +111,3 @@ export default function TopAccounts() {
     </>
   )
 }
-
-// export function TimestampMemo(memo: string) {
-//   return (
-//     <div className="flex items-center space-x-2 TYPO-BODY-XS !font-medium">
-//       <div>Last synced</div> <div className="">{memo}</div>
-//     </div>
-//   )
-// }
-
-// export function TimestampMemo(timestamp: number | undefined) {
-//   return TimestampMemo(timestamp ? `${dayjs(timestamp).format(TIMESTAMP_FORMAT)}` : '-')
-// }

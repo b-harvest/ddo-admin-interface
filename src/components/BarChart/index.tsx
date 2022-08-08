@@ -1,4 +1,5 @@
 import Card, { CardMergedSide } from 'components/Card'
+import LoadingRows from 'components/LoadingRows'
 import { LIGHT_CRE_O, PINK_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -20,6 +21,7 @@ export enum TimeTick {
 }
 
 export type LineChartProps = {
+  isLoading?: boolean
   data: GenericChartEntry[]
   highlightTime?: GenericChartEntry['time']
   color?: string | undefined
@@ -40,6 +42,7 @@ export type LineChartProps = {
 } & Omit<HTMLAttributes<HTMLDivElement>, 'onClick'>
 
 export default function BarChart({
+  isLoading = false,
   data,
   highlightTime,
   color = '#56B2A4',
@@ -143,60 +146,68 @@ export default function BarChart({
       }}
       {...rest}
     >
-      <div className="shrink-0 grow-0 flex justify-between">
-        {topLeft ?? null}
-        {topRight ?? null}
-      </div>
+      {isLoading ? (
+        <LoadingRows rowsCnt={12} />
+      ) : (
+        <>
+          <div className="shrink-0 grow-0 flex justify-between">
+            {topLeft ?? null}
+            {topRight ?? null}
+          </div>
 
-      <div className="w-full h-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <Chart
-            width={400}
-            height={220}
-            data={chartTimeTick !== undefined ? chartData : data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-            onMouseEnter={handleMouseOn}
-            onMouseMove={handleMouseOn}
-            onMouseLeave={handleMouseLeave}
-            onClick={handleClick}
-          >
-            <XAxis
-              dataKey="time"
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(time) =>
-                chartTimeTick !== undefined ? dayjs(time).format(chartTimeTick === TimeTick.Monthly ? 'MMM' : 'DD') : ''
-              }
-              minTickGap={10}
-            />
-            <Tooltip cursor={{ fill: LIGHT_CRE_O }} contentStyle={{ display: 'none' }} />
-            <Bar
-              dataKey="value"
-              fill={color}
-              shape={(props) => (
-                <CustomBar
-                  height={props.height}
-                  width={props.width}
-                  x={props.x}
-                  y={props.y}
-                  fill={props.time === highlightTime ? PINK_CRE : color}
-                  cursor={onClick ? 'pointer' : 'default'}
+          <div className="w-full h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <Chart
+                width={400}
+                height={220}
+                data={chartTimeTick !== undefined ? chartData : data}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+                onMouseEnter={handleMouseOn}
+                onMouseMove={handleMouseOn}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleClick}
+              >
+                <XAxis
+                  dataKey="time"
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(time) =>
+                    chartTimeTick !== undefined
+                      ? dayjs(time).format(chartTimeTick === TimeTick.Monthly ? 'MMM' : 'DD')
+                      : ''
+                  }
+                  minTickGap={10}
                 />
-              )}
-            />
-          </Chart>
-        </ResponsiveContainer>
-      </div>
+                <Tooltip cursor={{ fill: LIGHT_CRE_O }} contentStyle={{ display: 'none' }} />
+                <Bar
+                  dataKey="value"
+                  fill={color}
+                  shape={(props) => (
+                    <CustomBar
+                      height={props.height}
+                      width={props.width}
+                      x={props.x}
+                      y={props.y}
+                      fill={props.time === highlightTime ? PINK_CRE : color}
+                      cursor={onClick ? 'pointer' : 'default'}
+                    />
+                  )}
+                />
+              </Chart>
+            </ResponsiveContainer>
+          </div>
 
-      <div className="shrink-0 grow-0 flex justify-between">
-        {bottomLeft ?? null}
-        {bottomRight ?? null}
-      </div>
+          <div className="shrink-0 grow-0 flex justify-between">
+            {bottomLeft ?? null}
+            {bottomRight ?? null}
+          </div>
+        </>
+      )}
     </Card>
   )
 }

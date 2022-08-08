@@ -83,12 +83,17 @@ module.exports = {
           '0%': { opacity: '1' },
           '100%': { opacity: '0', display: 'none' },
         },
+        'loading-bg': {
+          '0%': { 'background-position': '100% 50%' },
+          '100%': { 'background-position': '0% 50%' },
+        },
       },
       animation: {
         spinning: 'rotate360 1s cubic-bezier(0.83, 0, 0.17, 1) infinite',
         spinningX: 'rotateX360 1s cubic-bezier(0.83, 0, 0.17, 1) infinite',
         update: 'update 1s ease-out infinite',
         'fade-out': 'fade-out 1.5s 0.4s both',
+        'loading-bg': 'loading-bg 1.5s infinite both',
       },
     },
   },

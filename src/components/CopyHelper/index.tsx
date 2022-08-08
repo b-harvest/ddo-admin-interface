@@ -14,7 +14,7 @@ type CopyHelperProps = BaseProps & Omit<ButtonHTMLAttributes<HTMLButtonElement>,
 export default function CopyHelper({ color, toCopy, children, iconPosition }: CopyHelperProps) {
   const [isCopied, setCopied] = useCopyClipboard()
   const copy = useCallback(() => {
-    vibrate(200)
+    vibrate(50)
     setCopied(toCopy)
   }, [toCopy, setCopied])
 
@@ -23,9 +23,9 @@ export default function CopyHelper({ color, toCopy, children, iconPosition }: Co
       className="relative shrink-0 flex justify-start items-center text-black dark:text-white cursor-pointer"
       onClick={copy}
     >
-      {iconPosition === 'left' ? isCopied ? <Icon type="checked" className="mr-2" /> : null : null}
+      {iconPosition === 'left' ? isCopied ? <Icon type="success" className="mr-2" /> : null : null}
       {isCopied ? 'Copied' : children}
-      {iconPosition === 'right' ? isCopied ? <Icon type="checked" className="ml-2" /> : null : null}
+      {iconPosition === 'right' ? isCopied ? <Icon type="success" className="ml-2" /> : null : null}
     </div>
   )
 }

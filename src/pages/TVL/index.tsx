@@ -19,7 +19,7 @@ export default function Volume() {
   const onDateChange = (date: Date) => routeTVLByTime(date.getTime())
 
   // chart data
-  const { tvlUSDChartData, getMinDate, getMaxDate } = useChartData()
+  const { tvlUSDChartData, getMinDate, getMaxDate, tvlUSDDataLoading } = useChartData()
 
   return (
     <AppPage>
@@ -33,7 +33,12 @@ export default function Volume() {
       </div>
 
       <div className="space-y-20">
-        <TVLChart chartData={tvlUSDChartData} highlightTime={date} onClick={routeTVLByTime} />
+        <TVLChart
+          chartData={tvlUSDChartData}
+          highlightTime={date}
+          onClick={routeTVLByTime}
+          isLoading={tvlUSDDataLoading}
+        />
         <TVLByPoolChart chartData={tvlUSDChartData} date={date} />
       </div>
     </AppPage>

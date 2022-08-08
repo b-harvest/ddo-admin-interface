@@ -68,7 +68,7 @@ export default function VolumeByPairChart({ date, chartData }: { date: number; c
               .sort((a, b) => b.value - a.value)
               .map((item, i) => (
                 <div key={item.type} className="w-full flex items-center space-x-4">
-                  {colorMap && <Dot color={transparentize(0.4, colorMap[item.type])} />}
+                  {colorMap && <Dot color={transparentize(0.2, colorMap[item.type])} />}
                   <div className="shrink grow w-full flex items-center space-x-4 TYPO-BODY-S md:TYPO-BODY-M text-neutral-800 dark:text-grayCRE-100">
                     <span className="basis-[14%]">#{item.type}</span>{' '}
                     <span className="FONT-MONO !font-bold">

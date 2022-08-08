@@ -1,3 +1,4 @@
+import EmptyData from 'components/EmptyData'
 import FoldableSection from 'components/FordableSection'
 import TableList from 'components/TableList'
 import TimestampMemo from 'components/TimestampMemo'
@@ -17,11 +18,13 @@ export default function TokenBalance({
   backendTimestamp,
   backendData,
   onchainData,
+  isLoading = true,
 }: {
   significantTimeGap: number
   backendTimestamp: number
   backendData: Balance
   onchainData: TokenAmountSet[]
+  isLoading: boolean
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
@@ -77,67 +80,73 @@ export default function TokenBalance({
 
   return (
     <FoldableSection label="Token Balance" defaultIsOpen={true}>
-      <AccountDataAlertArea
-        isActive={balanceList.length > 0}
-        significantTimeGap={significantTimeGap}
-        isDataTimeDiff={isDelayed}
-        isDataNotMatched={hasBalanceDiff}
-        isAllDataMatched={allMatched}
-      />
+      {isLoading ? (
+        <EmptyData isLoading={true} />
+      ) : (
+        <>
+          <AccountDataAlertArea
+            isActive={balanceList.length > 0}
+            significantTimeGap={significantTimeGap}
+            isDataTimeDiff={isDelayed}
+            isDataNotMatched={hasBalanceDiff}
+            isAllDataMatched={allMatched}
+          />
 
-      <div className="mt-8">
-        <TableList
-          title="Balance by Token"
-          memo={<TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />}
-          showTitle={false}
-          useSearch={false}
-          showFieldsBar={true}
-          list={balanceList}
-          mergedFields={[['onchainBalance', 'backendBalance'], ['onchainBalanceUSD']]}
-          mergedFieldLabels={['Balance', 'Balance (≈)']}
-          defaultSortBy="onchainBalance"
-          defaultIsSortASC={false}
-          totalField="onchainBalanceUSD"
-          totalLabel="Total balance USD"
-          nowrap={false}
-          fields={[
-            {
-              label: 'Token',
-              value: 'assetLabel',
-              type: 'html',
-              widthRatio: 18,
-            },
-            {
-              label: 'Denom',
-              value: 'denom',
-              abbrOver: 8,
-              widthRatio: 20,
-              responsive: true,
-            },
-            {
-              label: 'Onchain Data',
-              value: 'onchainBalance',
-              tag: 'On-chain',
-              type: 'bignumber',
-              toFixedFallback: MAX_AMOUNT_FIXED,
-            },
-            {
-              label: 'Backend Data',
-              value: 'backendBalance',
-              tag: 'Back-end',
-              type: 'bignumber',
-              toFixedFallback: MAX_AMOUNT_FIXED,
-            },
-            {
-              label: 'Balance USD (≈)',
-              value: 'onchainBalanceUSD',
-              type: 'usd',
-              toFixedFallback: 2,
-              responsive: true,
-            },
-          ]}
-        />
-      </div>
+          <div className="mt-8">
+            <TableList
+              title="Balance by Token"
+              memo={<TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />}
+              showTitle={false}
+              useSearch={false}
+              showFieldsBar={true}
+              list={balanceList}
+              mergedFields={[['onchainBalance', 'backendBalance'], ['onchainBalanceUSD']]}
+              mergedFieldLabels={['Balance', '(≈)']}
+              defaultSortBy="onchainBalance"
+              defaultIsSortASC={false}
+              totalField="onchainBalanceUSD"
+              totalLabel="Total balance USD"
+              nowrap={false}
+              fields={[
+                {
+                  label: 'Token',
+                  value: 'assetLabel',
+                  type: 'html',
+                  widthRatio: 18,
+                },
+                {
+                  label: 'Denom',
+                  value: 'denom',
+                  abbrOver: 8,
+                  widthRatio: 20,
+                  responsive: true,
+                },
+                {
+                  label: 'Onchain Data',
+                  value: 'onchainBalance',
+                  tag: 'On-chain',
+                  type: 'bignumber',
+                  toFixedFallback: MAX_AMOUNT_FIXED,
+                },
+                {
+                  label: 'Backend Data',
+                  value: 'backendBalance',
+                  tag: 'Back-end',
+                  type: 'bignumber',
+                  toFixedFallback: MAX_AMOUNT_FIXED,
+                },
+                {
+                  label: '(≈)',
+                  value: 'onchainBalanceUSD',
+                  type: 'usd',
+                  toFixedFallback: 2,
+                  // responsive: true,
+                },
+              ]}
+            />
+          </div>
+        </>
+      )}
     </FoldableSection>
   )
 }

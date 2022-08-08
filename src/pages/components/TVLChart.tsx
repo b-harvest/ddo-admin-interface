@@ -8,10 +8,12 @@ import type { TVLUSDByDate } from 'types/accounts'
 import type { GenericChartEntry } from 'types/chart'
 
 export default function TVLChart({
+  isLoading,
   chartData,
   highlightTime,
   onClick,
 }: {
+  isLoading: boolean
   chartData: TVLUSDByDate[]
   highlightTime?: number
   onClick?: (time: number | undefined) => void
@@ -47,6 +49,7 @@ export default function TVLChart({
 
   return (
     <LineChart
+      isLoading={isLoading}
       height={220}
       minHeight={360}
       data={tvlUSDChartList}

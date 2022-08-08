@@ -4,8 +4,13 @@ import type { EventsByBlock, FlushByBlock } from 'types/block'
 
 const useBlockChartData = () => {
   // block events
-  const { data: blockEventIndicatorsData } = useBlockEventIndicators()
-  const { data: blockEventCountsData } = useAllBlocksEvents()
+  const { data: blockEventIndicatorsData, isLoading: blockEventIndicatorsDataLoading } = useBlockEventIndicators()
+  const { data: blockEventCountsData, isLoading: blockEventCountsDataLoading } = useAllBlocksEvents()
+
+  const blockEventDataLoading = useMemo<boolean>(
+    () => blockEventIndicatorsDataLoading || blockEventCountsDataLoading,
+    [blockEventIndicatorsDataLoading, blockEventCountsDataLoading]
+  )
 
   const eventIndicators = useMemo<string[]>(() => {
     const indicatorsData = blockEventIndicatorsData?.data.length ? blockEventIndicatorsData.data[0] : undefined
@@ -36,7 +41,7 @@ const useBlockChartData = () => {
   }, [eventIndicators, blockEventCountsData])
 
   // block flush records
-  const { data: blocksFlushData } = useAllBlocksFlush()
+  const { data: blocksFlushData, isLoading: blocksFlushDataLoading } = useAllBlocksFlush()
 
   const blockFlushChartData = useMemo<FlushByBlock[]>(() => {
     const flushData = blocksFlushData?.data.length ? blocksFlushData.data[0] : undefined
@@ -57,7 +62,7 @@ const useBlockChartData = () => {
     )
   }, [blocksFlushData])
 
-  return { eventIndicators, blockEventChartData, blockFlushChartData }
+  return { eventIndicators, blockEventChartData, blockFlushChartData, blockEventDataLoading, blocksFlushDataLoading }
 }
 
 export default useBlockChartData

@@ -12,14 +12,22 @@ type LSVAdditional = {
   filter?: string[]
 }
 
-export default function LSVList({ timestamp, list }: { timestamp?: number; list: LSV[] }) {
+export default function LSVList({
+  timestamp,
+  list,
+  isLoading,
+}: {
+  timestamp?: number
+  list: LSV[]
+  isLoading: boolean
+}) {
   const allLSVTableList = useMemo<(LSV & LSVAdditional)[]>(() => {
     return list.map((item) => {
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
 
       const jailedTag = item.jailed ? <Tag status="error">Jailed</Tag> : null
       const commissionTag = item.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
-      const lowVotingTag = item.votingRate < SAFE_VOTING_RATE ? <Tag status="error">Low voting rate</Tag> : null
+      const lowVotingTag = item.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
       const statusTag =
         jailedTag || commissionTag || lowVotingTag ? (
           <div className="flex flex-col justify-end items-end gap-y-1">
@@ -48,6 +56,7 @@ export default function LSVList({ timestamp, list }: { timestamp?: number; list:
   return (
     <TableList<LSV & LSVAdditional>
       title="All LSV"
+      isLoading={isLoading}
       showTitle={false}
       useSearch={true}
       useNarrow={true}
@@ -66,7 +75,7 @@ export default function LSVList({ timestamp, list }: { timestamp?: number; list:
           widthRatio: 10,
         },
         {
-          label: 'Address',
+          label: 'Operator address',
           value: 'valOperAddr',
           widthRatio: 30,
           responsive: true,

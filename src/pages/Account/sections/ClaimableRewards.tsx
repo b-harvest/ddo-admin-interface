@@ -19,6 +19,7 @@ export default function ClaimableRewards({
   backendTimestamp,
   backendData,
   onchainData,
+  isLoading = true,
 }: {
   significantTimeGap: number
   backendTimestamp: number
@@ -32,6 +33,7 @@ export default function ClaimableRewards({
       poolDenom: string
     })[]
   }
+  isLoading: boolean
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
@@ -105,79 +107,85 @@ export default function ClaimableRewards({
 
   return (
     <FoldableSection label="Claimable Rewards" defaultIsOpen={true}>
-      <AccountDataAlertArea
-        isActive={rewardsListByToken.length > 0}
-        significantTimeGap={significantTimeGap}
-        isDataTimeDiff={isDelayed}
-        isDataNotMatched={hasDiff}
-        isAllDataMatched={allMatched}
-      />
+      {isLoading ? (
+        <EmptyData isLoading={true} />
+      ) : (
+        <>
+          <AccountDataAlertArea
+            isActive={rewardsListByToken.length > 0}
+            significantTimeGap={significantTimeGap}
+            isDataTimeDiff={isDelayed}
+            isDataNotMatched={hasDiff}
+            isAllDataMatched={allMatched}
+          />
 
-      <div className="mt-4">
-        <TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />
-      </div>
+          <div className="mt-4">
+            <TimestampMemo label="Back-end last synced" timestamp={backendTimestamp} />
+          </div>
 
-      <div className="mt-8 space-y-10">
-        {rewardsListByToken.length > 0 ? (
-          rewardsListByToken.map((listByToken, i) =>
-            listByToken.length ? (
-              <div key={i}>
-                <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
-                  <span>{listByToken[0].rewardsAssetLabel}</span>
-                </h4>
+          <div className="mt-8 space-y-10">
+            {rewardsListByToken.length > 0 ? (
+              rewardsListByToken.map((listByToken, i) =>
+                listByToken.length ? (
+                  <div key={i}>
+                    <h4 className="flex justify-start items-center space-x-2 TYPO-H4 text-black dark:text-white mb-4">
+                      <span>{listByToken[0].rewardsAssetLabel}</span>
+                    </h4>
 
-                <TableList
-                  title="Claimabale Rewards"
-                  showTitle={false}
-                  useSearch={false}
-                  showFieldsBar={true}
-                  list={listByToken}
-                  mergedFields={[['onchainRewardsAmount', 'backendRewardsAmount']]}
-                  mergedFieldLabels={['Rewards amount']}
-                  defaultSortBy="rewardsAmount"
-                  defaultIsSortASC={false}
-                  totalField="onchainRewardsAmount"
-                  totalLabel="Total rewards"
-                  totalLabelSuffix={listByToken[0].rewardsAssetLogo}
-                  totalDesc={listByToken[0].totalDesc}
-                  totalStatus={listByToken[0].totalStatus}
-                  nowrap={false}
-                  fields={[
-                    {
-                      label: 'Pool',
-                      value: 'poolLabel',
-                      type: 'html',
-                      widthRatio: 18,
-                    },
-                    {
-                      label: 'Pool #',
-                      value: 'poolId',
-                      widthRatio: 12,
-                      responsive: true,
-                    },
-                    {
-                      label: 'On-chain rewards amount',
-                      value: 'onchainRewardsAmount',
-                      tag: 'On-chain',
-                      type: 'bignumber',
-                      toFixedFallback: 6,
-                    },
-                    {
-                      label: 'Rewards amount',
-                      value: 'backendRewardsAmount',
-                      tag: 'Back-end',
-                      type: 'bignumber',
-                      toFixedFallback: 6,
-                    },
-                  ]}
-                />
-              </div>
-            ) : null
-          )
-        ) : (
-          <EmptyData label="No data" />
-        )}
-      </div>
+                    <TableList
+                      title="Claimabale Rewards"
+                      showTitle={false}
+                      useSearch={false}
+                      showFieldsBar={true}
+                      list={listByToken}
+                      mergedFields={[['onchainRewardsAmount', 'backendRewardsAmount']]}
+                      mergedFieldLabels={['Rewards amount']}
+                      defaultSortBy="rewardsAmount"
+                      defaultIsSortASC={false}
+                      totalField="onchainRewardsAmount"
+                      totalLabel="Total rewards"
+                      totalLabelSuffix={listByToken[0].rewardsAssetLogo}
+                      totalDesc={listByToken[0].totalDesc}
+                      totalStatus={listByToken[0].totalStatus}
+                      nowrap={false}
+                      fields={[
+                        {
+                          label: 'Pool',
+                          value: 'poolLabel',
+                          type: 'html',
+                          widthRatio: 18,
+                        },
+                        {
+                          label: 'Pool #',
+                          value: 'poolId',
+                          widthRatio: 12,
+                          responsive: true,
+                        },
+                        {
+                          label: 'On-chain rewards amount',
+                          value: 'onchainRewardsAmount',
+                          tag: 'On-chain',
+                          type: 'bignumber',
+                          toFixedFallback: 6,
+                        },
+                        {
+                          label: 'Rewards amount',
+                          value: 'backendRewardsAmount',
+                          tag: 'Back-end',
+                          type: 'bignumber',
+                          toFixedFallback: 6,
+                        },
+                      ]}
+                    />
+                  </div>
+                ) : null
+              )
+            ) : (
+              <EmptyData label="No data" />
+            )}
+          </div>
+        </>
+      )}
     </FoldableSection>
   )
 }

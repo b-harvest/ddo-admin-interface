@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import type { AccountRankRaw, RankData } from 'types/accounts'
 
 const useAccounts = () => {
-  const { data: allAccountsRankData } = useAllAccountsRank()
+  const { data: allAccountsRankData, isLoading } = useAllAccountsRank()
 
   // farm ranks
   const farmRanksData = useMemo<AccountRankRaw | undefined>(
@@ -69,7 +69,15 @@ const useAccounts = () => {
     [totalRanksData]
   )
 
-  return { farmRanks, farmRanksTimestamp, balanceRanks, balanceRanksTimestamp, totalRanks, totalRanksTimestamp }
+  return {
+    farmRanks,
+    farmRanksTimestamp,
+    balanceRanks,
+    balanceRanksTimestamp,
+    totalRanks,
+    totalRanksTimestamp,
+    isLoading,
+  }
 }
 
 export default useAccounts

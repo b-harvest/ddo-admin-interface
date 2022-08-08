@@ -6,7 +6,8 @@ import BlockLatencyChart from './sections/BlockLatencyChart'
 import IBCNetwork from './sections/IBCNetwork'
 
 export default function Chain() {
-  const { eventIndicators, blockEventChartData, blockFlushChartData } = useBlockChartData()
+  const { eventIndicators, blockEventChartData, blockFlushChartData, blockEventDataLoading, blocksFlushDataLoading } =
+    useBlockChartData()
 
   return (
     <AppPage>
@@ -15,8 +16,12 @@ export default function Chain() {
       </section>
 
       <section className="flex flex-col justify-between items-stretch space-y-4 mb-20">
-        <BlockEventChart chartData={blockEventChartData} eventIndicators={eventIndicators} />
-        <BlockLatencyChart chartData={blockFlushChartData} />
+        <BlockEventChart
+          chartData={blockEventChartData}
+          eventIndicators={eventIndicators}
+          isLoading={blockEventDataLoading}
+        />
+        <BlockLatencyChart chartData={blockFlushChartData} isLoading={blocksFlushDataLoading} />
       </section>
 
       {/* <section className="flex flex-col md:flex-row items-stretch space-y-4 md:space-y-0 md:space-x-8 mb-20">
