@@ -9,7 +9,7 @@ export default function Tooltip({ children, content }: { children: ReactNode; co
     <Tippy
       arrow={false}
       content={content}
-      className="border border-grayCRE-200 dark:border-grayCRE-400 bg-grayCRE-200-o dark:bg-grayCRE-400-o backdrop-blur-[40px] TYPO-BODY-S !whitespace-pre text-left"
+      className="border border-grayCRE-300 dark:border-grayCRE-400 !bg-grayCRE-300-o dark:!bg-grayCRE-400-o backdrop-blur-[40px] TYPO-BODY-S !text-black dark:!text-white !whitespace-pre text-left"
     >
       <button type="button">{children}</button>
     </Tippy>
