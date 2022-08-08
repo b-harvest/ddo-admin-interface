@@ -132,7 +132,7 @@ export default function FarmStakedAmount({
               showFieldsBar={true}
               list={farmStakedList}
               mergedFields={[['onchainStakedAmount', 'backendStakedAmount'], ['onchainStakedUSD']]}
-              mergedFieldLabels={['Staked amount', 'Staked amount (≈)']}
+              mergedFieldLabels={['Staked amount', '(≈)']}
               defaultSortBy="onchainStakedAmount"
               defaultIsSortASC={false}
               totalField="onchainStakedUSD"
@@ -166,11 +166,11 @@ export default function FarmStakedAmount({
                   toFixedFallback: 6,
                 },
                 {
-                  label: 'Staked USD (≈)',
+                  label: '(≈)',
                   value: 'onchainStakedUSD',
                   type: 'usd',
                   toFixedFallback: 2,
-                  responsive: true,
+                  // responsive: true,
                 },
               ]}
             />
@@ -195,7 +195,7 @@ export default function FarmStakedAmount({
               showFieldsBar={true}
               list={farmQueuedList}
               mergedFields={[['onchainQueuedAmount', 'backendQueuedAmount'], ['onchainQueuedUSD']]}
-              mergedFieldLabels={['Queued amount', 'Queued amount (≈)']}
+              mergedFieldLabels={['Queued amount', '(≈)']}
               defaultSortBy="onchainQueuedAmount"
               defaultIsSortASC={false}
               totalField="onchainQueuedUSD"
@@ -229,11 +229,11 @@ export default function FarmStakedAmount({
                   toFixedFallback: 6,
                 },
                 {
-                  label: 'Queued USD (≈)',
+                  label: '(≈)',
                   value: 'onchainQueuedUSD',
                   type: 'usd',
                   toFixedFallback: 2,
-                  responsive: true,
+                  // responsive: true,
                 },
               ]}
             />

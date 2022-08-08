@@ -46,7 +46,7 @@ export default function LSVDetail() {
     lsv?.votingRate && lsv.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
   const statusTag =
     jailedTag || commissionTag || lowVotingTag ? (
-      <div className="flex flex-col justify-end items-end gap-y-1">
+      <div className="flex flex-col md:flex-row items-start gap-y-1 md:gap-x-1">
         {jailedTag}
         {commissionTag}
         {lowVotingTag}
@@ -93,11 +93,10 @@ export default function LSVDetail() {
     <AppPage>
       {lsv ? (
         <>
-          <header className="flex justify-between items-center gap-x-2 mb-2">
-            <div className="flex items-center gap-x-3">
+          <header className="flex justify-between items-start md:items-center gap-x-2 mb-2">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-y-2 md:gap-x-3">
               <H3 title={`${lsv.alias}`} />
               {statusTag}
-              {/* {lsv.immediateKickout ? <Tag status="error">Immediate Kick-out</Tag> : <Tag status="success">Good</Tag>} */}
             </div>
             <ExplorerLink validator={lsv.addr} />
           </header>

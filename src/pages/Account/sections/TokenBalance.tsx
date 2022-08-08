@@ -101,7 +101,7 @@ export default function TokenBalance({
               showFieldsBar={true}
               list={balanceList}
               mergedFields={[['onchainBalance', 'backendBalance'], ['onchainBalanceUSD']]}
-              mergedFieldLabels={['Balance', 'Balance (≈)']}
+              mergedFieldLabels={['Balance', '(≈)']}
               defaultSortBy="onchainBalance"
               defaultIsSortASC={false}
               totalField="onchainBalanceUSD"
@@ -136,11 +136,11 @@ export default function TokenBalance({
                   toFixedFallback: MAX_AMOUNT_FIXED,
                 },
                 {
-                  label: 'Balance USD (≈)',
+                  label: '(≈)',
                   value: 'onchainBalanceUSD',
                   type: 'usd',
                   toFixedFallback: 2,
-                  responsive: true,
+                  // responsive: true,
                 },
               ]}
             />
