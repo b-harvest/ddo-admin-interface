@@ -88,7 +88,7 @@ export default function Token() {
     <AppPage>
       {assetDetail ? (
         <>
-          <section className="flex flex-col items-stretch space-y-3 mb-8">
+          <header className="flex flex-col items-stretch space-y-3 mb-8">
             <div className="flex items-center justify-start space-x-2">
               <div>{assetLabel}</div>
               <div>
@@ -100,7 +100,7 @@ export default function Token() {
             <div className="TYPO-BODY-2XL FONT-MONO" title="Price oracle">
               {formatUSDAmount({ value: assetDetail.priceOracle })}
             </div>
-          </section>
+          </header>
 
           <section className="flex flex-col md:flex-row items-stretch md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-2">
             {assetDetail.isPoolToken ? (

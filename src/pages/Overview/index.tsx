@@ -1,6 +1,5 @@
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
-import Tooltip from 'components/Tooltip'
 import useAsset from 'hooks/useAsset'
 import useChartData from 'hooks/useChartData'
 import usePair from 'hooks/usePair'
@@ -115,8 +114,6 @@ export default function Overview() {
         <TVLChart chartData={tvlUSDChartData} onClick={routeTVLByTime} isLoading={tvlUSDDataLoading} />
         <VolumeChart chartData={volUSDChartData} onClick={routeVolumeByTime} isLoading={volUSDDataLoading} />
       </section>
-
-      <Tooltip content={'야야야호'}>야호</Tooltip>
 
       <section className="mb-20">
         <TableList

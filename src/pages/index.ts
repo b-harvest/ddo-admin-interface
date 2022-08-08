@@ -55,7 +55,12 @@ export const pages: Page[] = [
   {
     path: '/token',
     label: 'Token Detail',
-    pageName: '',
+    pageName: 'Token',
+  },
+  {
+    path: '/pair',
+    label: 'Pair Detail',
+    pageName: 'Pair',
   },
   {
     path: '/lsv',

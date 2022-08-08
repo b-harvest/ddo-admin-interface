@@ -3,22 +3,28 @@ import TableList from 'components/TableList'
 import usePair from 'hooks/usePair'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 import type { Asset, AssetDetail } from 'types/asset'
+import { PairDetail } from 'types/pair'
+
+type PairAdditional = {
+  assetLabel: JSX.Element
+  baseTicker: string
+  filter: string[]
+}
 
 export default function PairsTable({
   title = 'All Pairs',
   byAsset,
-
   filters,
 }: {
   title?: string
   byAsset?: Asset | AssetDetail
-
   filters?: FilterRadioGroupOption[]
 }) {
   const { allPair } = usePair()
 
-  const pairTableList = useMemo(() => {
+  const pairTableList = useMemo<(PairDetail & PairAdditional)[]>(() => {
     const denom = byAsset?.denom
     return allPair
       .filter(
@@ -29,7 +35,7 @@ export default function PairsTable({
             : [pair.baseDenom, pair.quoteDenom].includes(denom))
       )
       .map((pair) => {
-        const asset = AssetLogoLabel({ assets: pair.assetTickers })
+        const assetLabel = AssetLogoLabel({ assets: pair.assetTickers })
         const baseTicker = pair.assetTickers[0].ticker
         const quoteTicker = pair.assetTickers[1].ticker
         const filter1 = filters?.find((item) => baseTicker.includes(item.value))?.value ?? ''
@@ -37,15 +43,20 @@ export default function PairsTable({
 
         return {
           ...pair,
-          asset,
+          assetLabel,
           baseTicker,
           filter: filters ? [filter1, filter2] : [],
         }
       })
   }, [allPair, byAsset, filters])
 
+  const history = useHistory()
+  const onRowClick = (row: PairDetail & PairAdditional) => {
+    history.push(`/pair/${row.pairId}`)
+  }
+
   return (
-    <TableList
+    <TableList<PairDetail & PairAdditional>
       title={title}
       useSearch={!byAsset?.isPoolToken}
       useNarrow={true}
@@ -54,10 +65,11 @@ export default function PairsTable({
       defaultSortBy={byAsset?.isPoolToken ? undefined : 'tvlUSD'}
       defaultIsSortASC={false}
       nowrap={true}
+      onRowClick={onRowClick}
       fields={[
         {
           label: 'Pair base/quote',
-          value: 'asset',
+          value: 'assetLabel',
           sortValue: 'baseTicker',
           type: 'html',
           widthRatio: 22,

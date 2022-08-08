@@ -17,6 +17,7 @@ import DEX from 'pages/DEX'
 import LSV from 'pages/LSV'
 import LSVs from 'pages/LSVs'
 import Overview from 'pages/Overview'
+import Pair from 'pages/Pair'
 import SignIn from 'pages/SignIn/index'
 import Token from 'pages/Token'
 import TVL from 'pages/TVL'
@@ -124,6 +125,7 @@ function App() {
           <AuthRoute path="/volume/:id" component={Volume} />
           <AuthRoute path="/tvl/:id" component={TVL} />
           <AuthRoute path="/token/:id" component={Token} />
+          <AuthRoute path="/pair/:id" component={Pair} />
 
           <Route>
             <Redirect to="/overview" />
