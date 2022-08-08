@@ -37,7 +37,13 @@ export type AssetTicker = {
 }
 
 export interface AssetDetail extends Asset {
-  vol24USD: BigNumber
-  tvlUSD: BigNumber
   priceOracle: BigNumber | undefined
+  vol24USD: BigNumber | undefined
+  tvlUSD: BigNumber | undefined
+  farmStakedUSD: BigNumber | undefined
+  farmQueuedUSD: BigNumber | undefined
+  totalSupplyUSD: BigNumber | undefined
+  farmStakedRate?: number
+  farmQueuedRate?: number
+  unfarmedRate?: number
 }

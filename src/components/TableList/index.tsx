@@ -14,11 +14,11 @@ import type {
   TableListProps,
 } from 'components/TableList/types'
 import Tag from 'components/Tag'
+import Tooltip from 'components/Tooltip'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import type { AlertStatus } from 'types/alert'
 import { formatUSDAmount } from 'utils/amount'
 import { abbrOver } from 'utils/text'
-
 const IS_SORT_ASC_DEFAULT = false
 const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S whitespace-pre`
 
@@ -323,8 +323,10 @@ function ListItem<T extends TableListItem>({
                   : 'flex-start',
               }}
             >
-              {ListItemCell({ data, field })}
-              {field.tag ? <Tag>{field.tag}</Tag> : null}
+              <Tooltip content={field.tooltip ? data.tooltip : undefined}>
+                {ListItemCell({ data, field })}
+                {field.tag ? <Tag>{field.tag}</Tag> : null}
+              </Tooltip>
             </li>
           )
         })}
@@ -356,8 +358,10 @@ function ListItem<T extends TableListItem>({
                       : 'flex-start',
                   }}
                 >
-                  {ListItemCell({ data, field })}
-                  {field.tag ? <Tag>{field.tag}</Tag> : null}
+                  <Tooltip content={field.tooltip ? data.tooltip : undefined}>
+                    {ListItemCell({ data, field })}
+                    {field.tag ? <Tag>{field.tag}</Tag> : null}
+                  </Tooltip>
                 </div>
               )
             })}

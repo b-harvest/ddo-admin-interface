@@ -1,8 +1,10 @@
+import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
 import Card from 'components/Card'
 import CopyHelper from 'components/CopyHelper'
 import ExplorerLink from 'components/ExplorerLink'
 import Indicator from 'components/Indicator'
+import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
 import useAsset from 'hooks/useAsset'
 import usePair from 'hooks/usePair'
@@ -29,15 +31,43 @@ export default function Token() {
   const assetDetail = useMemo<AssetDetail | undefined>(() => {
     if (!asset) return undefined
 
+    const poolDetail = findPoolByDenom(asset.denom)
+    const priceOracle = asset.isPoolToken ? poolDetail?.priceOracle : asset.live?.priceOracle
+
     const vol24USD = getVol24USDbyDenom(asset.denom)
     const tvlUSD = getTVLUSDbyDenom(asset.denom)
-    const priceOracle = asset.isPoolToken ? findPoolByDenom(asset.denom)?.priceOracle : asset.live?.priceOracle
+
+    const farmStakedUSD = poolDetail?.totalStakedAmount.multipliedBy(priceOracle ?? 0)
+    const farmQueuedUSD = poolDetail?.totalQueuedAmount.multipliedBy(priceOracle ?? 0)
+    const totalSupplyUSD = poolDetail?.totalSupplyAmount.multipliedBy(priceOracle ?? 0)
+
+    const farmStakedRate = poolDetail
+      ? poolDetail.totalStakedAmount
+          .div(poolDetail.totalSupplyAmount)
+          ?.multipliedBy(100)
+          .dp(1, BigNumber.ROUND_HALF_UP)
+          .toNumber()
+      : undefined
+    const farmQueuedRate = poolDetail
+      ? poolDetail.totalQueuedAmount
+          ?.div(poolDetail.totalSupplyAmount)
+          ?.multipliedBy(100)
+          .dp(1, BigNumber.ROUND_HALF_UP)
+          .toNumber()
+      : undefined
+    const unfarmedRate = farmStakedRate && farmQueuedRate ? 100 - (farmStakedRate + farmQueuedRate) : undefined
 
     return {
       ...asset,
       priceOracle,
       vol24USD,
       tvlUSD,
+      farmStakedUSD,
+      farmQueuedUSD,
+      totalSupplyUSD,
+      farmStakedRate,
+      farmQueuedRate,
+      unfarmedRate,
     }
   }, [asset, findPoolByDenom, getTVLUSDbyDenom, getVol24USDbyDenom])
 
@@ -73,20 +103,47 @@ export default function Token() {
           </section>
 
           <section className="flex flex-col md:flex-row items-stretch md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-2">
-            <Card useGlassEffect={true} className="grow shrink">
-              <Indicator
-                title={assetDetail.isPoolToken ? 'Farm staked TVL (WIP)' : 'TVL'}
-                light={true}
-                className="TYPO-BODY-L !font-bold"
-              >
-                <div className="FONT-MONO">{formatUSDAmount({ value: assetDetail.tvlUSD, mantissa: 0 })}</div>
-              </Indicator>
-            </Card>
-            <Card useGlassEffect={true} className="grow shrink">
-              <Indicator title="Trading Volume 24h" light={true} className="TYPO-BODY-L !font-bold">
-                <div className="FONT-MONO">{formatUSDAmount({ value: assetDetail.vol24USD, mantissa: 0 })}</div>
-              </Indicator>
-            </Card>
+            {assetDetail.isPoolToken ? (
+              <>
+                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
+                  <Indicator title="Total value farm-staked" light={true} className="TYPO-BODY-L !font-bold">
+                    <div className="flex items-center gap-x-2 FONT-MONO">
+                      {formatUSDAmount({ value: assetDetail.farmStakedUSD, mantissa: 0 })}
+                      <Tag status="info">{assetDetail.farmStakedRate}%</Tag>
+                    </div>
+                  </Indicator>
+                </Card>
+                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
+                  <Indicator title="Total value queued" light={true} className="TYPO-BODY-L !font-bold">
+                    <div className="flex items-center gap-x-2 FONT-MONO">
+                      {formatUSDAmount({ value: assetDetail.farmQueuedUSD, mantissa: 0 })}
+                      <Tag status="info">{assetDetail.farmQueuedRate}%</Tag>
+                    </div>
+                  </Indicator>
+                </Card>
+                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
+                  <Indicator title="Total value supplied" light={true} className="TYPO-BODY-L !font-bold">
+                    <div className="flex items-center gap-x-2 FONT-MONO">
+                      {formatUSDAmount({ value: assetDetail.totalSupplyUSD, mantissa: 0 })}
+                      <Tag status="info">{assetDetail.unfarmedRate?.toFixed(1)}% unfarmed</Tag>
+                    </div>
+                  </Indicator>
+                </Card>
+              </>
+            ) : (
+              <>
+                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
+                  <Indicator title="TVL" light={true} className="TYPO-BODY-L !font-bold">
+                    <div className="FONT-MONO">{formatUSDAmount({ value: assetDetail.tvlUSD, mantissa: 0 })}</div>
+                  </Indicator>
+                </Card>
+                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
+                  <Indicator title="Trading Volume 24h" light={true} className="TYPO-BODY-L !font-bold">
+                    <div className="FONT-MONO">{formatUSDAmount({ value: assetDetail.vol24USD, mantissa: 0 })}</div>
+                  </Indicator>
+                </Card>
+              </>
+            )}
           </section>
 
           <section className="flex flex-col md:flex-row items-end md:items-center justify-between space-x-2 mb-10">

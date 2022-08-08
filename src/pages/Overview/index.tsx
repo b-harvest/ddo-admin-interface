@@ -1,5 +1,6 @@
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
+import Tooltip from 'components/Tooltip'
 import useAsset from 'hooks/useAsset'
 import useChartData from 'hooks/useChartData'
 import usePair from 'hooks/usePair'
@@ -11,6 +12,7 @@ import usePages from 'pages/hooks/usePages'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { AssetDetail } from 'types/asset'
+import { formatUSDAmount } from 'utils/amount'
 
 import TVLChart from '../components/TVLChart'
 import VolumeChart from '../components/VolumeChart'
@@ -63,10 +65,28 @@ export default function Overview() {
       .filter((item) => (item.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
       .map((item) => {
         const asset = AssetLogoLabel({ assets: getAssetTickers(item) })
+        const poolDetail = findPoolByDenom(item.denom)
+        const priceOracle = item.isPoolToken ? poolDetail?.priceOracle : item.live?.priceOracle
+
+        const farmStakedUSD = poolDetail?.totalStakedAmount.multipliedBy(priceOracle ?? 0)
+        const farmQueuedUSD = poolDetail?.totalQueuedAmount.multipliedBy(priceOracle ?? 0)
+        const totalSupplyUSD = poolDetail?.totalSupplyAmount.multipliedBy(priceOracle ?? 0)
+
         const vol24USD = getVol24USDbyDenom(item.denom)
-        const tvlUSD = getTVLUSDbyDenom(item.denom)
-        const priceOracle = item.isPoolToken ? findPoolByDenom(item.denom)?.priceOracle : item.live?.priceOracle
-        // ?? new BigNumber(0)
+        const tvlUSD = item.isPoolToken ? farmStakedUSD?.plus(farmQueuedUSD ?? 0) : getTVLUSDbyDenom(item.denom)
+
+        const tooltip = item.isPoolToken ? (
+          <>
+            <div className="flex justify-between items-center gap-x-4">
+              <span>Farm staked</span>{' '}
+              <span className="FONT-MONO">{formatUSDAmount({ value: farmStakedUSD, mantissa: 2 })}</span>
+            </div>
+            <div className="flex justify-between items-center gap-x-4">
+              <span>Queued</span>
+              <span className="FONT-MONO">{formatUSDAmount({ value: farmQueuedUSD, mantissa: 2 })}</span>
+            </div>
+          </>
+        ) : undefined
         const filter = [item.denom.includes('pool') ? TOKEN_TABLE_FILTERS[1].value : TOKEN_TABLE_FILTERS[0].value]
 
         return {
@@ -75,6 +95,10 @@ export default function Overview() {
           priceOracle,
           vol24USD,
           tvlUSD,
+          farmStakedUSD,
+          farmQueuedUSD,
+          totalSupplyUSD,
+          tooltip,
           filter,
         }
       })
@@ -91,6 +115,8 @@ export default function Overview() {
         <TVLChart chartData={tvlUSDChartData} onClick={routeTVLByTime} isLoading={tvlUSDDataLoading} />
         <VolumeChart chartData={volUSDChartData} onClick={routeVolumeByTime} isLoading={volUSDDataLoading} />
       </section>
+
+      <Tooltip content={'야야야호'}>야호</Tooltip>
 
       <section className="mb-20">
         <TableList
@@ -141,6 +167,7 @@ export default function Overview() {
               value: 'tvlUSD',
               type: 'usd',
               toFixedFallback: 0,
+              tooltip: true,
             },
           ]}
         />

@@ -17,6 +17,7 @@ export interface ListFieldHTML {
   align?: ListFieldAlign
   clickable?: boolean
   excludeMinWidth?: boolean
+  tooltip?: boolean
 }
 
 export interface ListFieldImgUrl extends Omit<ListFieldHTML, 'type'> {
@@ -60,6 +61,7 @@ export interface TableListItem {
   status?: AlertStatus
   exponent?: number
   filter?: string[]
+  tooltip?: string | JSX.Element
   [key: string]: any
 }
 
