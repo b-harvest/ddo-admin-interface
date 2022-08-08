@@ -141,6 +141,7 @@ export default function LSVDetail() {
             <TableList<LSVVoteRecord>
               title="Voting History"
               showTitle={false}
+              useNarrow={true}
               nowrap={true}
               memo={<VotingOptionsLegend />}
               defaultSortBy="proposalId"

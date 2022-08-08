@@ -75,7 +75,7 @@ export default function LSVList({
           widthRatio: 10,
         },
         {
-          label: 'Address',
+          label: 'Operator address',
           value: 'valOperAddr',
           widthRatio: 30,
           responsive: true,

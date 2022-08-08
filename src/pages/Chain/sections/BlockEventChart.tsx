@@ -6,7 +6,9 @@ import Dot from 'components/Dot'
 import Indicator from 'components/Indicator'
 import LoadingRows from 'components/LoadingRows'
 import { CRE_CHART_COLOR_MAP, GLOW_CRE } from 'constants/style'
+import { useAtom } from 'jotai'
 import { useMemo, useState } from 'react'
+import { isDarkModeAtomRef } from 'state/atoms'
 import type { EventsByBlock } from 'types/block'
 import type { ComposedChartEntry } from 'types/chart'
 import { openExplorerByHeight } from 'utils/browser'
@@ -30,15 +32,21 @@ export default function BlockEventChart({
     }, [])
   }, [chartData])
 
+  const [isDarkModeAtom] = useAtom(isDarkModeAtomRef)
+  const barColors = useMemo<string[]>(
+    () => (isDarkModeAtom ? [...CRE_CHART_COLOR_MAP] : [...CRE_CHART_COLOR_MAP].reverse()),
+    [isDarkModeAtom]
+  )
+
   const colorMap = useMemo(() => {
     const map =
       eventIndicators.length > 0
         ? eventIndicators
-            .map((type, i) => ({ [type]: CRE_CHART_COLOR_MAP[i] ?? CRE_CHART_COLOR_MAP.at(-1) }))
+            .map((type, i) => ({ [type]: barColors[i] ?? barColors.at(-1) }))
             .reduce((accm, set) => ({ ...accm, ...set }), {})
         : undefined
     return map
-  }, [eventIndicators])
+  }, [eventIndicators, barColors])
 
   // volume total
   const [blockHeightHover, setBlockHeightHover] = useState<number | undefined>()

@@ -1,9 +1,11 @@
 import useSignOut from 'components/AppSettingWidget/useSignOut'
+import { useCopyClipboard } from 'components/CopyHelper/hooks'
 import SelectTab from 'components/SelectTab'
 import MoreWidget, { PopoverPanelItem } from 'components/Widgets/MoreWidget'
+import { CRESCENT_ADMIN_DOMAIN } from 'constants/url'
 import { useAtom } from 'jotai'
-import { useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
 import { isDarkModeAtomRef, userAtomRef } from 'state/atoms'
 
 const DARK_MODE_TAB_ITEMS = [
@@ -43,13 +45,32 @@ export default function AppSettingWidget() {
   const goToSignIn = () => history.push('/auth')
   const { signOut } = useSignOut({ clientId, onComplete: goToSignIn })
 
+  // copy url
+  const location = useLocation()
+  const [isCopied, setCopied] = useCopyClipboard()
+  const copyCurrentUrl = useCallback(() => {
+    setCopied(`${CRESCENT_ADMIN_DOMAIN}${location.pathname}${location.search}`)
+  }, [location, setCopied])
+
   // popover
   const settingsWidgetPanelItems: PopoverPanelItem[] = [
     {
       label: 'Blog',
       value: 'blog',
       iconType: 'medium',
-      link: 'https://crescentnetwork.medium.com/',
+      link: 'https://crescentnetwork.medium.com',
+    },
+    {
+      label: 'DEX',
+      value: 'dex',
+      iconType: 'link',
+      link: 'https://app.crescent.network/swap',
+    },
+    {
+      label: isCopied ? 'Copied' : 'Copy link',
+      value: 'link',
+      iconType: isCopied ? 'success' : 'copylink',
+      onClick: copyCurrentUrl,
     },
     {
       label: 'Log out',

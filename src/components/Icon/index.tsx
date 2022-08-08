@@ -1,7 +1,7 @@
 import React from 'react'
 import { IconContext } from 'react-icons'
 import { AiOutlineInfoCircle, AiOutlineLoading3Quarters, AiOutlinePlus, AiOutlineWarning } from 'react-icons/ai'
-import { AiFillDislike, AiOutlineDislike, AiOutlineExclamation, AiOutlineLike } from 'react-icons/ai'
+import { AiFillDislike, AiOutlineDislike, AiOutlineExclamation, AiOutlineLike, AiOutlineLink } from 'react-icons/ai'
 import { BiLinkExternal } from 'react-icons/bi'
 import { BsGithub, BsMedium, BsTwitter } from 'react-icons/bs'
 import { CgFileDocument } from 'react-icons/cg'
@@ -24,6 +24,7 @@ export type IconType =
   | 'close'
   | 'copy'
   | 'link'
+  | 'copylink'
   | 'noti'
   | 'more'
   | 'success'
@@ -66,6 +67,7 @@ const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
   copy: MdOutlineContentCopy,
   link: BiLinkExternal,
+  copylink: AiOutlineLink,
   noti: FaRegBell,
   more: IoIosMore,
   success: FaRegCheckCircle,
