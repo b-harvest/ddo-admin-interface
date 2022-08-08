@@ -13,11 +13,13 @@ export default function Ranks({
   ranks,
   memo,
   amountLabel,
+  isLoading,
 }: {
   title: string
   ranks: RankData[]
   memo: JSX.Element
   amountLabel?: string
+  isLoading: boolean
 }) {
   const history = useHistory()
   const handleCellClick = (cell, field: string) => {
@@ -39,6 +41,7 @@ export default function Ranks({
   return (
     <TableList<RankData & AliasTag>
       title={title}
+      isLoading={isLoading}
       showTitle={false}
       memo={memo}
       useSearch={true}

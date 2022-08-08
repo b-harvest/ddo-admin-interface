@@ -1,9 +1,10 @@
 import Hr from 'components/Hr'
-import Loader from 'components/Loader'
+// import Loader from 'components/Loader'
 import { CHAINS_VALID_TIME_DIFF_MAP } from 'constants/chain'
 import useAccountData from 'hooks/useAccountData'
 import { useAtom } from 'jotai'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { chainIdAtomRef } from 'state/atoms'
 
 import AirdropClaim from './AirdropClaim'
@@ -34,42 +35,47 @@ export default function AccountData({ address }: { address: string }) {
     interval: 5000,
   })
 
+  const { id }: { id?: string } = useParams()
+  const [showLoader, setShowLoader] = useState<boolean>(id !== undefined)
+  useEffect(() => {
+    if (isLoading === false) setTimeout(() => setShowLoader(isLoading), 600)
+    else setShowLoader(isLoading)
+  }, [isLoading])
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="flex flex-col justify-start items-stretch space-y-12">
-          {/* refactoring wip */}
-          <TokenBalance
-            backendTimestamp={allBalanceTimestamp}
-            backendData={allBalance}
-            onchainData={allBalanceLCD}
-            significantTimeGap={significantTimeGap}
-          />
-          <Hr />
-          <FarmStakedAmount
-            backendTimestamp={allStakedDataTimestamp}
-            backendData={allStaked}
-            onchainData={farmPositionLCD}
-            significantTimeGap={significantTimeGap}
-          />
-          <Hr />
-          <ClaimableRewards
-            backendTimestamp={allFarmRewardsDataTimestamp}
-            backendData={allFarmRewardsByToken}
-            onchainData={allFarmRewardsByTokenLCD}
-            significantTimeGap={significantTimeGap}
-          />
-          <Hr />
-          <AirdropClaim
-            backendTimestamp={airdropClaimDataTimestamp}
-            backendData={airdropClaim}
-            onchainData={airdropClaimLCD}
-            significantTimeGap={significantTimeGap}
-          />
-        </div>
-      )}
-    </>
+    <div className="flex flex-col justify-start items-stretch space-y-12">
+      {/* refactoring wip */}
+      <TokenBalance
+        isLoading={showLoader}
+        backendTimestamp={allBalanceTimestamp}
+        backendData={allBalance}
+        onchainData={allBalanceLCD}
+        significantTimeGap={significantTimeGap}
+      />
+      <Hr />
+      <FarmStakedAmount
+        isLoading={showLoader}
+        backendTimestamp={allStakedDataTimestamp}
+        backendData={allStaked}
+        onchainData={farmPositionLCD}
+        significantTimeGap={significantTimeGap}
+      />
+      <Hr />
+      <ClaimableRewards
+        isLoading={showLoader}
+        backendTimestamp={allFarmRewardsDataTimestamp}
+        backendData={allFarmRewardsByToken}
+        onchainData={allFarmRewardsByTokenLCD}
+        significantTimeGap={significantTimeGap}
+      />
+      <Hr />
+      <AirdropClaim
+        isLoading={showLoader}
+        backendTimestamp={airdropClaimDataTimestamp}
+        backendData={airdropClaim}
+        onchainData={airdropClaimLCD}
+        significantTimeGap={significantTimeGap}
+      />
+    </div>
   )
 }

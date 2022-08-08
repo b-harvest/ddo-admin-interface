@@ -65,6 +65,7 @@ export interface TableListItem {
 
 export interface TableListProps<T extends TableListItem> {
   title?: string
+  isLoading?: boolean
   list: T[]
   fields: ListField[]
   overflow?: boolean

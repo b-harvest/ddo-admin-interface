@@ -4,7 +4,8 @@ import Card from 'components/Card'
 import ComposedBarChart from 'components/ComposedBarChart/ant'
 import Dot from 'components/Dot'
 import Indicator from 'components/Indicator'
-import { CRE_CHART_COLOR_MAP } from 'constants/style'
+import LoadingRows from 'components/LoadingRows'
+import { CRE_CHART_COLOR_MAP, GLOW_CRE } from 'constants/style'
 import { useMemo, useState } from 'react'
 import type { EventsByBlock } from 'types/block'
 import type { ComposedChartEntry } from 'types/chart'
@@ -16,9 +17,11 @@ import BlockChartHead from '../components/BlockChartHead'
 export default function BlockEventChart({
   eventIndicators,
   chartData,
+  isLoading,
 }: {
   eventIndicators: string[]
   chartData: EventsByBlock[]
+  isLoading: boolean
 }) {
   const blockChartList = useMemo<ComposedChartEntry[]>(() => {
     return chartData.reduce((accm: ComposedChartEntry[], item) => {
@@ -65,11 +68,12 @@ export default function BlockEventChart({
     if (item) openExplorerByHeight(item.time.toString())
   }
 
-  if (!colorMap) return <></>
+  // if (!colorMap) return <></>
   return (
     <section className="min-w-[50%]">
       <div className="w-full flex flex-col md:flex-row justify-between items-stretch">
         <ComposedBarChart
+          isLoading={!colorMap || isLoading}
           className="grow shrink"
           height={220}
           data={blockChartList}
@@ -97,32 +101,42 @@ export default function BlockEventChart({
           merged="left-top"
           // style={{ maxHeight: '420px' }}
         >
-          <Indicator title="" light={true} className="space-y-4 md:pt-[2rem] overflow-auto">
-            {allEvents.map((event, i) => (
-              <div key={event.label} className="flex items-center space-x-4">
-                {colorMap && <Dot color={colorMap[event.label]} />}
-                <div className="flex items-center space-x-4 TYPO-BODY-XS md:TYPO-BODY-S">
-                  {/* <span>{firstCharToUpperCase(event.label)}</span> */}
-                  <span>{event.label}</span>
-                  <span className="FONT-MONO !font-bold">{new BigNumber(event.value).toFormat(0)}</span>
+          {isLoading ? (
+            <LoadingRows rowsCnt={12} />
+          ) : (
+            <Indicator title="" light={true} className="space-y-4 md:pt-[2rem] overflow-auto">
+              {allEvents.map((event, i) => (
+                <div key={event.label} className="flex items-center space-x-4">
+                  {colorMap && <Dot color={colorMap[event.label]} />}
+                  <div className="flex items-center space-x-4 TYPO-BODY-XS md:TYPO-BODY-S">
+                    {/* <span>{firstCharToUpperCase(event.label)}</span> */}
+                    <span>{event.label}</span>
+                    <span className="FONT-MONO !font-bold">{new BigNumber(event.value).toFormat(0)}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </Indicator>
+              ))}
+            </Indicator>
+          )}
         </Card>
       </div>
     </section>
   )
 }
 
-function TopEvent({ event, colorMap }: { event: { label: string; value: number }; colorMap: { [x: string]: string } }) {
+function TopEvent({
+  event,
+  colorMap,
+}: {
+  event: { label: string; value: number }
+  colorMap?: { [x: string]: string }
+}) {
   return (
     <div className="flex items-center space-x-3">
       <div>
         {firstCharToUpperCase(event.label)}{' '}
         <span className="FONT-MONO !font-black">{event.value === 0 ? '' : event.value}</span>
       </div>
-      <Dot color={colorMap[event.label]} size="md" />
+      <Dot color={colorMap ? colorMap[event.label] : GLOW_CRE} size="md" />
     </div>
   )
 }

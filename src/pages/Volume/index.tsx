@@ -18,7 +18,7 @@ export default function Volume() {
   const onDateChange = (date: Date) => routeVolumeByTime(date.getTime())
 
   // chart data
-  const { volUSDChartData, getMinDate, getMaxDate } = useChartData()
+  const { volUSDChartData, getMinDate, getMaxDate, volUSDDataLoading } = useChartData()
 
   return (
     <AppPage>
@@ -32,7 +32,12 @@ export default function Volume() {
       </div>
 
       <div className="space-y-20">
-        <VolumeChart chartData={volUSDChartData} highlightTime={Number(id)} onClick={routeVolumeByTime} />
+        <VolumeChart
+          chartData={volUSDChartData}
+          highlightTime={Number(id)}
+          onClick={routeVolumeByTime}
+          isLoading={volUSDDataLoading}
+        />
         <VolumeByPairChart chartData={volUSDChartData} date={Number(id)} />
       </div>
     </AppPage>

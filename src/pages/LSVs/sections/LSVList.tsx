@@ -12,7 +12,15 @@ type LSVAdditional = {
   filter?: string[]
 }
 
-export default function LSVList({ timestamp, list }: { timestamp?: number; list: LSV[] }) {
+export default function LSVList({
+  timestamp,
+  list,
+  isLoading,
+}: {
+  timestamp?: number
+  list: LSV[]
+  isLoading: boolean
+}) {
   const allLSVTableList = useMemo<(LSV & LSVAdditional)[]>(() => {
     return list.map((item) => {
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
@@ -48,6 +56,7 @@ export default function LSVList({ timestamp, list }: { timestamp?: number; list:
   return (
     <TableList<LSV & LSVAdditional>
       title="All LSV"
+      isLoading={isLoading}
       showTitle={false}
       useSearch={true}
       useNarrow={true}

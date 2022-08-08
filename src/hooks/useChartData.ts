@@ -4,7 +4,7 @@ import type { TVLUSDByDate, VolUSDByDate } from 'types/accounts'
 
 const useChartData = () => {
   // tvl
-  const { data: tvlUSDData } = useDateWideTVLUSD()
+  const { data: tvlUSDData, isLoading: tvlUSDDataLoading } = useDateWideTVLUSD()
 
   const tvlUSDChartData = useMemo<TVLUSDByDate[]>(() => {
     return (
@@ -20,7 +20,7 @@ const useChartData = () => {
   }, [tvlUSDData])
 
   // vol
-  const { data: volUSDData } = useDateWideVolUSD()
+  const { data: volUSDData, isLoading: volUSDDataLoading } = useDateWideVolUSD()
 
   const volUSDChartData = useMemo<VolUSDByDate[]>(() => {
     return (
@@ -45,7 +45,7 @@ const useChartData = () => {
     return date ? new Date(date) : new Date()
   }, [])
 
-  return { tvlUSDChartData, volUSDChartData, getMinDate, getMaxDate }
+  return { tvlUSDChartData, volUSDChartData, getMinDate, getMaxDate, tvlUSDDataLoading, volUSDDataLoading }
 }
 
 export default useChartData

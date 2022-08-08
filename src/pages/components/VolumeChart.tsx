@@ -26,10 +26,12 @@ const VOLUME_CHART_WINDOW_TAB_ITEMS = [
 ]
 
 export default function VolumeChart({
+  isLoading,
   chartData,
   highlightTime,
   onClick,
 }: {
+  isLoading: boolean
   chartData: VolUSDByDate[]
   highlightTime?: number
   onClick?: (time: number | undefined) => void
@@ -69,6 +71,7 @@ export default function VolumeChart({
 
   return (
     <BarChart
+      isLoading={isLoading}
       height={220}
       minHeight={360}
       data={volUSDChartList}

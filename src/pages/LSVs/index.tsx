@@ -7,7 +7,7 @@ import useLSV from 'hooks/useLSV'
 import LSVList from './sections/LSVList'
 import VotingTable from './sections/VotingTable'
 export default function LSVs() {
-  const { allLSVTimestamp, allLSV } = useLSV()
+  const { allLSVTimestamp, allLSV, isLoading } = useLSV()
 
   return (
     <AppPage>
@@ -16,18 +16,16 @@ export default function LSVs() {
           <H3 title="All LSV" /> <ExplorerLink validator="all" />
         </div>
 
-        <LSVList timestamp={allLSVTimestamp} list={allLSV} />
+        <LSVList timestamp={allLSVTimestamp} list={allLSV} isLoading={isLoading} />
       </section>
 
       <section className="mb-20">
-        <VotingTable timestamp={allLSVTimestamp} list={allLSV} />
+        <VotingTable timestamp={allLSVTimestamp} list={allLSV} isLoading={isLoading} />
       </section>
 
       <div className="flex justify-end items-center mt-4">
         <CommonwealthLink discussionId={5983} label="3 strike-out & immediate kick-out discussion" />
       </div>
-
-      {/* <section>{validatorsetsLCD ? <ValidatorsSet validatorsSet={validatorsetsLCD} /> : null}</section> */}
     </AppPage>
   )
 }

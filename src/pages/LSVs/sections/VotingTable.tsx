@@ -19,7 +19,15 @@ type LSVVotingTableItem = { proposalId: number } & {
   [key: string]: LSVVotingRecord
 }
 
-export default function VotingTable({ timestamp, list }: { timestamp?: number; list: LSV[] }) {
+export default function VotingTable({
+  timestamp,
+  list,
+  isLoading,
+}: {
+  timestamp?: number
+  list: LSV[]
+  isLoading: boolean
+}) {
   const { allProposals } = useProposal()
 
   const allLSVVotingTableList = useMemo<LSVVotingTableItem[]>(() => {
@@ -72,6 +80,7 @@ export default function VotingTable({ timestamp, list }: { timestamp?: number; l
   return (
     <TableList<LSVVotingTableItem>
       title="Governance Participation"
+      isLoading={isLoading}
       nowrap={true}
       overflow={true}
       cellMinWidthPx={130}

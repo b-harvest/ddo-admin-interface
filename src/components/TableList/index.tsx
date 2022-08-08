@@ -24,6 +24,7 @@ const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS tex
 
 export default function TableList<T>({
   title,
+  isLoading = false,
   list,
   fields,
   overflow,
@@ -138,7 +139,7 @@ export default function TableList<T>({
           {showFieldsBar ? (
             <div aria-hidden="true" className={`transition-all ${useNarrow ? 'mb-1' : 'mb-2'}`}>
               <ul
-                className={`flex justify-between items-center bg-grayCRE-50 dark:bg-neutral-800 px-4 py-1 hover:shadow-md transition-all ${
+                className={`flex justify-between items-center bg-grayCRE-200 dark:bg-neutral-800 px-4 py-1 transition-all ${
                   useNarrow ? 'md:py-1 rounded-md md:space-x-2' : 'rounded-lg md:space-x-4'
                   // useNarrow ? 'rounded-lg px-4 md:space-x-2' : 'rounded-xl p-4 md:space-x-4'
                 }`}
@@ -198,61 +199,67 @@ export default function TableList<T>({
           ) : null}
 
           {/* data list */}
-          <div>
-            {matchedList.length <= 0 ? (
-              <EmptyData useNarrow={useNarrow} label={emptyListLabel} />
-            ) : (
-              <ul
-                className={`flex flex-col justify-start items-stretch transition-all ${
-                  useNarrow ? 'space-y-1' : 'space-y-2'
-                }`}
-              >
-                {matchedList.map((item, i) => {
-                  return (
-                    <ListItem<T>
-                      key={i}
-                      data={item}
-                      merged={merged}
-                      nonMerged={nonMerged}
-                      useNarrow={useNarrow}
-                      colWidthRatio={colWidthRatio}
-                      nowrap={nowrap}
-                      cellMinWidthPx={cellMinWidthPx}
-                      onClick={onRowClick}
-                      onCellClick={onCellClick}
-                    />
-                  )
-                })}
-              </ul>
-            )}
-          </div>
-
-          {/* total */}
-          {list.length && validTotalField && total ? (
-            <div className="relative block w-full">
-              <div
-                className={`flex flex-col md:flex-row justify-between items-stretch w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md md:space-y-0 ${
-                  useNarrow
-                    ? 'rounded-lg px-4 space-y-1 md:space-x-2 mt-1'
-                    : 'rounded-xl p-4 space-y-2 md:space-x-4 mt-2'
-                } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400 ${
-                  totalStatus ? getListItemClassByStatus(totalStatus) : ''
-                }`}
-              >
-                <div className="flex items-center text-left !font-black">
-                  <span>{totalLabel ?? <span>Total {validTotalField.label}</span>}</span>
-                  <span className="ml-2">{totalLabelSuffix ?? null}</span>
-                </div>
-                <div className="flex flex-col justify-start items-end space-y-2">
-                  <div className="flex space-x-2 !font-black FONT-MONO">
-                    <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
-                    {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
-                  </div>
-                  {totalDesc ?? null}
-                </div>
+          {isLoading ? (
+            <EmptyData isLoading={true} loadingRowsCnt={12} />
+          ) : (
+            <>
+              <div>
+                {matchedList.length <= 0 ? (
+                  <EmptyData useNarrow={useNarrow} label={emptyListLabel} />
+                ) : (
+                  <ul
+                    className={`flex flex-col justify-start items-stretch transition-all ${
+                      useNarrow ? 'space-y-1' : 'space-y-2'
+                    }`}
+                  >
+                    {matchedList.map((item, i) => {
+                      return (
+                        <ListItem<T>
+                          key={i}
+                          data={item}
+                          merged={merged}
+                          nonMerged={nonMerged}
+                          useNarrow={useNarrow}
+                          colWidthRatio={colWidthRatio}
+                          nowrap={nowrap}
+                          cellMinWidthPx={cellMinWidthPx}
+                          onClick={onRowClick}
+                          onCellClick={onCellClick}
+                        />
+                      )
+                    })}
+                  </ul>
+                )}
               </div>
-            </div>
-          ) : null}
+
+              {/* total */}
+              {list.length && validTotalField && total ? (
+                <div className="relative block w-full">
+                  <div
+                    className={`flex flex-col md:flex-row justify-between items-stretch w-full bg-grayCRE-200 dark:bg-neutral-800 py-3 transition-all hover:bg-grayCRE-100 dark:hover:bg-neutral-700 hover:-translate-y-[1px] md:space-y-0 ${
+                      useNarrow
+                        ? 'rounded-lg px-4 space-y-1 md:space-x-2 mt-1'
+                        : 'rounded-xl p-4 space-y-2 md:space-x-4 mt-2'
+                    } ${cellClass(validTotalField)} border border-grayCRE-200 dark:border-grayCRE-400 ${
+                      totalStatus ? getListItemClassByStatus(totalStatus) : ''
+                    }`}
+                  >
+                    <div className="flex items-center text-left !font-black">
+                      <span>{totalLabel ?? <span>Total {validTotalField.label}</span>}</span>
+                      <span className="ml-2">{totalLabelSuffix ?? null}</span>
+                    </div>
+                    <div className="flex flex-col justify-start items-end space-y-2">
+                      <div className="flex space-x-2 !font-black FONT-MONO">
+                        <div>{bignumberToFormat({ value: total, field: validTotalField })}</div>
+                        {validTotalField.tag ? <Tag>{validTotalField.tag}</Tag> : null}
+                      </div>
+                      {totalDesc ?? null}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -290,7 +297,7 @@ function ListItem<T extends TableListItem>({
           nowrap
             ? 'flex-row items-center space-x-2'
             : 'flex-col md:flex-row items-strecth md:items-center space-y-1 md:space-y-0 space-x-0 md:space-x-2'
-        } flex  justify-between w-full bg-grayCRE-50 dark:bg-neutral-800 py-3 transition-all hover:bg-lightCRE dark:hover:bg-neutral-700 hover:-translate-y-[1px] hover:shadow-md ${
+        } flex  justify-between w-full bg-grayCRE-200 dark:bg-neutral-800 py-3 transition-all hover:bg-grayCRE-100 dark:hover:bg-neutral-700 hover:-translate-y-[1px] ${
           onClick ? 'cursor-pointer' : ''
         }`}
         onClick={() => {

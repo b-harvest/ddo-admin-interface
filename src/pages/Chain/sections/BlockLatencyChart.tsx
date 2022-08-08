@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import BarChart from 'components/BarChart'
 import Card from 'components/Card'
 import Indicator from 'components/Indicator'
+import LoadingRows from 'components/LoadingRows'
 import Toggler from 'components/Toggler'
 import { INFO } from 'constants/style'
 import { useMemo, useState } from 'react'
@@ -36,7 +37,7 @@ const BLOCK_FLUSH_TIME_AVG_PERIOD_TAB_ITEMS = [
   },
 ]
 
-export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlock[] }) {
+export default function BlockLatencyChart({ chartData, isLoading }: { chartData: FlushByBlock[]; isLoading: boolean }) {
   // chartData
   const blockFlushChartList = useMemo<GenericChartEntry[]>(() => {
     return chartData.map((item) => {
@@ -81,6 +82,7 @@ export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlo
   return (
     <div className="w-full flex flex-col md:flex-row justify-between items-stretch">
       <BarChart
+        isLoading={isLoading}
         height={220}
         minHeight={360}
         data={blockFlushChartList}
@@ -107,19 +109,23 @@ export default function BlockLatencyChart({ chartData }: { chartData: FlushByBlo
         merged="left-top"
         // style={{ maxHeight: '420px' }}
       >
-        <Indicator title="" light={true} className="space-y-4 overflow-auto">
-          <div className="w-full flex flex-col items-start TYPO-BODY-M !font-medium">
-            <div className="w-full flex items-center justify-between text-grayCRE-300 dark:text-grayCRE-400">
-              {avgInterval}-block-average{' '}
-              <Toggler<BLOCK_INTERVAL>
-                tabItems={BLOCK_FLUSH_TIME_AVG_PERIOD_TAB_ITEMS}
-                defaultIndex={0}
-                onChange={setAvgInterval}
-              />
+        {isLoading ? (
+          <LoadingRows rowsCnt={4} />
+        ) : (
+          <Indicator title="" light={true} className="space-y-4 overflow-auto">
+            <div className="w-full flex flex-col items-start TYPO-BODY-M !font-medium">
+              <div className="w-full flex items-center justify-between text-grayCRE-300 dark:text-grayCRE-400">
+                {avgInterval}-block-average{' '}
+                <Toggler<BLOCK_INTERVAL>
+                  tabItems={BLOCK_FLUSH_TIME_AVG_PERIOD_TAB_ITEMS}
+                  defaultIndex={0}
+                  onChange={setAvgInterval}
+                />
+              </div>
+              <div className="TYPO-BODY-L !font-bold">{avgFlushTime} ns</div>
             </div>
-            <div className="TYPO-BODY-L !font-bold">{avgFlushTime} ns</div>
-          </div>
-        </Indicator>
+          </Indicator>
+        )}
       </Card>
     </div>
   )

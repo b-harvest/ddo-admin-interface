@@ -21,8 +21,8 @@ function getVoteAlias(option: number): string {
 }
 
 const useLSV = () => {
-  const { data: allLSVData } = useAllLSV()
-  const { data: allLSVVoteData } = useAllLSVVote()
+  const { data: allLSVData, isLoading: allLSVDataLoading } = useAllLSV()
+  const { data: allLSVVoteData, isLoading: allLSVVoteDataLoading } = useAllLSVVote()
 
   const allLSVTimestamp = useMemo<number | undefined>(
     () => (allLSVData ? allLSVData.curTimestamp * 1000 : undefined),
@@ -80,7 +80,12 @@ const useLSV = () => {
     [allLSV]
   )
 
-  return { allLSVTimestamp, allLSVVoteTimestamp, allLSVVote, allLSV, findLSVByAddr }
+  const isLoading = useMemo<boolean>(
+    () => allLSVDataLoading || allLSVVoteDataLoading,
+    [allLSVDataLoading, allLSVVoteDataLoading]
+  )
+
+  return { allLSVTimestamp, allLSVVoteTimestamp, allLSVVote, allLSV, findLSVByAddr, isLoading }
 }
 
 export default useLSV

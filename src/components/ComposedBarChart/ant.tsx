@@ -2,6 +2,8 @@ import './ant.css'
 
 import { Column } from '@ant-design/charts'
 import Card, { CardMergedSide } from 'components/Card'
+import LoadingRows from 'components/LoadingRows'
+import { GLOW_CRE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { ReactNode, useMemo } from 'react'
@@ -31,8 +33,9 @@ const DEACTIVE_EVENTS = [
 const CLICK_EVENTS = ['click']
 
 export type AntComposedBarChartProps = {
+  isLoading?: boolean
   data: ComposedChartEntry[]
-  colorMap: { [x: string]: string }
+  colorMap?: { [x: string]: string }
   height?: number
   setLabel?: (value: number | undefined) => void
   label?: number
@@ -48,6 +51,7 @@ export type AntComposedBarChartProps = {
 }
 
 export default function ComposedBarChart({
+  isLoading = false,
   data,
   colorMap,
   height = DEFAULT_HEIGHT,
@@ -87,7 +91,7 @@ export default function ComposedBarChart({
       },
       position: 'left',
       colorField: 'type',
-      color: (item) => colorMap[item.type],
+      color: (item) => (colorMap ? colorMap[item.type] : GLOW_CRE),
       dodgePadding: -1,
       columnStyle: {
         lineWidth: 0,
@@ -147,19 +151,25 @@ export default function ComposedBarChart({
         // maxHeight: `${height}px`,
       }}
     >
-      <div className="shrink-0 grow-0 flex justify-between">
-        {topLeft ?? null}
-        {topRight ?? null}
-      </div>
+      {isLoading ? (
+        <LoadingRows rowsCnt={12} />
+      ) : (
+        <>
+          <div className="shrink-0 grow-0 flex justify-between">
+            {topLeft ?? null}
+            {topRight ?? null}
+          </div>
 
-      <div className="w-full h-full text-left !FONT-MONO pt-10 pl-3 pr-4">
-        <Column {...config} />
-      </div>
+          <div className="w-full h-full text-left !FONT-MONO pt-10 pl-3 pr-4">
+            <Column {...config} />
+          </div>
 
-      <div className="shrink-0 grow-0 flex justify-between">
-        {bottomLeft ?? null}
-        {bottomRight ?? null}
-      </div>
+          <div className="shrink-0 grow-0 flex justify-between">
+            {bottomLeft ?? null}
+            {bottomRight ?? null}
+          </div>
+        </>
+      )}
     </Card>
   )
 }
