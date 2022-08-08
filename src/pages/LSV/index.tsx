@@ -11,6 +11,7 @@ import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
 import VotingOptionIcon from 'components/VotingOptionIcon'
+import { SAFE_VOTING_RATE } from 'constants/lsv'
 import { DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
@@ -38,6 +39,21 @@ export default function LSVDetail() {
   const { id }: { id: string } = useParams()
   const { findLSVByAddr } = useLSV()
   const lsv = useMemo<LSV | undefined>(() => findLSVByAddr(id), [id, findLSVByAddr])
+
+  const jailedTag = lsv?.jailed ? <Tag status="error">Jailed</Tag> : null
+  const commissionTag = lsv?.commission && lsv.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
+  const lowVotingTag =
+    lsv?.votingRate && lsv.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
+  const statusTag =
+    jailedTag || commissionTag || lowVotingTag ? (
+      <div className="flex flex-col justify-end items-end gap-y-1">
+        {jailedTag}
+        {commissionTag}
+        {lowVotingTag}
+      </div>
+    ) : (
+      <Tag status="success">Good</Tag>
+    )
 
   // voting history
   const { allProposals } = useProposal()
@@ -80,7 +96,8 @@ export default function LSVDetail() {
           <header className="flex justify-between items-center gap-x-2 mb-2">
             <div className="flex items-center gap-x-3">
               <H3 title={`${lsv.alias}`} />
-              {lsv.immediateKickout ? <Tag status="error">Immediate Kick-out</Tag> : <Tag status="success">Good</Tag>}
+              {statusTag}
+              {/* {lsv.immediateKickout ? <Tag status="error">Immediate Kick-out</Tag> : <Tag status="success">Good</Tag>} */}
             </div>
             <ExplorerLink validator={lsv.addr} />
           </header>
@@ -126,8 +143,8 @@ export default function LSVDetail() {
               showTitle={false}
               nowrap={true}
               memo={<VotingOptionsLegend />}
-              defaultSortBy="option"
-              defaultIsSortASC={true}
+              defaultSortBy="proposalId"
+              defaultIsSortASC={false}
               list={engagementTableList}
               onCellClick={onCellClick}
               fields={[

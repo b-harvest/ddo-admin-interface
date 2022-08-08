@@ -27,7 +27,7 @@ export default function LSVList({
 
       const jailedTag = item.jailed ? <Tag status="error">Jailed</Tag> : null
       const commissionTag = item.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
-      const lowVotingTag = item.votingRate < SAFE_VOTING_RATE ? <Tag status="error">Low voting rate</Tag> : null
+      const lowVotingTag = item.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
       const statusTag =
         jailedTag || commissionTag || lowVotingTag ? (
           <div className="flex flex-col justify-end items-end gap-y-1">
