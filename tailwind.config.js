@@ -9,6 +9,8 @@ module.exports = {
         'adieu-bold': 'AdieuBold',
       },
       colors: {
+        'white-o': 'rgba(255, 255, 255, 0.1)',
+        'black-o': 'rgba(0, 0, 0, 0.1)',
         // primary
         yellowCRE: '#FF940A',
         'yellowCRE-active': '#FFC77F',

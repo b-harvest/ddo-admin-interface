@@ -4,8 +4,18 @@ import Tag from 'components/Tag'
 import usePool from 'hooks/usePool'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 import type { Asset, AssetDetail } from 'types/asset'
 import type { PairDetail } from 'types/pair'
+import { PoolDetail } from 'types/pool'
+
+type PoolTableItem = Omit<PoolDetail, 'bcreApr'> & {
+  baseTicker: string
+  asset: JSX.Element
+  bcreApr: number | null
+  poolTypeTag: JSX.Element | null
+  filter: string[]
+}
 
 export default function PoolsTable({
   title = 'All Pools',
@@ -21,7 +31,7 @@ export default function PoolsTable({
   const { allPools } = usePool()
 
   // All pools
-  const poolTableList = useMemo(() => {
+  const poolTableList = useMemo<PoolTableItem[]>(() => {
     const denom = byAsset?.denom
     const pairId = byPair?.pairId
 
@@ -38,7 +48,7 @@ export default function PoolsTable({
         const baseTicker = pool.pair?.assetTickers[0].ticker ?? ''
         const quoteTicker = pool.pair?.assetTickers[1].ticker ?? ''
         const asset = AssetLogoLabel({ assets: pool.pair?.assetTickers ?? [] })
-        const apr = pool.apr.toNumber()
+        // const apr = pool.apr.toNumber()
         const bcreApr = pool.bcreApr.isZero() ? null : pool.bcreApr.toNumber()
         const poolTypeTag = pool.isRanged ? <Tag status="strong">Ranged</Tag> : null
         const filter1 = filters?.find((item) => baseTicker.includes(item.value))?.value ?? ''
@@ -48,16 +58,21 @@ export default function PoolsTable({
           ...pool,
           baseTicker,
           asset,
-          apr,
+          // apr,
           bcreApr,
           poolTypeTag,
           filter: filters ? [filter1, filter2] : [],
         }
       })
-  }, [allPools, filters, byAsset])
+  }, [allPools, filters, byAsset, byPair])
+
+  const history = useHistory()
+  const onRowClick = (row: PoolTableItem) => {
+    history.push(`/pool/${row.poolId}`)
+  }
 
   return (
-    <TableList
+    <TableList<PoolTableItem>
       title={title}
       useSearch={!byAsset?.isPoolToken}
       useNarrow={true}
@@ -66,6 +81,7 @@ export default function PoolsTable({
       defaultSortBy={byAsset?.isPoolToken ? undefined : 'tvlUSD'}
       defaultIsSortASC={false}
       nowrap={true}
+      onRowClick={onRowClick}
       fields={[
         {
           label: 'Pool base/quote',

@@ -47,10 +47,9 @@ export default function PieChart({
           setValue(props.payload?.value)
         }
 
-        const newLabel = props.percent
-          ? `${props.payload?.type} ${(props.percent * 100).toFixed(0)}%`
-          : props.payload?.type
+        const percent = props.percent
 
+        const newLabel = props.payload?.type
         if (setLabel && label !== newLabel) {
           setLabel(newLabel)
         }

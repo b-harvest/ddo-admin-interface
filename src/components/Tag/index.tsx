@@ -8,7 +8,7 @@ export default function Tag({
 }: {
   children: ReactNode
   className?: string
-  status?: AlertStatus | 'strong'
+  status?: AlertStatus | 'strong' | 'white' | 'pink'
 }) {
   return (
     <span
@@ -21,7 +21,7 @@ export default function Tag({
   )
 }
 
-function CSSByStatus(status?: AlertStatus | 'strong') {
+function CSSByStatus(status?: AlertStatus | 'strong' | 'white' | 'pink') {
   switch (status) {
     case 'info':
       return `text-info bg-[#F3F6FF] dark:bg-info-o border-info`
@@ -33,6 +33,10 @@ function CSSByStatus(status?: AlertStatus | 'strong') {
       return `text-warning bg-[#FFFAF1] dark:bg-warning-o border-warning`
     case 'strong':
       return `text-black bg-glowCRE border-0`
+    case 'white':
+      return `text-white bg-black-o border-white dark:text-white dark:bg-white-o dark:border-white`
+    case 'pink':
+      return `text-pinkCRE bg-white-o border-pinkCRE`
     default:
       return 'text-grayCRE-300 bg-white dark:bg-black border-grayCRE-200 dark:border-0'
   }

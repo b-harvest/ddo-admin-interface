@@ -110,7 +110,7 @@ export default function Pair() {
               <div className={`TYPO-BODY-2XL ${isPriceForward ? '' : ' text-pinkCRE'}`} title="Pair price">
                 <span>{price ? price.toFormat() : '-'}</span>
                 <span className="TYPO-BODY-S"> {quoteTicker}</span>
-                <span className="TYPO-BODY-M" title="Pair price in USD">
+                <span className="TYPO-BODY-M" style={{ wordBreak: 'keep-all' }} title="Pair price in USD">
                   {' '}
                   (≈{formatUSDAmount({ value: priceUSD, mantissa: 2 })})
                 </span>

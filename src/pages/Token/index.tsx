@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 import AppPage from 'components/AppPage'
 import Card from 'components/Card'
 import CopyHelper from 'components/CopyHelper'
@@ -37,25 +36,12 @@ export default function Token() {
     const vol24USD = getVol24USDbyDenom(asset.denom)
     const tvlUSD = getTVLUSDbyDenom(asset.denom)
 
-    const farmStakedUSD = poolDetail?.totalStakedAmount.multipliedBy(priceOracle ?? 0)
-    const farmQueuedUSD = poolDetail?.totalQueuedAmount.multipliedBy(priceOracle ?? 0)
-    const totalSupplyUSD = poolDetail?.totalSupplyAmount.multipliedBy(priceOracle ?? 0)
-
-    const farmStakedRate = poolDetail
-      ? poolDetail.totalStakedAmount
-          .div(poolDetail.totalSupplyAmount)
-          ?.multipliedBy(100)
-          .dp(1, BigNumber.ROUND_HALF_UP)
-          .toNumber()
-      : undefined
-    const farmQueuedRate = poolDetail
-      ? poolDetail.totalQueuedAmount
-          ?.div(poolDetail.totalSupplyAmount)
-          ?.multipliedBy(100)
-          .dp(1, BigNumber.ROUND_HALF_UP)
-          .toNumber()
-      : undefined
-    const unfarmedRate = farmStakedRate && farmQueuedRate ? 100 - (farmStakedRate + farmQueuedRate) : undefined
+    const farmStakedUSD = poolDetail?.farmStakedUSD
+    const farmQueuedUSD = poolDetail?.farmQueuedUSD
+    const totalSupplyUSD = poolDetail?.totalSupplyUSD
+    const farmStakedRate = poolDetail?.farmStakedRate
+    const farmQueuedRate = poolDetail?.farmQueuedRate
+    const unfarmedRate = poolDetail?.unfarmedRate
 
     return {
       ...asset,
@@ -107,25 +93,25 @@ export default function Token() {
               <>
                 <Card useGlassEffect={true} className="grow shrink basis-[30%]">
                   <Indicator title="Total value farm-staked" light={true} className="TYPO-BODY-L !font-bold">
-                    <div className="flex items-center gap-x-2 FONT-MONO">
-                      {formatUSDAmount({ value: assetDetail.farmStakedUSD, mantissa: 0 })}
+                    <div className="flex items-center gap-x-3 FONT-MONO">
+                      {formatUSDAmount({ value: assetDetail.farmStakedUSD, mantissa: 2 })}
                       <Tag status="info">{assetDetail.farmStakedRate}%</Tag>
                     </div>
                   </Indicator>
                 </Card>
                 <Card useGlassEffect={true} className="grow shrink basis-[30%]">
                   <Indicator title="Total value queued" light={true} className="TYPO-BODY-L !font-bold">
-                    <div className="flex items-center gap-x-2 FONT-MONO">
-                      {formatUSDAmount({ value: assetDetail.farmQueuedUSD, mantissa: 0 })}
-                      <Tag status="info">{assetDetail.farmQueuedRate}%</Tag>
+                    <div className="flex items-center gap-x-3 FONT-MONO">
+                      {formatUSDAmount({ value: assetDetail.farmQueuedUSD, mantissa: 2 })}
+                      <Tag status="pink">{assetDetail.farmQueuedRate}%</Tag>
                     </div>
                   </Indicator>
                 </Card>
                 <Card useGlassEffect={true} className="grow shrink basis-[30%]">
                   <Indicator title="Total value supplied" light={true} className="TYPO-BODY-L !font-bold">
-                    <div className="flex items-center gap-x-2 FONT-MONO">
-                      {formatUSDAmount({ value: assetDetail.totalSupplyUSD, mantissa: 0 })}
-                      <Tag status="info">{assetDetail.unfarmedRate?.toFixed(1)}% unfarmed</Tag>
+                    <div className="flex items-center gap-x-3 FONT-MONO">
+                      {formatUSDAmount({ value: assetDetail.totalSupplyUSD, mantissa: 2 })}
+                      <Tag status="white">{assetDetail.unfarmedRate?.toFixed(1)}% unfarmed</Tag>
                     </div>
                   </Indicator>
                 </Card>

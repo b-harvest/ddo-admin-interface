@@ -5,7 +5,6 @@ import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allPoolLiveAtomRef } from 'state/atoms'
 import type { Asset, AssetTicker } from 'types/asset'
-import type { PairDetail } from 'types/pair'
 import type { PoolDetail, PoolLive } from 'types/pool'
 
 import useAsset from './useAsset'
@@ -31,12 +30,14 @@ const usePool = () => {
         totalQueuedAmount: new BigNumber(pool.totalQueuedAmount).div(10 ** POOL_TOKEN_EXPONENT),
         totalSupplyAmount: new BigNumber(pool.totalSupplyAmount).div(10 ** POOL_TOKEN_EXPONENT),
         priceOracle: new BigNumber(pool.priceOracle).multipliedBy(10 ** POOL_TOKEN_EXPONENT),
-        apr: new BigNumber(pool.apr),
+        // apr: new BigNumber(pool.apr),
         RewardsPerToken: pool.RewardsPerToken?.map((reward) => ({
           ...reward,
           rewardAmount: new BigNumber(reward.rewardAmount), // exponent already adjusted?
         })),
         poolPrice: new BigNumber(pool.poolPrice).multipliedBy(10 ** exponentDiff),
+        minPrice: new BigNumber(pool.minPrice),
+        maxPrice: new BigNumber(pool.maxPrice),
         reserved: pool.Reserved.map((item) => {
           const expo = findAssetByDenom(item.denom)?.exponent ?? 0
           return {
@@ -51,12 +52,8 @@ const usePool = () => {
 
   const allPools = useMemo<PoolDetail[]>(() => {
     return allPoolLive
-      .filter((pool) => {
-        const pair = findPairById(pool.pairId)
-        return pair && findAssetByDenom(pair.baseDenom)?.live && findAssetByDenom(pair.quoteDenom)?.live
-      })
       .map((pool) => {
-        const pair = findPairById(pool.pairId) as PairDetail
+        const pair = findPairById(pool.pairId)
 
         const reserved = pool.reserved.sort((a, _) => (a.denom === pair?.baseDenom ? -1 : 1)) // base, quote
         const base = reserved[0]
@@ -81,6 +78,22 @@ const usePool = () => {
           ? bcreUSDRatio.multipliedBy(liquidStakeAPR).multipliedBy(2)
           : new BigNumber(liquidStakeAPR)
 
+        const farmStakedUSD = pool.totalStakedAmount.multipliedBy(pool.priceOracle)
+        const farmQueuedUSD = pool.totalQueuedAmount.multipliedBy(pool.priceOracle)
+        const totalSupplyUSD = pool.totalSupplyAmount.multipliedBy(pool.priceOracle)
+
+        const farmStakedRate = pool.totalStakedAmount
+          .div(pool.totalSupplyAmount)
+          .multipliedBy(100)
+          .dp(1, BigNumber.ROUND_HALF_UP)
+          .toNumber()
+        const farmQueuedRate = pool.totalQueuedAmount
+          .div(pool.totalSupplyAmount)
+          .multipliedBy(100)
+          .dp(1, BigNumber.ROUND_HALF_UP)
+          .toNumber()
+        const unfarmedRate = 100 - (farmStakedRate + farmQueuedRate)
+
         return {
           ...pool,
           pair,
@@ -91,11 +104,19 @@ const usePool = () => {
           isRanged,
           bcreUSDRatio,
           bcreApr,
+          farmStakedUSD,
+          farmQueuedUSD,
+          totalSupplyUSD,
+          farmStakedRate,
+          farmQueuedRate,
+          unfarmedRate,
         }
       })
-  }, [allPoolLive, findPairById, findAssetByDenom, liquidStakeAPR])
+      .filter(isPoolDetail)
+  }, [allPoolLive, findPairById, liquidStakeAPR])
 
   const findPoolByDenom = useCallback((denom: string) => allPools.find((pool) => pool.poolDenom === denom), [allPools])
+  const findPoolById = useCallback((poolId: number) => allPools.find((pool) => pool.poolId === poolId), [allPools])
 
   const getPoolAssets = useCallback<(denom: string) => [AssetTicker, AssetTicker] | null>(
     (denom: string) => {
@@ -114,7 +135,12 @@ const usePool = () => {
     [getPoolAssets]
   )
 
-  return { allPoolLive, allPools, findPoolByDenom, getAssetTickers }
+  return { allPoolLive, allPools, findPoolByDenom, findPoolById, getAssetTickers }
 }
 
 export default usePool
+
+// type guard
+function isPoolDetail(pool: PoolDetail | any): pool is PoolDetail {
+  return !!pool.pair
+}

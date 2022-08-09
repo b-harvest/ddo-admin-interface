@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { Asset, AssetDetail } from 'types/asset'
 import { PairDetail } from 'types/pair'
+import type { PoolDetail } from 'types/pool'
 
 type PairAdditional = {
   assetLabel: JSX.Element
@@ -16,16 +17,20 @@ type PairAdditional = {
 export default function PairsTable({
   title = 'All Pairs',
   byAsset,
+  byPool,
   filters,
 }: {
   title?: string
   byAsset?: Asset | AssetDetail
+  byPool?: PoolDetail
   filters?: FilterRadioGroupOption[]
 }) {
   const { allPair } = usePair()
 
   const pairTableList = useMemo<(PairDetail & PairAdditional)[]>(() => {
     const denom = byAsset?.denom
+    const pairId = byPool?.pairId
+
     return allPair
       .filter(
         (pair) =>
@@ -34,6 +39,7 @@ export default function PairsTable({
             ? pair.pools.map((pool) => pool.poolDenom).includes(denom)
             : [pair.baseDenom, pair.quoteDenom].includes(denom))
       )
+      .filter((pair) => !pairId || pair.pairId === pairId)
       .map((pair) => {
         const assetLabel = AssetLogoLabel({ assets: pair.assetTickers })
         const baseTicker = pair.assetTickers[0].ticker
@@ -58,11 +64,11 @@ export default function PairsTable({
   return (
     <TableList<PairDetail & PairAdditional>
       title={title}
-      useSearch={!byAsset?.isPoolToken}
+      useSearch={!(byAsset?.isPoolToken || byPool)}
       useNarrow={true}
       list={pairTableList}
       filterOptions={filters}
-      defaultSortBy={byAsset?.isPoolToken ? undefined : 'tvlUSD'}
+      defaultSortBy={byAsset?.isPoolToken || byPool ? undefined : 'tvlUSD'}
       defaultIsSortASC={false}
       nowrap={true}
       onRowClick={onRowClick}

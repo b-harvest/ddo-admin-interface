@@ -63,6 +63,11 @@ export const pages: Page[] = [
     pageName: 'Pair',
   },
   {
+    path: '/pool',
+    label: 'Pool Detail',
+    pageName: 'Pool',
+  },
+  {
     path: '/lsv',
     label: 'LSV Detail',
     pageName: '',
