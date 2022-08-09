@@ -20,6 +20,8 @@ const usePair = () => {
         ...pair,
         lastPrice: new BigNumber(pair.lastPrice).multipliedBy(10 ** diffExpo),
         predPrice: new BigNumber(pair.predPrice).multipliedBy(10 ** diffExpo),
+        high_24: new BigNumber(pair.high_24),
+        low_24: new BigNumber(pair.low_24),
         vol_24: new BigNumber(pair.vol_24),
         totalReserved: pair.totalReserved.map((item) => {
           const exponent = findAssetByDenom(item.denom)?.exponent ?? 0

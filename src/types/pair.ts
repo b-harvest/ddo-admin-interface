@@ -44,9 +44,14 @@ export interface PairLiveRaw {
   totalReserved: { denom: string; priceOracle: number; amount: string }[]
 }
 
-export type PairLive = Omit<PairLiveRaw, 'lastPrice' | 'predPrice' | 'vol_24' | 'totalReserved'> & {
+export type PairLive = Omit<
+  PairLiveRaw,
+  'lastPrice' | 'predPrice' | 'high_24' | 'low_24' | 'vol_24' | 'totalReserved'
+> & {
   lastPrice: BigNumber
   predPrice: BigNumber
+  high_24: BigNumber
+  low_24: BigNumber
   vol_24: BigNumber
   totalReserved: { denom: string; priceOracle: BigNumber; amount: BigNumber }[]
 }

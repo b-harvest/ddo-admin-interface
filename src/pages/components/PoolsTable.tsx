@@ -5,14 +5,17 @@ import usePool from 'hooks/usePool'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
 import { useMemo } from 'react'
 import type { Asset, AssetDetail } from 'types/asset'
+import type { PairDetail } from 'types/pair'
 
 export default function PoolsTable({
   title = 'All Pools',
   byAsset,
+  byPair,
   filters,
 }: {
   title?: string
   byAsset?: Asset | AssetDetail
+  byPair?: PairDetail
   filters?: FilterRadioGroupOption[]
 }) {
   const { allPools } = usePool()
@@ -20,6 +23,7 @@ export default function PoolsTable({
   // All pools
   const poolTableList = useMemo(() => {
     const denom = byAsset?.denom
+    const pairId = byPair?.pairId
 
     return allPools
       .filter(
@@ -29,6 +33,7 @@ export default function PoolsTable({
             ? pool.poolDenom === denom
             : [pool.pair.baseDenom, pool.pair.quoteDenom].includes(denom))
       )
+      .filter((pool) => !pairId || pool.pairId === pairId)
       .map((pool) => {
         const baseTicker = pool.pair?.assetTickers[0].ticker ?? ''
         const quoteTicker = pool.pair?.assetTickers[1].ticker ?? ''
