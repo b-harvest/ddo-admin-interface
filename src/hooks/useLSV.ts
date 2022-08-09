@@ -25,7 +25,7 @@ const useLSV = () => {
   const { data: allLSVVoteData, isLoading: allLSVVoteDataLoading } = useAllLSVVote()
 
   const allLSVTimestamp = useMemo<number | undefined>(
-    () => (allLSVData ? allLSVData.curTimestamp * 1000 : undefined),
+    () => (allLSVData?.syncTimestamp ? allLSVData.syncTimestamp * 1000 : undefined),
     [allLSVData]
   )
 

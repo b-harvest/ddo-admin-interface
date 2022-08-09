@@ -31,9 +31,6 @@ export default function PieChart({
   className,
   cardMerged,
 }: PieChartProps) {
-  // colors
-  const color = GLOW_CRE
-
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const handleMouseOn = useCallback(
@@ -47,7 +44,7 @@ export default function PieChart({
           setValue(props.payload?.value)
         }
 
-        const percent = props.percent
+        // const percent = props.percent
 
         const newLabel = props.payload?.type
         if (setLabel && label !== newLabel) {

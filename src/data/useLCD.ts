@@ -11,6 +11,7 @@ import type {
 } from 'types/account'
 import type { LCDResponseViaSWR } from 'types/api'
 import type { BlockLCD } from 'types/block'
+import { OrderbooksByPairLCDRaw } from 'types/orderbook'
 import type { ProposalLCDRaw } from 'types/proposal'
 import type { ValidatorSetsLCDRaw } from 'types/validator'
 import { COSMOS_CHAIN_NAME } from 'utils/chainRegistry'
@@ -73,6 +74,21 @@ export function useAirdropClaimLCD({ address, fetch = true }: { address: string;
 }
 
 // lcd only
+export function useOrderbooksByPairIdLCD(
+  { pairId, numTicks = 100, fetch = true }: { pairId: number; numTicks?: number; fetch?: boolean },
+  interval = 0
+) {
+  const { data, error }: LCDResponseViaSWR<{ pairs: OrderbooksByPairLCDRaw[] }> = useAppSWR(
+    `/crescent/liquidity/v1beta1/order_books?pair_ids=${pairId}&price_unit_powers=0&num_ticks=${numTicks}`,
+    {
+      interval,
+      type: 'rpc-rest',
+      fetch,
+    }
+  )
+  return lcdReturnGenerator({ data, error })
+}
+
 export function useBlockLCD({ height, fetch = true }: { height?: string; fetch?: boolean }, interval = 0) {
   const { data, error }: LCDResponseViaSWR<BlockLCD> = useAppSWR(`/blocks/${height ?? 'latest'}`, {
     interval,

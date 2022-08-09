@@ -100,6 +100,11 @@ export function useDateWideVolUSD(interval = 0) {
   return returnGenerator({ data, error })
 }
 
+export function useTVLVolUSDUpdate(interval = 0) {
+  const { data, error }: ResponseViaSWR<undefined> = useInfoSWR('/a1/sync', { interval })
+  return returnGenerator({ data, error })
+}
+
 // metric
 export function useAllBlocksFlush(interval = 0) {
   const { data, error }: ResponseViaSWR<BlocksFlushRaw[]> = useInfoSWR('/a1/metric/flush_ts_diff_nano', { interval })

@@ -3,11 +3,11 @@ import LoadingRows from 'components/LoadingRows'
 import { GLOW_CRE, LIGHT_CRE, PINK_CRE, WHITE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import { darken } from 'polished'
-import { HTMLAttributes, ReactNode, useCallback, useMemo } from 'react'
-import { Area, AreaChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { lighten } from 'polished'
+import { HTMLAttributes, ReactNode, useCallback } from 'react'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { CategoricalChartState } from 'recharts/types/chart/generateCategoricalChart'
-import type { GenericChartEntry } from 'types/chart'
+import type { GenericTwoChartEntry } from 'types/chart'
 
 dayjs.extend(utc)
 
@@ -15,11 +15,12 @@ const DEFAULT_HEIGHT = 300
 
 type LineChartProps = {
   isLoading?: boolean
-  data: GenericChartEntry[]
-  highlightTime?: GenericChartEntry['time']
-  color?: string | undefined
-  color2?: string | undefined
-  color2When?: (data: GenericChartEntry) => boolean
+  data: GenericTwoChartEntry[]
+  highlightTime?: GenericTwoChartEntry['time']
+  color1?: string
+  color2?: string
+  time1?: number
+  time2?: number
   height?: number | undefined
   minHeight?: number
   value?: number
@@ -34,13 +35,14 @@ type LineChartProps = {
   onClick?: (time: number | undefined) => void
 } & Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'onClick'>
 
-export default function LineChart({
+export default function TwoLineChart({
   isLoading = false,
   data,
   highlightTime,
-  color = GLOW_CRE,
+  color1 = GLOW_CRE,
   color2 = WHITE,
-  color2When,
+  time1,
+  time2,
   value,
   setValue,
   label,
@@ -54,15 +56,14 @@ export default function LineChart({
   onClick,
   ...rest
 }: LineChartProps) {
-  const highlightValue = useMemo<number | undefined>(
-    () => data.find((item) => item.time === highlightTime)?.value,
-    [data, highlightTime]
-  )
-
   const handleMouseOn = useCallback(
     (props: CategoricalChartState) => {
-      if (setValue && props.activePayload && value !== props.activePayload[0]?.payload?.value) {
-        setValue(props.activePayload[0]?.payload?.value)
+      // console.log(props)
+      const newValue = props.activePayload
+        ? props.activePayload[0]?.payload?.value1 ?? props.activePayload[0]?.payload?.value2
+        : undefined
+      if (setValue && props.activePayload && value !== newValue) {
+        setValue(newValue)
       }
 
       if (setLabel && props.isTooltipActive && label !== props.activeLabel) {
@@ -123,9 +124,13 @@ export default function LineChart({
                 onClick={handleClick}
               >
                 <defs>
-                  <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={darken(0.6, color)} stopOpacity={0.5} />
-                    <stop offset="100%" stopColor={color} stopOpacity={0} />
+                  <linearGradient id="gradient1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={lighten(0.6, color1)} stopOpacity={0.5} />
+                    <stop offset="100%" stopColor={color1} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradient2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={lighten(0.6, color2)} stopOpacity={0.5} />
+                    <stop offset="100%" stopColor={color2} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis
@@ -133,10 +138,17 @@ export default function LineChart({
                   dataKey="time"
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(time: GenericChartEntry['time']) => dayjs(time).format('DD')}
+                  tickFormatter={(time: GenericTwoChartEntry['time']) => {
+                    if (time1 && time2) {
+                      const allTimes = data.map((item) => item.time)
+                      const time1Closest = getClosestTime(allTimes, time1)
+                      const time2Closest = getClosestTime(allTimes, time2)
+                      return [time1Closest, time2Closest].includes(time) ? time.toString() : ''
+                    } else return ''
+                  }}
                   minTickGap={10}
                 />
-                {highlightTime && highlightValue && (
+                {/* {highlightTime && highlightValue && (
                   <>
                     <ReferenceDot
                       x={highlightTime}
@@ -149,17 +161,25 @@ export default function LineChart({
                     />
                     <ReferenceLine x={highlightTime} isFront={true} stroke={PINK_CRE} />
                   </>
-                )}
+                )} */}
                 <Tooltip
                   active={true}
                   cursor={{ stroke: highlightTime !== undefined && highlightTime === label ? PINK_CRE : LIGHT_CRE }}
                   contentStyle={{ display: 'none' }}
                 />
                 <Area
-                  dataKey="value"
+                  dataKey="value1"
                   type="monotone"
-                  stroke={color}
-                  fill="url(#gradient)"
+                  stroke={color1}
+                  fill="url(#gradient1)"
+                  strokeWidth={2}
+                  cursor={onClick ? 'pointer' : 'default'}
+                />
+                <Area
+                  dataKey="value2"
+                  type="monotone"
+                  stroke={color2}
+                  fill="url(#gradient2)"
                   strokeWidth={2}
                   cursor={onClick ? 'pointer' : 'default'}
                 />
@@ -175,4 +195,10 @@ export default function LineChart({
       )}
     </Card>
   )
+}
+
+function getClosestTime(allTimes: number[], goalTime: number): number {
+  return allTimes.reduce(function (prev, curr) {
+    return Math.abs(curr - goalTime) < Math.abs(prev - goalTime) ? curr : prev
+  })
 }

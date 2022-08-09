@@ -54,7 +54,7 @@ export default function PairsTable({
           filter: filters ? [filter1, filter2] : [],
         }
       })
-  }, [allPair, byAsset, filters])
+  }, [allPair, byAsset, byPool, filters])
 
   const history = useHistory()
   const onRowClick = (row: PairDetail & PairAdditional) => {

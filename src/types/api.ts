@@ -3,6 +3,7 @@ export interface APIResponse<T> {
   readonly result: string
   readonly data: T
   readonly curTimestamp: number
+  readonly syncTimestamp?: number
 }
 
 export interface APIError {

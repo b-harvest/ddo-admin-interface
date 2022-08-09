@@ -3,6 +3,12 @@ export type GenericChartEntry = {
   value: number
 }
 
+export type GenericTwoChartEntry = Omit<GenericChartEntry, 'value'> & {
+  time: number
+  value1?: number
+  value2?: number
+}
+
 export type GenericComposedChartEntry = Omit<GenericChartEntry, 'value'> & {
   [key: string]: number
 }

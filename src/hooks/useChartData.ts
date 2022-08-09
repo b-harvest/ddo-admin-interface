@@ -6,7 +6,10 @@ const useChartData = () => {
   // tvl
   const { data: tvlUSDData, isLoading: tvlUSDDataLoading } = useDateWideTVLUSD()
 
-  const tvlUSDDataTimestamp = useMemo<number | undefined>(() => tvlUSDData?.curTimestamp * 1000, [tvlUSDData])
+  const tvlUSDDataTimestamp = useMemo<number | undefined>(
+    () => (tvlUSDData?.syncTimestamp ? tvlUSDData.syncTimestamp * 1000 : undefined),
+    [tvlUSDData]
+  )
 
   const tvlUSDChartData = useMemo<TVLUSDByDate[]>(() => {
     return (
@@ -40,7 +43,10 @@ const useChartData = () => {
   // vol
   const { data: volUSDData, isLoading: volUSDDataLoading } = useDateWideVolUSD()
 
-  const volUSDDataTimestamp = useMemo<number | undefined>(() => volUSDData?.curTimestamp * 1000, [volUSDData])
+  const volUSDDataTimestamp = useMemo<number | undefined>(
+    () => (volUSDData?.syncTimestamp ? volUSDData.syncTimestamp * 1000 : undefined),
+    [volUSDData]
+  )
 
   const volUSDChartData = useMemo<VolUSDByDate[]>(() => {
     return (

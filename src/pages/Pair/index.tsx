@@ -6,10 +6,13 @@ import Indicator from 'components/Indicator'
 import SelectTab from 'components/SelectTab'
 import TableList from 'components/TableList'
 import TimestampMemo from 'components/TimestampMemo'
+import { useTVLVolUSDUpdate } from 'data/useAPI'
 import useChartData from 'hooks/useChartData'
+import useOrderbook from 'hooks/useOrderbook'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
+import OrderbookDepthChart from 'pages/components/OrderbookDepthChart'
 import PoolsTable from 'pages/components/PoolsTable'
 import TVLChart from 'pages/components/TVLChart'
 import VolumeChart from 'pages/components/VolumeChart'
@@ -21,6 +24,7 @@ import { formatUSDAmount } from 'utils/amount'
 enum CHART_TYPE {
   TVL = 'tvl',
   Volume = 'vol',
+  Depth = 'depth',
 }
 
 export default function Pair() {
@@ -61,6 +65,8 @@ export default function Pair() {
   }, [isPriceForward, pairDetail, price])
 
   // chart
+  useTVLVolUSDUpdate()
+
   const {
     tvlUSDDataTimestamp,
     tvlUSDDataLoading,
@@ -70,13 +76,18 @@ export default function Pair() {
     volUSDChartDataByPair,
   } = useChartData()
 
-  const [selectedChart, setSelectedChart] = useState<CHART_TYPE>(CHART_TYPE.TVL)
+  const [selectedChart, setSelectedChart] = useState<CHART_TYPE>(CHART_TYPE.Depth)
+  const showDepthChart = useMemo<boolean>(() => selectedChart === CHART_TYPE.Depth, [selectedChart])
   const showTVLChart = useMemo<boolean>(() => selectedChart === CHART_TYPE.TVL, [selectedChart])
 
   const chartTimestamp = useMemo<number | undefined>(
-    () => (showTVLChart ? tvlUSDDataTimestamp : volUSDDataTimestamp),
-    [showTVLChart, tvlUSDDataTimestamp, volUSDDataTimestamp]
+    () => (showDepthChart ? undefined : showTVLChart ? tvlUSDDataTimestamp : volUSDDataTimestamp),
+    [showDepthChart, showTVLChart, tvlUSDDataTimestamp, volUSDDataTimestamp]
   )
+
+  // -+2% depth liquidity
+  const { orderbooksByPairLCDDataLoading, orderbookLastPrice, depthChartData, getDepthCost } = useOrderbook(pairDetail)
+  const depthCost = getDepthCost(2)
 
   // price tracking table
   const { getAssetTickers } = usePool()
@@ -128,6 +139,23 @@ export default function Pair() {
               <Card
                 useGlassEffect={true}
                 className={`grow shrink basis-[30%] ${
+                  showDepthChart ? 'border border-grayCRE-200 dark:border-grayCRE-400' : ''
+                }`}
+              >
+                <Indicator title="+-2% Depth" light={true} className="TYPO-BODY-L !font-bold">
+                  <div className="FONT-MONO">
+                    {formatUSDAmount({ value: depthCost?.upperDepthCostUSD, mantissa: 0 })}{' '}
+                    <span className="TYPO-BODY-M text-error">▲</span>
+                  </div>
+                  <div className="FONT-MONO">
+                    {formatUSDAmount({ value: depthCost?.lowerDepthCostUSD, mantissa: 0 })}{' '}
+                    <span className="TYPO-BODY-M text-success">▼</span>
+                  </div>
+                </Indicator>
+              </Card>
+              <Card
+                useGlassEffect={true}
+                className={`grow shrink basis-[30%] ${
                   showTVLChart ? 'border border-grayCRE-200 dark:border-grayCRE-400' : ''
                 }`}
               >
@@ -138,35 +166,43 @@ export default function Pair() {
               <Card
                 useGlassEffect={true}
                 className={`grow shrink basis-[30%] ${
-                  showTVLChart ? '' : 'border border-grayCRE-200 dark:border-grayCRE-400'
+                  showDepthChart || showTVLChart ? '' : 'border border-grayCRE-200 dark:border-grayCRE-400'
                 }`}
               >
                 <Indicator title="Trading Volume 24h" light={true} className="TYPO-BODY-L !font-bold">
                   <div className="FONT-MONO">{formatUSDAmount({ value: pairDetail.vol24USD, mantissa: 0 })}</div>
                 </Indicator>
               </Card>
-              <Card useGlassEffect={true} className={`grow shrink basis-[30%]`}>
-                <Indicator title="Volume/TVL" light={true} className="TYPO-BODY-L !font-bold">
-                  <div className="FONT-MONO">{pairDetail.volTvlRatio.toFixed(2)}%</div>
-                </Indicator>
-              </Card>
             </section>
 
             <section className="relative grow shrink w-full flex flex-col items-stretch gap-y-2">
-              <div className="static md:absolute -top-6 right-0 flex justify-start md:flex-end">
-                <TimestampMemo label="Chart last synced" timestamp={chartTimestamp} />
-              </div>
+              {showDepthChart ? null : (
+                <div className="static md:absolute -top-6 right-0 flex justify-start md:flex-end">
+                  <TimestampMemo label="Chart last synced" timestamp={chartTimestamp} />
+                </div>
+              )}
               <div className="relative">
                 <SelectTab
                   className="absolute top-4 right-4 z-[2]"
                   selectedValue={selectedChart}
                   onChange={setSelectedChart}
                   tabItems={[
+                    { label: 'Order', value: CHART_TYPE.Depth },
                     { label: 'TVL', value: CHART_TYPE.TVL },
                     { label: 'Volume', value: CHART_TYPE.Volume },
                   ]}
                 />
-                {showTVLChart ? (
+                {showDepthChart ? (
+                  <OrderbookDepthChart
+                    isLoading={orderbooksByPairLCDDataLoading}
+                    basePrice={orderbookLastPrice ?? new BigNumber(0)}
+                    priceOracle={pairDetail.quoteAsset.live?.priceOracle ?? new BigNumber(0)}
+                    sellChartData={depthChartData.sells}
+                    buyChartData={depthChartData.buys}
+                    upperBoundPrice={depthCost?.upperBoundPrice}
+                    lowerBoundPrice={depthCost?.lowerBoundPrice}
+                  />
+                ) : showTVLChart ? (
                   <TVLChart
                     isLoading={tvlUSDDataLoading}
                     chartData={tvlUSDChartDataByPools(pairDetail.pools.map((pool) => pool.poolId) ?? [])}
@@ -182,6 +218,10 @@ export default function Pair() {
             </section>
           </div>
 
+          {/* -+2% depth liquidity */}
+          <section className="mb-20"></section>
+
+          {/* price tracking */}
           <section className="space-y-20">
             <TableList<PairDetail & { quote: JSX.Element; predDiff: number }>
               title="Price tracking"
