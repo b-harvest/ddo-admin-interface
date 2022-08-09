@@ -30,11 +30,13 @@ export default function VolumeChart({
   chartData,
   highlightTime,
   onClick,
+  translateYTimeTickSelector = false,
 }: {
   isLoading: boolean
   chartData: VolUSDByDate[]
   highlightTime?: number
   onClick?: (time: number | undefined) => void
+  translateYTimeTickSelector?: boolean
 }) {
   // chart time tick selected
   const [chartTimeTick, setChartTimeTick] = useState<TimeTick>(TimeTick.Daily)
@@ -89,8 +91,8 @@ export default function VolumeChart({
           tabItems={VOLUME_CHART_WINDOW_TAB_ITEMS}
           selectedValue={chartTimeTick}
           onChange={handleChartTimeTickSelect}
-          className="!TYPO-BODY-S"
-          getVerticalIfMobile={true}
+          className={`!TYPO-BODY-S ${translateYTimeTickSelector ? 'translate-y-10' : ''}`}
+          getVerticalIfMobile={false}
         />
       }
     />

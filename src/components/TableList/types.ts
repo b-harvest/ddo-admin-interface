@@ -11,6 +11,7 @@ export interface ListFieldHTML {
   abbrOver?: number
   widthRatio?: number
   responsive?: boolean // default => false
+  assertThoughResponsive?: boolean // default => false
   tag?: string
   color?: string
   type?: 'html'

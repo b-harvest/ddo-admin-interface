@@ -6,6 +6,8 @@ const useChartData = () => {
   // tvl
   const { data: tvlUSDData, isLoading: tvlUSDDataLoading } = useDateWideTVLUSD()
 
+  const tvlUSDDataTimestamp = useMemo<number | undefined>(() => tvlUSDData?.curTimestamp * 1000, [tvlUSDData])
+
   const tvlUSDChartData = useMemo<TVLUSDByDate[]>(() => {
     return (
       tvlUSDData?.data
@@ -19,8 +21,26 @@ const useChartData = () => {
     )
   }, [tvlUSDData])
 
+  const tvlUSDChartDataByPools = useCallback(
+    (poolIds: number[]) => {
+      return tvlUSDChartData.map((item) => {
+        const tvl = item.detail
+          .filter((tvlByPool) => poolIds.includes(tvlByPool.pool))
+          .reduce((accm, tvlByPool) => accm + tvlByPool.tvl, 0)
+        return {
+          date: item.date,
+          tvl,
+          detail: [],
+        }
+      })
+    },
+    [tvlUSDChartData]
+  )
+
   // vol
   const { data: volUSDData, isLoading: volUSDDataLoading } = useDateWideVolUSD()
+
+  const volUSDDataTimestamp = useMemo<number | undefined>(() => volUSDData?.curTimestamp * 1000, [volUSDData])
 
   const volUSDChartData = useMemo<VolUSDByDate[]>(() => {
     return (
@@ -35,6 +55,20 @@ const useChartData = () => {
     )
   }, [volUSDData])
 
+  const volUSDChartDataByPair = useCallback(
+    (pairId: number) => {
+      return volUSDChartData.map((item) => {
+        const vol = item.detail.find((volByPair) => volByPair.pair === pairId)?.usd_vol ?? 0
+        return {
+          date: item.date,
+          vol,
+          detail: [],
+        }
+      })
+    },
+    [volUSDChartData]
+  )
+
   const getMinDate = useCallback((list: TVLUSDByDate[] | VolUSDByDate[]) => {
     const date = list.at(0)?.date
     return date ? new Date(date) : new Date()
@@ -45,7 +79,18 @@ const useChartData = () => {
     return date ? new Date(date) : new Date()
   }, [])
 
-  return { tvlUSDChartData, volUSDChartData, getMinDate, getMaxDate, tvlUSDDataLoading, volUSDDataLoading }
+  return {
+    tvlUSDDataTimestamp,
+    tvlUSDChartData,
+    tvlUSDChartDataByPools,
+    volUSDDataTimestamp,
+    volUSDChartData,
+    volUSDChartDataByPair,
+    getMinDate,
+    getMaxDate,
+    tvlUSDDataLoading,
+    volUSDDataLoading,
+  }
 }
 
 export default useChartData

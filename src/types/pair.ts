@@ -57,8 +57,8 @@ export type PairLive = Omit<
 }
 
 export interface PairDetail extends PairLive {
-  baseAsset: Asset | undefined
-  quoteAsset: Asset | undefined
+  baseAsset: Asset
+  quoteAsset: Asset
   exponentDiff: number
   tvlUSD: BigNumber
   vol24USD: BigNumber

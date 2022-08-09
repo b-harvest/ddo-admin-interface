@@ -60,7 +60,6 @@ const usePair = () => {
 
   const allPair = useMemo<PairDetail[]>(() => {
     return allPairLive
-      .filter((pair) => allPairInfo.find((info) => info.pairId === pair.pairId))
       .map((pair) => {
         const pairInfo = allPairInfo.find((info) => info.pairId === pair.pairId)
         const baseAsset = findAssetByDenom(pair.baseDenom)
@@ -76,7 +75,14 @@ const usePair = () => {
         const vol24USD = pair.vol_24.multipliedBy(baseDenomPrice)
         const volTvlRatio = vol24USD.div(tvlUSD).toNumber() * 100
 
-        const pools = pairInfo?.pools ?? []
+        const pools = pairInfo?.pools
+        const assetTickers =
+          baseAsset && quoteAsset
+            ? [
+                { logoUrl: baseAsset?.logoUrl ?? '', ticker: baseAsset?.ticker ?? '' },
+                { logoUrl: quoteAsset?.logoUrl ?? '', ticker: quoteAsset?.ticker ?? '' },
+              ]
+            : undefined
 
         return {
           ...pair,
@@ -87,13 +93,10 @@ const usePair = () => {
           vol24USD,
           volTvlRatio,
           pools,
-          assetTickers: [
-            { logoUrl: baseAsset?.logoUrl ?? '', ticker: baseAsset?.ticker ?? '' },
-            { logoUrl: quoteAsset?.logoUrl ?? '', ticker: quoteAsset?.ticker ?? '' },
-          ],
-          // poolAsset: pools[0] ? findAssetByDenom(pools[0].poolDenom) : undefined,
+          assetTickers,
         }
       })
+      .filter(isPairDetail)
   }, [allPairLive, allPairInfo, findAssetByDenom])
 
   const findPairById = useCallback((pairId: number) => allPair.find((pair) => pair.pairId === pairId), [allPair])
@@ -158,46 +161,6 @@ const usePair = () => {
     [allPoolsInPairs]
   )
 
-  // const getPoolAssets = useCallback(
-  //   (denom: string) =>
-  //     findPoolFromPairsByDenom(denom)?.reserved.map((reserve) => {
-  //       const asset = findAssetByDenom(reserve.denom)
-  //       return {
-  //         ...reserve,
-  //         ...(asset ?? {}),
-  //       }
-  //     }) ?? [],
-  //   [findPoolFromPairsByDenom, findAssetByDenom]
-  // )
-
-  // const getAssetTickers = useCallback(
-  //   (item: Asset) => {
-  //     return item.isPoolToken
-  //       ? getPoolAssets(item.denom).map((asset) => ({ logoUrl: asset?.logoUrl ?? '', ticker: asset?.ticker ?? '' }))
-  //       : [{ logoUrl: item.logoUrl, ticker: item.ticker }]
-  //   },
-  //   [getPoolAssets]
-  // )
-
-  // const getPoolTokenPriceOracle = useCallback(
-  //   (denom: string) => {
-  //     const pools = allPairInfo.reduce((accm: PoolInPair[], pair) => accm.concat(pair.pools), [])
-  //     const pool = pools.find((pool) => pool.poolDenom === denom)
-
-  //     if (!pool) return new BigNumber(0)
-
-  //     const poolReservedUSD = pool.reserved.reduce((accm, reserve) => {
-  //       const priceOracle =
-  //         allAsset.find((asset) => asset.denom === reserve.denom)?.live?.priceOracle ?? new BigNumber(0)
-  //       const reserveUSD = reserve.amount.multipliedBy(priceOracle)
-  //       return accm.plus(reserveUSD)
-  //     }, new BigNumber(0))
-
-  //     return poolReservedUSD.dividedBy(pool.totalSupply)
-  //   },
-  //   [allPairInfo, allAsset]
-  // )
-
   return {
     allPairLive,
     allPairInfo,
@@ -209,9 +172,12 @@ const usePair = () => {
     allPoolsInPairs,
     findPoolFromPairsByDenom,
     findPoolFromPairsByPoolId,
-    // getPoolAssets,
-    // getAssetTickers,
   }
 }
 
 export default usePair
+
+// type guard
+function isPairDetail(pair: PairDetail | any): pair is PairDetail {
+  return !!pair.baseAsset && !!pair.quoteAsset && !!pair.pools && !!pair.assetTickers
+}

@@ -324,6 +324,9 @@ function ListItem<T extends TableListItem>({
               }}
             >
               <Tooltip content={field.tooltip ? data.tooltip : undefined}>
+                {field.responsive && field.assertThoughResponsive ? (
+                  <Tag className="md:hidden">{field.label}</Tag>
+                ) : null}
                 {ListItemCell({ data, field })}
                 {field.tag ? <Tag>{field.tag}</Tag> : null}
               </Tooltip>
@@ -359,6 +362,9 @@ function ListItem<T extends TableListItem>({
                   }}
                 >
                   <Tooltip content={field.tooltip ? data.tooltip : undefined}>
+                    {field.responsive && field.assertThoughResponsive ? (
+                      <Tag className="md:hidden">{field.label}</Tag>
+                    ) : null}
                     {ListItemCell({ data, field })}
                     {field.tag ? <Tag>{field.tag}</Tag> : null}
                   </Tooltip>
@@ -442,7 +448,7 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
 }
 const cellClass = (field: ListField) =>
   `${
-    field.responsive ? 'hidden' : 'flex'
+    field.responsive && !field.assertThoughResponsive ? 'hidden' : 'flex'
   } grow shrink items-center TYPO-BODY-S text-black dark:text-white !font-medium overflow-hidden md:flex md:TYPO-BODY-M`
 
 function getListItemClassByStatus(status: AlertStatus): string {
