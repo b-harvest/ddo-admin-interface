@@ -1,11 +1,11 @@
 import Card from 'components/Card'
 import LoadingRows from 'components/LoadingRows'
-import { GLOW_CRE, LIGHT_CRE, PINK_CRE, WHITE } from 'constants/style'
+import { GLOW_CRE, LIGHT_CRE, WHITE } from 'constants/style'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import { lighten } from 'polished'
+import { lighten, transparentize } from 'polished'
 import { HTMLAttributes, ReactNode, useCallback } from 'react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { Area, AreaChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { CategoricalChartState } from 'recharts/types/chart/generateCategoricalChart'
 import type { GenericTwoChartEntry } from 'types/chart'
 
@@ -17,6 +17,7 @@ type LineChartProps = {
   isLoading?: boolean
   data: GenericTwoChartEntry[]
   highlightTime?: GenericTwoChartEntry['time']
+  highlightColor?: string
   color1?: string
   color2?: string
   time1?: number
@@ -39,6 +40,7 @@ export default function TwoLineChart({
   isLoading = false,
   data,
   highlightTime,
+  highlightColor = '#DDD',
   color1 = GLOW_CRE,
   color2 = WHITE,
   time1,
@@ -56,6 +58,11 @@ export default function TwoLineChart({
   onClick,
   ...rest
 }: LineChartProps) {
+  // const highlightValue = useMemo<number | undefined>(
+  //   () => data.find((item) => item.time === highlightTime)?.value1,
+  //   [data, highlightTime]
+  // )
+
   const handleMouseOn = useCallback(
     (props: CategoricalChartState) => {
       // console.log(props)
@@ -139,39 +146,45 @@ export default function TwoLineChart({
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(time: GenericTwoChartEntry['time']) => {
-                    if (time1 && time2) {
-                      const allTimes = data.map((item) => item.time)
-                      const time1Closest = getClosestTime(allTimes, time1)
-                      const time2Closest = getClosestTime(allTimes, time2)
-                      return [time1Closest, time2Closest].includes(time) ? time.toString() : ''
-                    } else return ''
+                    if (highlightTime && highlightTime === time) {
+                      return time.toString()
+                    }
+                    // else if (data.at(0)?.time === time || data.at(-1)?.time === time) {
+                    //   return time.toString()
+                    // }
+                    // else if (time1 && time2) {
+                    //   const allTimes = data.map((item) => item.time)
+                    //   const time1Closest = getClosestTime(allTimes, time1)
+                    //   const time2Closest = getClosestTime(allTimes, time2)
+                    //   return [time1Closest, time2Closest].includes(time) ? time.toString() : ''
+                    // }
+                    else return ''
                   }}
                   minTickGap={10}
                 />
-                {/* {highlightTime && highlightValue && (
-                  <>
-                    <ReferenceDot
+                {highlightTime && <ReferenceLine x={highlightTime} isFront={true} stroke={highlightColor} />}
+                {/* <ReferenceDot
                       x={highlightTime}
                       y={highlightValue}
                       isFront={true}
-                      fill={PINK_CRE}
+                      fill={highlightColor}
                       stroke={WHITE}
                       strokeWidth={2}
                       r={4}
-                    />
-                    <ReferenceLine x={highlightTime} isFront={true} stroke={PINK_CRE} />
-                  </>
-                )} */}
+                    /> */}
+
                 <Tooltip
                   active={true}
-                  cursor={{ stroke: highlightTime !== undefined && highlightTime === label ? PINK_CRE : LIGHT_CRE }}
+                  cursor={{
+                    stroke: highlightTime !== undefined && highlightTime === label ? highlightColor : LIGHT_CRE,
+                  }}
                   contentStyle={{ display: 'none' }}
                 />
                 <Area
                   dataKey="value1"
                   type="monotone"
                   stroke={color1}
-                  fill="url(#gradient1)"
+                  fill={transparentize(0.9, color1)}
                   strokeWidth={2}
                   cursor={onClick ? 'pointer' : 'default'}
                 />
@@ -179,7 +192,7 @@ export default function TwoLineChart({
                   dataKey="value2"
                   type="monotone"
                   stroke={color2}
-                  fill="url(#gradient2)"
+                  fill={transparentize(0.9, color2)}
                   strokeWidth={2}
                   cursor={onClick ? 'pointer' : 'default'}
                 />
@@ -197,8 +210,8 @@ export default function TwoLineChart({
   )
 }
 
-function getClosestTime(allTimes: number[], goalTime: number): number {
-  return allTimes.reduce(function (prev, curr) {
-    return Math.abs(curr - goalTime) < Math.abs(prev - goalTime) ? curr : prev
-  })
-}
+// function getClosestTime(allTimes: number[], goalTime: number): number {
+//   return allTimes.reduce(function (prev, curr) {
+//     return Math.abs(curr - goalTime) < Math.abs(prev - goalTime) ? curr : prev
+//   })
+// }

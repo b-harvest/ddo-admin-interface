@@ -41,3 +41,8 @@ export type OrderByPrice = {
   price: BigNumber
   amount: BigNumber
 }
+
+export type DepthByPrice = {
+  price: BigNumber
+  depth: BigNumber
+}

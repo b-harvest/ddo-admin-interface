@@ -134,7 +134,7 @@ export default function Pair() {
             </div>
           </header>
 
-          <div className="flex flex-col md:flex-row items-stretch gap-y-10 md:gap-y-0 md:gap-x-4 mb-20">
+          <div className="flex flex-col md:flex-row items-stretch gap-y-4 md:gap-y-0 md:gap-x-4 mb-20">
             <section className="grow shrink md:grow-0 md:shrink-0 md:basis-[300px] flex flex-col items-stretch gap-y-4">
               <Card
                 useGlassEffect={true}
@@ -142,14 +142,14 @@ export default function Pair() {
                   showDepthChart ? 'border border-grayCRE-200 dark:border-grayCRE-400' : ''
                 }`}
               >
-                <Indicator title="+-2% Depth" light={true} className="TYPO-BODY-L !font-bold">
-                  <div className="FONT-MONO">
-                    {formatUSDAmount({ value: depthCost?.upperDepthCostUSD, mantissa: 0 })}{' '}
-                    <span className="TYPO-BODY-M text-error">▲</span>
+                <Indicator title="Depth" light={true} className="TYPO-BODY-L !font-bold">
+                  <div className="FONT-MONO text-error">
+                    <span className="TYPO-BODY-XS mr-2">+2%</span>
+                    {formatUSDAmount({ value: depthCost?.upperDepthCostUSD, mantissa: 0 })}
                   </div>
-                  <div className="FONT-MONO">
-                    {formatUSDAmount({ value: depthCost?.lowerDepthCostUSD, mantissa: 0 })}{' '}
-                    <span className="TYPO-BODY-M text-success">▼</span>
+                  <div className="FONT-MONO text-success">
+                    <span className="TYPO-BODY-XS mr-2">-2%</span>
+                    {formatUSDAmount({ value: depthCost?.lowerDepthCostUSD, mantissa: 0 })}
                   </div>
                 </Indicator>
               </Card>
@@ -187,7 +187,7 @@ export default function Pair() {
                   selectedValue={selectedChart}
                   onChange={setSelectedChart}
                   tabItems={[
-                    { label: 'Order', value: CHART_TYPE.Depth },
+                    { label: 'Depth', value: CHART_TYPE.Depth },
                     { label: 'TVL', value: CHART_TYPE.TVL },
                     { label: 'Volume', value: CHART_TYPE.Volume },
                   ]}
@@ -196,7 +196,8 @@ export default function Pair() {
                   <OrderbookDepthChart
                     isLoading={orderbooksByPairLCDDataLoading}
                     basePrice={orderbookLastPrice ?? new BigNumber(0)}
-                    priceOracle={pairDetail.quoteAsset.live?.priceOracle ?? new BigNumber(0)}
+                    priceUnit={`${pairDetail.quoteAsset.ticker}`}
+                    quotePriceOracle={pairDetail.quoteAsset.live?.priceOracle ?? new BigNumber(0)}
                     sellChartData={depthChartData.sells}
                     buyChartData={depthChartData.buys}
                     upperBoundPrice={depthCost?.upperBoundPrice}

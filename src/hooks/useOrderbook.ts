@@ -1,17 +1,14 @@
 import BigNumber from 'bignumber.js'
 import { useOrderbooksByPairIdLCD } from 'data/useLCD'
 import { useCallback, useMemo } from 'react'
-import type { OrderbooksByPair, OrderByPrice, OrderLCD, OrderLCDRaw } from 'types/orderbook'
+import type { DepthByPrice, OrderbooksByPair, OrderLCD, OrderLCDRaw } from 'types/orderbook'
 import { PairDetail } from 'types/pair'
 
-const useOrderbook = (pairDetail?: PairDetail, numTicks = 100) => {
-  // pair
-  //   const { findPairById } = usePair()
-  //   const pairDetail = findPairById(pairId)
-
+const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 0, numTicks = 100) => {
   const { data: orderbooksByPairLCDData, isLoading: orderbooksByPairLCDDataLoading } = useOrderbooksByPairIdLCD(
     {
       pairId: pairDetail?.pairId ?? 0,
+      priceUnitPowers,
       numTicks,
       fetch: pairDetail !== undefined,
     },
@@ -38,7 +35,7 @@ const useOrderbook = (pairDetail?: PairDetail, numTicks = 100) => {
 
   const orderbookLastPrice = useMemo<BigNumber | undefined>(() => allOrderbooks?.base_price, [allOrderbooks])
 
-  const depthChartData = useMemo<{ sells: OrderByPrice[]; buys: OrderByPrice[] }>(() => {
+  const depthChartData = useMemo<{ sells: DepthByPrice[]; buys: DepthByPrice[] }>(() => {
     const buys =
       allOrderbooks?.order_books.reduce(
         (accm: OrderLCD[], orderbook) => accm.concat(orderbook.buys.slice().reverse()),
@@ -49,11 +46,11 @@ const useOrderbook = (pairDetail?: PairDetail, numTicks = 100) => {
         (accm: OrderLCD[], orderbook) => accm.concat(orderbook.sells.slice().reverse()),
         []
       ) ?? []
+
     return {
-      sells: sells.map((item) => ({ price: item.price, amount: item.user_order_amount.plus(item.pool_order_amount) })),
-      buys: buys.map((item) => ({ price: item.price, amount: item.user_order_amount.plus(item.pool_order_amount) })),
+      sells: mapDepthChartList(sells, 'sell'),
+      buys: mapDepthChartList(buys, 'buy'),
     }
-    //   .sort((a, b) => a.price.minus(b.price).toNumber())
   }, [allOrderbooks])
 
   const getDepthCost = useCallback(
@@ -119,4 +116,24 @@ function retypeOrder(order: OrderLCDRaw, exponent: number): OrderLCD {
     user_order_amount: new BigNumber(order.user_order_amount).div(10 ** exponent),
     pool_order_amount: new BigNumber(order.pool_order_amount).div(10 ** exponent),
   }
+}
+
+function mapDepthChartList(orders: OrderLCD[], type: 'sell' | 'buy'): DepthByPrice[] {
+  const isSell = type === 'sell'
+  const draft = isSell ? orders : orders.slice().reverse()
+
+  const mapped = draft.map((item, index) => {
+    const prevs: BigNumber[] = []
+    for (let i = 0; i < index; i += 1) prevs.push(orders[i].user_order_amount.plus(orders[i].pool_order_amount))
+    const prevDepth = prevs.reduce((accm, prev) => accm.plus(prev), new BigNumber(0))
+
+    const currDepth = {
+      price: item.price,
+      depth: item.user_order_amount.plus(item.pool_order_amount).plus(prevDepth),
+    }
+
+    return currDepth
+  })
+
+  return isSell ? mapped : mapped.slice().reverse()
 }

@@ -4,60 +4,90 @@ import TwoLineChart from 'components/TwoLineChart'
 import { ERROR, SUCCESS } from 'constants/style'
 import { useMemo, useState } from 'react'
 import type { GenericTwoChartEntry } from 'types/chart'
-import type { OrderByPrice } from 'types/orderbook'
+import type { DepthByPrice } from 'types/orderbook'
 
 export default function OrderbookDepthChart({
   isLoading,
   sellChartData,
   buyChartData,
   basePrice,
-  priceOracle,
+  priceUnit,
+  quotePriceOracle,
   lowerBoundPrice,
   upperBoundPrice,
   onClick,
 }: {
   isLoading: boolean
-  sellChartData: OrderByPrice[]
-  buyChartData: OrderByPrice[]
+  sellChartData: DepthByPrice[]
+  buyChartData: DepthByPrice[]
   basePrice: BigNumber
-  priceOracle: BigNumber
+  priceUnit?: string
+  quotePriceOracle: BigNumber
   lowerBoundPrice?: BigNumber
   upperBoundPrice?: BigNumber
-  onClick?: (price: OrderByPrice | undefined) => void
+  onClick?: (price: DepthByPrice | undefined) => void
 }) {
   // chart data
-  const depthChartList = useMemo<(GenericTwoChartEntry & { origin: OrderByPrice })[]>(() => {
-    const buyList = buyChartData.map((item) => {
+  const buyChartList = useMemo<(GenericTwoChartEntry & { origin: DepthByPrice })[]>(() => {
+    return buyChartData.map((item) => {
       return {
         time: item.price.toNumber(),
         value1: undefined,
-        value2: item.amount.toNumber(),
+        value2: item.depth.toNumber(),
         origin: item,
       }
     })
-    const sellList = sellChartData.map((item) => {
+  }, [buyChartData])
+
+  const sellChartList = useMemo<(GenericTwoChartEntry & { origin: DepthByPrice })[]>(() => {
+    return sellChartData.map((item) => {
       return {
         time: item.price.toNumber(),
-        value1: item.amount.toNumber(),
+        value1: item.depth.toNumber(),
         value2: undefined,
         origin: item,
       }
     })
-    return [...buyList, ...sellList]
-  }, [sellChartData, buyChartData])
+  }, [sellChartData])
+
+  const depthChartList = useMemo<(GenericTwoChartEntry & { origin: DepthByPrice })[]>(
+    () => [...buyChartList, ...sellChartList],
+    [buyChartList, sellChartList]
+  )
 
   // tvl total
-  const [orderAmtHover, setOrderAmtHover] = useState<number | undefined>()
   const [priceHover, setPriceHover] = useState<number | undefined>()
+  const [orderAmtHover, setOrderAmtHover] = useState<number | undefined>()
 
-  const headLabel = useMemo<number>(() => priceHover ?? basePrice.toNumber(), [priceHover, basePrice])
-  const headAmt = useMemo(() => {
-    return (
-      orderAmtHover
-        ? new BigNumber(orderAmtHover)
-        : depthChartList.find((item) => item.time === headLabel)?.origin.amount ?? new BigNumber(0)
-    ).multipliedBy(priceOracle)
-  }, [orderAmtHover, depthChartList, headLabel, priceOracle])
+  const headPrice = useMemo<number>(() => priceHover ?? basePrice.toNumber(), [priceHover, basePrice])
+
+  const headAmt = useMemo<BigNumber>(() => {
+    const depthUSD = (
+      orderAmtHover && priceHover
+        ? new BigNumber(orderAmtHover).multipliedBy(priceHover)
+        : depthChartList
+            .find((item) => item.time === basePrice.toNumber())
+            ?.origin.depth.multipliedBy(basePrice.toNumber()) ?? new BigNumber(0)
+    ).multipliedBy(quotePriceOracle)
+    return depthUSD
+  }, [priceHover, orderAmtHover, depthChartList, quotePriceOracle, basePrice])
+
+  const depthSide = useMemo<string | undefined>(() => {
+    if (sellChartList.find((item) => item.time === headPrice)) return 'sell'
+    if (buyChartList.find((item) => item.time === headPrice)) return 'buy'
+    return undefined
+  }, [buyChartList, sellChartList, headPrice])
+
+  const headAmtCSS = useMemo<string>(() => {
+    switch (depthSide) {
+      case 'sell':
+        return 'text-error'
+      case 'buy':
+        return 'text-success'
+      default:
+        return ''
+    }
+  }, [depthSide])
 
   const handleClick = (price: number | undefined) => {
     const order = depthChartList.find((item) => item.time === price)?.origin
@@ -84,9 +114,10 @@ export default function OrderbookDepthChart({
         topLeft={
           <>
             <AmountOfDate
-              title="Order amount"
+              title="Depth"
               value={headAmt}
-              dateLabel={headLabel.toString()}
+              valueCSS={headAmtCSS}
+              dateLabel={`${headPrice.toString()} ${priceUnit}`}
               hideAbbr={true}
               className="mb-4"
             />

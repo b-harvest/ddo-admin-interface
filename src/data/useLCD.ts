@@ -75,11 +75,16 @@ export function useAirdropClaimLCD({ address, fetch = true }: { address: string;
 
 // lcd only
 export function useOrderbooksByPairIdLCD(
-  { pairId, numTicks = 100, fetch = true }: { pairId: number; numTicks?: number; fetch?: boolean },
+  {
+    pairId,
+    priceUnitPowers = 0,
+    numTicks = 100,
+    fetch = true,
+  }: { pairId: number; priceUnitPowers?: number; numTicks?: number; fetch?: boolean },
   interval = 0
 ) {
   const { data, error }: LCDResponseViaSWR<{ pairs: OrderbooksByPairLCDRaw[] }> = useAppSWR(
-    `/crescent/liquidity/v1beta1/order_books?pair_ids=${pairId}&price_unit_powers=0&num_ticks=${numTicks}`,
+    `/crescent/liquidity/v1beta1/order_books?pair_ids=${pairId}&price_unit_powers=${priceUnitPowers}&num_ticks=${numTicks}`,
     {
       interval,
       type: 'rpc-rest',
