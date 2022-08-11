@@ -5,6 +5,7 @@ export interface LSVRaw {
   addr: string
   valOperAddr: string
   valConsAddr: string
+  valHexAddr: string
   blockStartHeight: number
   lsvStartTimestamp: number
   tombstoned: number
@@ -36,6 +37,14 @@ export type LSVVote = Omit<LSVVoteRaw, 'votes'> & {
   votes: Vote[]
 }
 
+export type BlockProposingLSV = {
+  valHexAddr: string
+  height: string
+  time: string
+  prevBlockTime: string
+  blockCommitTime: number
+}
+
 export type LSV = Omit<LSVRaw, 'tokens' | 'commission'> & {
   tokens: BigNumber
   commission: number
@@ -44,4 +53,6 @@ export type LSV = Omit<LSVRaw, 'tokens' | 'commission'> & {
   // vote
   voteData: LSVVote | undefined
   votingRate: number
+  // block proposing
+  lastProposingBlock: BlockProposingLSV | undefined
 }

@@ -49,6 +49,10 @@ export interface ListFieldObj extends Omit<ListFieldHTML, 'type'> {
   objSortValue: string
 }
 
+export interface ListFieldStringNumber extends Omit<ListFieldHTML, 'type'> {
+  type: 'number'
+}
+
 export type ListField =
   | ListFieldHTML
   | ListFieldImgUrl
@@ -56,6 +60,7 @@ export type ListField =
   | ListFieldUSD
   | ListFieldChange
   | ListFieldObj
+  | ListFieldStringNumber
 
 // item typing
 export interface TableListItem {

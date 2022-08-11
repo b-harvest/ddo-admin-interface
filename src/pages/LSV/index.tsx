@@ -40,16 +40,24 @@ export default function LSVDetail() {
   const { findLSVByAddr } = useLSV()
   const lsv = useMemo<LSV | undefined>(() => findLSVByAddr(id), [id, findLSVByAddr])
 
+  const blockCommitTime = lsv?.lastProposingBlock ? new BigNumber(lsv.lastProposingBlock.blockCommitTime) : undefined
+
   const jailedTag = lsv?.jailed ? <Tag status="error">Jailed</Tag> : null
   const commissionTag = lsv?.commission && lsv.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
   const lowVotingTag =
     lsv?.votingRate && lsv.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
+  const slowBlockTimeTag =
+    blockCommitTime && blockCommitTime.isGreaterThan(5000) ? (
+      <Tag status="warning">Block commit time {'>'} 5s</Tag>
+    ) : null
+
   const statusTag =
-    jailedTag || commissionTag || lowVotingTag ? (
+    jailedTag || commissionTag || lowVotingTag || slowBlockTimeTag ? (
       <div className="flex flex-col md:flex-row items-start gap-y-1 md:gap-x-1">
         {jailedTag}
         {commissionTag}
         {lowVotingTag}
+        {slowBlockTimeTag}
       </div>
     ) : (
       <Tag status="success">Good</Tag>
@@ -118,6 +126,11 @@ export default function LSVDetail() {
             {/* <ValIndicatorCard title="CRE" value={`${lsv.tokens.toFormat()}`} /> */}
             <ValIndicatorCard title="Jail time" value={`${lsv.jailUntilTimestamp}`} error={lsv.jailed} />
             <ValIndicatorCard title="Commission rate" value={`${lsv.commission}%`} error={lsv.commission > 20} />
+            <ValIndicatorCard
+              title="Last block commit time"
+              value={`${blockCommitTime?.toFormat() ?? '-'}`}
+              warning={blockCommitTime?.isGreaterThan(5000)}
+            />
             <ValIndicatorCard
               title="Missed blocks counted"
               value={`${lsv.missingBlockCounter}`}

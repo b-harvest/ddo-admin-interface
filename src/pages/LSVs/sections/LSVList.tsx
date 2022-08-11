@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
@@ -7,6 +8,8 @@ import { useHistory } from 'react-router-dom'
 import type { LSV } from 'types/lsv'
 
 type LSVAdditional = {
+  blockCommitTime: BigNumber | undefined
+  blockCommitTimeLabel: string
   aliasLabel: JSX.Element
   statusTag: JSX.Element | null
   filter?: string[]
@@ -23,17 +26,28 @@ export default function LSVList({
 }) {
   const allLSVTableList = useMemo<(LSV & LSVAdditional)[]>(() => {
     return list.map((item) => {
+      const blockCommitTime = item.lastProposingBlock
+        ? new BigNumber(item.lastProposingBlock.blockCommitTime)
+        : undefined
+      const blockCommitTimeLabel = blockCommitTime?.toFormat() ?? '-'
+
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
 
       const jailedTag = item.jailed ? <Tag status="error">Jailed</Tag> : null
       const commissionTag = item.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
       const lowVotingTag = item.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
+      const slowBlockTimeTag =
+        blockCommitTime && blockCommitTime.isGreaterThan(5000) ? (
+          <Tag status="warning">Block commit time {'>'} 5s</Tag>
+        ) : null
+
       const statusTag =
-        jailedTag || commissionTag || lowVotingTag ? (
+        jailedTag || commissionTag || lowVotingTag || slowBlockTimeTag ? (
           <div className="flex flex-col justify-end items-end gap-y-1">
             {jailedTag}
             {commissionTag}
             {lowVotingTag}
+            {slowBlockTimeTag}
           </div>
         ) : (
           <Tag status="success">Good</Tag>
@@ -41,6 +55,8 @@ export default function LSVList({
 
       return {
         ...item,
+        blockCommitTime,
+        blockCommitTimeLabel,
         aliasLabel,
         statusTag,
         filter: item.immediateKickout ? ['kickout'] : ['safe'],
@@ -64,7 +80,6 @@ export default function LSVList({
       list={allLSVTableList}
       defaultSortBy={'kickout'}
       defaultIsSortASC={false}
-      nowrap={true}
       onRowClick={onRowClick}
       fields={[
         {
@@ -77,20 +92,14 @@ export default function LSVList({
         {
           label: 'Operator address',
           value: 'valOperAddr',
-          widthRatio: 30,
-          responsive: true,
-        },
-        {
-          label: 'Missed blocks',
-          value: 'missingBlockCounter',
-          widthRatio: 2,
-          align: 'center',
+          abbrOver: 4,
+          widthRatio: 4,
           responsive: true,
         },
         {
           label: 'Jail time',
           value: 'jailUntilTimestamp',
-          align: 'center',
+          type: 'number',
           widthRatio: 2,
           responsive: true,
         },
@@ -101,6 +110,28 @@ export default function LSVList({
           neutral: true,
           widthRatio: 2,
           responsive: true,
+        },
+        {
+          label: 'Block commit time (ms)',
+          value: 'blockCommitTimeLabel',
+          sortValue: 'blockCommitTime',
+          type: 'number',
+          widthRatio: 6,
+          responsive: true,
+        },
+        {
+          label: 'Missed blocks',
+          value: 'missingBlockCounter',
+          type: 'number',
+          widthRatio: 2,
+          responsive: true,
+        },
+        {
+          label: 'Voting rate',
+          value: 'votingRate',
+          type: 'change',
+          neutral: true,
+          widthRatio: 2,
         },
         {
           label: 'Status',

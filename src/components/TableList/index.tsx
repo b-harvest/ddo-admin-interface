@@ -153,7 +153,10 @@ export default function TableList<T>({
                         flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
                         justifyContent: field.align
                           ? getFlexAlign(field.align)
-                          : field.type === 'bignumber' || field.type === 'usd' || field.type === 'change'
+                          : field.type === 'bignumber' ||
+                            field.type === 'usd' ||
+                            field.type === 'change' ||
+                            field.type === 'number'
                           ? 'flex-end'
                           : 'flex-start',
                       }}
@@ -180,7 +183,10 @@ export default function TableList<T>({
                           }%`,
                           justifyContent: field.align
                             ? getFlexAlign(field.align)
-                            : field.type === 'bignumber' || field.type === 'usd'
+                            : field.type === 'bignumber' ||
+                              field.type === 'usd' ||
+                              field.type === 'change' ||
+                              field.type === 'number'
                             ? 'flex-end'
                             : 'flex-start',
                         }}
@@ -318,7 +324,10 @@ function ListItem<T extends TableListItem>({
                 flexShrink: field.type === 'imgUrl' ? '0' : '1',
                 justifyContent: field.align
                   ? getFlexAlign(field.align)
-                  : field.type === 'bignumber' || field.type === 'usd' || field.type === 'change'
+                  : field.type === 'bignumber' ||
+                    field.type === 'usd' ||
+                    field.type === 'change' ||
+                    field.type === 'number'
                   ? 'flex-end'
                   : 'flex-start',
               }}
@@ -356,7 +365,10 @@ function ListItem<T extends TableListItem>({
                     flexShrink: field.type === 'imgUrl' ? '0' : '1',
                     justifyContent: field.align
                       ? getFlexAlign(field.align)
-                      : field.type === 'bignumber' || field.type === 'usd'
+                      : field.type === 'bignumber' ||
+                        field.type === 'usd' ||
+                        field.type === 'change' ||
+                        field.type === 'number'
                       ? 'flex-end'
                       : 'flex-start',
                   }}
@@ -425,9 +437,9 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
         {changeValue}%
       </div>
     )
-  } else if (typeof value === 'string') {
+  } else if ((typeof value === 'string' || typeof value === 'number') && field.type === 'number') {
     return (
-      <div title={value} className="TYPO-BODY-XS md:TYPO-BODY-S">
+      <div title={value + ''} className="FONT-MONO TYPO-BODY-XS md:TYPO-BODY-S">
         {value}
       </div>
     )

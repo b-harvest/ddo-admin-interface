@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { useAllLSV, useAllLSVVote } from 'data/useAPI'
+import useLSVBlockProposing from 'hooks/useLSVBlockProposing'
 import { useCallback, useMemo } from 'react'
 import type { LSV, LSVVote } from 'types/lsv'
 
@@ -21,6 +22,8 @@ function getVoteAlias(option: number): string {
 }
 
 const useLSV = () => {
+  const { blocksCommitTime, isBlocksLCDDataLoading } = useLSVBlockProposing()
+
   const { data: allLSVData, isLoading: allLSVDataLoading } = useAllLSV()
   const { data: allLSVVoteData, isLoading: allLSVVoteDataLoading } = useAllLSVVote()
 
@@ -57,6 +60,9 @@ const useLSV = () => {
         const commission = Number(item.commission) * 100
         const jailed = item.jailUntilTimestamp !== 0
 
+        // block commit time
+        const lastProposingBlock = blocksCommitTime.find((bp) => bp.valHexAddr === item.valHexAddr)
+
         // vote
         const voteData = allLSVVote.find((lsv) => lsv.addr === item.addr)
         const votingRate = voteData ? (voteData.voteCnt / voteData.mustVoteCnt) * 100 : 0
@@ -70,9 +76,10 @@ const useLSV = () => {
           immediateKickout: jailed || commission > 20,
           voteData,
           votingRate,
+          lastProposingBlock,
         }
       }) ?? [],
-    [allLSVData, allLSVVote]
+    [allLSVData, allLSVVote, blocksCommitTime]
   )
 
   const findLSVByAddr = useCallback(
@@ -81,8 +88,8 @@ const useLSV = () => {
   )
 
   const isLoading = useMemo<boolean>(
-    () => allLSVDataLoading || allLSVVoteDataLoading,
-    [allLSVDataLoading, allLSVVoteDataLoading]
+    () => isBlocksLCDDataLoading || allLSVDataLoading || allLSVVoteDataLoading,
+    [isBlocksLCDDataLoading, allLSVDataLoading, allLSVVoteDataLoading]
   )
 
   return { allLSVTimestamp, allLSVVoteTimestamp, allLSVVote, allLSV, findLSVByAddr, isLoading }
