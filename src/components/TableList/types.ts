@@ -51,6 +51,13 @@ export interface ListFieldObj extends Omit<ListFieldHTML, 'type'> {
 
 export interface ListFieldStringNumber extends Omit<ListFieldHTML, 'type'> {
   type: 'number'
+  gt?: number
+  gtCSS?: string
+  lt?: number
+  ltCSS?: string
+  et?: number
+  etCSS?: string
+  animate?: boolean
 }
 
 export type ListField =

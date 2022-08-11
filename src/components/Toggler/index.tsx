@@ -38,11 +38,11 @@ export default function Toggler<T>({
     <div
       className={`text-[rgba(0,0,0,0.2)] dark:text-[rgba(255,255,255,0.3)] hover:text-[rgba(0,0,0,0.7)] dark:hover:text-[rgba(255,255,255,0.7)] ${className}`}
     >
-      {label ? <div className="text-left py-2">{label}</div> : null}
+      {label ? <div className="text-left whitespace-pre py-2">{label}</div> : null}
       <div
         className={`${
           getVerticalIfMobile ? 'flex-col space-y-1 md:flex-row md:space-y-0' : ''
-        } w-full flex justify-between items-center px-2 py-1 bg-[#EAEAEA] dark:bg-black rounded-lg p-1 cursor-pointer`}
+        } w-full flex justify-center items-center px-2 py-1 bg-[#EAEAEA] dark:bg-black rounded-lg p-1 cursor-pointer`}
         onClick={handleClick}
       >
         {tabItems[selectedIndex].label}

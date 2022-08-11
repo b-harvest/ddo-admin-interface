@@ -127,14 +127,14 @@ export default function LSVDetail() {
             <ValIndicatorCard title="Jail time" value={`${lsv.jailUntilTimestamp}`} error={lsv.jailed} />
             <ValIndicatorCard title="Commission rate" value={`${lsv.commission}%`} error={lsv.commission > 20} />
             <ValIndicatorCard
-              title="Last block commit time"
-              value={`${blockCommitTime?.toFormat() ?? '-'}`}
-              warning={blockCommitTime?.isGreaterThan(5000)}
-            />
-            <ValIndicatorCard
               title="Missed blocks counted"
               value={`${lsv.missingBlockCounter}`}
               warning={lsv.missingBlockCounter > 0}
+            />
+            <ValIndicatorCard
+              title="Last block commit time (ms)"
+              value={`${blockCommitTime?.toFormat() ?? '-'}`}
+              warning={blockCommitTime?.isGreaterThan(5000)}
             />
           </section>
 

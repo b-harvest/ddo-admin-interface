@@ -438,8 +438,18 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
       </div>
     )
   } else if ((typeof value === 'string' || typeof value === 'number') && field.type === 'number') {
+    const num = typeof value === 'string' ? value.trim().split(',').join('') : value
+    const isGt = field.gt !== undefined && num > field.gt
+    const isLt = field.lt !== undefined && num < field.lt
+    const isEt = field.et !== undefined && num === field.et
+
     return (
-      <div title={value + ''} className="FONT-MONO TYPO-BODY-XS md:TYPO-BODY-S">
+      <div
+        title={value + ''}
+        className={`FONT-MONO TYPO-BODY-XS md:TYPO-BODY-S ${isGt ? field.gtCSS : ''} ${isLt ? field.ltCSS : ''} ${
+          isEt ? field.etCSS : ''
+        }`}
+      >
         {value}
       </div>
     )

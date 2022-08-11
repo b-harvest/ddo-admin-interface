@@ -47,7 +47,7 @@ export default function LSVList({
             {jailedTag}
             {commissionTag}
             {lowVotingTag}
-            {slowBlockTimeTag}
+            {/* {slowBlockTimeTag} */}
           </div>
         ) : (
           <Tag status="success">Good</Tag>
@@ -112,18 +112,20 @@ export default function LSVList({
           responsive: true,
         },
         {
-          label: 'Block commit time (ms)',
-          value: 'blockCommitTimeLabel',
-          sortValue: 'blockCommitTime',
-          type: 'number',
-          widthRatio: 6,
-          responsive: true,
-        },
-        {
           label: 'Missed blocks',
           value: 'missingBlockCounter',
           type: 'number',
           widthRatio: 2,
+          responsive: true,
+        },
+        {
+          label: 'Block commit time (ms)',
+          value: 'blockCommitTimeLabel',
+          sortValue: 'blockCommitTime',
+          type: 'number',
+          gt: 5000,
+          gtCSS: 'text-error dark:text-warning',
+          widthRatio: 6,
           responsive: true,
         },
         {

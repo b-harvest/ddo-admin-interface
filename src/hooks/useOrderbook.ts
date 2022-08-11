@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import type { DepthByPrice, OrderbooksByPair, OrderLCD, OrderLCDRaw } from 'types/orderbook'
 import { PairDetail } from 'types/pair'
 
-const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 0, numTicks = 1000) => {
+const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 100) => {
   const { data: orderbooksByPairLCDData, isLoading: orderbooksByPairLCDDataLoading } = useOrderbooksByPairIdLCD(
     {
       pairId: pairDetail?.pairId ?? 0,

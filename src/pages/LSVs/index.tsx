@@ -6,6 +6,7 @@ import useLSV from 'hooks/useLSV'
 
 import LSVList from './sections/LSVList'
 import VotingTable from './sections/VotingTable'
+
 export default function LSVs() {
   const { allLSVTimestamp, allLSV, isLoading } = useLSV()
 

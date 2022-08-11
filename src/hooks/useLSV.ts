@@ -87,9 +87,10 @@ const useLSV = () => {
     [allLSV]
   )
 
+  // isBlocksLCDDataLoading
   const isLoading = useMemo<boolean>(
-    () => isBlocksLCDDataLoading || allLSVDataLoading || allLSVVoteDataLoading,
-    [isBlocksLCDDataLoading, allLSVDataLoading, allLSVVoteDataLoading]
+    () => allLSVDataLoading || allLSVVoteDataLoading,
+    [allLSVDataLoading, allLSVVoteDataLoading]
   )
 
   return { allLSVTimestamp, allLSVVoteTimestamp, allLSVVote, allLSV, findLSVByAddr, isLoading }

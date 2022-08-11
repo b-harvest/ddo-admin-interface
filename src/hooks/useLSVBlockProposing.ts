@@ -9,7 +9,7 @@ const useLSVBlockProposing = () => {
   const [latestBlockLCDAtom] = useAtom(latestBlockLCDAtomRef)
 
   const latestHeight = useMemo<number | undefined>(() => {
-    return latestBlockLCDAtom?.block.header.height ? Number(latestBlockLCDAtom.block.header.height) - 1 : undefined
+    return latestBlockLCDAtom?.block.header.height ? Number(latestBlockLCDAtom.block.header.height) : undefined
   }, [latestBlockLCDAtom])
 
   const { data: prev1BlockLCDData, isLoading: prev1BlockLCDDataLoading } = useBlockLCD({
