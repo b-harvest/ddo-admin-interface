@@ -88,7 +88,7 @@ export default function VotingTable({
         isLoading={isLoading}
         nowrap={true}
         overflow={!isTableFitMode}
-        cellMinWidthPx={isTableFitMode ? undefined : 100}
+        cellMinWidthPx={isTableFitMode ? 0 : 130}
         useSearch={true}
         useNarrow={true}
         memo={<VotingOptionsLegend />}
