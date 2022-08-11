@@ -41,7 +41,7 @@ export type BlockProposingLSV = {
   valHexAddr: string
   height: string
   time: string
-  prevBlockTime: string
+  nextBlockTime: string
   blockCommitTime: number
 }
 

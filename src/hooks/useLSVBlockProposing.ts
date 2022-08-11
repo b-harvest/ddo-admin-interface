@@ -12,6 +12,11 @@ const useLSVBlockProposing = () => {
     return latestBlockLCDAtom?.block.header.height ? Number(latestBlockLCDAtom.block.header.height) : undefined
   }, [latestBlockLCDAtom])
 
+  // const { data: latestBlockLCDAtom } = useBlockLCD({
+  //   height: '1783124',
+  // })
+  // const latestHeight = 1783124
+
   const { data: prev1BlockLCDData, isLoading: prev1BlockLCDDataLoading } = useBlockLCD({
     height: latestHeight ? (latestHeight - 1).toString() : '',
     fetch: latestBlockLCDAtom !== undefined,
@@ -79,19 +84,19 @@ const useLSVBlockProposing = () => {
 
   const blocksCommitTime = useMemo<BlockProposingLSV[]>(() => {
     return [
-      mapBlockProposingData(latestBlockLCDAtom, prev1BlockLCDData),
-      mapBlockProposingData(prev1BlockLCDData, prev2BlockLCDData),
-      mapBlockProposingData(prev2BlockLCDData, prev3BlockLCDData),
-      mapBlockProposingData(prev3BlockLCDData, prev4BlockLCDData),
-      mapBlockProposingData(prev4BlockLCDData, prev5BlockLCDData),
-      mapBlockProposingData(prev5BlockLCDData, prev6BlockLCDData),
-      mapBlockProposingData(prev6BlockLCDData, prev7BlockLCDData),
-      mapBlockProposingData(prev7BlockLCDData, prev8BlockLCDData),
-      mapBlockProposingData(prev8BlockLCDData, prev9BlockLCDData),
-      mapBlockProposingData(prev9BlockLCDData, prev10BlockLCDData),
-      mapBlockProposingData(prev10BlockLCDData, prev11BlockLCDData),
-      mapBlockProposingData(prev11BlockLCDData, prev12BlockLCDData),
-      mapBlockProposingData(prev12BlockLCDData, prev13BlockLCDData),
+      mapBlockProposingData(prev1BlockLCDData, latestBlockLCDAtom),
+      mapBlockProposingData(prev2BlockLCDData, prev1BlockLCDData),
+      mapBlockProposingData(prev3BlockLCDData, prev2BlockLCDData),
+      mapBlockProposingData(prev4BlockLCDData, prev3BlockLCDData),
+      mapBlockProposingData(prev5BlockLCDData, prev4BlockLCDData),
+      mapBlockProposingData(prev6BlockLCDData, prev5BlockLCDData),
+      mapBlockProposingData(prev7BlockLCDData, prev6BlockLCDData),
+      mapBlockProposingData(prev8BlockLCDData, prev7BlockLCDData),
+      mapBlockProposingData(prev9BlockLCDData, prev8BlockLCDData),
+      mapBlockProposingData(prev10BlockLCDData, prev9BlockLCDData),
+      mapBlockProposingData(prev11BlockLCDData, prev10BlockLCDData),
+      mapBlockProposingData(prev12BlockLCDData, prev11BlockLCDData),
+      mapBlockProposingData(prev13BlockLCDData, prev12BlockLCDData),
     ].filter(isBlockProposingLSV)
   }, [
     latestBlockLCDAtom,
@@ -147,19 +152,19 @@ const useLSVBlockProposing = () => {
 
 export default useLSVBlockProposing
 
-function mapBlockProposingData(currBlockLCD?: BlockLCD, prevBlockLCD?: BlockLCD): BlockProposingLSV | undefined {
-  if (!(currBlockLCD && prevBlockLCD)) return undefined
+function mapBlockProposingData(currBlockLCD?: BlockLCD, nextBlockLCD?: BlockLCD): BlockProposingLSV | undefined {
+  if (!(currBlockLCD && nextBlockLCD)) return undefined
 
   const valHexAddr = currBlockLCD.block.header.proposer_address
   const height = currBlockLCD.block.header.height
   const time = currBlockLCD.block.header.time
-  const prevBlockTime = prevBlockLCD.block.header.time
-  const blockCommitTime = new Date(time).getTime() - new Date(prevBlockTime).getTime()
+  const nextBlockTime = nextBlockLCD.block.header.time
+  const blockCommitTime = new Date(nextBlockTime).getTime() - new Date(time).getTime()
   return {
     valHexAddr,
     height,
     time,
-    prevBlockTime,
+    nextBlockTime,
     blockCommitTime,
   }
 }
