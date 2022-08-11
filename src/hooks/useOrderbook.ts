@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import type { DepthByPrice, OrderbooksByPair, OrderLCD, OrderLCDRaw } from 'types/orderbook'
 import { PairDetail } from 'types/pair'
 
-const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 0, numTicks = 100) => {
+const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 0, numTicks = 1000) => {
   const { data: orderbooksByPairLCDData, isLoading: orderbooksByPairLCDDataLoading } = useOrderbooksByPairIdLCD(
     {
       pairId: pairDetail?.pairId ?? 0,
@@ -63,13 +63,13 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 0, numTicks = 1
 
       const upperBoundOrders = allOrderbooks.order_books.map((orderbook) =>
         orderbook.sells.filter(
-          (sell) => sell.price.isLessThan(upperBoundPrice) && sell.price.isGreaterThanOrEqualTo(lastPrice)
+          (sell) => sell.price.isLessThanOrEqualTo(upperBoundPrice) && sell.price.isGreaterThanOrEqualTo(lastPrice)
         )
       )
 
       const lowerBoundOrders = allOrderbooks.order_books.map((orderbook) =>
         orderbook.buys.filter(
-          (buy) => buy.price.isGreaterThan(lowerBoundPrice) && buy.price.isLessThanOrEqualTo(lastPrice)
+          (buy) => buy.price.isGreaterThanOrEqualTo(lowerBoundPrice) && buy.price.isLessThanOrEqualTo(lastPrice)
         )
       )
 
@@ -78,7 +78,7 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 0, numTicks = 1
           (accm, order) => accm.plus(order.user_order_amount.plus(order.pool_order_amount).multipliedBy(order.price)),
           new BigNumber(0)
         )
-        return total.plus(cost).dp(pairDetail?.quoteAsset.exponent ?? 18, BigNumber.ROUND_UP)
+        return total.plus(cost)
       }, new BigNumber(0))
 
       const lowerDepthCost = lowerBoundOrders.reduce((total, orders) => {
@@ -86,7 +86,7 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 0, numTicks = 1
           (accm, order) => accm.plus(order.user_order_amount.plus(order.pool_order_amount).multipliedBy(order.price)),
           new BigNumber(0)
         )
-        return total.plus(cost).dp(pairDetail?.quoteAsset.exponent ?? 18, BigNumber.ROUND_UP)
+        return total.plus(cost)
       }, new BigNumber(0))
 
       const quotePriceOracle = pairDetail?.quoteAsset.live?.priceOracle ?? 0
@@ -124,12 +124,13 @@ function mapDepthChartList(orders: OrderLCD[], type: 'sell' | 'buy'): DepthByPri
 
   const mapped = draft.map((item, index) => {
     const prevs: BigNumber[] = []
-    for (let i = 0; i < index; i += 1) prevs.push(orders[i].user_order_amount.plus(orders[i].pool_order_amount))
-    const prevDepth = prevs.reduce((accm, prev) => accm.plus(prev), new BigNumber(0))
+    for (let i = 0; i < index; i += 1)
+      prevs.push(draft[i].user_order_amount.plus(draft[i].pool_order_amount).multipliedBy(draft[i].price))
 
+    const prevDepth = prevs.reduce((accm, prev) => accm.plus(prev), new BigNumber(0))
     const currDepth = {
       price: item.price,
-      depth: item.user_order_amount.plus(item.pool_order_amount).plus(prevDepth),
+      depth: item.user_order_amount.plus(item.pool_order_amount).multipliedBy(item.price).plus(prevDepth),
     }
 
     return currDepth

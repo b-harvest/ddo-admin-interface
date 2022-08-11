@@ -143,12 +143,12 @@ export default function Pair() {
                 }`}
               >
                 <Indicator title="Depth" light={true} className="TYPO-BODY-L !font-bold">
-                  <div className="FONT-MONO text-error">
-                    <span className="TYPO-BODY-XS mr-2">+2%</span>
+                  <div className="FONT-MONO">
+                    <span className="TYPO-BODY-XS text-error mr-2">+2%</span>
                     {formatUSDAmount({ value: depthCost?.upperDepthCostUSD, mantissa: 0 })}
                   </div>
-                  <div className="FONT-MONO text-success">
-                    <span className="TYPO-BODY-XS mr-2">-2%</span>
+                  <div className="FONT-MONO">
+                    <span className="TYPO-BODY-XS text-success mr-2">-2%</span>
                     {formatUSDAmount({ value: depthCost?.lowerDepthCostUSD, mantissa: 0 })}
                   </div>
                 </Indicator>

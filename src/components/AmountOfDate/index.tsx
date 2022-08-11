@@ -13,7 +13,7 @@ export default function AmountOfDate({
   hideAbbr = false,
 }: {
   title?: string
-  value: BigNumber
+  value?: BigNumber
   valueCSS?: string
   dateLabel: string
   light?: boolean
