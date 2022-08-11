@@ -21,8 +21,8 @@ import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import type { LSV } from 'types/lsv'
 import { openProposalById } from 'utils/browser'
+import { openExplorerByHeight } from 'utils/browser'
 import { abbrOver } from 'utils/text'
-
 type LSVVoteRecord = {
   proposalId: number
   title: string
@@ -41,6 +41,7 @@ export default function LSVDetail() {
   const lsv = useMemo<LSV | undefined>(() => findLSVByAddr(id), [id, findLSVByAddr])
 
   const blockCommitTime = lsv?.lastProposingBlock ? new BigNumber(lsv.lastProposingBlock.blockCommitTime) : undefined
+  const proposingBlockHeight = lsv?.lastProposingBlock?.height ?? '-'
 
   const jailedTag = lsv?.jailed ? <Tag status="error">Jailed</Tag> : null
   const commissionTag = lsv?.commission && lsv.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
@@ -122,7 +123,7 @@ export default function LSVDetail() {
             <ValAddr title="Address          " addr={lsv.addr} />
           </section>
 
-          <section className="flex flex-col md:flex-row items-stretch md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-10">
+          <section className="flex flex-col md:flex-row items-stretch space-y-4 md:space-y-0 md:space-x-4 mb-10">
             {/* <ValIndicatorCard title="CRE" value={`${lsv.tokens.toFormat()}`} /> */}
             <ValIndicatorCard title="Jail time" value={`${lsv.jailUntilTimestamp}`} error={lsv.jailed} />
             <ValIndicatorCard title="Commission rate" value={`${lsv.commission}%`} error={lsv.commission > 20} />
@@ -135,6 +136,8 @@ export default function LSVDetail() {
               title="Last block commit time (ms)"
               value={`${blockCommitTime?.toFormat() ?? '-'}`}
               warning={blockCommitTime?.isGreaterThan(5000)}
+              label={`height ${proposingBlockHeight}`}
+              onLabelClick={() => openExplorerByHeight(proposingBlockHeight)}
             />
           </section>
 
@@ -230,11 +233,15 @@ function ValAddr({ title, addr }: { title: string; addr: string }) {
 
 function ValIndicatorCard({
   title,
+  label,
+  onLabelClick,
   value,
   error,
   warning,
 }: {
   title: string
+  label?: string
+  onLabelClick?: (label: string) => void
   value: string
   error?: boolean
   warning?: boolean
@@ -242,7 +249,17 @@ function ValIndicatorCard({
   return (
     <Card useGlassEffect={true} className="grow shrink basis-auto md:basis-[33%]">
       <Indicator title={title} light={true} className="TYPO-BODY-L !font-bold">
-        <div className={`FONT-MONO ${error ? 'text-error' : warning ? 'text-warning' : ''}`}>{value}</div>
+        <div className="">
+          <div className={`FONT-MONO ${error ? 'text-error' : warning ? 'text-warning' : ''}`}>{value}</div>
+          {label ? (
+            <div
+              className={`TYPO-BODY-XS text-grayCRE-300 mt-1 ${onLabelClick ? 'cursor-pointer' : ''}`}
+              onClick={onLabelClick ? () => onLabelClick(label) : undefined}
+            >
+              {label}
+            </div>
+          ) : null}
+        </div>
       </Indicator>
     </Card>
   )

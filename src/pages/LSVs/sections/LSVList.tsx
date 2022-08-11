@@ -93,7 +93,7 @@ export default function LSVList({
           label: 'Operator address',
           value: 'valOperAddr',
           abbrOver: 4,
-          widthRatio: 4,
+          widthRatio: 2,
           responsive: true,
         },
         {
