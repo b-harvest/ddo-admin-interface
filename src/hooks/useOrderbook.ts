@@ -15,6 +15,11 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
     5000
   )
 
+  const priceUnit = useMemo<BigNumber>(() => {
+    const priceUnit = orderbooksByPairLCDData?.pairs[0]?.order_books[0]?.price_unit
+    return new BigNumber(priceUnit ?? 0.01)
+  }, [orderbooksByPairLCDData])
+
   const allOrderbooks = useMemo<OrderbooksByPair | undefined>(() => {
     const pair = orderbooksByPairLCDData?.pairs[0]
     if (!pair) return undefined
@@ -47,11 +52,26 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
         []
       ) ?? []
 
+    const basePrice = allOrderbooks?.base_price
+    const dp = Math.abs(priceUnit.e ?? 0)
+    const buyStartTick = basePrice?.dp(dp, BigNumber.ROUND_DOWN) ?? new BigNumber(0)
+    const sellStartTick = basePrice?.dp(dp, BigNumber.ROUND_UP) ?? new BigNumber(0)
+
+    const buyEndTick = buys[0]?.price ?? new BigNumber(0)
+    const sellEndTick = sells.at(-1)?.price ?? new BigNumber(0)
+    const buyGap = buyEndTick.minus(buyStartTick).absoluteValue()
+    const sellGap = sellEndTick.minus(sellStartTick).absoluteValue()
+
+    const tickCnt = (buyGap.isGreaterThan(sellGap) ? buyGap : sellGap)
+      .div(priceUnit)
+      .dp(0, BigNumber.ROUND_UP)
+      .toNumber()
+
     return {
-      sells: mapDepthChartList(sells, 'sell'),
-      buys: mapDepthChartList(buys, 'buy'),
+      buys: mapDepthChartList(buys, priceUnit, tickCnt, buyStartTick, 'buy'),
+      sells: mapDepthChartList(sells, priceUnit, tickCnt, sellStartTick, 'sell'),
     }
-  }, [allOrderbooks])
+  }, [allOrderbooks, priceUnit])
 
   const getDepthCost = useCallback(
     (depth: number) => {
@@ -118,23 +138,56 @@ function retypeOrder(order: OrderLCDRaw, exponent: number): OrderLCD {
   }
 }
 
-function mapDepthChartList(orders: OrderLCD[], type: 'sell' | 'buy'): DepthByPrice[] {
+function mapDepthChartList(
+  orders: OrderLCD[],
+  priceUnit: BigNumber,
+  tickCnt: number,
+  startTick: BigNumber,
+  type: 'sell' | 'buy'
+): DepthByPrice[] {
   const isSell = type === 'sell'
-  const draft = isSell ? orders : orders.slice().reverse()
 
-  const mapped = draft.map((item, index) => {
-    const prevs: BigNumber[] = []
-    for (let i = 0; i < index; i += 1)
-      prevs.push(draft[i].user_order_amount.plus(draft[i].pool_order_amount).multipliedBy(draft[i].price))
-
-    const prevDepth = prevs.reduce((accm, prev) => accm.plus(prev), new BigNumber(0))
-    const currDepth = {
-      price: item.price,
-      depth: item.user_order_amount.plus(item.pool_order_amount).multipliedBy(item.price).plus(prevDepth),
+  // get all ticks
+  const ticks: BigNumber[] = []
+  for (let i = 0; i <= tickCnt; i += 1) {
+    if (i === 0) {
+      ticks.push(startTick)
+    } else {
+      const newTick = isSell ? ticks[i - 1].plus(priceUnit) : ticks[i - 1].minus(priceUnit)
+      ticks.push(newTick)
     }
+  }
 
-    return currDepth
+  // mapping
+  const draftMap = orders
+    .map((item) => ({
+      price: item.price,
+      amount: item.user_order_amount.plus(item.pool_order_amount),
+    }))
+    .reduce((accm, item) => {
+      accm.set(item.price.toString(), item.amount)
+      return accm
+    }, new Map<string, BigNumber>())
+
+  const drafts = ticks.map((tick) => {
+    return {
+      price: tick,
+      amount: draftMap.get(tick.toString()) ?? new BigNumber(0),
+    }
   })
 
-  return isSell ? mapped : mapped.slice().reverse()
+  const depth = drafts.map((item, index) => {
+    const prevs: BigNumber[] = []
+    for (let i = 0; i < index; i += 1) prevs.push(drafts[i].amount.multipliedBy(drafts[i].price))
+
+    const prevDepth = prevs.reduce((accm, prev) => accm.plus(prev), new BigNumber(0))
+    const currDepth = item.amount.multipliedBy(item.price).plus(prevDepth)
+
+    return {
+      price: item.price,
+      depth: currDepth,
+    }
+  })
+
+  return isSell ? depth : depth.slice().reverse()
 }

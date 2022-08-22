@@ -73,7 +73,7 @@ export default function TwoLineChart({
         setValue(newValue)
       }
 
-      if (setLabel && props.isTooltipActive && label !== props.activeLabel) {
+      if (setLabel && props?.isTooltipActive && label !== props?.activeLabel) {
         setLabel((props.activeLabel as number | undefined) ?? 0)
       }
     },
@@ -185,7 +185,7 @@ export default function TwoLineChart({
                   type="monotone"
                   stroke={color1}
                   fill={transparentize(0.9, color1)}
-                  strokeWidth={2}
+                  strokeWidth={1}
                   cursor={onClick ? 'pointer' : 'default'}
                 />
                 <Area
@@ -193,7 +193,7 @@ export default function TwoLineChart({
                   type="monotone"
                   stroke={color2}
                   fill={transparentize(0.9, color2)}
-                  strokeWidth={2}
+                  strokeWidth={1}
                   cursor={onClick ? 'pointer' : 'default'}
                 />
               </AreaChart>
