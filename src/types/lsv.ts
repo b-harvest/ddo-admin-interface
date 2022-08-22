@@ -14,6 +14,7 @@ export interface LSVRaw {
   missingBlockCounter: number
   alias: string
   commission: string
+  penaltyTotal: number
 }
 
 // vote

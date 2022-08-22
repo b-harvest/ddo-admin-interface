@@ -74,8 +74,8 @@ export default function LSVList({
       title="All LSV"
       isLoading={isLoading}
       showTitle={false}
-      useSearch={true}
       useNarrow={true}
+      useSearch={true}
       memo={<TimestampMemo timestamp={timestamp} />}
       list={allLSVTableList}
       defaultSortBy={'kickout'}
@@ -90,18 +90,12 @@ export default function LSVList({
           widthRatio: 10,
         },
         {
-          label: 'Operator address',
-          value: 'valOperAddr',
-          abbrOver: 4,
-          widthRatio: 2,
-          responsive: true,
-        },
-        {
           label: 'Jail time',
           value: 'jailUntilTimestamp',
           type: 'number',
           widthRatio: 2,
           responsive: true,
+          assertThoughResponsive: true,
         },
         {
           label: 'Commission',
@@ -110,6 +104,7 @@ export default function LSVList({
           neutral: true,
           widthRatio: 2,
           responsive: true,
+          assertThoughResponsive: true,
         },
         {
           label: 'Missed blocks',
@@ -117,6 +112,7 @@ export default function LSVList({
           type: 'number',
           widthRatio: 2,
           responsive: true,
+          assertThoughResponsive: true,
         },
         {
           label: 'Block commit time (ms)',
@@ -127,6 +123,7 @@ export default function LSVList({
           gtCSS: 'text-error dark:text-warning',
           widthRatio: 6,
           responsive: true,
+          assertThoughResponsive: true,
         },
         {
           label: 'Voting rate',
@@ -134,6 +131,18 @@ export default function LSVList({
           type: 'change',
           neutral: true,
           widthRatio: 2,
+          responsive: true,
+          assertThoughResponsive: true,
+        },
+        {
+          label: 'Penalty',
+          value: 'penaltyTotal',
+          type: 'number',
+          gt: 0,
+          gtCSS: 'text-error dark:text-warning',
+          widthRatio: 2,
+          responsive: true,
+          assertThoughResponsive: true,
         },
         {
           label: 'Status',
@@ -141,6 +150,7 @@ export default function LSVList({
           sortValue: 'kickout',
           type: 'html',
           align: 'right',
+          responsive: true,
         },
       ]}
     />
