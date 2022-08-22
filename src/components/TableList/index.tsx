@@ -206,7 +206,7 @@ export default function TableList<T>({
 
           {/* data list */}
           {isLoading ? (
-            <EmptyData isLoading={true} loadingRowsCnt={12} />
+            <EmptyData isLoading={true} loadingRowsCnt={12} useNarrow={useNarrow} />
           ) : (
             <>
               <div>

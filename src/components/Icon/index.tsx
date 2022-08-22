@@ -18,6 +18,7 @@ import { MdExpandLess, MdExpandMore, MdOutlineContentCopy, MdOutlineSearch } fro
 import { MdAccessTime } from 'react-icons/md'
 import { MdCalendarToday } from 'react-icons/md'
 import { RiArrowLeftRightLine, RiZzzLine } from 'react-icons/ri'
+import { RiQuestionLine } from 'react-icons/ri'
 import { SiDiscord, SiGitbook, SiHiveBlockchain } from 'react-icons/si'
 
 export type IconType =
@@ -62,6 +63,7 @@ export type IconType =
   | 'abstain'
   | 'hyphen'
   | 'exclamation'
+  | 'question'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -105,6 +107,7 @@ const Icons: { [key: string]: React.ElementType } = {
   abstain: FaAdn,
   hyphen: HiOutlineMinusSm,
   exclamation: AiOutlineExclamation,
+  question: RiQuestionLine,
 }
 
 interface IconProps {

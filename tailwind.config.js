@@ -49,6 +49,8 @@ module.exports = {
         info: '#608CFF',
         'info-light': 'rgba(230, 236, 252, 1)',
         'info-o': 'rgba(96, 140, 255, 0.1)',
+        danger: '#B00020',
+        dangerDark: '#700115',
       },
       boxShadow: {
         'normal-l': '0px 0px 5px 2px rgba(0, 0, 0, 0.1)',

@@ -23,6 +23,9 @@ import type { LSV } from 'types/lsv'
 import { openProposalById } from 'utils/browser'
 import { openExplorerByHeight } from 'utils/browser'
 import { abbrOver } from 'utils/text'
+
+import LSVPenalty from './sections/LSVPenalty'
+
 type LSVVoteRecord = {
   proposalId: number
   title: string
@@ -123,8 +126,8 @@ export default function LSVDetail() {
             <ValAddr title="Address          " addr={lsv.addr} />
           </section>
 
+          {/* Indicators */}
           <section className="flex flex-col md:flex-row items-stretch space-y-4 md:space-y-0 md:space-x-4 mb-10">
-            {/* <ValIndicatorCard title="CRE" value={`${lsv.tokens.toFormat()}`} /> */}
             <ValIndicatorCard title="Jail time" value={`${lsv.jailUntilTimestamp}`} error={lsv.jailed} />
             <ValIndicatorCard title="Commission rate" value={`${lsv.commission}%`} error={lsv.commission > 20} />
             <ValIndicatorCard
@@ -142,7 +145,10 @@ export default function LSVDetail() {
           </section>
 
           <Hr />
+          <LSVPenalty address={lsv?.addr ?? ''} />
+          <Hr />
 
+          {/* Voting History */}
           <section className="pt-8">
             <H3 title="Voting History" />
             <div className="mt-2 mb-4">

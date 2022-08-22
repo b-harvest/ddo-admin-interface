@@ -7,7 +7,7 @@ import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { BlockEventIndicatorsRaw, BlocksEventsRaw, BlocksFlushRaw } from 'types/block'
 import type { ChainInfo, ChainLive } from 'types/chain'
 import type { LiquidStakeRaw } from 'types/liquidStake'
-import type { LSVRaw, LSVVoteRaw } from 'types/lsv'
+import type { LSVEventRaw, LSVRaw, LSVVoteRaw } from 'types/lsv'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
@@ -82,6 +82,11 @@ export function useAllLSV(interval = 0) {
 
 export function useAllLSVVote(interval = 0) {
   const { data, error }: ResponseViaSWR<LSVVoteRaw[]> = useInfoSWR('/a1/lsv/vote', { interval })
+  return returnGenerator({ data, error })
+}
+
+export function useLSVEventByAddr({ address }: { address: string }, interval = 0) {
+  const { data, error }: ResponseViaSWR<LSVEventRaw[]> = useInfoSWR(`/a1/lsv/event/${address}`, { interval })
   return returnGenerator({ data, error })
 }
 
