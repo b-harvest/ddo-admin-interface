@@ -73,13 +73,16 @@ export default function Ranks({
         {
           label: 'Last change block',
           value: 'lastAct',
-          align: 'right',
+          type: 'number',
+          align: 'center',
+          widthRatio: 4,
           responsive: true,
         },
         {
           label: amountLabel ?? 'Amount',
           value: 'usd',
           type: 'usd',
+          widthRatio: 10,
         },
       ]}
     />
