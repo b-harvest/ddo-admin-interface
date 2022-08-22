@@ -40,7 +40,7 @@ export default function SelectTab<T>({
         <Tab.List
           className={`${
             getVerticalIfMobile ? 'flex-col space-y-1 md:flex-row md:space-y-0' : ''
-          } w-full flex justify-between items-center px-2 py-1 bg-[#EAEAEA] dark:bg-black rounded-lg p-1`}
+          } w-full flex-wrap flex justify-between items-center px-2 py-1 bg-[#EAEAEA] dark:bg-black rounded-lg p-1`}
         >
           {tabItems.map((tabItem) => (
             <Tab

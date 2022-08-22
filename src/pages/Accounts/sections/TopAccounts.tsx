@@ -77,7 +77,7 @@ export default function TopAccounts() {
 
   return (
     <>
-      <div className="flex justify-between items-center space-x-4 mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-4">
         <H3 title={`Top ${ranks.length ? ranks.length : ''}`} />
         <div className="grow shrink md:grow-0 md:shrink-0">
           <SelectTab<string>
