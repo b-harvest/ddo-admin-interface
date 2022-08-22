@@ -5,81 +5,69 @@ import useAccounts from 'hooks/useAccounts'
 import usePages from 'pages/hooks/usePages'
 import { useEffect, useMemo, useState } from 'react'
 import type { RankData } from 'types/accounts'
+import { firstCharToUpperCase } from 'utils/text'
 
 import Ranks from './../components/Ranks'
 
-export enum RankType {
-  FarmStaking = 'farming',
-  Balance = 'balance',
-  Total = 'total',
-}
-
-const TOP_ACCOUNTS_TYPE_TAB_ITEMS = [
-  {
-    label: 'Farming',
-    value: RankType.FarmStaking,
-  },
-  {
-    label: 'Balance',
-    value: RankType.Balance,
-  },
-  {
-    label: 'Total',
-    value: RankType.Total,
-  },
-]
-
 export default function TopAccounts() {
-  // route data
-  const { history, searchMap } = usePages()
+  // fetch data
+  const { rankTypes, getRanks, isLoading } = useAccounts()
 
-  const searchRankType = useMemo<RankType | undefined>(() => {
-    const search = searchMap?.get('rank')
-    const i = search ? (Object.values(RankType) as string[]).indexOf(search) : -1
-    const key = Object.keys(RankType)[i]
-    return RankType[key]
-  }, [searchMap])
+  // rank tab selectors
+  const rankTypeTabItems = useMemo<{ label: string; value: string }[]>(
+    () => rankTypes.map((item) => ({ label: firstCharToUpperCase(item), value: item })),
+    [rankTypes]
+  )
 
-  // rank type
-  const [rankType, setRankType] = useState<RankType>(searchRankType ?? RankType.Total)
-  const handleRankTypeSelect = (value: RankType) => {
+  // selected rank type
+  const [rankType, setRankType] = useState<string>(rankTypes[0] ?? 'total')
+  const handleRankTypeSelect = (value: string) => {
     history.push(`/accounts?rank=${value}`)
     setRankType(value)
   }
 
+  // route data
+  const { history, searchMap } = usePages()
+  const searchRankType = useMemo<string | undefined>(() => {
+    const search = searchMap?.get('rank')
+    return search && rankTypes.includes(search) ? search : undefined
+  }, [searchMap, rankTypes])
+
   useEffect(() => {
     if (searchRankType) setRankType(searchRankType)
   }, [searchRankType])
-
-  // fetch data
-  const {
-    farmRanks,
-    farmRanksTimestamp,
-    balanceRanks,
-    balanceRanksTimestamp,
-    totalRanks,
-    totalRanksTimestamp,
-    isLoading,
-  } = useAccounts()
-
-  const farmRanksTime = useMemo(() => <TimestampMemo timestamp={farmRanksTimestamp} />, [farmRanksTimestamp])
-  const balanceRanksTime = useMemo(() => <TimestampMemo timestamp={balanceRanksTimestamp} />, [balanceRanksTimestamp])
-  const totalRanksTime = useMemo(() => <TimestampMemo timestamp={totalRanksTimestamp} />, [totalRanksTimestamp])
 
   const { ranks, ranksTime, amountLabel } = useMemo<{
     ranks: RankData[]
     ranksTime: JSX.Element
     amountLabel: string
   }>(() => {
+    const { ranks, timestamp } = getRanks(rankType)
+    let amountLabel: string
+
     switch (rankType) {
-      case RankType.FarmStaking:
-        return { ranks: farmRanks, ranksTime: farmRanksTime, amountLabel: 'Farm staked amount' }
-      case RankType.Balance:
-        return { ranks: balanceRanks, ranksTime: balanceRanksTime, amountLabel: 'Balance' }
-      case RankType.Total:
-        return { ranks: totalRanks, ranksTime: totalRanksTime, amountLabel: 'Farm staked + balance' }
+      case 'farming':
+        amountLabel = 'Farm staked amount'
+        break
+      case 'balance':
+        amountLabel = 'Balance'
+        break
+      case 'module':
+        amountLabel = 'Module balance'
+        break
+      case 'total':
+        amountLabel = 'Farm staked + balance'
+        break
+      default:
+        amountLabel = ''
     }
-  }, [farmRanks, farmRanksTime, balanceRanks, balanceRanksTime, totalRanks, totalRanksTime, rankType])
+
+    return {
+      ranks,
+      ranksTime: <TimestampMemo timestamp={timestamp} />,
+      amountLabel,
+    }
+  }, [getRanks, rankType])
 
   // loader
   const [showLoader, setShowLoader] = useState<boolean>(true)
@@ -92,8 +80,8 @@ export default function TopAccounts() {
       <div className="flex justify-between items-center space-x-4 mb-4">
         <H3 title={`Top ${ranks.length ? ranks.length : ''}`} />
         <div className="grow shrink md:grow-0 md:shrink-0">
-          <SelectTab<RankType>
-            tabItems={TOP_ACCOUNTS_TYPE_TAB_ITEMS}
+          <SelectTab<string>
+            tabItems={rankTypeTabItems}
             selectedValue={rankType}
             onChange={handleRankTypeSelect}
             className="!TYPO-BODY-S"
