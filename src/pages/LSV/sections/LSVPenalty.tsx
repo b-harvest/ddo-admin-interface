@@ -283,7 +283,10 @@ function ValPenaltyCard({
       </Card>
 
       <Card useGlassEffect={true} className="rounded-md grow-0 shrink-0 basis-auto md:basis-[10%] flex justify-center">
-        <div className="TYPO-BODY-XS FONT-MONO text-center" onClick={() => openExplorerByHeight(height.toString())}>
+        <div
+          className="TYPO-BODY-XS FONT-MONO text-center cursor-pointer"
+          onClick={() => openExplorerByHeight(height.toString())}
+        >
           {height}
         </div>
       </Card>
