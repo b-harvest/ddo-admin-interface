@@ -58,7 +58,9 @@ export default function Modal({
         <Card
           useGlassEffect={false}
           saturated={true}
-          className={`w-[80%] md:w-[400px] shadow-2xl p-8 ${active ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+          className={`w-[calc(100%-2rem)] md:w-[400px] shadow-2xl px-6 py-8 ${
+            active ? 'opacity-100 visible' : 'opacity-0 invisible'
+          }`}
           style={{ transform: active ? `translateY(0)` : `translateY(40px)`, transition: 'all 0.25s' }}
         >
           {children}
@@ -66,7 +68,7 @@ export default function Modal({
             <div>
               <Button size="xs" color="transparent" label="←" onClick={handleClose} isLoading={isLoading} />
             </div>
-            <div className="w-[50%] flex justify-start-end items-center gap-2">
+            <div className="min-w-[50%] flex justify-start-end items-center gap-2">
               {onNo ? (
                 <Button
                   size="xs"
@@ -74,6 +76,7 @@ export default function Modal({
                   label={noButtonLabel ?? 'Discard'}
                   onClick={onNo}
                   isLoading={isLoading}
+                  disabled={true}
                 />
               ) : null}
               {onOk ? (
@@ -83,6 +86,7 @@ export default function Modal({
                   label={okButtonLabel ?? 'Confirm'}
                   onClick={onOk}
                   isLoading={isLoading}
+                  disabled={true}
                 />
               ) : null}
             </div>

@@ -145,7 +145,7 @@ export default function LSVDetail() {
           </section>
 
           <Hr />
-          <LSVPenalty address={lsv?.addr ?? ''} />
+          <LSVPenalty address={lsv.addr} penaltyPoint={lsv.penaltyTotal} />
           <Hr />
 
           {/* Voting History */}
