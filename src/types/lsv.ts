@@ -159,3 +159,19 @@ export type LSVEventRaw =
   | LSVEventBadPerformance
   | LSVEventReliabilityWarn
   | LSVEventVoteWarn
+
+export type LSVEvent = Omit<LSVEventRaw, 'confirmTimestamp'> & {
+  confirmTimestamp: number
+}
+
+export type LSVPenaltyConfirmPost = {
+  eid: number
+  msg?: string
+  result: 'y' | 'n' | 'd'
+}
+
+export type LSVPenaltyWarnPost = {
+  addr: string
+  desc: string
+  proposalId?: number
+}

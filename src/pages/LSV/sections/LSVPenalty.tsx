@@ -1,21 +1,32 @@
+import BigNumber from 'bignumber.js'
 import Button from 'components/Button'
 import Card from 'components/Card'
 import CopyHelper from 'components/CopyHelper'
 import EmptyData from 'components/EmptyData'
 import H3 from 'components/H3'
 import H4 from 'components/H4'
-import Icon from 'components/Icon'
-import Indicator from 'components/Indicator'
-// import TableList from 'components/TableList'
+import Input from 'components/Inputs/Input'
+import Textarea from 'components/Inputs/Textarea'
+import Modal from 'components/Modal'
+import QuestionTooltip from 'components/QuestionTooltip'
+import SelectTab from 'components/SelectTab'
+import Tag from 'components/Tag'
 import Tooltip from 'components/Tooltip'
+import { TIMESTAMP_FORMAT } from 'constants/time'
+import dayjs from 'dayjs'
+// import TableList from 'components/TableList'
 import useLSVEvent from 'hooks/useLSVEvent'
 import { useState } from 'react'
-import type { LSVEventRaw } from 'types/lsv'
+import type { LSVEvent, LSVEventType, LSVPenaltyConfirmPost, LSVPenaltyWarnPost } from 'types/lsv'
 import { openExplorerByHeight } from 'utils/browser'
+
+const FIELD_CSS = 'TYPO-BODY-S text-grayCRE-400 dark:text-grayCRE-300 !font-medium'
+const MANUAL_LSV_EVENTS: LSVEventType[] = ['reliabiity_warning', 'vote_warning', 'reliability_penalty', 'vote_penalty']
+type PenaltyValueType = 'percentage' | 'string' | 'number' | 'desc'
 
 export default function LSVPenalty({ address }: { address: string }) {
   // events
-  const { getLSVEvents } = useLSVEvent(address)
+  const { getLSVEvents, isLoading } = useLSVEvent(address)
   const evtsCommissionChanged = getLSVEvents('commssion_changed')
   const evtsJailed = getLSVEvents('jailed')
   const evtsBlockMissing = getLSVEvents('block_missing')
@@ -26,70 +37,123 @@ export default function LSVPenalty({ address }: { address: string }) {
   const evtsVoteWarn = getLSVEvents('vote_warning')
   const evtsVotePenalty = getLSVEvents('vote_penalty')
 
+  const [modal, setModal] = useState<boolean>(false)
+  const [isModalLoading, setIsModalLoading] = useState<boolean>(false)
+
+  const [modalSelected, setModalSelected] = useState<'Reliability' | 'Engagement'>('Reliability')
+
+  const [modalProposalId, setModalProposalId] = useState<string>('')
+  const [modalMemo, setModalMemo] = useState<string>('')
+
+  const onClose = () => {
+    setModal(false)
+    setIsModalLoading(false)
+  }
+
+  const onWarn = () => {
+    setIsModalLoading(true)
+    const postData: LSVPenaltyWarnPost = {
+      addr: address,
+      desc: modalMemo,
+      proposalId: Number(modalProposalId) ?? undefined,
+    }
+  }
+
+  const onWarnClick = () => {
+    setModal(true)
+  }
+
   return (
     <>
       {/* Immediate Kickout */}
-      <section>
-        <H3 title="Immediate Kickout" className="mt-8 mb-4" />
+      <div className="flex flex-col md:flex-row justify-start items-center gap-4 mt-8 mb-8">
+        <H3 title="Immediate Kickout / 3SO" className="" />
+        <div className="grow-0 shrink-0 basis-[10%] px-4">
+          <Button size="xs" label="+ Warn" onClick={onWarnClick} isLoading={isModalLoading} />
+        </div>
+      </div>
 
-        <ValPenaltySection
-          title="Jailed"
-          desc="Jail time has ever changed out of 0"
-          cardTitle="Jail time"
-          events={evtsJailed}
-          valueKey="jailUntilTimestamp"
-        />
-        <ValPenaltySection
-          title="Commission"
-          desc={`Over a week since named as LSV, \nthe validator has ever had commision rate ≠ 20%`}
-          cardTitle="Commission rate(%)"
-          events={evtsCommissionChanged}
-          valueKey="commision"
-        />
+      <section className="space-y-1 mb-10">
+        <div className={`hidden md:flex flex-row justify-between items-stretch gap-1 ${FIELD_CSS}`}>
+          <div className="grow-0 shrink-0 basis-auto md:basis-[14%] px-4">Observation item</div>
+          <div className="grow-0 shrink-0 basis-auto md:basis-[10%] px-4 text-center">Height</div>
+          <div className="grow shrink basis-auto w-full px-4">Details</div>
+          <div className="grow-0 shrink-0 basis-auto md:basis-[14%] px-4 flex gap-2 items-center">
+            <span>By</span>{' '}
+            <QuestionTooltip desc={`Who registered/confirmed the penalty,\n@crescent.foundation elliptical`} />
+          </div>
+          <div className="grow-0 shrink-0 basis-auto md:basis-[12%] px-4 text-center">Type</div>
+          <div className="grow-0 shrink-0 basis-auto md:basis-[10%] px-4"></div>
+        </div>
+
+        {isLoading ? (
+          <EmptyData isLoading={isLoading} />
+        ) : (
+          <>
+            <ValPenaltySection
+              title="Jailed"
+              desc="Jail time has ever changed out of 0"
+              events={evtsJailed}
+              valueKeys={[{ key: 'jailUntilTimestamp', type: 'number' }]}
+            />
+            <ValPenaltySection
+              title="Commission"
+              desc={`Over a week since named as LSV, \nthe validator has ever had commision rate ≠ 20%`}
+              events={evtsCommissionChanged}
+              valueKeys={[{ key: 'commision', alias: 'Commission rate', type: 'percentage' }]}
+            />
+            <ValPenaltySection
+              title="Stability"
+              desc={`Over 10% of 30,000 blocks missed`}
+              events={evtsBlockMissing}
+              valueKeys={[{ key: 'percentage', alias: 'Block missing', type: 'percentage' }]}
+            />
+            <ValPenaltySection
+              title="Sustainability"
+              desc={`Been over 6 hours since last block-signing`}
+              events={evtsNoSigning}
+              valueKeys={[{ key: 'last_height', alias: 'Last signing height', type: 'number' }]}
+            />
+            <ValPenaltySection
+              title="Performance"
+              desc={`The sum of latest 50 blocks' txs comes ≤ 5`}
+              events={evtsBadPerformance}
+              valueKeys={[]}
+            />
+            <ValPenaltySection
+              title="Reliability"
+              desc={`1-striked when meets 2 items out of the following\n• Binary upgrade in 3 hours\n• Emergency response in 12 hours\n• Node config upgrade in 24 hours`}
+              events={evtsReliabilityWarn.concat(evtsReliabilityPenalty)}
+              valueKeys={[{ key: 'desc', alias: '', type: 'desc' }]}
+            />
+
+            <ValPenaltySection
+              title="Engagement"
+              desc={`1-striked when comes under one of the following\n• Been warned but still does not vote\n• Voting rate is < 50%\n• Has abstained habitually`}
+              events={evtsVoteWarn.concat(evtsVotePenalty)}
+              valueKeys={[{ key: 'desc', alias: '', type: 'desc' }]}
+            />
+          </>
+        )}
       </section>
 
-      {/* 3SO */}
-      <section>
-        <H3 title="3SO" className="mt-8 mb-4" />
-
-        <ValPenaltySection
-          title="Stability"
-          desc={`Over 10% of 30,000 blocks missed`}
-          cardTitle="missed blocks (%)"
-          events={evtsBlockMissing}
-          valueKey="percentage"
-        />
-        <ValPenaltySection
-          title="Sustainability"
-          desc={`Been over 6 hours since last block-signing`}
-          cardTitle="Last block height"
-          events={evtsNoSigning}
-          valueKey="last_height"
-        />
-        <ValPenaltySection
-          title="Performance"
-          desc={`The sum of latest 50 blocks' txs comes ≤ 5`}
-          cardTitle="Bad performance"
-          events={evtsBadPerformance}
-          valueKey=""
-        />
-        <ValPenaltySection
-          title="Reliability"
-          desc={`1-striked when meets 2 items out of the following\n• Binary upgrade in 3 hours\n• Emergency response in 12 hours\n• Node config upgrade in 24 hours`}
-          cardTitle="Description"
-          events={evtsReliabilityWarn.concat(evtsReliabilityPenalty)}
-          valueKey="desc"
-          postable={true}
-        />
-        <ValPenaltySection
-          title="Engagement"
-          desc={`1-striked when comes under one of the following\n• Been warned but still does not vote\n• Voting rate is < 50%\n• Has abstained habitually`}
-          cardTitle="Description"
-          events={evtsVoteWarn.concat(evtsVotePenalty)}
-          valueKey="desc"
-          postable={true}
-        />
-      </section>
+      <Modal active={modal} onClose={onClose} onOk={onWarn} okButtonLabel="Warn" isLoading={isModalLoading}>
+        <H4 title="Give warning" className="mb-4" />
+        <div className="space-y-4">
+          <SelectTab
+            tabItems={[
+              { label: 'Reliability', value: 'Reliability' },
+              { label: 'Engagement', value: 'Engagement' },
+            ]}
+            selectedValue={modalSelected}
+            onChange={setModalSelected}
+          />
+          {modalSelected === 'Engagement' && (
+            <Input type="number" placeholder="Proposal ID" keyword={modalProposalId} onChange={setModalProposalId} />
+          )}
+          <Textarea placeholder="Describe warning" keyword={modalMemo} onChange={setModalMemo} />
+        </div>
+      </Modal>
     </>
   )
 }
@@ -99,231 +163,214 @@ function ValPenaltySection({
   title,
   cardTitle,
   desc,
-  valueKey,
+  valueKeys,
   postable,
 }: {
-  events: LSVEventRaw[]
+  events: LSVEvent[]
   title: string
-  cardTitle: string
+  cardTitle?: string
   desc: string
-  valueKey: string
+  valueKeys: { key: string; type: PenaltyValueType; alias?: string }[]
   postable?: boolean
 }) {
-  const handlePostWarn = () => {
-    console.log('warn clicked')
+  const [modal, setModal] = useState<boolean>(false)
+  const [isModalLoading, setIsModalLoading] = useState<boolean>(false)
+
+  const [modalMemo, setModalMemo] = useState<string>('')
+
+  const onClose = () => {
+    setModal(false)
+    setIsModalLoading(false)
   }
 
-  // const tableList = useMemo(() => {
-  //   return events.map((item) => ({
-  //     ...item,
-  //     ...(item.rawJson ?? {}),
-  //     [valueKey]: item.rawJson?.[valueKey] ?? '✓',
-  //     button: (
-  //       <Button
-  //         size="sm"
-  //         color="danger"
-  //         label={'Confirm'}
-  //         disabled={false}
-  //         isLoading={false}
-  //         onClick={() => console.log('tmp')}
-  //       />
-  //     ),
-  //   }))
-  // }, [events, valueKey])
+  const onConfirm = () => {
+    setIsModalLoading(true)
+    const postData: LSVPenaltyConfirmPost = {
+      eid: events[0].eid,
+      msg: modalMemo,
+      result: 'y',
+    }
+  }
+
+  const onDiscard = () => {
+    setIsModalLoading(true)
+    const postData: LSVPenaltyConfirmPost = {
+      eid: events[0].eid,
+      msg: modalMemo,
+      result: 'd',
+    }
+  }
 
   return (
-    <div className="flex flex-col items-stretch gap-4 mb-10">
-      <div className="flex justify-start items-center gap-4">
-        <div className="flex justify-start items-center gap-2">
-          <H4 title={title} />
-          <Tooltip content={desc}>
-            <Icon type="question" className="text-grayCRE-300 hover:text-grayCRE-200 dark:hover:text-grayCRE-400" />
-          </Tooltip>
-        </div>
-        {postable && (
-          <div>
-            <Button
-              size="xs"
-              color="tranparent"
-              label={'→ Warn'}
-              disabled={false}
-              isLoading={false}
-              onClick={handlePostWarn}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* {tableList.length ? (
-        <TableList
-          showTitle={false}
-          useSearch={false}
-          useNarrow={true}
-          list={tableList}
-          fields={[
-            {
-              label: 'Height',
-              value: 'height',
-              type: 'number',
-              align: 'left',
-            },
-            {
-              label: cardTitle,
-              value: valueKey,
-              type: 'html',
-            },
-            {
-              label: '',
-              value: 'button',
-              type: 'html',
-              align: 'right',
-            },
-          ]}
-        />
-      ) : (
-        <EmptyData label="NA" useNarrow={true} />
-      )} */}
-
+    <>
       {events.length ? (
-        events.map((event) => <ValPenaltyCard key={event.eid} title={cardTitle} event={event} valueKey={valueKey} />)
-      ) : (
-        <EmptyData label="NA" useGlassEffect={true} />
-      )}
-    </div>
+        <>
+          <div className="flex flex-col items-stretch gap-1">
+            {events.map((event) => (
+              <ValPenaltyCard
+                key={event.eid}
+                title={title}
+                desc={desc}
+                event={event}
+                valueKeys={valueKeys}
+                onButtonClick={() => setModal(true)}
+              />
+            ))}
+          </div>
+
+          <Modal active={modal} onClose={onClose} onOk={onConfirm} onNo={onDiscard} isLoading={isModalLoading}>
+            <H4 title="Confirm penalty or discard" className="mb-4" />
+            <div className="space-y-4">
+              <div className="flex justify-start items-center gap-2">
+                <span className={FIELD_CSS}>Penalty point {events[0].penaltyPoint}</span>
+                {events[0].penaltyPoint === 3 ? (
+                  <Tag status="error">Immediate kickout</Tag>
+                ) : (
+                  <Tag status="warning">1 Strike</Tag>
+                )}
+              </div>
+
+              <Textarea placeholder="Memo" keyword={modalMemo} onChange={setModalMemo} />
+            </div>
+          </Modal>
+        </>
+      ) : null}
+    </>
   )
+  // <EmptyData label="NA" useGlassEffect={true} />
 }
 
 function ValPenaltyCard({
   title,
   event,
-  valueKey,
-  error,
-  warning,
+  desc,
+  valueKeys,
   buttonLabel = 'Confirm',
-  onButtonClick = () => console.log('clicked'),
+  onButtonClick,
 }: {
   title: string
-  event: LSVEventRaw
-  valueKey: string
+  desc: string
+  event: LSVEvent
+  valueKeys: { key: string; type: PenaltyValueType; alias?: string }[]
   error?: boolean
   warning?: boolean
   buttonLabel?: string
-  onButtonClick?: () => void
+  onButtonClick: () => void
 }) {
-  const value = event.rawJson?.[valueKey] ?? '☹'
+  const values = valueKeys.map((valueKey) => ({
+    ...valueKey,
+    value: event.rawJson?.[valueKey.key] ?? '☹',
+  }))
+
   const height = event.height
-  const onHeightClick = (height: number) => {
-    if (height) openExplorerByHeight(height.toString())
-  }
 
-  const confirmId = event.confirmId
+  type LSVPenaltyType = 'warning' | 'penalty'
+  const isManual = MANUAL_LSV_EVENTS.includes(event.event)
+  const type = (isManual ? event.event.split('_')[1] : 'warning') as LSVPenaltyType
+  const typeCSS = type === 'warning' ? 'text-warning' : 'text-error'
+
   const regId = event.regId
-
+  const confirmId = event.confirmId
   const confirmed = event.confirmResult === 'y'
 
-  const [confirmTried, setConfirmTried] = useState<boolean>(false)
-  const [discardTried, setDiscardTried] = useState<boolean>(false)
-
-  const handleConfirm = () => {
-    if (confirmTried) {
-      setConfirmTried(false)
-      if (onButtonClick) onButtonClick()
-    } else {
-      setConfirmTried(true)
-    }
-  }
-
-  const handleDiscard = () => {
-    if (discardTried) {
-      setDiscardTried(false)
-      if (onButtonClick) onButtonClick()
-    } else {
-      setDiscardTried(true)
-    }
-  }
-
   return (
-    <Card useGlassEffect={true} className="grow shrink basis-auto md:basis-[33%]">
-      <Indicator title={title} light={true} className="TYPO-BODY-L !font-bold">
-        <div className="w-full flex flex-col md:flex-row items-start md:items-end gap-4">
-          <div className="w-full grow shrink">
-            <div className={`FONT-MONO text-left ${error ? 'text-error' : warning ? 'text-warning' : ''}`}>
-              {value ?? '-'}
-            </div>
-            {height ? (
-              <div className={`TYPO-BODY-S text-grayCRE-300 mt-1 cursor-pointer`} onClick={() => onHeightClick(height)}>
-                height {height}
-              </div>
-            ) : null}
-            {regId && regId !== 'n' ? (
-              <div className={`TYPO-BODY-XS text-grayCRE-300 mt-1 cursor-pointer`}>
-                <CopyHelper toCopy={regId} iconPosition="left">
-                  <span className="text-grayCRE-200 dark:text-grayCRE-400 whitespace-pre">post by </span>
-                  {regId}
-                </CopyHelper>
-              </div>
-            ) : null}
-            {confirmed && confirmId ? (
-              <div className={`TYPO-BODY-XS text-grayCRE-300 mt-1 cursor-pointer`}>
-                <CopyHelper toCopy={confirmId} iconPosition="left">
-                  <span className="text-grayCRE-200 dark:text-grayCRE-400 whitespace-pre">confirmed by </span>{' '}
-                  {confirmId}
-                </CopyHelper>
-              </div>
-            ) : null}
-          </div>
-          {event ? (
-            <div className="w-full flex justify-end">
-              <div className="flex gap-2 w-max">
-                {discardTried && (
-                  <Button
-                    size="sm"
-                    color="neutral"
-                    label={'Back'}
-                    isLoading={false}
-                    onClick={() => setDiscardTried(false)}
-                  />
-                )}
-                {!confirmed && !confirmTried && (
-                  <Button
-                    size="sm"
-                    color="neutral"
-                    label={discardTried ? `Are you sure to discard warning?` : 'Discard'}
-                    disabled={confirmed}
-                    isLoading={false}
-                    onClick={handleDiscard}
-                  />
-                )}
-                {confirmTried && (
-                  <Button
-                    size="sm"
-                    color="danger"
-                    label={'Back'}
-                    isLoading={false}
-                    onClick={() => setConfirmTried(false)}
-                  />
-                )}
-                {!discardTried && (
-                  <Button
-                    size="sm"
-                    color="danger"
-                    label={
-                      confirmed
-                        ? 'Confirmed'
-                        : confirmTried
-                        ? `Are you sure to give penalty +${event.penaltyPoint}?`
-                        : buttonLabel
-                    }
-                    disabled={confirmed}
-                    isLoading={false}
-                    onClick={handleConfirm}
-                  />
-                )}
-              </div>
-            </div>
-          ) : null}
+    <div className="flex flex-col md:flex-row justify-between items-stretch gap-1">
+      <Card useGlassEffect={true} className="rounded-md grow-0 shrink-0 basis-auto md:basis-[14%] flex justify-center">
+        <div className="flex justify-start items-center gap-2">
+          <div className={FIELD_CSS}>{title}</div>
+          <QuestionTooltip desc={desc} />
         </div>
-      </Indicator>
-    </Card>
+      </Card>
+
+      <Card useGlassEffect={true} className="rounded-md grow-0 shrink-0 basis-auto md:basis-[10%] flex justify-center">
+        <div className="TYPO-BODY-XS FONT-MONO text-center" onClick={() => openExplorerByHeight(height.toString())}>
+          {height}
+        </div>
+      </Card>
+
+      <Card useGlassEffect={true} className="rounded-md grow shirnk w-full">
+        {values.map((value) => (
+          <div key={value.value} className="w-full flex justify-between items-center gap-2">
+            <div className={FIELD_CSS}>{value.alias ?? value.key}</div>
+            <div className={`${getValueCSS(value.type)} text-left`}>{getValue(value.value, value.type)}</div>
+          </div>
+        ))}
+      </Card>
+
+      <Card useGlassEffect={true} className="rounded-md grow-0 shrink-0 basis-auto md:basis-[14%] flex justify-center">
+        <div className="TYPO-BODY-S">
+          <CopyHelper toCopy={getAdminId(confirmId ?? regId) === '-' ? '' : confirmId ?? regId} iconPosition="left">
+            {' '}
+            {getAdminId(confirmId ?? regId)}
+          </CopyHelper>
+        </div>
+      </Card>
+
+      <Card
+        useGlassEffect={true}
+        className="rounded-md grow-0 shrink-0 basis-auto md:basis-[12%] text-center flex justify-center"
+      >
+        <div className={`${typeCSS} TYPO-BODY-S`}>
+          <Tooltip
+            content={
+              confirmed
+                ? `${event.confirmMsg.length ? event.confirmMsg : 'No memo'}\nConfirmed ${dayjs(
+                    event.confirmTimestamp
+                  ).format(TIMESTAMP_FORMAT)}`
+                : ''
+            }
+          >
+            {type}
+          </Tooltip>
+        </div>
+      </Card>
+
+      <div className="grow-0 shrink-0 basis-auto md:basis-[10%] flex justify-center items-center px-4">
+        <Button
+          size="xs"
+          color={confirmed ? 'neutral' : 'primary'}
+          label={confirmed ? 'Confirmed' : 'Manage'}
+          disabled={confirmed}
+          isLoading={false}
+          onClick={onButtonClick}
+        />
+      </div>
+    </div>
   )
+}
+
+function getAdminId(id: string): string {
+  if (id === 'n') return '-'
+  const adminId = id.split('@')[0] ?? id
+  return adminId
+}
+
+function getValueCSS(type: PenaltyValueType): string {
+  switch (type) {
+    case 'percentage':
+      return `FONT-MONO TYPO-BODY-S`
+    case 'number':
+      return `FONT-MONO TYPO-BODY-S`
+    case 'string':
+      return `TYPO-BODY-S`
+    case 'desc':
+      return `text-left TYPO-BODY-S w-full`
+    default:
+      return `TYPO-BODY-S`
+  }
+}
+
+function getValue(value: any, type: PenaltyValueType): string {
+  if (value !== 0 && !value) return '-'
+
+  switch (type) {
+    case 'percentage':
+      return `${new BigNumber(value * 100).dp(2).toFormat()}%`
+    case 'number':
+      return value
+    case 'string':
+      return value
+    default:
+      return value
+  }
 }

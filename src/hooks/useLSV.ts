@@ -22,7 +22,8 @@ function getVoteAlias(option: number): string {
 }
 
 const useLSV = () => {
-  const { blocksCommitTime, isBlocksLCDDataLoading } = useLSVBlockProposing()
+  // isBlocksLCDDataLoading
+  const { blocksCommitTime } = useLSVBlockProposing()
 
   const { data: allLSVData, isLoading: allLSVDataLoading } = useAllLSV()
   const { data: allLSVVoteData, isLoading: allLSVVoteDataLoading } = useAllLSVVote()
