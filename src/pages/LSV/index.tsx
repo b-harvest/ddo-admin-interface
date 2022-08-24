@@ -15,19 +15,27 @@ import { SAFE_VOTING_RATE } from 'constants/lsv'
 import { DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
+import useLSVEvent from 'hooks/useLSVEvent'
 import useProposal from 'hooks/useProposal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import type { LSV } from 'types/lsv'
+import type { ProposalStatus } from 'types/proposal'
 import { openProposalById } from 'utils/browser'
 import { openExplorerByHeight } from 'utils/browser'
 import { abbrOver } from 'utils/text'
 
+import LSVVotingWarnButton from './components/LSVVotingWarnButton'
+import LSVWarnedModal from './components/LSVWarnedModal'
+import LSVWarningModal from './components/LSVWarningModal'
 import LSVPenalty from './sections/LSVPenalty'
 
 type LSVVoteRecord = {
   proposalId: number
+  status: ProposalStatus
+  statusLabel: JSX.Element | null
   title: string
   optionLabel: JSX.Element | null
   option: number
@@ -35,7 +43,7 @@ type LSVVoteRecord = {
   weight?: BigNumber | undefined
   votingEndTime: number
   votingEndTimeLabel: string
-  liveTag: JSX.Element | null
+  warnLabel: JSX.Element | null
 }
 
 export default function LSVDetail() {
@@ -68,38 +76,72 @@ export default function LSVDetail() {
     )
 
   // voting history
-  const { allProposals } = useProposal()
+  const { votePenalties, isLoading: isLSVEventDataLoading } = useLSVEvent(lsv?.addr ?? '')
+
+  // modal
+  // const [isModalLoading, setIsModalLoading] = useState<boolean>(false)
+  const [modalProposalId, setModalProposalId] = useState<number | undefined>()
+
+  const [warnedModal, setWarnedModal] = useState<boolean>(false)
+  const [warningModal, setWarningModal] = useState<boolean>(false)
+
+  const handleWarnButtonClick = ({ proposalId, warned }: { proposalId: number; warned: boolean }) => {
+    setModalProposalId(proposalId)
+    warned ? setWarnedModal(true) : setWarningModal(true)
+  }
+
+  const { allProposals, getStatusTagByProposal } = useProposal()
   const engagementTableList = useMemo<LSVVoteRecord[]>(() => {
     return lsv
       ? allProposals.map((proposal) => {
-          const proposalId = Number(proposal.proposal_id)
-          const title = proposal.content.title
+          const proposalId = Number(proposal.proposalId)
+          const status = proposal.proposal.status
+          const statusLabel = getStatusTagByProposal(proposal.proposalId)
+          const title = proposal.proposal.content.title
           const vote = lsv.voteData?.votes.find((v) => v.proposalId === proposalId)
 
-          const na = lsv.lsvStartTimestamp > new Date(proposal.voting_end_time).getTime()
+          const na = lsv.lsvStartTimestamp > new Date(proposal.proposal.voting_end_time).getTime()
           const option = na ? 6 : vote?.vote.option ?? 5
           const optionLabel = <VotingOptionIcon option={option} />
-          const votingEndTime = new Date(proposal.voting_end_time).getTime()
-          const votingEndTimeLabel = dayjs(proposal.voting_end_time).format(DATE_FORMAT)
-          const liveTag = votingEndTime >= new Date().getTime() ? <Tag status="info">Live</Tag> : null
+          const votingEndTime = new Date(proposal.proposal.voting_end_time).getTime()
+          const votingEndTimeLabel = dayjs(proposal.proposal.voting_end_time).format(DATE_FORMAT)
           const weight = vote ? new BigNumber(vote.vote.weight) : undefined
+
+          const penalties = votePenalties.filter((item) => item.rawJson?.proposalId === proposalId)
+          const warned = penalties.findIndex((item) => item.event === 'vote_warning') > -1
+          const penalized = penalties.findIndex((item) => item.event === 'vote_penalty') > -1
+
+          const warnLabel = lsv ? (
+            <LSVVotingWarnButton
+              warned={warned}
+              penalized={penalized}
+              onClick={() => handleWarnButtonClick({ proposalId, warned: warned || penalized })}
+            />
+          ) : null
 
           return {
             ...vote?.vote,
             proposalId,
+            status,
+            statusLabel,
             title,
             option,
             optionLabel,
             votingEndTime,
             votingEndTimeLabel,
-            liveTag,
             weight,
+            warnLabel,
           }
         })
       : []
-  }, [allProposals, lsv])
+  }, [allProposals, lsv, getStatusTagByProposal])
 
-  const onCellClick = (cell: any, field: string, row: LSVVoteRecord) => openProposalById(row.proposalId)
+  const onCellClick = (cell: any, field: string, row: LSVVoteRecord) => {
+    if (['proposalId', 'title'].includes(field)) {
+      openProposalById(row.proposalId)
+    } else if (['votingEndTimeLabel', 'statusLabel', 'optionLabel', 'weight'].includes(field)) {
+    }
+  }
 
   return (
     <AppPage>
@@ -148,9 +190,9 @@ export default function LSVDetail() {
           <LSVPenalty address={lsv.addr} penaltyPoint={lsv.penaltyTotal} />
           <Hr />
 
-          {/* Voting History */}
+          {/* Voting */}
           <section className="pt-8">
-            <H3 title="Voting History" />
+            <H3 title="Voting" />
             <div className="mt-2 mb-4">
               <span className="TYPO-BODY-S mr-2">Participated</span>
               <span title={lsv.addr} className="FONT-MONO">
@@ -184,19 +226,20 @@ export default function LSVDetail() {
                   clickable: true,
                 },
                 {
-                  label: 'Vote ended',
+                  label: 'Closing date',
                   value: 'votingEndTimeLabel',
                   sortValue: 'votingEndTime',
                   widthRatio: 4,
+                  align: 'right',
                   responsive: true,
                   clickable: true,
                 },
                 {
                   label: '',
-                  value: 'liveTag',
-                  sortValue: 'votingEndTime',
+                  value: 'statusLabel',
+                  sortValue: 'status',
                   type: 'html',
-                  widthRatio: 1,
+                  widthRatio: 5,
                   align: 'left',
                   clickable: true,
                 },
@@ -207,14 +250,36 @@ export default function LSVDetail() {
                   widthRatio: 2,
                   type: 'html',
                   align: 'center',
+                  clickable: true,
                 },
                 {
                   label: 'Weight',
                   value: 'weight',
                   type: 'bignumber',
                   widthRatio: 2,
+                  clickable: true,
+                },
+                {
+                  label: 'Warned',
+                  value: 'warnLabel',
+                  type: 'html',
+                  align: 'right',
+                  widthRatio: 6,
                 },
               ]}
+            />
+            <LSVWarnedModal
+              active={warnedModal}
+              lsv={lsv}
+              proposalId={modalProposalId ?? 0}
+              penalties={votePenalties}
+              onClose={() => setWarnedModal(false)}
+            />
+            <LSVWarningModal
+              active={warningModal}
+              lsv={lsv}
+              proposalId={modalProposalId ?? 0}
+              onClose={() => setWarningModal(false)}
             />
           </section>
         </>

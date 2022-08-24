@@ -52,3 +52,5 @@ export const CRE_CHART_COLOR_MAP = [
   '#DDDDDD',
 ]
 export const VIVID_CHART_COLOR_MAP = ['#DDDDDD', '#FFB0ED', '#BEFD72', '#1E57FE', '#AC1EFE', '#FE651E', '#F7FE1E']
+
+export const FIELD_CSS = 'TYPO-BODY-S text-grayCRE-400 dark:text-grayCRE-300 !font-medium'

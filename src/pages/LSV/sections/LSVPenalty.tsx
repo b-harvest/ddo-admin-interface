@@ -21,17 +21,18 @@ import {
   LSV_OBSERVATION_DESC_STABILITY,
   LSV_OBSERVATION_DESC_SUSTAINABILITY,
 } from 'constants/msg'
+import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 // import TableList from 'components/TableList'
 import useLSVEvent from 'hooks/useLSVEvent'
 import { useMemo, useState } from 'react'
-import type { LSVEvent, LSVEventType, LSVPenaltyConfirmPost, LSVPenaltyWarnPost } from 'types/lsv'
+import type { LSVEvent, LSVPenaltyConfirmPost, LSVPenaltyWarnPost } from 'types/lsv'
 import { openExplorerByHeight } from 'utils/browser'
 import { isMobile } from 'utils/userAgent'
 
-const FIELD_CSS = 'TYPO-BODY-S text-grayCRE-400 dark:text-grayCRE-300 !font-medium'
-const MANUAL_LSV_EVENTS: LSVEventType[] = ['reliabiity_warning', 'vote_warning', 'reliability_penalty', 'vote_penalty']
+// const FIELD_CSS = 'TYPO-BODY-S text-grayCRE-400 dark:text-grayCRE-300 !font-medium'
+// const MANUAL_LSV_EVENTS: LSVEventType[] = ['reliabiity_warning', 'vote_warning', 'reliability_penalty', 'vote_penalty']
 type PenaltyValueType = 'percentage' | 'string' | 'number' | 'desc'
 
 const buttonSize = isMobile ? 'md' : 'xs'

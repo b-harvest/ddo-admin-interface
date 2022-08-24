@@ -8,6 +8,7 @@ import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { LSV, Vote } from 'types/lsv'
+import type { ProposalStatus } from 'types/proposal'
 import { isMobile } from 'utils/userAgent'
 
 type LSVVotingRecord = {
@@ -17,7 +18,7 @@ type LSVVotingRecord = {
   optionLabel: JSX.Element
 }
 
-type LSVVotingTableItem = { proposalId: number } & {
+type LSVVotingTableItem = { proposalId: number; status: ProposalStatus; statusLabel: JSX.Element | null } & {
   [key: string]: LSVVotingRecord
 }
 
@@ -30,15 +31,17 @@ export default function VotingTable({
   list: LSV[]
   isLoading: boolean
 }) {
-  const { allProposals } = useProposal()
+  const { allProposals, getStatusTagByProposal } = useProposal()
 
   const allLSVVotingTableList = useMemo<LSVVotingTableItem[]>(() => {
     return allProposals.map((proposal) => {
-      const proposalId = Number(proposal.proposal_id)
+      const proposalId = proposal.proposalId
+      const status = proposal.proposal.status
+      const statusLabel = getStatusTagByProposal(proposal.proposalId)
       const votesByValidator: { [key: string]: LSVVotingRecord } = list
         .map((item) => {
           const vote = item.voteData?.votes.find((vote) => vote.proposalId === proposalId)
-          const na = item.lsvStartTimestamp > new Date(proposal.voting_end_time).getTime()
+          const na = item.lsvStartTimestamp > new Date(proposal.proposal.voting_end_time).getTime()
           const option = na ? 6 : vote?.vote.option ?? 5
           const optionLabel = <VotingOptionIcon option={option} />
 
@@ -46,9 +49,9 @@ export default function VotingTable({
         })
         .reduce((accm, item) => ({ ...accm, ...item }), {})
 
-      return { proposalId, ...votesByValidator } as LSVVotingTableItem
+      return { proposalId, status, statusLabel, ...votesByValidator } as LSVVotingTableItem
     })
-  }, [list, allProposals])
+  }, [list, allProposals, getStatusTagByProposal])
 
   const tableFields = useMemo<ListFieldObj[]>(
     () =>
@@ -103,6 +106,15 @@ export default function VotingTable({
             widthRatio: 1,
             clickable: true,
             excludeMinWidth: true,
+          },
+          {
+            label: '',
+            value: 'statusLabel',
+            sortValue: 'status',
+            type: 'html',
+            widthRatio: 5,
+            align: 'left',
+            clickable: true,
           },
           ...tableFields,
         ]}

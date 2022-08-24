@@ -116,41 +116,46 @@ export interface LSVEventRawBase {
   regId: string
 }
 
-export interface LSVEventCommissionChanged extends LSVEventRawBase {
+export type LSVEventBase = Omit<LSVEventRawBase, 'confirmTimestamp'> & {
+  confirmTimestamp: number
+}
+
+export interface LSVEventCommissionChanged extends LSVEventBase {
   event: 'commssion_changed'
   rawJson: LSVEventRawJsonCommissionChanged | null
 }
 
-export interface LSVEventJailed extends LSVEventRawBase {
+export interface LSVEventJailed extends LSVEventBase {
   event: 'jailed'
   rawJson: LSVEventRawJsonJailed | null
 }
 
-export interface LSVEventBlockMissing extends LSVEventRawBase {
+export interface LSVEventBlockMissing extends LSVEventBase {
   event: 'block_missing'
   rawJson: LSVEventRawJsonBlockMissing | null
 }
 
-export interface LSVEventNoSigning extends LSVEventRawBase {
+export interface LSVEventNoSigning extends LSVEventBase {
   event: 'no_signing'
   rawJson: LSVEventRawJsonNoSigning | null
 }
 
-export interface LSVEventBadPerformance extends LSVEventRawBase {
+export interface LSVEventBadPerformance extends LSVEventBase {
   event: 'bad_performance'
   rawJson: LSVEventRawJsonBadPerformance | null
 }
 
-export interface LSVEventReliabilityWarn extends LSVEventRawBase {
-  event: 'reliabiity_warning'
+export interface LSVEventReliabilityWarn extends LSVEventBase {
+  event: 'reliabiity_warning' | 'reliability_penalty'
   rawJson: LSVEventRawJsonReliabilityWarn | null
 }
 
-export interface LSVEventVoteWarn extends LSVEventRawBase {
-  event: 'vote_warning'
+export interface LSVEventVoteWarn extends LSVEventBase {
+  event: 'vote_warning' | 'vote_penalty'
   rawJson: LSVEventRawJsonVoteWarn | null
 }
 
+// to be del...
 export type LSVEventRaw =
   | LSVEventCommissionChanged
   | LSVEventJailed
@@ -160,10 +165,9 @@ export type LSVEventRaw =
   | LSVEventReliabilityWarn
   | LSVEventVoteWarn
 
-export type LSVEvent = Omit<LSVEventRaw, 'confirmTimestamp'> & {
-  confirmTimestamp: number
-}
+export type LSVEvent = LSVEventRaw
 
+// post
 export type LSVPenaltyConfirmPost = {
   eid: number
   msg?: string

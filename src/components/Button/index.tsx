@@ -60,7 +60,7 @@ function getColorCSS(color: ButtonColor, disabled?: boolean) {
 function getPadCssBySize(size: ButtonSize) {
   switch (size) {
     case 'xs':
-      return 'px-4 py-2 rounded-md TYPO-BODY-S !font-bold'
+      return 'px-4 py-1 rounded-md TYPO-BODY-S !font-bold'
     case 'sm':
       return 'px-4 py-2 rounded-md TYPO-BODY-M !font-bold'
     case 'md':

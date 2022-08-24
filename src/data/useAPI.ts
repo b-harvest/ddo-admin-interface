@@ -10,6 +10,7 @@ import type { LiquidStakeRaw } from 'types/liquidStake'
 import type { LSVEventRaw, LSVRaw, LSVVoteRaw } from 'types/lsv'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
+import type { ProposalRaw } from 'types/proposal'
 
 // hooks
 export function useAllChainInfo(interval = 0) {
@@ -71,6 +72,11 @@ export function useAirdropClaim({ address, fetch = true }: { address: string; fe
     interval,
     fetch,
   })
+  return returnGenerator({ data, error })
+}
+
+export function useProposals({ address = 'anonymous' }: { address?: string }, interval = 0) {
+  const { data, error }: ResponseViaSWR<ProposalRaw[]> = useAppSWR(`/acc/${address}/gov`, { interval })
   return returnGenerator({ data, error })
 }
 

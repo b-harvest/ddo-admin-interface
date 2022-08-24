@@ -17,7 +17,7 @@ export default function IconButton({
   iconClassName = '',
 }: IconButtonProps) {
   return (
-    <button type="button" onClick={onClick} className={`${className} overflow-hidden`}>
+    <button type="button" onClick={onClick} className={`${className} flex justify-center items-center overflow-hidden`}>
       <div className="SCREEN-READER">{label}</div>
       <Icon type={type} className={iconClassName} />
     </button>

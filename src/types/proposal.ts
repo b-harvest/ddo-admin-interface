@@ -49,14 +49,27 @@ export type ProposalResultLCDRaw = {
   no_with_veto: string
 }
 
+export type ProposalStatus =
+  | 'PROPOSAL_STATUS_VOTING_PERIOD'
+  | 'PROPOSAL_STATUS_DEPOSIT_PERIOD'
+  | 'PROPOSAL_STATUS_PASSED'
+  | 'PROPOSAL_STATUS_REJECTED'
+
 export interface ProposalLCDRaw {
   proposal_id: string
   content: ProposalContentLCDRaw
-  status: string
+  status: ProposalStatus
   final_tally_result: ProposalResultLCDRaw
   submit_time: string
   deposit_end_time: string
   total_deposit: TokenAmountSetRaw[]
   voting_start_time: string
   voting_end_time: string
+}
+
+export interface ProposalRaw {
+  proposalId: number
+  proposer: string
+  proposalType: string
+  proposal: ProposalLCDRaw
 }
