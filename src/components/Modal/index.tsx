@@ -1,4 +1,4 @@
-import Button from 'components/Button'
+import Button, { ButtonColor } from 'components/Button'
 import Card from 'components/Card'
 import { ReactNode, useEffect, useLayoutEffect, useState } from 'react'
 
@@ -10,6 +10,8 @@ type ModalProps = {
   onClose?: () => void
   okButtonLabel?: string
   noButtonLabel?: string
+  okButtonColor?: ButtonColor
+  noButtonColor?: ButtonColor
   isLoading: boolean
 }
 
@@ -21,6 +23,8 @@ export default function Modal({
   onClose,
   okButtonLabel,
   noButtonLabel,
+  okButtonColor = 'danger',
+  noButtonColor = 'neutral',
   isLoading,
 }: ModalProps) {
   const [scrollY, setScrollY] = useState<number>(window.scrollY)
@@ -72,7 +76,7 @@ export default function Modal({
               {onNo ? (
                 <Button
                   size="xs"
-                  color="neutral"
+                  color={noButtonColor}
                   label={noButtonLabel ?? 'Discard'}
                   onClick={onNo}
                   isLoading={isLoading}
@@ -82,7 +86,7 @@ export default function Modal({
               {onOk ? (
                 <Button
                   size="xs"
-                  color="danger"
+                  color={okButtonColor}
                   label={okButtonLabel ?? 'Confirm'}
                   onClick={onOk}
                   isLoading={isLoading}

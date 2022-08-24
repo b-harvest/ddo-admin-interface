@@ -5,6 +5,7 @@ import Modal from 'components/Modal'
 import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/msg'
 import { useState } from 'react'
 import type { LSV, LSVPenaltyWarnPost } from 'types/lsv'
+
 export default function LSVWarningModal({
   active,
   lsv,
@@ -46,7 +47,7 @@ export default function LSVWarningModal({
 
   return (
     <Modal active={active} onClose={handleClose} onOk={onSave} okButtonLabel="Save" isLoading={isModalLoading}>
-      <H4 title={`${lsv.alias} warned to vote on #${proposalId}?`} className="mb-4" />
+      <H4 title={`${lsv.alias}, warned to vote on #${proposalId}?`} className="mb-4" />
       <div className="space-y-2">
         <Input type="text" placeholder="Reference link" keyword={modalRefLink} onChange={setModalRefLink} />
         <Textarea placeholder="Memo (optional)" keyword={modalMemo} onChange={setModalMemo} />

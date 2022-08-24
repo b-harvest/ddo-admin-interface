@@ -1,6 +1,14 @@
 import VotingOptionIcon from 'components/VotingOptionIcon'
+import { VOTE_OPTIONS } from 'constants/lsv'
 
-const OPTIONS = [1, 2, 3, 4, 5, 6]
+const OPTIONS: VOTE_OPTIONS[] = [
+  VOTE_OPTIONS.Yes,
+  VOTE_OPTIONS.No,
+  VOTE_OPTIONS.Veto,
+  VOTE_OPTIONS.Abstain,
+  VOTE_OPTIONS.DidNot,
+  VOTE_OPTIONS.NA,
+]
 
 export default function VotingOptionsLegend() {
   return (
@@ -18,17 +26,17 @@ export default function VotingOptionsLegend() {
   )
 }
 
-function getVotingOptionLabel(option: number, mobile: boolean) {
+function getVotingOptionLabel(option: VOTE_OPTIONS, mobile: boolean) {
   switch (option) {
-    case 1:
+    case VOTE_OPTIONS.Yes:
       return mobile ? 'Y' : 'Yes'
-    case 2:
+    case VOTE_OPTIONS.No:
       return mobile ? 'N' : 'No' // no
-    case 3:
+    case VOTE_OPTIONS.Veto:
       return mobile ? 'Veto' : 'No /w veto' // no w/ veto
-    case 4:
+    case VOTE_OPTIONS.Abstain:
       return 'Abstain' // abstain
-    case 5:
+    case VOTE_OPTIONS.DidNot:
       return 'Did not' // didn't vote
     default:
       return 'NA'

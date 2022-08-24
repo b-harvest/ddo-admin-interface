@@ -25,7 +25,7 @@ import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 // import TableList from 'components/TableList'
-import useLSVEvent from 'hooks/useLSVEvent'
+import useLSVPenalty from 'hooks/useLSVPenalty'
 import { useMemo, useState } from 'react'
 import type { LSVEvent, LSVPenaltyConfirmPost, LSVPenaltyWarnPost } from 'types/lsv'
 import { openExplorerByHeight } from 'utils/browser'
@@ -39,7 +39,7 @@ const buttonSize = isMobile ? 'md' : 'xs'
 
 export default function LSVPenalty({ address, penaltyPoint }: { address: string; penaltyPoint: number }) {
   // events
-  const { getLSVEvents, isLoading } = useLSVEvent(address)
+  const { getLSVEvents, isLoading } = useLSVPenalty(address)
   const evtsCommissionChanged = getLSVEvents('commssion_changed')
   const evtsJailed = getLSVEvents('jailed')
   const evtsBlockMissing = getLSVEvents('block_missing')

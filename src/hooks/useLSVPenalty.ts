@@ -1,9 +1,9 @@
-import { useLSVEventByAddr } from 'data/useAPI'
+import { usePenaltiesByLSV } from 'data/useAPI'
 import { useCallback, useMemo } from 'react'
 import type { LSVEventType, LSVEventVoteWarn } from 'types/lsv'
 
-const useLSVEvent = (address: string) => {
-  const { data, isLoading } = useLSVEventByAddr({ address })
+const useLSVPenalty = (address: string) => {
+  const { data, isLoading } = usePenaltiesByLSV({ address })
 
   const getLSVEvents = useCallback(
     (event: LSVEventType) => {
@@ -25,7 +25,12 @@ const useLSVEvent = (address: string) => {
     return voteWarnedList.concat(votePenaltyList)
   }, [getLSVEvents])
 
-  return { getLSVEvents, votePenalties, isLoading }
+  const getVotePenaltiesByProposal = useCallback(
+    (proposalId: number) => votePenalties.filter((item) => item.rawJson?.proposalId === proposalId),
+    [votePenalties]
+  )
+
+  return { getLSVEvents, votePenalties, getVotePenaltiesByProposal, isLoading }
 }
 
-export default useLSVEvent
+export default useLSVPenalty

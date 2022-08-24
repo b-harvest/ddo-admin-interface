@@ -91,7 +91,7 @@ export function useAllLSVVote(interval = 0) {
   return returnGenerator({ data, error })
 }
 
-export function useLSVEventByAddr({ address }: { address: string }, interval = 0) {
+export function usePenaltiesByLSV({ address }: { address: string }, interval = 0) {
   const { data, error }: ResponseViaSWR<LSVEventRaw[]> = useInfoSWR(`/a1/lsv/event/${address}`, { interval })
   return returnGenerator({ data, error })
 }

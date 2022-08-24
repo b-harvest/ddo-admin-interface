@@ -30,7 +30,7 @@ export default function LSVWarnedModal({
     const list = penalties
       .filter((item) => item.rawJson?.proposalId === proposalId)
       .map((item) => {
-        const descs = item.rawJson?.desc.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR)
+        const descs = item.rawJson.desc?.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR)
         const refLink = descs && descs.length === 2 ? descs[0] : undefined
         const desc = descs && descs.length === 2 ? descs[1] : descs ? descs[0] : undefined
 
@@ -70,7 +70,7 @@ export default function LSVWarnedModal({
     <Modal active={active} onClose={handleClose} okButtonLabel="Save" isLoading={isModalLoading}>
       <div className="flex justify-start items-center gap-2 mb-4">
         <Icon type="warning" className="TYPO-BODY-M" />
-        <H4 title={`${lsv.alias} warned to vote`} className="" />
+        <H4 title={`${lsv.alias}, warned to vote`} className="" />
         {isStriked ? <Tag status="warning">1 strike</Tag> : null}
       </div>
 

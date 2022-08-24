@@ -2,8 +2,9 @@ import TableList from 'components/TableList'
 import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
 import VotingOptionIcon from 'components/VotingOptionIcon'
-import { SAFE_VOTING_RATE } from 'constants/lsv'
+import { SAFE_VOTING_RATE, VOTE_OPTIONS, WARNABLE_VOTE_OPTIONS } from 'constants/lsv'
 import useProposal from 'hooks/useProposal'
+import LSVWarningModal from 'pages/components/LSVWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -42,7 +43,7 @@ export default function VotingTable({
         .map((item) => {
           const vote = item.voteData?.votes.find((vote) => vote.proposalId === proposalId)
           const na = item.lsvStartTimestamp > new Date(proposal.proposal.voting_end_time).getTime()
-          const option = na ? 6 : vote?.vote.option ?? 5
+          const option = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
           const optionLabel = <VotingOptionIcon option={option} />
 
           return { [item.valOperAddr]: { validator: item, vote, option, optionLabel } }
@@ -79,9 +80,21 @@ export default function VotingTable({
 
   const [isTableFitMode, setIsTableFitMode] = useState<boolean>(isMobile ? false : true)
 
+  // warning modal
+  const [modal, setModal] = useState<boolean>(false)
+  const [modalLSV, setModalLSV] = useState<LSV | undefined>()
+  const [modalProposalId, setModalProposalId] = useState<number | undefined>()
+
+  // on cellClick
   const history = useHistory()
-  const onCellClick = (cell: LSVVotingRecord, field: string, item: LSVVotingTableItem) => {
-    history.push(`/lsv/${cell.validator.valOperAddr}`)
+  const onCellClick = (cell: LSVVotingRecord, field: string, row: LSVVotingTableItem) => {
+    // history.push(`/lsv/${cell.validator.valOperAddr}`)
+    const warnable = WARNABLE_VOTE_OPTIONS.includes(cell.option)
+    if (warnable) {
+      setModalLSV(cell.validator)
+      setModalProposalId(row.proposalId)
+      setModal(true)
+    }
   }
 
   return (
@@ -137,6 +150,10 @@ export default function VotingTable({
             ]}
           />
         </div>
+      )}
+
+      {modalLSV && modalProposalId && (
+        <LSVWarningModal active={modal} lsv={modalLSV} proposalId={modalProposalId} onClose={() => setModal(false)} />
       )}
     </>
   )

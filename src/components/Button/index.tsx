@@ -1,4 +1,4 @@
-type ButtonColor = 'primary' | 'primary-glow' | 'danger' | 'neutral' | 'transparent'
+export type ButtonColor = 'primary' | 'primary-glow' | 'danger' | 'neutral' | 'transparent'
 type ButtonSize = 'xs' | 'sm' | 'md'
 
 type ButtonProps = {

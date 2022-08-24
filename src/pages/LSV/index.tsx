@@ -11,11 +11,11 @@ import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
 import VotingOptionIcon from 'components/VotingOptionIcon'
-import { SAFE_VOTING_RATE } from 'constants/lsv'
+import { SAFE_VOTING_RATE, VOTE_OPTIONS } from 'constants/lsv'
 import { DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
-import useLSVEvent from 'hooks/useLSVEvent'
+import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo } from 'react'
@@ -76,7 +76,7 @@ export default function LSVDetail() {
     )
 
   // voting history
-  const { votePenalties, isLoading: isLSVEventDataLoading } = useLSVEvent(lsv?.addr ?? '')
+  const { votePenalties, isLoading: isLSVEventDataLoading } = useLSVPenalty(lsv?.addr ?? '')
 
   // modal
   // const [isModalLoading, setIsModalLoading] = useState<boolean>(false)
@@ -101,7 +101,7 @@ export default function LSVDetail() {
           const vote = lsv.voteData?.votes.find((v) => v.proposalId === proposalId)
 
           const na = lsv.lsvStartTimestamp > new Date(proposal.proposal.voting_end_time).getTime()
-          const option = na ? 6 : vote?.vote.option ?? 5
+          const option = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
           const optionLabel = <VotingOptionIcon option={option} />
           const votingEndTime = new Date(proposal.proposal.voting_end_time).getTime()
           const votingEndTimeLabel = dayjs(proposal.proposal.voting_end_time).format(DATE_FORMAT)
@@ -260,7 +260,7 @@ export default function LSVDetail() {
                   clickable: true,
                 },
                 {
-                  label: 'Warned',
+                  label: 'Warning',
                   value: 'warnLabel',
                   type: 'html',
                   align: 'right',

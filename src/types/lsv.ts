@@ -80,16 +80,16 @@ export interface LSVEventRawJsonNoSigning extends LSVEventRawJsonBase {
 }
 
 export interface LSVEventRawJsonReliabilityWarn extends LSVEventRawJsonBase {
-  desc: string
+  desc?: string
 }
 
 export interface LSVEventRawJsonVoteWarn extends LSVEventRawJsonBase {
-  desc: string
+  desc?: string
   proposalId: number
 }
 
 export interface LSVEventRawJsonBadPerformance extends LSVEventRawJsonBase {
-  desc: string
+  desc?: string
 }
 
 export type LSVEventType =
@@ -152,7 +152,7 @@ export interface LSVEventReliabilityWarn extends LSVEventBase {
 
 export interface LSVEventVoteWarn extends LSVEventBase {
   event: 'vote_warning' | 'vote_penalty'
-  rawJson: LSVEventRawJsonVoteWarn | null
+  rawJson: LSVEventRawJsonVoteWarn
 }
 
 // to be del...
