@@ -15,8 +15,7 @@ const useProposal = () => {
   const getStatusTagByProposal = useCallback(
     (proposalId: number) => {
       const proposal = allProposals.find((item) => item.proposalId === proposalId)
-      // const status = proposal?.proposal.status
-      const status = proposal?.proposalId === 16 ? 'PROPOSAL_STATUS_VOTING_PERIOD' : proposal?.proposal.status // fake for test
+      const status = proposal?.proposal.status
 
       return getProposalStatusTag(status)
     },
