@@ -76,18 +76,6 @@ export default function Overview() {
         const vol24USD = getVol24USDbyDenom(item.denom)
         const tvlUSD = item.isPoolToken ? farmStakedUSD?.plus(farmQueuedUSD ?? 0) : getTVLUSDbyDenom(item.denom)
 
-        const tooltip = item.isPoolToken ? (
-          <>
-            <div className="flex justify-between items-center gap-x-4">
-              <span>Farm staked</span>{' '}
-              <span className="FONT-MONO">{formatUSDAmount({ value: farmStakedUSD, mantissa: 2 })}</span>
-            </div>
-            <div className="flex justify-between items-center gap-x-4">
-              <span>Queued</span>
-              <span className="FONT-MONO">{formatUSDAmount({ value: farmQueuedUSD, mantissa: 2 })}</span>
-            </div>
-          </>
-        ) : undefined
         const filter = [item.denom.includes('pool') ? TOKEN_TABLE_FILTERS[1].value : TOKEN_TABLE_FILTERS[0].value]
 
         return {
@@ -99,7 +87,6 @@ export default function Overview() {
           farmStakedUSD,
           farmQueuedUSD,
           totalSupplyUSD,
-          tooltip,
           filter,
         }
       })
@@ -108,6 +95,22 @@ export default function Overview() {
   const handleTokenListRowClick = (row: AssetDetail) => {
     const denom = row.denom.split('/').join('-')
     history.push(`/token/${denom}`)
+  }
+
+  const onTokenTableTooltip = (cell: any, field: string, row: AssetDetail) => {
+    const tooltip = row.isPoolToken ? (
+      <>
+        <div className="flex justify-between items-center gap-x-4">
+          <span>Farm staked</span>{' '}
+          <span className="FONT-MONO">{formatUSDAmount({ value: row.farmStakedUSD, mantissa: 2 })}</span>
+        </div>
+        <div className="flex justify-between items-center gap-x-4">
+          <span>Queued</span>
+          <span className="FONT-MONO">{formatUSDAmount({ value: row.farmQueuedUSD, mantissa: 2 })}</span>
+        </div>
+      </>
+    ) : undefined
+    return tooltip
   }
 
   return (
@@ -129,6 +132,7 @@ export default function Overview() {
           defaultFilterIndex={1}
           nowrap={true}
           onRowClick={handleTokenListRowClick}
+          onCellTooltip={onTokenTableTooltip}
           fields={[
             {
               label: 'Token',

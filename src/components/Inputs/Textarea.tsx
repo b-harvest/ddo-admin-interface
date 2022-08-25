@@ -12,17 +12,11 @@ export default function Textarea({ placeholder = 'Search', keyword, onChange, on
         className="w-full TYPO-BODY-M text-black dark:text-white bg-transparent p-2 outline-none"
         value={keyword}
         placeholder={placeholder}
-        onChange={({ target }) => onChange(target.value.trim())}
+        onChange={({ target }) => onChange(target.value)}
         onKeyPress={(evt) => {
           if (onSearch && evt.key === 'Enter') onSearch()
         }}
       />
-      {/* <IconButton
-        type="search"
-        iconClassName="w-5 h-5 text-grayCRE-200 dark:text-white"
-        className="absolute right-[0.75rem]"
-        onClick={onSearch}
-      /> */}
     </div>
   )
 }

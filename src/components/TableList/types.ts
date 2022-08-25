@@ -74,7 +74,7 @@ export interface TableListItem {
   status?: AlertStatus
   exponent?: number
   filter?: string[]
-  tooltip?: string | JSX.Element
+  // tooltip?: string | JSX.Element
   [key: string]: any
 }
 
@@ -105,4 +105,5 @@ export interface TableListProps<T extends TableListItem> {
   memo?: string | JSX.Element
   onRowClick?: (item: T) => void
   onCellClick?: (cell: any, field: string, item: T) => void
+  onCellTooltip?: (cell: any, field: string, item: T) => JSX.Element | undefined
 }

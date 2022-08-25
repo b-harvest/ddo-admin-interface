@@ -3,7 +3,9 @@ import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
 import VotingOptionIcon from 'components/VotingOptionIcon'
 import { SAFE_VOTING_RATE, VOTE_OPTIONS, WARNABLE_VOTE_OPTIONS } from 'constants/lsv'
+import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
+import LSVWarningContent from 'pages/components/LSVWarningContent'
 import LSVWarningModal from 'pages/components/LSVWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo, useState } from 'react'
@@ -73,6 +75,7 @@ export default function VotingTable({
           displayType: 'html',
           align: 'center',
           clickable: true,
+          tooltip: true,
         }
       }),
     [list]
@@ -97,6 +100,13 @@ export default function VotingTable({
     }
   }
 
+  const onCellTooltip = (cell: LSVVotingRecord, field: string, row: LSVVotingTableItem) => {
+    // const lsv = cell.validator
+    // const proposalId = row.proposalId
+    const warnable = WARNABLE_VOTE_OPTIONS.includes(cell.option)
+    return warnable ? <LSVWarningTooltip lsv={cell.validator} proposalId={row.proposalId} /> : undefined
+  }
+
   return (
     <>
       <TableList<LSVVotingTableItem>
@@ -112,6 +122,7 @@ export default function VotingTable({
         defaultSortBy={'proposalId'}
         defaultIsSortASC={false}
         onCellClick={onCellClick}
+        onCellTooltip={onCellTooltip}
         fields={[
           {
             label: '#',
@@ -154,6 +165,23 @@ export default function VotingTable({
 
       {modalLSV && modalProposalId && (
         <LSVWarningModal active={modal} lsv={modalLSV} proposalId={modalProposalId} onClose={() => setModal(false)} />
+      )}
+    </>
+  )
+}
+
+function LSVWarningTooltip({ lsv, proposalId }: { lsv: LSV; proposalId: number }) {
+  const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
+  const penalty = getRepVotePenaltyByProposal(proposalId)
+
+  return (
+    <>
+      {penalty ? (
+        <div className="w-[400px] p-4">
+          <LSVWarningContent title={lsv.alias} proposalId={proposalId} penalty={penalty} />
+        </div>
+      ) : (
+        'Click to post warning'
       )}
     </>
   )

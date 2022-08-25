@@ -3,7 +3,7 @@ import { IconContext } from 'react-icons'
 import { AiOutlineInfoCircle, AiOutlineLoading3Quarters, AiOutlinePlus, AiOutlineWarning } from 'react-icons/ai'
 import { AiFillDislike, AiOutlineDislike, AiOutlineExclamation, AiOutlineLike, AiOutlineLink } from 'react-icons/ai'
 import { BiLinkExternal } from 'react-icons/bi'
-import { BsGithub, BsMedium, BsTwitter } from 'react-icons/bs'
+import { BsGithub, BsMedium, BsSlashCircle, BsTwitter } from 'react-icons/bs'
 import { CgFileDocument } from 'react-icons/cg'
 import { FaRegBell } from 'react-icons/fa'
 import { FaAdn, FaBan, FaRegCheckCircle, FaTelegramPlane } from 'react-icons/fa'
@@ -17,7 +17,7 @@ import { IoMdArrowBack } from 'react-icons/io'
 import { MdExpandLess, MdExpandMore, MdOutlineContentCopy, MdOutlineSearch } from 'react-icons/md'
 import { MdAccessTime } from 'react-icons/md'
 import { MdCalendarToday } from 'react-icons/md'
-import { RiArrowLeftRightLine, RiZzzLine } from 'react-icons/ri'
+import { RiArrowLeftRightLine, RiLoader4Fill, RiZzzLine } from 'react-icons/ri'
 import { RiQuestionLine } from 'react-icons/ri'
 import { SiDiscord, SiGitbook, SiHiveBlockchain } from 'react-icons/si'
 
@@ -64,6 +64,8 @@ export type IconType =
   | 'hyphen'
   | 'exclamation'
   | 'question'
+  | 'slash'
+  | 'loader'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -108,6 +110,8 @@ const Icons: { [key: string]: React.ElementType } = {
   hyphen: HiOutlineMinusSm,
   exclamation: AiOutlineExclamation,
   question: RiQuestionLine,
+  slash: BsSlashCircle,
+  loader: RiLoader4Fill,
 }
 
 interface IconProps {
@@ -122,7 +126,7 @@ function Icon({ type, className = '' }: IconProps) {
   return (
     <IconContext.Provider
       value={{
-        className: `${className}`,
+        className: `${className} ${type === 'loader' ? 'animate-spin' : ''}`,
       }}
     >
       {/* @ts-ignore */}

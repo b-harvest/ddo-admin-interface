@@ -12,6 +12,8 @@ type ModalProps = {
   noButtonLabel?: string
   okButtonColor?: ButtonColor
   noButtonColor?: ButtonColor
+  okButtonDisabled?: boolean
+  noButtonDisabled?: boolean
   isLoading: boolean
 }
 
@@ -25,6 +27,8 @@ export default function Modal({
   noButtonLabel,
   okButtonColor = 'danger',
   noButtonColor = 'neutral',
+  okButtonDisabled = false,
+  noButtonDisabled = false,
   isLoading,
 }: ModalProps) {
   const [scrollY, setScrollY] = useState<number>(window.scrollY)
@@ -80,7 +84,7 @@ export default function Modal({
                   label={noButtonLabel ?? 'Discard'}
                   onClick={onNo}
                   isLoading={isLoading}
-                  disabled={true}
+                  disabled={noButtonDisabled}
                 />
               ) : null}
               {onOk ? (
@@ -90,7 +94,7 @@ export default function Modal({
                   label={okButtonLabel ?? 'Confirm'}
                   onClick={onOk}
                   isLoading={isLoading}
-                  disabled={true}
+                  disabled={okButtonDisabled}
                 />
               ) : null}
             </div>

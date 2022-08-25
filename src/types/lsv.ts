@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { VOTE_WARNING_STATUS } from 'constants/lsv'
 
 // jail, commission
 export interface LSVRaw {
@@ -116,8 +117,11 @@ export interface LSVEventRawBase {
   regId: string
 }
 
-export type LSVEventBase = Omit<LSVEventRawBase, 'confirmTimestamp'> & {
+export type LSVEventBase = Omit<LSVEventRawBase, 'height' | 'confirmTimestamp' | 'regId' | 'confirmId'> & {
+  height: number | undefined
   confirmTimestamp: number
+  regId: string | undefined
+  confirmId: string | undefined
 }
 
 export interface LSVEventCommissionChanged extends LSVEventBase {
@@ -153,6 +157,13 @@ export interface LSVEventReliabilityWarn extends LSVEventBase {
 export interface LSVEventVoteWarn extends LSVEventBase {
   event: 'vote_warning' | 'vote_penalty'
   rawJson: LSVEventRawJsonVoteWarn
+  status: VOTE_WARNING_STATUS
+}
+
+export type VotePenalty = LSVEventVoteWarn & {
+  refLink: string | undefined
+  desc: string | undefined
+  posterId: string | undefined
 }
 
 // to be del...
@@ -168,14 +179,17 @@ export type LSVEventRaw =
 export type LSVEvent = LSVEventRaw
 
 // post
-export type LSVPenaltyConfirmPost = {
-  eid: number
-  msg?: string
-  result: 'y' | 'n' | 'd'
+export type LSVVoteWarnPost = {
+  event_type: 'vote_warning'
+  json: {
+    addr: string
+    desc: string
+    proposalId: number
+  }
 }
 
-export type LSVPenaltyWarnPost = {
-  addr: string
-  desc: string
-  proposalId?: number
+export type LSVPenaltyConfirmPost = {
+  eid: number
+  result: 'y' | 'n' | 'd'
+  msg?: string
 }

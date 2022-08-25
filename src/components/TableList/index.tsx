@@ -49,6 +49,7 @@ export default function TableList<T>({
   memo,
   onRowClick,
   onCellClick,
+  onCellTooltip,
 }: TableListProps<T>) {
   // fields
   const allMergedList = mergedFields.reduce((accm, list) => accm.concat(list), [])
@@ -231,6 +232,7 @@ export default function TableList<T>({
                           cellMinWidthPx={cellMinWidthPx}
                           onClick={onRowClick}
                           onCellClick={onCellClick}
+                          onCellTooltip={onCellTooltip}
                         />
                       )
                     })}
@@ -283,6 +285,7 @@ function ListItem<T extends TableListItem>({
   nowrap,
   onClick,
   onCellClick,
+  onCellTooltip,
 }: {
   data: T
   cellMinWidthPx?: number
@@ -293,6 +296,7 @@ function ListItem<T extends TableListItem>({
   nowrap: boolean
   onClick?: (item: T) => void
   onCellClick?: (cell: any, field: string, row: T) => void
+  onCellTooltip?: (cell: any, field: string, row: T) => JSX.Element | undefined
 }) {
   return (
     <li className="relative block w-full">
@@ -332,7 +336,11 @@ function ListItem<T extends TableListItem>({
                   : 'flex-start',
               }}
             >
-              <Tooltip content={field.tooltip ? data.tooltip : undefined}>
+              <Tooltip
+                content={
+                  onCellTooltip && field.tooltip ? onCellTooltip(data[field.value], field.value, data) : undefined
+                }
+              >
                 {field.responsive && field.assertThoughResponsive ? (
                   <Tag className="md:hidden">{field.label}</Tag>
                 ) : null}
@@ -373,7 +381,11 @@ function ListItem<T extends TableListItem>({
                       : 'flex-start',
                   }}
                 >
-                  <Tooltip content={field.tooltip ? data.tooltip : undefined}>
+                  <Tooltip
+                    content={
+                      onCellTooltip && field.tooltip ? onCellTooltip(data[field.value], field.value, data) : undefined
+                    }
+                  >
                     {field.responsive && field.assertThoughResponsive ? (
                       <Tag className="md:hidden">{field.label}</Tag>
                     ) : null}

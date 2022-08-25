@@ -17,6 +17,7 @@ import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
+import LSVWarningModal from 'pages/components/LSVWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo } from 'react'
 import { useState } from 'react'
@@ -27,9 +28,7 @@ import { openProposalById } from 'utils/browser'
 import { openExplorerByHeight } from 'utils/browser'
 import { abbrOver } from 'utils/text'
 
-import LSVVotingWarnButton from './components/LSVVotingWarnButton'
-import LSVWarnedModal from './components/LSVWarnedModal'
-import LSVWarningModal from './components/LSVWarningModal'
+import LSVWarningButton from '../components/LSVWarningButton'
 import LSVPenalty from './sections/LSVPenalty'
 
 type LSVVoteRecord = {
@@ -76,18 +75,15 @@ export default function LSVDetail() {
     )
 
   // voting history
-  const { votePenalties, isLoading: isLSVEventDataLoading } = useLSVPenalty(lsv?.addr ?? '')
+  const { votePenalties, getVotePenaltyRepStatusByProposal } = useLSVPenalty(lsv?.addr ?? '')
 
   // modal
-  // const [isModalLoading, setIsModalLoading] = useState<boolean>(false)
-  const [modalProposalId, setModalProposalId] = useState<number | undefined>()
+  const [modal, setModal] = useState<boolean>(false)
+  const [modalProposalId, setModalProposalId] = useState<number>(0)
 
-  const [warnedModal, setWarnedModal] = useState<boolean>(false)
-  const [warningModal, setWarningModal] = useState<boolean>(false)
-
-  const handleWarnButtonClick = ({ proposalId, warned }: { proposalId: number; warned: boolean }) => {
+  const onWarningButtonClick = ({ proposalId }: { proposalId: number }) => {
     setModalProposalId(proposalId)
-    warned ? setWarnedModal(true) : setWarningModal(true)
+    setModal(true)
   }
 
   const { allProposals, getStatusTagByProposal } = useProposal()
@@ -107,16 +103,9 @@ export default function LSVDetail() {
           const votingEndTimeLabel = dayjs(proposal.proposal.voting_end_time).format(DATE_FORMAT)
           const weight = vote ? new BigNumber(vote.vote.weight) : undefined
 
-          const penalties = votePenalties.filter((item) => item.rawJson?.proposalId === proposalId)
-          const warned = penalties.findIndex((item) => item.event === 'vote_warning') > -1
-          const penalized = penalties.findIndex((item) => item.event === 'vote_penalty') > -1
-
+          const repStatus = getVotePenaltyRepStatusByProposal(proposalId)
           const warnLabel = lsv ? (
-            <LSVVotingWarnButton
-              warned={warned}
-              penalized={penalized}
-              onClick={() => handleWarnButtonClick({ proposalId, warned: warned || penalized })}
-            />
+            <LSVWarningButton status={repStatus} onClick={() => onWarningButtonClick({ proposalId })} />
           ) : null
 
           return {
@@ -134,7 +123,7 @@ export default function LSVDetail() {
           }
         })
       : []
-  }, [allProposals, lsv, getStatusTagByProposal])
+  }, [allProposals, lsv, getStatusTagByProposal, votePenalties])
 
   const onCellClick = (cell: any, field: string, row: LSVVoteRecord) => {
     if (['proposalId', 'title'].includes(field)) {
@@ -187,11 +176,9 @@ export default function LSVDetail() {
           </section>
 
           <Hr />
-          <LSVPenalty address={lsv.addr} penaltyPoint={lsv.penaltyTotal} />
-          <Hr />
 
           {/* Voting */}
-          <section className="pt-8">
+          <section className="mt-8 mb-8">
             <H3 title="Voting" />
             <div className="mt-2 mb-4">
               <span className="TYPO-BODY-S mr-2">Participated</span>
@@ -268,20 +255,12 @@ export default function LSVDetail() {
                 },
               ]}
             />
-            <LSVWarnedModal
-              active={warnedModal}
-              lsv={lsv}
-              proposalId={modalProposalId ?? 0}
-              penalties={votePenalties}
-              onClose={() => setWarnedModal(false)}
-            />
-            <LSVWarningModal
-              active={warningModal}
-              lsv={lsv}
-              proposalId={modalProposalId ?? 0}
-              onClose={() => setWarningModal(false)}
-            />
+            <LSVWarningModal active={modal} lsv={lsv} proposalId={modalProposalId} onClose={() => setModal(false)} />
           </section>
+
+          <Hr />
+
+          <LSVPenalty address={lsv.addr} penaltyPoint={lsv.penaltyTotal} />
         </>
       ) : null}
     </AppPage>

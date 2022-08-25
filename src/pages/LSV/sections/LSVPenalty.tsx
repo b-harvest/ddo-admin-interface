@@ -27,7 +27,7 @@ import dayjs from 'dayjs'
 // import TableList from 'components/TableList'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import { useMemo, useState } from 'react'
-import type { LSVEvent, LSVPenaltyConfirmPost, LSVPenaltyWarnPost } from 'types/lsv'
+import type { LSVEvent, LSVPenaltyConfirmPost, LSVVoteWarnPost } from 'types/lsv'
 import { openExplorerByHeight } from 'utils/browser'
 import { isMobile } from 'utils/userAgent'
 
@@ -65,10 +65,13 @@ export default function LSVPenalty({ address, penaltyPoint }: { address: string;
 
   const onWarn = () => {
     setIsModalLoading(true)
-    const postData: LSVPenaltyWarnPost = {
-      addr: address,
-      desc: modalMemo,
-      proposalId: Number(modalProposalId) ?? undefined,
+    const postData: LSVVoteWarnPost = {
+      event_type: 'vote_warning',
+      json: {
+        addr: address,
+        desc: modalMemo,
+        proposalId: Number(modalProposalId) ?? undefined,
+      },
     }
   }
 
@@ -81,7 +84,7 @@ export default function LSVPenalty({ address, penaltyPoint }: { address: string;
       {/* Immediate Kickout */}
       <div className="flex flex-col md:flex-row justify-start md:justify-between items-start gap-4 mt-8 mb-8">
         <div>
-          <H3 title="Immediate Kickout / 3SO" className="" />
+          <H3 title="Penalty Board" className="" />
           <div className="mt-2">
             <span className="TYPO-BODY-S mr-2">Current penalty point</span>
             <span className={`FONT-MONO ${penaltyPoint >= 3 ? 'text-error' : ''}`}>{penaltyPoint}</span>
@@ -359,7 +362,7 @@ function ValPenaltyCard({
       <Card useGlassEffect={true} className="rounded-md grow-0 shrink-0 basis-auto md:basis-[10%] flex justify-center">
         <div
           className="flex justify-between items-center gap-2 md:block cursor-pointer"
-          onClick={() => openExplorerByHeight(height.toString())}
+          onClick={() => (height ? openExplorerByHeight(height.toString()) : null)}
         >
           <div className={`block md:hidden ${FIELD_CSS}`}>Height</div>
           <div className="TYPO-BODY-XS FONT-MONO text-center">{height}</div>
@@ -379,7 +382,7 @@ function ValPenaltyCard({
         <div className="flex justify-between items-center gap-2 md:block">
           <div className={`block md:hidden ${FIELD_CSS}`}>By</div>
           <div className="TYPO-BODY-S">
-            {by !== 'n' ? (
+            {by ? (
               <CopyHelper toCopy={getAdminId(by) === '-' ? '' : by} iconPosition="left">
                 {' '}
                 {getAdminId(by)}
@@ -428,7 +431,6 @@ function ValPenaltyCard({
 }
 
 function getAdminId(id: string): string {
-  if (id === 'n') return '-'
   const adminId = id.split('@')[0] ?? id
   return adminId
 }
