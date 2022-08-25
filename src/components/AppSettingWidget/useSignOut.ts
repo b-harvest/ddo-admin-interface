@@ -1,12 +1,15 @@
 import { useAtom } from 'jotai'
 import { useGoogleLogout } from 'react-google-login'
-import { userAtomRef } from 'state/atoms'
+import { authTokenAtomRef, userAtomRef } from 'state/atoms'
 
 const useSignOut = ({ clientId, onComplete }: { clientId?: string; onComplete?: () => void }) => {
   const [, setUserAtom] = useAtom(userAtomRef)
+  const [, setAuthTokenAtom] = useAtom(authTokenAtomRef)
 
   const onLogoutSuccess = async () => {
     setUserAtom({ user: null })
+    setAuthTokenAtom({ authToken: null })
+
     if (onComplete) onComplete()
   }
 

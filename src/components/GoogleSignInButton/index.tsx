@@ -5,7 +5,7 @@ import { isValidUser, refreshTokenSetup } from 'pages/SignIn/utils'
 import { useState } from 'react'
 // import { GoogleLogin } from 'react-google-login'
 import { useGoogleLogin } from 'react-google-login'
-import { userAtomRef } from 'state/atoms'
+import { authTokenAtomRef, userAtomRef } from 'state/atoms'
 import type { GoogleUserProfile } from 'types/user'
 
 export default function GoogleSignInButton({
@@ -20,6 +20,8 @@ export default function GoogleSignInButton({
   onRejected?: () => void
 }) {
   const [, setUserAtom] = useAtom(userAtomRef)
+  const [, setAuthTokenAtom] = useAtom(authTokenAtomRef)
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const onSuccess = async (res) => {
@@ -27,7 +29,10 @@ export default function GoogleSignInButton({
 
     if (isValidUser(res.profileObj, 'crescent.foundation')) {
       await refreshTokenSetup(res)
+
       setUserAtom({ user: res.profileObj as GoogleUserProfile })
+      setAuthTokenAtom({ authToken: res.getAuthResponse().id_token })
+
       onComplete()
     } else {
       if (onRejected) onRejected()

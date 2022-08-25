@@ -2,6 +2,7 @@ import H4 from 'components/H4'
 import Input from 'components/Inputs/Input'
 import Textarea from 'components/Inputs/Textarea'
 import Modal from 'components/Modal'
+import { toastError, toastSuccess } from 'components/Toast/generator'
 import { VOTE_WARNING_STATUS } from 'constants/lsv'
 import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/msg'
 import { postLSVPenaltyConfirm, postLSVVoteWarn } from 'data/api'
@@ -38,6 +39,13 @@ export default function LSVWarningModal({
     setModalMemo('')
   }
 
+  // onClose
+  const handleClose = () => {
+    onClose()
+    setIsModalLoading(false)
+    resetModalInput()
+  }
+
   const onSaveButtonDisabled = useMemo<boolean>(() => !isValidUrl(modalRefLink), [modalRefLink])
 
   const onSaveClick = async () => {
@@ -53,9 +61,9 @@ export default function LSVWarningModal({
       },
     }
     const res = await postLSVVoteWarn(postData)
-    console.log('postLSVVoteWarn', res)
-
-    resetModalInput()
+    const isSuccess = res?.data?.result === 'success' // tmp
+    isSuccess ? toastSuccess('Warning saved successfully') : toastError(res.msg)
+    handleClose()
   }
 
   // if not postable
@@ -76,13 +84,6 @@ export default function LSVWarningModal({
     } else {
       history.push(`/lsv/${lsv.valOperAddr}`)
     }
-  }
-
-  // onClose
-  const handleClose = () => {
-    onClose()
-    setIsModalLoading(false)
-    resetModalInput()
   }
 
   return (

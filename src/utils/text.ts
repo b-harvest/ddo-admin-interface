@@ -10,7 +10,6 @@ export const isValidUrl = (url: string) => {
   try {
     new URL(url)
   } catch (e) {
-    console.error('isUrl', e)
     return false
   }
   return true

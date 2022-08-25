@@ -1,4 +1,5 @@
 import { CHAIN_IDS } from 'constants/chain'
+import api from 'data/api'
 import { atom } from 'jotai'
 import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
 import type { BlockLCD, ChainInfo, ChainLive } from 'types/chain'
@@ -28,6 +29,20 @@ export const userAtomRef = atom(
     set(userAtom, user)
     if (user) localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(user))
     else localStorage.removeItem(LOCAL_STORAGE_KEY_USER)
+  }
+)
+
+const LOCAL_STORAGE_KEY_AUTH_TOKEN = `authToken`
+const authTokenFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_AUTH_TOKEN)
+
+const authTokenAtom = atom<string | null>(authTokenFromLocal ?? null)
+export const authTokenAtomRef = atom(
+  (get) => get(authTokenAtom),
+  (_, set, { authToken }: { authToken: string | null }) => {
+    set(authTokenAtom, authToken)
+    api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
+    if (authToken) localStorage.setItem(LOCAL_STORAGE_KEY_AUTH_TOKEN, authToken)
+    else localStorage.removeItem(LOCAL_STORAGE_KEY_AUTH_TOKEN)
   }
 )
 
