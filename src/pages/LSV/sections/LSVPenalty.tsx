@@ -218,8 +218,11 @@ function ValPenaltySection({
     setIsModalLoading(true)
     const postData: LSVPenaltyConfirmPost = {
       eid: events[0].eid,
-      msg: modalMemo,
-      result: 'y',
+      json: {
+        eid: events[0].eid,
+        msg: modalMemo,
+        result: 'y',
+      },
     }
   }
 
@@ -227,8 +230,11 @@ function ValPenaltySection({
     setIsModalLoading(true)
     const postData: LSVPenaltyConfirmPost = {
       eid: events[0].eid,
-      msg: modalMemo,
-      result: 'd',
+      json: {
+        eid: events[0].eid,
+        msg: modalMemo,
+        result: 'd',
+      },
     }
   }
 

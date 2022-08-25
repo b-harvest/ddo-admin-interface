@@ -4,12 +4,12 @@ import Textarea from 'components/Inputs/Textarea'
 import Modal from 'components/Modal'
 import { VOTE_WARNING_STATUS } from 'constants/lsv'
 import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/msg'
-import { postLSVEvent } from 'data/api'
+import { postLSVPenaltyConfirm, postLSVVoteWarn } from 'data/api'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import LSVWarningContent from 'pages/components/LSVWarningContent'
 import { useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import type { LSV, LSVVoteWarnPost } from 'types/lsv'
+import type { LSV, LSVPenaltyConfirmPost, LSVVoteWarnPost, VotePenalty } from 'types/lsv'
 import { isValidUrl } from 'utils/text'
 
 export default function LSVWarningModal({
@@ -40,7 +40,7 @@ export default function LSVWarningModal({
 
   const onSaveButtonDisabled = useMemo<boolean>(() => !isValidUrl(modalRefLink), [modalRefLink])
 
-  const onSave = async () => {
+  const onSaveClick = async () => {
     setIsModalLoading(true)
 
     // regId ?
@@ -52,16 +52,30 @@ export default function LSVWarningModal({
         proposalId,
       },
     }
-    const res = await postLSVEvent(postData)
-    console.log('postLSVEvent', res)
+    const res = await postLSVVoteWarn(postData)
+    console.log('postLSVVoteWarn', res)
 
     resetModalInput()
   }
 
   // if not postable
+  const [confirmMsg, setConfirmMsg] = useState<string>('')
+
   const history = useHistory()
-  const onSeeDetails = () => {
-    history.push(`/lsv/${lsv.valOperAddr}`)
+  const onConfirmClick = async (penalty: VotePenalty) => {
+    if (isWaitingConfirm(penalty.status)) {
+      const postData: LSVPenaltyConfirmPost = {
+        eid: penalty.eid,
+        json: {
+          eid: penalty.eid,
+          result: 'y',
+          msg: confirmMsg,
+        },
+      }
+      await postLSVPenaltyConfirm(postData)
+    } else {
+      history.push(`/lsv/${lsv.valOperAddr}`)
+    }
   }
 
   // onClose
@@ -77,7 +91,7 @@ export default function LSVWarningModal({
         <Modal
           active={active}
           onClose={handleClose}
-          onOk={onSeeDetails}
+          onOk={() => onConfirmClick(penalty)}
           okButtonLabel={
             penalty.status === VOTE_WARNING_STATUS.Warned
               ? 'Confirm warning'
@@ -85,18 +99,21 @@ export default function LSVWarningModal({
               ? 'Confirm penalty'
               : 'See penalty board'
           }
-          okButtonColor={
-            [VOTE_WARNING_STATUS.Warned, VOTE_WARNING_STATUS.Penalty].includes(penalty.status) ? 'danger' : 'primary'
-          }
+          okButtonColor={isWaitingConfirm(penalty.status) ? 'danger' : 'primary'}
           isLoading={isModalLoading}
         >
-          <LSVWarningContent title={`${lsv.alias}`} proposalId={proposalId} penalty={penalty} />
+          <div className="space-y-4">
+            <LSVWarningContent title={`${lsv.alias}`} proposalId={proposalId} penalty={penalty} />
+            {isWaitingConfirm(penalty.status) ? (
+              <Textarea placeholder="Leave a comment if any" keyword={confirmMsg} onChange={setConfirmMsg} />
+            ) : null}
+          </div>
         </Modal>
       ) : (
         <Modal
           active={active}
           onClose={handleClose}
-          onOk={onSave}
+          onOk={onSaveClick}
           okButtonLabel="Save"
           okButtonDisabled={onSaveButtonDisabled}
           isLoading={isModalLoading}
@@ -117,4 +134,8 @@ export default function LSVWarningModal({
       )}
     </>
   )
+}
+
+function isWaitingConfirm(status: VOTE_WARNING_STATUS): boolean {
+  return [VOTE_WARNING_STATUS.Warned, VOTE_WARNING_STATUS.Penalty].includes(status)
 }

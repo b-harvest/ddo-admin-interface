@@ -190,6 +190,9 @@ export type LSVVoteWarnPost = {
 
 export type LSVPenaltyConfirmPost = {
   eid: number
-  result: 'y' | 'n' | 'd'
-  msg?: string
+  json: {
+    eid: number
+    result: 'y' | 'n' | 'd'
+    msg?: string
+  }
 }
