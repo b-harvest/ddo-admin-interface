@@ -176,7 +176,7 @@ function LSVWarningTooltip({ lsv, proposalId }: { lsv: LSV; proposalId: number }
 
   return (
     <>
-      {penalty ? (
+      {isMobile ? null : penalty ? (
         <div className="w-[400px] p-4">
           <LSVWarningContent title={lsv.alias} proposalId={proposalId} penalty={penalty} />
         </div>

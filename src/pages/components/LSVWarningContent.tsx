@@ -27,8 +27,8 @@ export default function LSVWarningContent({
           <H4 title={title} className="" />
         </header>
 
-        <div className="space-y-6">
-          <div className="space-y-2 border-t border-b border-grayCRE-400-o dark:border-grayCRE-300-o px-3 py-3">
+        <div className="space-y-6 TYPO-BODY-S">
+          <div className="space-y-1 border-t border-b border-grayCRE-400-o dark:border-grayCRE-300-o px-3 py-3">
             <div className="flex justify-between items-center gap-4">
               <div className={PENALTY_FIELD_SIZE_CSS}>Status</div>
               <div className="grow shrink">

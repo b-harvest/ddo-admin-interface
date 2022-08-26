@@ -33,10 +33,12 @@ export default function LSVWarningModal({
   // if postable
   const [modalRefLink, setModalRefLink] = useState<string>('')
   const [modalMemo, setModalMemo] = useState<string>('')
+  const [confirmMsg, setConfirmMsg] = useState<string>('')
 
   const resetModalInput = () => {
     setModalRefLink('')
     setModalMemo('')
+    setConfirmMsg('')
   }
 
   // onClose
@@ -56,22 +58,28 @@ export default function LSVWarningModal({
       event_type: 'vote_warning',
       json: {
         addr: lsv.addr,
-        desc: `${modalRefLink}${LSV_VOTE_WARN_REFERENCE_SEPERATOR}${modalMemo}`,
         proposalId,
+        desc: `${modalRefLink}${LSV_VOTE_WARN_REFERENCE_SEPERATOR}${modalMemo}`,
       },
     }
+
+    console.log('postData', postData)
     const res = await postLSVVoteWarn(postData)
-    const isSuccess = res?.data?.result === 'success' // tmp
-    isSuccess ? toastSuccess('Warning saved successfully') : toastError(res.msg)
+    // tmp
+    if (res?.data.result === 'success') {
+      toastSuccess('Warning saved successfully')
+    }
+
     handleClose()
   }
 
   // if not postable
-  const [confirmMsg, setConfirmMsg] = useState<string>('')
 
   const history = useHistory()
   const onConfirmClick = async (penalty: VotePenalty) => {
     if (isWaitingConfirm(penalty.status)) {
+      setIsModalLoading(true)
+
       const postData: LSVPenaltyConfirmPost = {
         eid: penalty.eid,
         json: {
@@ -80,7 +88,15 @@ export default function LSVWarningModal({
           msg: confirmMsg,
         },
       }
-      await postLSVPenaltyConfirm(postData)
+      const res = await postLSVPenaltyConfirm(postData)
+      if (res?.data.result === 'success') {
+        toastSuccess('Warning saved successfully')
+      } else if (res?.data.result === 'error') {
+        const message = res?.data.message
+        if (message) toastError(message)
+      }
+
+      handleClose()
     } else {
       history.push(`/lsv/${lsv.valOperAddr}`)
     }
@@ -105,8 +121,13 @@ export default function LSVWarningModal({
         >
           <div className="space-y-4">
             <LSVWarningContent title={`${lsv.alias}`} proposalId={proposalId} penalty={penalty} />
+
             {isWaitingConfirm(penalty.status) ? (
-              <Textarea placeholder="Leave a comment if any" keyword={confirmMsg} onChange={setConfirmMsg} />
+              <Textarea
+                placeholder="Confirming, leave a comment if any"
+                keyword={confirmMsg}
+                onChange={setConfirmMsg}
+              />
             ) : null}
           </div>
         </Modal>
