@@ -2,6 +2,7 @@ import CopyHelper from 'components/CopyHelper'
 import H4 from 'components/H4'
 import Icon from 'components/Icon'
 import IconButton from 'components/IconButton'
+import PostMetaDataLine from 'components/PostMetaDataLine'
 import { WARNING_STATUS_ICON_TYPE_MAP, WARNING_STATUS_VOTE_DESC_MAP } from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_FORMAT } from 'constants/time'
@@ -68,18 +69,26 @@ export default function LSVWarningContent({
             </div>
           </div>
 
-          <div className={`${FIELD_CSS} !font-normal w-max`}>
-            <div className="TYPO-BODY-XS">{dayjs(penalty.timestamp).format(TIMESTAMP_FORMAT)}</div>
-            <div className="TYPO-BODY-XS">
-              {penalty.confirmId ? 'Confirmed by' : 'Posted by'}
-              {penalty.posterId ? (
-                <CopyHelper toCopy={penalty.posterId} iconPosition="left">
-                  {penalty.posterId}
-                </CopyHelper>
-              ) : (
-                <div>back-end</div>
-              )}
-            </div>
+          <div className={`${FIELD_CSS} !font-normal w-full`}>
+            <PostMetaDataLine
+              field={penalty.confirmId ? 'Confirm date' : 'Post date'}
+              value={dayjs(penalty.postTimestamp).format(TIMESTAMP_FORMAT)}
+            />
+            <PostMetaDataLine
+              field={penalty.confirmId ? 'Confirmed by' : 'Posted by'}
+              value={
+                penalty.posterId ? (
+                  <CopyHelper toCopy={penalty.posterId} iconPosition="left">
+                    {penalty.posterId}
+                  </CopyHelper>
+                ) : (
+                  <div>back-end</div>
+                )
+              }
+            />
+            {penalty.confirmId ? (
+              <PostMetaDataLine field="Comment" value={penalty.confirmMsg.length ? penalty.confirmMsg : '-'} />
+            ) : null}
           </div>
         </div>
       </section>

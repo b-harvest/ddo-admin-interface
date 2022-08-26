@@ -40,12 +40,13 @@ const useLSVPenalty = (address: string) => {
       const refLink = descs && descs.length === 2 ? descs[0] : undefined
       const desc = descs && descs.length === 2 ? descs[1] : descs ? descs[0] : undefined
       const posterId = item.confirmId ?? item.regId
-
+      const postTimestamp = item.confirmId ? item.confirmTimestamp : item.timestamp
       return {
         ...item,
         refLink,
         desc,
         posterId,
+        postTimestamp,
       }
     })
   }, [getLSVEvents])

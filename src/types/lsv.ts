@@ -164,6 +164,7 @@ export type VotePenalty = LSVEventVoteWarn & {
   refLink: string | undefined
   desc: string | undefined
   posterId: string | undefined
+  postTimestamp: number
 }
 
 // to be del...
