@@ -3,10 +3,13 @@ import H3 from 'components/H3'
 import Icon from 'components/Icon'
 import IconButton from 'components/IconButton'
 import Textarea from 'components/Inputs/Textarea'
-import { PENALTY_STATUS, WARNING_STATUS_ICON_TYPE_MAP, WRITABLE_PENALTIES } from 'constants/lsv'
+import QuestionTooltip from 'components/QuestionTooltip'
+import { WRITABLE_PENALTIES } from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
-import { useCallback, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { LSVEventType, Penalty } from 'types/lsv'
+
+import LSVPenaltyItems from './LSVPenaltyItems'
 
 type PenaltyItem = { label: string; desc: string; events: LSVEventType[] }
 const PENALTY_ITEMS: PenaltyItem[] = [
@@ -63,10 +66,14 @@ export default function LSVPenaltyBoard({ penalties, penaltyPoint }: { penalties
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {PENALTY_ITEMS.map((item) => (
           // overflow-hidden max-h-[24px] hover:max-h-screen transition-all
-          <Card key={item.label} useGlassEffect={true}>
+          <FoldableCard
+            key={item.label}
+            folded={<LSVPenaltyItems penalties={getPanaltiesByEvents(item.events)} />}
+            showFoldButton={item.events.length > 0}
+          >
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-1">
               <PenaltyField title={item.label} desc={item.desc}></PenaltyField>
 
@@ -78,9 +85,55 @@ export default function LSVPenaltyBoard({ penalties, penaltyPoint }: { penalties
               </div>
 
               <PenaltyStatus penalties={getPanaltiesByEvents(item.events)} />
+              {item.events.length === 0 ? (
+                <Icon type="success" className="shrink-0 grow-0 basis-[24px] block w-4 h-4 text-success" />
+              ) : null}
             </div>
-          </Card>
+          </FoldableCard>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function FoldableCard({
+  children,
+  folded,
+  defaultFold = false,
+  showFoldButton = true,
+}: {
+  children: ReactNode
+  folded: JSX.Element | null
+  defaultFold?: boolean
+  showFoldButton?: boolean
+}) {
+  const [showFolded, setShowFolded] = useState<boolean>(defaultFold)
+  const onCardClick = () => {
+    setShowFolded(!showFolded)
+  }
+
+  return (
+    <div>
+      <Card
+        useGlassEffect={true}
+        onClick={onCardClick}
+        className={`cursor-pointer transition-all hover:bg-grayCRE-100 dark:hover:bg-neutral-700 hover:-translate-y-[1px] ${
+          showFolded ? '!bg-grayCRE-100 dark:!bg-neutral-700' : ''
+        }`}
+      >
+        {children}
+        {showFoldButton && (
+          <IconButton type={showFolded ? 'expandless' : 'expandmore'} className="absolute right-4 w-6 h-6" />
+        )}
+      </Card>
+
+      {/* foldable area */}
+      <div
+        className={`flex flex-col items-stretch gap-2 transition-all ${
+          showFolded ? 'visible opacity-100 max-h-screen' : 'invisible opacity-0 max-h-0'
+        }`}
+      >
+        {folded}
       </div>
     </div>
   )
@@ -90,7 +143,7 @@ function PenaltyField({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="grow shrink md:grow-0 md:shrink-0 md:basis-[130px] flex justify-start items-start gap-2">
       <div className={FIELD_CSS}>{title}</div>
-      {/* <QuestionTooltip desc={desc} /> */}
+      <QuestionTooltip desc={desc} />
     </div>
   )
 }
@@ -114,24 +167,24 @@ function PenaltyStatus({ penalties }: { penalties: Penalty[] }) {
           />
         ) : null}
       </div>
-      <div className="grow-0 shrink-0 basis-auto flex justify-end px-4">
-        {isSafe ? <Icon type="success" className="text-success" /> : PenaltyStatusIcon({ penalties })}
-      </div>
+      {/* <div className="grow-0 shrink-0 basis-[100px] flex justify-end px-4">
+        {isSafe ? <Icon type="success" className="flex-0 grow-0 basis-auto text-success w-6 h-6" /> : null}
+      </div> */}
     </div>
   )
 }
 
-function PenaltyStatusIcon({ penalties }: { penalties: Penalty[] }) {
-  const onClick = () => {
-    const shouldConfirm = penalties.find((penalty) =>
-      [PENALTY_STATUS.Penalty, PENALTY_STATUS.Warned].includes(penalty.status)
-    )
-    if (shouldConfirm) {
-      // show confirm modal
-    }
-  }
+// function PenaltyStatusIcon({ penalties }: { penalties: Penalty[] }) {
+//   const onClick = () => {
+//     const shouldConfirm = penalties.find((penalty) =>
+//       [PENALTY_STATUS.Penalty, PENALTY_STATUS.Warned].includes(penalty.status)
+//     )
+//     if (shouldConfirm) {
+//       // show confirm modal
+//     }
+//   }
 
-  return penalties.length > 0 ? (
-    <IconButton type={WARNING_STATUS_ICON_TYPE_MAP[penalties[0].status]} className="text-warning" onClick={onClick} />
-  ) : null
-}
+//   return penalties.length > 0 ? (
+//     <IconButton type={WARNING_STATUS_ICON_TYPE_MAP[penalties[0].status]} className="text-warning" onClick={onClick} />
+//   ) : null
+// }

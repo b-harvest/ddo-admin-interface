@@ -10,23 +10,31 @@ const useLSVPenalty = (address: string) => {
   const allPenalties = useMemo<Penalty[]>(
     () =>
       data?.data.map((item) => {
+        const height = item.height ? item.height : undefined
+        const regId = item.regId !== 'n' ? item.regId : undefined
+        const confirmId = item.confirmId !== 'n' ? item.confirmId : undefined
+        const posterId = confirmId ?? regId
+        const postTimestamp = (confirmId ? item.confirmTimestamp : item.timestamp) * 1000
+
         const isWarning = ['vote_warning', 'reliabiity_warning'].includes(item.event)
         const status = isWarning
-          ? item.confirmId
+          ? confirmId
             ? PENALTY_STATUS.WarningConfirmed
             : PENALTY_STATUS.Warned
-          : item.confirmId
+          : confirmId
           ? PENALTY_STATUS.PenaltyConfirmed
           : PENALTY_STATUS.Penalty
 
         return {
           ...item,
-          status,
-          height: item.height ? item.height : undefined,
-          regId: item.regId !== 'n' ? item.regId : undefined,
-          confirmId: item.confirmId !== 'n' ? item.confirmId : undefined,
+          height,
+          regId,
+          confirmId,
           timestamp: item.timestamp * 1000,
           confirmTimestamp: Number(item.confirmTimestamp) * 1000,
+          posterId,
+          postTimestamp,
+          status,
         }
       }) ?? [],
     [data]
@@ -49,14 +57,14 @@ const useLSVPenalty = (address: string) => {
       const descs = item.rawJson.desc?.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR)
       const refLink = descs && descs.length === 2 ? descs[0] : undefined
       const desc = descs && descs.length === 2 ? descs[1] : descs ? descs[0] : undefined
-      const posterId = item.confirmId ?? item.regId
-      const postTimestamp = item.confirmId ? item.confirmTimestamp : item.timestamp
+      // const posterId = item.confirmId ?? item.regId
+      // const postTimestamp = item.confirmId ? item.confirmTimestamp : item.timestamp
       return {
         ...item,
         refLink,
         desc,
-        posterId,
-        postTimestamp,
+        // posterId,
+        // postTimestamp,
       }
     })
   }, [getLSVEvents])

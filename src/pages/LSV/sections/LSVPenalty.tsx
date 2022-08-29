@@ -27,7 +27,7 @@ import dayjs from 'dayjs'
 // import TableList from 'components/TableList'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import { useMemo, useState } from 'react'
-import type { LSVEvent, LSVPenaltyConfirmPost, LSVVoteWarnPost } from 'types/lsv'
+import type { LSVPenaltyConfirmPost, LSVVoteWarnPost, Penalty } from 'types/lsv'
 import { openExplorerByHeight } from 'utils/browser'
 import { isMobile } from 'utils/userAgent'
 
@@ -195,7 +195,7 @@ function ValPenaltySection({
   valueKeys,
   postable,
 }: {
-  events: LSVEvent[]
+  events: Penalty[]
   title: string
   cardTitle?: string
   desc: string
@@ -283,7 +283,7 @@ function ValPenaltySection({
   // <EmptyData label="NA" useGlassEffect={true} />
 }
 
-function getPenaltyPointAfterConfirm(event: LSVEvent): number {
+function getPenaltyPointAfterConfirm(event: Penalty): number {
   return event.event === 'vote_warning' ? 1 : event.penaltyPoint
 }
 
@@ -310,7 +310,7 @@ function ValPenaltyCard({
 }: {
   title: string
   desc: string
-  event: LSVEvent
+  event: Penalty
   valueKeys: { key: string; type: PenaltyValueType; alias?: string }[]
   error?: boolean
   warning?: boolean

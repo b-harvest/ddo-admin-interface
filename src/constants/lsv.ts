@@ -26,9 +26,9 @@ export enum PENALTY_STATUS {
 
 export const WARNING_STATUS_ICON_TYPE_MAP: Record<PENALTY_STATUS, IconType> = {
   [PENALTY_STATUS.PenaltyConfirmed]: 'slash',
-  [PENALTY_STATUS.Penalty]: 'loader',
+  [PENALTY_STATUS.Penalty]: 'slash',
   [PENALTY_STATUS.WarningConfirmed]: 'warning',
-  [PENALTY_STATUS.Warned]: 'loader',
+  [PENALTY_STATUS.Warned]: 'warning',
   [PENALTY_STATUS.NotYet]: 'plus',
 }
 

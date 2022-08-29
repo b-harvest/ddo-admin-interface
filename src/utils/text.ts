@@ -14,3 +14,8 @@ export const isValidUrl = (url: string) => {
   }
   return true
 }
+
+export const extractEmailId = (email: string): string => {
+  const splits = email.split('@')
+  return splits[0]
+}

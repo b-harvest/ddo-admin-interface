@@ -117,70 +117,22 @@ export interface LSVEventRawBase {
   regId: string
 }
 
-export type LSVEventBase = Omit<LSVEventRawBase, 'height' | 'confirmTimestamp' | 'regId' | 'confirmId'> & {
+export type Penalty = Omit<LSVEventRawBase, 'height' | 'confirmTimestamp' | 'regId' | 'confirmId'> & {
   height: number | undefined
   confirmTimestamp: number
   regId: string | undefined
   confirmId: string | undefined
-}
-
-export interface LSVEventCommissionChanged extends LSVEventBase {
-  event: 'commssion_changed'
-  rawJson: LSVEventRawJsonCommissionChanged | null
-}
-
-export interface LSVEventJailed extends LSVEventBase {
-  event: 'jailed'
-  rawJson: LSVEventRawJsonJailed | null
-}
-
-export interface LSVEventBlockMissing extends LSVEventBase {
-  event: 'block_missing'
-  rawJson: LSVEventRawJsonBlockMissing | null
-}
-
-export interface LSVEventNoSigning extends LSVEventBase {
-  event: 'no_signing'
-  rawJson: LSVEventRawJsonNoSigning | null
-}
-
-export interface LSVEventBadPerformance extends LSVEventBase {
-  event: 'bad_performance'
-  rawJson: LSVEventRawJsonBadPerformance | null
-}
-
-export interface LSVEventReliabilityWarn extends LSVEventBase {
-  event: 'reliabiity_warning' | 'reliability_penalty'
-  rawJson: LSVEventRawJsonReliabilityWarn | null
-}
-
-export interface LSVEventVoteWarn extends LSVEventBase {
-  event: 'vote_warning' | 'vote_penalty'
-  rawJson: LSVEventRawJsonVoteWarn
-  status: PENALTY_STATUS
-}
-
-export type VotePenalty = LSVEventVoteWarn & {
-  refLink: string | undefined
-  desc: string | undefined
   posterId: string | undefined
   postTimestamp: number
+  status: PENALTY_STATUS
+  rawJson: any
 }
 
-// to be del...
-export type LSVEventRaw =
-  | LSVEventCommissionChanged
-  | LSVEventJailed
-  | LSVEventBlockMissing
-  | LSVEventNoSigning
-  | LSVEventBadPerformance
-  | LSVEventReliabilityWarn
-  | LSVEventVoteWarn
-
-export type LSVEvent = LSVEventRaw
-
-export type Penalty = LSVEvent & {
-  status: PENALTY_STATUS
+export type VotePenalty = Omit<Penalty, 'rawJson'> & {
+  event: 'vote_warning' | 'vote_penalty'
+  rawJson: LSVEventRawJsonVoteWarn
+  refLink: string | undefined
+  desc: string | undefined
 }
 
 // post
@@ -201,3 +153,52 @@ export type LSVPenaltyConfirmPost = {
     msg?: string
   }
 }
+
+// to be del
+export interface LSVEventCommissionChanged extends Penalty {
+  event: 'commssion_changed'
+  rawJson: LSVEventRawJsonCommissionChanged | null
+}
+
+export interface LSVEventJailed extends Penalty {
+  event: 'jailed'
+  rawJson: LSVEventRawJsonJailed | null
+}
+
+export interface LSVEventBlockMissing extends Penalty {
+  event: 'block_missing'
+  rawJson: LSVEventRawJsonBlockMissing | null
+}
+
+export interface LSVEventNoSigning extends Penalty {
+  event: 'no_signing'
+  rawJson: LSVEventRawJsonNoSigning | null
+}
+
+export interface LSVEventBadPerformance extends Penalty {
+  event: 'bad_performance'
+  rawJson: LSVEventRawJsonBadPerformance | null
+}
+
+export interface LSVEventReliabilityWarn extends Penalty {
+  event: 'reliabiity_warning' | 'reliability_penalty'
+  rawJson: LSVEventRawJsonReliabilityWarn | null
+}
+
+export interface LSVEventVoteWarn extends Penalty {
+  event: 'vote_warning' | 'vote_penalty'
+  rawJson: LSVEventRawJsonVoteWarn
+  status: PENALTY_STATUS
+}
+
+// to be del...
+export type LSVEventRaw =
+  | LSVEventCommissionChanged
+  | LSVEventJailed
+  | LSVEventBlockMissing
+  | LSVEventNoSigning
+  | LSVEventBadPerformance
+  | LSVEventReliabilityWarn
+  | LSVEventVoteWarn
+
+export type LSVEvent = LSVEventRaw

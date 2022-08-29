@@ -3,6 +3,7 @@ import Icon, { IconType } from 'components/Icon'
 interface IconButtonProps {
   type: IconType
   label?: string
+  showLabel?: boolean
   onClick?: () => void
   className?: string
   iconClassName?: string
@@ -11,6 +12,7 @@ interface IconButtonProps {
 export default function IconButton({
   type,
   label = `${type}`,
+  showLabel = false,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClick = () => {},
   className = '',
@@ -18,8 +20,8 @@ export default function IconButton({
 }: IconButtonProps) {
   return (
     <button type="button" onClick={onClick} className={`${className} flex justify-center items-center overflow-hidden`}>
-      <div className="SCREEN-READER">{label}</div>
       <Icon type={type} className={iconClassName} />
+      <div className={showLabel ? 'ml-1' : 'sr-only'}>{label}</div>
     </button>
   )
 }
