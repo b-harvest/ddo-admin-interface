@@ -19,3 +19,7 @@ export const toastWarning = (msg: string | JSX.Element) => {
 export const toastError = (msg: string | JSX.Element) => {
   toast.error(msg, {})
 }
+
+// export toastOnPost = ({ success, message }) => {
+
+// }

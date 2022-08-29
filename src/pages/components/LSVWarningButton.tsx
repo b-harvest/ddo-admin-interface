@@ -1,9 +1,9 @@
 import IconButton from 'components/IconButton'
-import { VOTE_WARNING_STATUS, WARNING_STATUS_ICON_TYPE_MAP } from 'constants/lsv'
+import { PENALTY_STATUS, WARNING_STATUS_ICON_TYPE_MAP } from 'constants/lsv'
 
 const WARN_BUTTON_CSS = `TYPO-BODY-M w-[40px] flex justify-center`
 
-export default function LSVWarningButton({ onClick, status }: { onClick: () => void; status: VOTE_WARNING_STATUS }) {
+export default function LSVWarningButton({ onClick, status }: { onClick: () => void; status: PENALTY_STATUS }) {
   return (
     <>
       <IconButton
@@ -15,9 +15,9 @@ export default function LSVWarningButton({ onClick, status }: { onClick: () => v
   )
 }
 
-function getButtonCSS(status: VOTE_WARNING_STATUS) {
+function getButtonCSS(status: PENALTY_STATUS) {
   switch (status) {
-    case VOTE_WARNING_STATUS.NotYet:
+    case PENALTY_STATUS.NotYet:
       return 'text-grayCRE-300 hover:text-grayCRE-200'
     default:
       return 'text-warning'

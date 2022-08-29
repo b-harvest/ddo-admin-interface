@@ -17,6 +17,7 @@ import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
+import LSVPenaltyBoard from 'pages/components/LSVPenaltyBoard'
 import LSVWarningModal from 'pages/components/LSVWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo } from 'react'
@@ -29,7 +30,6 @@ import { openExplorerByHeight } from 'utils/browser'
 import { abbrOver } from 'utils/text'
 
 import LSVWarningButton from '../components/LSVWarningButton'
-import LSVPenalty from './sections/LSVPenalty'
 
 type LSVVoteRecord = {
   proposalId: number
@@ -75,7 +75,7 @@ export default function LSVDetail() {
     )
 
   // voting history
-  const { votePenalties, getVotePenaltyRepStatusByProposal } = useLSVPenalty(lsv?.addr ?? '')
+  const { allPenalties, votePenalties, getVotePenaltyRepStatusByProposal } = useLSVPenalty(lsv?.addr ?? '')
 
   // modal
   const [modal, setModal] = useState<boolean>(false)
@@ -177,6 +177,10 @@ export default function LSVDetail() {
 
           <Hr />
 
+          <LSVPenaltyBoard penalties={allPenalties} penaltyPoint={lsv.penaltyTotal} />
+
+          <Hr />
+
           {/* Voting */}
           <section className="mt-8 mb-8">
             <H3 title="Voting" />
@@ -258,9 +262,8 @@ export default function LSVDetail() {
             <LSVWarningModal active={modal} lsv={lsv} proposalId={modalProposalId} onClose={() => setModal(false)} />
           </section>
 
-          <Hr />
-
-          <LSVPenalty address={lsv.addr} penaltyPoint={lsv.penaltyTotal} />
+          {/* <Hr />
+          <LSVPenalty address={lsv.addr} penaltyPoint={lsv.penaltyTotal} /> */}
         </>
       ) : null}
     </AppPage>

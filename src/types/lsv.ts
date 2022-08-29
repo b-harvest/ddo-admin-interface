@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { VOTE_WARNING_STATUS } from 'constants/lsv'
+import { PENALTY_STATUS } from 'constants/lsv'
 
 // jail, commission
 export interface LSVRaw {
@@ -157,7 +157,7 @@ export interface LSVEventReliabilityWarn extends LSVEventBase {
 export interface LSVEventVoteWarn extends LSVEventBase {
   event: 'vote_warning' | 'vote_penalty'
   rawJson: LSVEventRawJsonVoteWarn
-  status: VOTE_WARNING_STATUS
+  status: PENALTY_STATUS
 }
 
 export type VotePenalty = LSVEventVoteWarn & {
@@ -178,6 +178,10 @@ export type LSVEventRaw =
   | LSVEventVoteWarn
 
 export type LSVEvent = LSVEventRaw
+
+export type Penalty = LSVEvent & {
+  status: PENALTY_STATUS
+}
 
 // post
 export type LSVVoteWarnPost = {

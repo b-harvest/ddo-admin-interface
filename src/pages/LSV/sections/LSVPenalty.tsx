@@ -31,8 +31,6 @@ import type { LSVEvent, LSVPenaltyConfirmPost, LSVVoteWarnPost } from 'types/lsv
 import { openExplorerByHeight } from 'utils/browser'
 import { isMobile } from 'utils/userAgent'
 
-// const FIELD_CSS = 'TYPO-BODY-S text-grayCRE-400 dark:text-grayCRE-300 !font-medium'
-// const MANUAL_LSV_EVENTS: LSVEventType[] = ['reliabiity_warning', 'vote_warning', 'reliability_penalty', 'vote_penalty']
 type PenaltyValueType = 'percentage' | 'string' | 'number' | 'desc'
 
 const buttonSize = isMobile ? 'md' : 'xs'
@@ -84,7 +82,7 @@ export default function LSVPenalty({ address, penaltyPoint }: { address: string;
       {/* Immediate Kickout */}
       <div className="flex flex-col md:flex-row justify-start md:justify-between items-start gap-4 mt-8 mb-8">
         <div>
-          <H3 title="Penalty Board" className="" />
+          <H3 title="Penalty Board (Old)" className="" />
           <div className="mt-2">
             <span className="TYPO-BODY-S mr-2">Current penalty point</span>
             <span className={`FONT-MONO ${penaltyPoint >= 3 ? 'text-error' : ''}`}>{penaltyPoint}</span>

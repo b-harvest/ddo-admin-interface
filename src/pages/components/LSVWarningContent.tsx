@@ -54,7 +54,9 @@ export default function LSVWarningContent({
 
             <div className={PENALTY_WRAPPER_CSS}>
               <div className={PENALTY_FIELD_CSS}>Memo</div>
-              <div className={`${PENALTY_VALUE_CSS} ${penalty.desc ? '' : 'opacity-40'}`}>{penalty.desc ?? '-'}</div>
+              <div className={`${PENALTY_VALUE_CSS} ${penalty.desc ? '' : 'opacity-40'}`}>
+                {penalty.desc && penalty.desc.length ? penalty.desc : '-'}
+              </div>
             </div>
 
             <div className={PENALTY_WRAPPER_CSS}>
