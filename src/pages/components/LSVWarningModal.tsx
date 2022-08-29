@@ -24,7 +24,7 @@ export default function LSVWarningModal({
   proposalId: number
   onClose: () => void
 }) {
-  const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
+  const { getRepVotePenaltyByProposal, mutate } = useLSVPenalty(lsv.addr)
   const penalty = getRepVotePenaltyByProposal(proposalId)
 
   // modal
@@ -46,6 +46,7 @@ export default function LSVWarningModal({
     onClose()
     setIsModalLoading(false)
     resetModalInput()
+    mutate()
   }
 
   const onSaveButtonDisabled = useMemo<boolean>(() => !isValidUrl(modalRefLink), [modalRefLink])
@@ -53,7 +54,6 @@ export default function LSVWarningModal({
   const onSaveClick = async () => {
     setIsModalLoading(true)
 
-    // regId ?
     const postData: LSVVoteWarnPost = {
       event_type: 'vote_warning',
       json: {
@@ -63,7 +63,6 @@ export default function LSVWarningModal({
       },
     }
 
-    console.log('postData', postData)
     const res = await postLSVVoteWarn(postData)
     // tmp
     if (res?.data.result === 'success') {
@@ -148,7 +147,7 @@ export default function LSVWarningModal({
               keyword={modalRefLink}
               onChange={setModalRefLink}
               validate={isValidUrl}
-              invalidMsg="Please input a valid url"
+              invalidMsg="Please fill out with a valid url."
             />
             <Textarea placeholder="Memo (optional)" keyword={modalMemo} onChange={setModalMemo} />
           </div>

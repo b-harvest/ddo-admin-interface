@@ -9,6 +9,7 @@ import { TIMESTAMP_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import { VotePenalty } from 'types/lsv'
 
+const PENALTY_WRAPPER_CSS = `flex justify-between items-stretch gap-4`
 const PENALTY_FIELD_SIZE_CSS = `grow-0 shrink-0 basis-[40%] ${FIELD_CSS}`
 
 export default function LSVWarningContent({
@@ -30,7 +31,7 @@ export default function LSVWarningContent({
 
         <div className="space-y-6 TYPO-BODY-S">
           <div className="space-y-1 border-t border-b border-grayCRE-400-o dark:border-grayCRE-300-o px-3 py-3">
-            <div className="flex justify-between items-center gap-4">
+            <div className={PENALTY_WRAPPER_CSS}>
               <div className={PENALTY_FIELD_SIZE_CSS}>Status</div>
               <div className="grow shrink">
                 <div className="flex items-center gap-2">
@@ -40,22 +41,22 @@ export default function LSVWarningContent({
               </div>
             </div>
 
-            <div className="flex justify-between items-center gap-4">
+            <div className={PENALTY_WRAPPER_CSS}>
               <div className={PENALTY_FIELD_SIZE_CSS}>Penalty point</div>
               <div className="grow shrink">{penalty.penaltyPoint}</div>
             </div>
 
-            <div className="flex justify-between items-center gap-4">
+            <div className={PENALTY_WRAPPER_CSS}>
               <div className={PENALTY_FIELD_SIZE_CSS}>Proposal #</div>
               <div className="grow shrink">{proposalId}</div>
             </div>
 
-            <div className="flex justify-between items-center gap-4">
+            <div className={PENALTY_WRAPPER_CSS}>
               <div className={PENALTY_FIELD_SIZE_CSS}>Memo</div>
               <div className={`grow shrink ${penalty.desc ? '' : 'opacity-40'}`}>{penalty.desc ?? '-'}</div>
             </div>
 
-            <div className="flex justify-between items-center gap-4">
+            <div className={PENALTY_WRAPPER_CSS}>
               <div className={PENALTY_FIELD_SIZE_CSS}>Reference</div>
               <div className="grow shrink TYPO-BODY-L">
                 <IconButton

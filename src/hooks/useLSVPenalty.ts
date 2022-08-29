@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { LSVEventType, LSVEventVoteWarn, VotePenalty } from 'types/lsv'
 
 const useLSVPenalty = (address: string) => {
-  const { data, isLoading } = usePenaltiesByLSV({ address })
+  const { data, isLoading, mutate } = usePenaltiesByLSV({ address })
 
   const getLSVEvents = useCallback(
     (event: LSVEventType) => {
@@ -93,6 +93,7 @@ const useLSVPenalty = (address: string) => {
     getRepVotePenaltyByProposal,
     getVotePenaltyRepStatusByProposal,
     isLoading,
+    mutate,
   }
 }
 

@@ -66,11 +66,12 @@ export function willFetch(value?: string): boolean {
   return value !== undefined && value.length > 0
 }
 
-export function returnGenerator<T>({ data, error }: ResponseViaSWR<T>): APIHookReturn<T> {
+export function returnGenerator<T>({ data, error, mutate }: ResponseViaSWR<T>): APIHookReturn<T> {
   return {
     data,
     error: handleError(error),
     isLoading: !error && !data,
+    mutate,
   }
 }
 
@@ -102,10 +103,10 @@ export default function useAppSWR(
   // doesn't use suspense as true currently to handle error with Toast, not ErrorBoundary
   // see https://swr.vercel.app/docs/suspense
   // see discussion https://github.com/vercel/swr/discussions/959
-  const { data, error } = useSWR(baseUrl && fetch ? `${baseUrl}${url}` : null, fetcher, {
+  const { data, error, mutate } = useSWR(baseUrl && fetch ? `${baseUrl}${url}` : null, fetcher, {
     refreshInterval: interval,
     suspense,
   })
 
-  return { data, error }
+  return { data, error, mutate }
 }

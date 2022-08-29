@@ -30,10 +30,10 @@ export default function useInfoSWR(
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   const baseUrl = getBaseUrl({ chainId: chainIdAtom })
 
-  const { data, error } = useSWR(baseUrl && fetch ? `${baseUrl}${url}` : null, fetcher, {
+  const { data, error, mutate } = useSWR(baseUrl && fetch ? `${baseUrl}${url}` : null, fetcher, {
     refreshInterval: interval,
     // suspense: true,
   })
 
-  return { data, error }
+  return { data, error, mutate }
 }
