@@ -1,7 +1,7 @@
 import Button from 'components/Button'
 import { toastError } from 'components/Toast/generator'
 import { useAtom } from 'jotai'
-import { isValidUser, refreshTokenSetup } from 'pages/SignIn/utils'
+import { isValidUser, setupRefreshToken } from 'pages/SignIn/utils'
 import { useState } from 'react'
 // import { GoogleLogin } from 'react-google-login'
 import { useGoogleLogin } from 'react-google-login'
@@ -28,7 +28,7 @@ export default function GoogleSignInButton({
     setIsLoading(false)
 
     if (isValidUser(res.profileObj, 'crescent.foundation')) {
-      await refreshTokenSetup(res)
+      await setupRefreshToken(res, setAuthTokenAtom)
 
       setUserAtom({ user: res.profileObj as GoogleUserProfile })
       setAuthTokenAtom({ authToken: res.getAuthResponse().id_token })

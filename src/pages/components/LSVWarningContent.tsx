@@ -10,7 +10,8 @@ import dayjs from 'dayjs'
 import { VotePenalty } from 'types/lsv'
 
 const PENALTY_WRAPPER_CSS = `flex justify-between items-stretch gap-4`
-const PENALTY_FIELD_SIZE_CSS = `grow-0 shrink-0 basis-[40%] ${FIELD_CSS}`
+const PENALTY_FIELD_CSS = `grow-0 shrink-0 basis-[40%] ${FIELD_CSS}`
+const PENALTY_VALUE_CSS = `grow shrink whitespace-pre-line`
 
 export default function LSVWarningContent({
   title,
@@ -29,11 +30,11 @@ export default function LSVWarningContent({
           <H4 title={title} className="" />
         </header>
 
-        <div className="space-y-6 TYPO-BODY-S">
+        <div className="space-y-6 TYPO-BODY-M md:TYPO-BODY-S">
           <div className="space-y-1 border-t border-b border-grayCRE-400-o dark:border-grayCRE-300-o px-3 py-3">
             <div className={PENALTY_WRAPPER_CSS}>
-              <div className={PENALTY_FIELD_SIZE_CSS}>Status</div>
-              <div className="grow shrink">
+              <div className={PENALTY_FIELD_CSS}>Status</div>
+              <div className={PENALTY_VALUE_CSS}>
                 <div className="flex items-center gap-2">
                   {/* <Icon type={WARNING_STATUS_ICON_TYPE_MAP[penalty.status]} className="TYPO-BODY-S" />{' '} */}
                   {WARNING_STATUS_VOTE_DESC_MAP[penalty.status]}
@@ -42,23 +43,23 @@ export default function LSVWarningContent({
             </div>
 
             <div className={PENALTY_WRAPPER_CSS}>
-              <div className={PENALTY_FIELD_SIZE_CSS}>Penalty point</div>
-              <div className="grow shrink">{penalty.penaltyPoint}</div>
+              <div className={PENALTY_FIELD_CSS}>Penalty point</div>
+              <div className={PENALTY_VALUE_CSS}>{penalty.penaltyPoint}</div>
             </div>
 
             <div className={PENALTY_WRAPPER_CSS}>
-              <div className={PENALTY_FIELD_SIZE_CSS}>Proposal #</div>
-              <div className="grow shrink">{proposalId}</div>
+              <div className={PENALTY_FIELD_CSS}>Proposal #</div>
+              <div className={PENALTY_VALUE_CSS}>{proposalId}</div>
             </div>
 
             <div className={PENALTY_WRAPPER_CSS}>
-              <div className={PENALTY_FIELD_SIZE_CSS}>Memo</div>
-              <div className={`grow shrink ${penalty.desc ? '' : 'opacity-40'}`}>{penalty.desc ?? '-'}</div>
+              <div className={PENALTY_FIELD_CSS}>Memo</div>
+              <div className={`${PENALTY_VALUE_CSS} ${penalty.desc ? '' : 'opacity-40'}`}>{penalty.desc ?? '-'}</div>
             </div>
 
             <div className={PENALTY_WRAPPER_CSS}>
-              <div className={PENALTY_FIELD_SIZE_CSS}>Reference</div>
-              <div className="grow shrink TYPO-BODY-L">
+              <div className={PENALTY_FIELD_CSS}>Reference</div>
+              <div className={`${PENALTY_VALUE_CSS} TYPO-BODY-L`}>
                 <IconButton
                   type="copylink"
                   className={penalty.refLink ? 'hover:text-info' : 'opacity-40 cursor-not-allowed'}
@@ -83,7 +84,7 @@ export default function LSVWarningContent({
                     {penalty.posterId}
                   </CopyHelper>
                 ) : (
-                  <div>back-end</div>
+                  'back-end'
                 )
               }
             />

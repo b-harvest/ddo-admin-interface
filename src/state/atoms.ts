@@ -9,7 +9,9 @@ import type { GoogleUserProfile } from 'types/user'
 
 // darkmode
 const LOCAL_STORAGE_KEY_IS_DARK_MODE = `is-dark-mode`
-const isDarkModeAtom = atom<boolean>(Boolean(localStorage.getItem(LOCAL_STORAGE_KEY_IS_DARK_MODE) ?? true))
+const isDarkModeFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_IS_DARK_MODE)
+
+const isDarkModeAtom = atom<boolean>(isDarkModeFromLocal === 'true')
 export const isDarkModeAtomRef = atom(
   (get) => get(isDarkModeAtom),
   (_, set, { isDarkMode }: { isDarkMode: boolean }) => {

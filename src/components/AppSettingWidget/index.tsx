@@ -8,7 +8,9 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { isDarkModeAtomRef, userAtomRef } from 'state/atoms'
 
-const DARK_MODE_TAB_ITEMS = [
+type DarkModeType = 'dark' | 'light'
+
+const DARK_MODE_TAB_ITEMS: { label: string; value: DarkModeType }[] = [
   {
     label: 'Light',
     value: 'light',
@@ -23,9 +25,9 @@ const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
 export default function AppSettingWidget() {
   // dark mode
   const [isDarkModeAtom, setIsDarkModeAtom] = useAtom(isDarkModeAtomRef)
-  const darkModeTabSelectedValue = useMemo(() => (isDarkModeAtom ? 'dark' : 'light'), [isDarkModeAtom])
+  const darkModeTabSelectedValue = useMemo<DarkModeType>(() => (isDarkModeAtom ? 'dark' : 'light'), [isDarkModeAtom])
 
-  const handleDarkModeSelect = (value: string | undefined) => {
+  const handleDarkModeSelect = (value: DarkModeType) => {
     setIsDarkModeAtom({ isDarkMode: value === 'dark' })
   }
 
@@ -82,7 +84,7 @@ export default function AppSettingWidget() {
 
   return (
     <MoreWidget panelItems={settingsWidgetPanelItems} excludedItems={userAtom ? [] : ['logout']}>
-      <SelectTab<string>
+      <SelectTab<DarkModeType>
         label="Theme"
         tabItems={DARK_MODE_TAB_ITEMS}
         selectedValue={darkModeTabSelectedValue}

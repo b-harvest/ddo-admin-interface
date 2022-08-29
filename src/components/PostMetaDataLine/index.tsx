@@ -1,5 +1,6 @@
-const POST_CSS = `flex items-stretch gap-1 TYPO-BODY-XS`
-const POST_FIELD_CSS = `grow shrink text-grayCRE-300 dark:text-grayCRE-400 whitespace-nowrap`
+const POST_CSS = `space-x-1 TYPO-BODY-S md:TYPO-BODY-XS`
+const POST_FIELD_CSS = `inline text-grayCRE-300 dark:text-grayCRE-400 whitespace-nowrap`
+const POST_VALUE_CSS = `inline w-full whitespace-pre-line`
 
 export default function PostMetaDataLine({
   field,
@@ -18,7 +19,9 @@ export default function PostMetaDataLine({
       >
         {field}
       </div>
-      <div className="grow shrink w-full">{value}</div>
+      <div className={POST_VALUE_CSS} style={{ wordBreak: 'keep-all' }}>
+        {value}
+      </div>
     </div>
   )
 }
