@@ -233,7 +233,7 @@ export default function LSVPenaltyBoard({
 
 function PenaltyField({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="grow-0 shrink-0 basis-[40%] md:basis-[160px] flex justify-start items-start gap-2">
+    <div className="grow-0 shrink-0 basis-[44%] md:basis-[160px] flex justify-start items-start gap-2">
       <div className={FIELD_CSS}>{title}</div>
       <QuestionTooltip desc={desc} />
     </div>
