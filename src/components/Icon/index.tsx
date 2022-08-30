@@ -1,9 +1,16 @@
 import React from 'react'
 import { IconContext } from 'react-icons'
 import { AiOutlineInfoCircle, AiOutlineLoading3Quarters, AiOutlinePlus, AiOutlineWarning } from 'react-icons/ai'
-import { AiFillDislike, AiOutlineDislike, AiOutlineExclamation, AiOutlineLike, AiOutlineLink } from 'react-icons/ai'
+import {
+  AiFillDislike,
+  AiOutlineDislike,
+  AiOutlineExclamation,
+  AiOutlineLike,
+  AiOutlineLink,
+  AiOutlineStrikethrough,
+} from 'react-icons/ai'
 import { BiLinkExternal } from 'react-icons/bi'
-import { BsGithub, BsMedium, BsSlashCircle, BsTwitter } from 'react-icons/bs'
+import { BsGithub, BsMedium, BsSlashCircle, BsSlashSquareFill, BsTwitter } from 'react-icons/bs'
 import { CgFileDocument } from 'react-icons/cg'
 import { FaRegBell } from 'react-icons/fa'
 import { FaAdn, FaBan, FaRegCheckCircle, FaTelegramPlane } from 'react-icons/fa'
@@ -66,6 +73,8 @@ export type IconType =
   | 'question'
   | 'slash'
   | 'loader'
+  | 'strike'
+  | 'discarded'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -112,6 +121,8 @@ const Icons: { [key: string]: React.ElementType } = {
   question: RiQuestionLine,
   slash: BsSlashCircle,
   loader: RiLoader4Fill,
+  strike: AiOutlineStrikethrough,
+  discarded: BsSlashSquareFill,
 }
 
 interface IconProps {

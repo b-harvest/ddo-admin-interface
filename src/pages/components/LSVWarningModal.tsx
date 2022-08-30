@@ -3,15 +3,21 @@ import Input from 'components/Inputs/Input'
 import Textarea from 'components/Inputs/Textarea'
 import Modal from 'components/Modal'
 import { toastError, toastSuccess } from 'components/Toast/generator'
-import { PENALTY_STATUS } from 'constants/lsv'
-import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/msg'
-import { postLSVPenaltyConfirm, postLSVVoteWarn } from 'data/api'
+import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/lsv'
+import { postLSVPenalty, postLSVPenaltyConfirm } from 'data/api'
 import useLSVPenalty from 'hooks/useLSVPenalty'
-import LSVWarningContent from 'pages/components/LSVWarningContent'
+import LSVPenaltyContent from 'pages/components/LSVPenaltyContent'
 import { useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import type { LSV, LSVPenaltyConfirmPost, LSVVoteWarnPost, VotePenalty } from 'types/lsv'
+import { LSV, LSVPenaltyConfirmPost, LSVVoteWarnPost, Penalty, PENALTY_TYPE, VotePenalty } from 'types/lsv'
+import { PENALTY_STATUS } from 'types/lsv'
 import { isValidUrl } from 'utils/text'
+
+enum ADMIN_ACTION_ON_PENALTY {
+  ConfirmWarning = 'Confirm warning',
+  ConfirmPenalty = 'Confirm 1 strike',
+  SeePenaltyBoard = 'See penalty board',
+}
 
 export default function LSVWarningModal({
   active,
@@ -64,34 +70,43 @@ export default function LSVWarningModal({
       },
     }
 
-    const { success } = await postLSVVoteWarn(postData)
+    const { success } = await postLSVPenalty(postData)
     if (success) toastSuccess('Warning saved successfully')
 
     terminate()
   }
 
-  // if not postable
-
+  // confirm
   const history = useHistory()
-  const onConfirmClick = async (penalty: VotePenalty) => {
-    if (shouldConfirm(penalty.status)) {
-      setIsModalLoading(true)
+  const seePenaltyBoard = () => {
+    history.push(`/lsv/${lsv.valOperAddr}`)
+  }
 
-      const postData: LSVPenaltyConfirmPost = {
+  const confirmPenalty = async (penalty: VotePenalty) => {
+    setIsModalLoading(true)
+
+    const postData: LSVPenaltyConfirmPost = {
+      eid: penalty.eid,
+      json: {
         eid: penalty.eid,
-        json: {
-          eid: penalty.eid,
-          result: 'y',
-          msg: confirmMsg,
-        },
-      }
-      const { success, message } = await postLSVPenaltyConfirm(postData)
-      if (success) toastSuccess('Warning saved successfully')
-      else if (!success && message) if (message) toastError(message)
+        result: 'y',
+        msg: confirmMsg,
+      },
+    }
+    const { success, message } = await postLSVPenaltyConfirm(postData)
+    if (success) toastSuccess('Warning saved successfully')
+    else if (!success && message) if (message) toastError(message)
 
-      terminate()
+    terminate()
+  }
+
+  const onConfirmClick = async (penalty: VotePenalty) => {
+    const adminAction = getAdminAction(penalty)
+
+    if (adminAction === ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard) {
+      seePenaltyBoard()
     } else {
-      history.push(`/lsv/${lsv.valOperAddr}`)
+      confirmPenalty(penalty)
     }
   }
 
@@ -102,20 +117,14 @@ export default function LSVWarningModal({
           active={active}
           onClose={terminate}
           onOk={() => onConfirmClick(penalty)}
-          okButtonLabel={
-            penalty.status === PENALTY_STATUS.Warned
-              ? 'Confirm warning'
-              : penalty.status === PENALTY_STATUS.Penalty
-              ? 'Confirm penalty'
-              : 'See penalty board'
-          }
-          okButtonColor={shouldConfirm(penalty.status) ? 'danger' : 'primary'}
+          okButtonLabel={getAdminAction(penalty)}
+          okButtonColor={penalty.status === PENALTY_STATUS.NotConfirmed ? 'danger' : 'primary'}
           isLoading={isModalLoading}
         >
           <div className="space-y-4">
-            <LSVWarningContent title={`${lsv.alias}`} proposalId={proposalId} penalty={penalty} />
+            <LSVPenaltyContent title={`${lsv.alias}`} proposalId={proposalId} penalty={penalty} />
 
-            {shouldConfirm(penalty.status) ? (
+            {penalty.status === PENALTY_STATUS.NotConfirmed ? (
               <Textarea
                 placeholder="Confirming, leave a comment if any"
                 keyword={confirmMsg}
@@ -143,7 +152,7 @@ export default function LSVWarningModal({
               validate={isValidUrl}
               invalidMsg="Please fill out with a valid url."
             />
-            <Textarea placeholder="Memo (optional)" keyword={modalMemo} onChange={setModalMemo} />
+            <Textarea placeholder="Description (optional)" keyword={modalMemo} onChange={setModalMemo} />
           </div>
         </Modal>
       )}
@@ -151,6 +160,16 @@ export default function LSVWarningModal({
   )
 }
 
-function shouldConfirm(status: PENALTY_STATUS): boolean {
-  return [PENALTY_STATUS.Warned, PENALTY_STATUS.Penalty].includes(status)
+function getAdminAction(penalty: Penalty) {
+  if (penalty.type === PENALTY_TYPE.Warning) {
+    return penalty.status === PENALTY_STATUS.NotConfirmed
+      ? ADMIN_ACTION_ON_PENALTY.ConfirmWarning
+      : ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard
+  }
+  if (penalty.type === PENALTY_TYPE.Strike) {
+    return penalty.status === PENALTY_STATUS.NotConfirmed
+      ? ADMIN_ACTION_ON_PENALTY.ConfirmPenalty
+      : ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard
+  }
+  return ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard
 }

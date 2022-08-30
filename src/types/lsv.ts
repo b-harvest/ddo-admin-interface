@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { PENALTY_STATUS } from 'constants/lsv'
 
 // jail, commission
 export interface LSVRaw {
@@ -60,6 +59,18 @@ export type LSV = Omit<LSVRaw, 'tokens' | 'commission'> & {
 }
 
 // lsv event
+export enum PENALTY_TYPE {
+  Warning = 'Warning',
+  Strike = '1 strike',
+  immediateKickout = 'Immediate kickout',
+}
+
+export enum PENALTY_STATUS {
+  Confirmed = 'confirmed',
+  NotConfirmed = 'not confirmed',
+  Discarded = 'discarded',
+}
+
 export interface LSVEventRawJsonBase {
   addr: string
 }
@@ -93,24 +104,26 @@ export interface LSVEventRawJsonBadPerformance extends LSVEventRawJsonBase {
   desc?: string
 }
 
-export type LSVEventType =
+export type PenaltyEvent =
   | 'commssion_changed'
   | 'jailed'
   | 'block_missing'
   | 'no_signing'
   | 'bad_performance'
-  | 'reliabiity_warning'
+  | 'reliability_warning'
   | 'vote_warning'
   | 'reliability_penalty'
   | 'vote_penalty'
 
+export type WritablePenalty = 'vote_warning' | 'reliability_warning'
+
 export interface LSVEventRawBase {
   eid: number
-  event: LSVEventType
+  event: PenaltyEvent
   height: number
   timestamp: number
   penaltyPoint: number
-  confirmResult: string // y: confirm, n, d: discard
+  confirmResult: 'y' | 'n' | 'd' // y: confirm, n, d: discard
   confirmId: string
   confirmTimestamp: string
   confirmMsg: string
@@ -122,9 +135,12 @@ export type Penalty = Omit<LSVEventRawBase, 'height' | 'confirmTimestamp' | 'reg
   confirmTimestamp: number
   regId: string | undefined
   confirmId: string | undefined
+  // custom
   posterId: string | undefined
   postTimestamp: number
+  type: PENALTY_TYPE
   status: PENALTY_STATUS
+  dataDesc: string | undefined
   rawJson: any
 }
 
@@ -142,6 +158,14 @@ export type LSVVoteWarnPost = {
     addr: string
     desc: string
     proposalId: number
+  }
+}
+
+export type LSVReliabilityWarnPost = {
+  event_type: 'reliability_warning'
+  json: {
+    addr: string
+    desc: string
   }
 }
 
@@ -181,7 +205,7 @@ export interface LSVEventBadPerformance extends Penalty {
 }
 
 export interface LSVEventReliabilityWarn extends Penalty {
-  event: 'reliabiity_warning' | 'reliability_penalty'
+  event: 'reliability_warning' | 'reliability_penalty'
   rawJson: LSVEventRawJsonReliabilityWarn | null
 }
 

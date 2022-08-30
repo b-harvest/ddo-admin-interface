@@ -5,13 +5,21 @@ import CopyHelper from 'components/CopyHelper'
 import ExplorerLink from 'components/ExplorerLink'
 import H3 from 'components/H3'
 import Hr from 'components/Hr'
+import Icon from 'components/Icon'
+import IconButton from 'components/IconButton'
 // import Icon from 'components/Icon'
 import Indicator from 'components/Indicator'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
 import VotingOptionIcon from 'components/VotingOptionIcon'
-import { SAFE_VOTING_RATE, VOTE_OPTIONS } from 'constants/lsv'
+import {
+  PENALTY_STATUS_ICON_MAP,
+  PENALTY_TYPE_COLOR_MAP,
+  PENALTY_TYPE_ICON_MAP,
+  SAFE_VOTING_RATE,
+  VOTE_OPTIONS,
+} from 'constants/lsv'
 import { DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
@@ -23,13 +31,11 @@ import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo } from 'react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import type { LSV } from 'types/lsv'
+import { LSV } from 'types/lsv'
 import type { ProposalStatus } from 'types/proposal'
 import { openProposalById } from 'utils/browser'
 import { openExplorerByHeight } from 'utils/browser'
 import { abbrOver } from 'utils/text'
-
-import LSVWarningButton from '../components/LSVWarningButton'
 
 type LSVVoteRecord = {
   proposalId: number
@@ -47,7 +53,7 @@ type LSVVoteRecord = {
 
 export default function LSVDetail() {
   const { id }: { id: string } = useParams()
-  const { findLSVByAddr } = useLSV()
+  const { findLSVByAddr, mutateAllLSVData } = useLSV()
   const lsv = useMemo<LSV | undefined>(() => findLSVByAddr(id), [id, findLSVByAddr])
 
   const blockCommitTime = lsv?.lastProposingBlock ? new BigNumber(lsv.lastProposingBlock.blockCommitTime) : undefined
@@ -75,19 +81,19 @@ export default function LSVDetail() {
     )
 
   // voting history
-  const { allPenalties, votePenalties, getVotePenaltyRepStatusByProposal } = useLSVPenalty(lsv?.addr ?? '')
+  const { allPenalties, getRepVotePenaltyByProposal, mutate: mutateLSVPenaltyData } = useLSVPenalty(lsv?.addr ?? '')
 
   // modal
   const [modal, setModal] = useState<boolean>(false)
   const [modalProposalId, setModalProposalId] = useState<number>(0)
 
-  const onWarningButtonClick = ({ proposalId }: { proposalId: number }) => {
+  const onWarningButtonClick = (proposalId: number) => {
     setModalProposalId(proposalId)
     setModal(true)
   }
 
   const { allProposals, getStatusTagByProposal } = useProposal()
-  const engagementTableList = useMemo<LSVVoteRecord[]>(() => {
+  const votingTable = useMemo<LSVVoteRecord[]>(() => {
     return lsv
       ? allProposals.map((proposal) => {
           const proposalId = Number(proposal.proposalId)
@@ -103,9 +109,15 @@ export default function LSVDetail() {
           const votingEndTimeLabel = dayjs(proposal.proposal.voting_end_time).format(DATE_FORMAT)
           const weight = vote ? new BigNumber(vote.vote.weight) : undefined
 
-          const repStatus = getVotePenaltyRepStatusByProposal(proposalId)
-          const warnLabel = lsv ? (
-            <LSVWarningButton status={repStatus} onClick={() => onWarningButtonClick({ proposalId })} />
+          const repPenalty = getRepVotePenaltyByProposal(proposalId)
+          const warnLabel = repPenalty ? (
+            <div className={`flex items-center gap-2 pr-2 ${PENALTY_TYPE_COLOR_MAP[repPenalty.type]}`}>
+              <Icon type={PENALTY_TYPE_ICON_MAP[repPenalty.type]} />
+              <IconButton
+                type={PENALTY_STATUS_ICON_MAP[repPenalty.status]}
+                onClick={() => onWarningButtonClick(proposalId)}
+              />{' '}
+            </div>
           ) : null
 
           return {
@@ -123,13 +135,18 @@ export default function LSVDetail() {
           }
         })
       : []
-  }, [allProposals, lsv, getStatusTagByProposal, votePenalties])
+  }, [allProposals, lsv, getStatusTagByProposal, getRepVotePenaltyByProposal])
 
   const onCellClick = (cell: any, field: string, row: LSVVoteRecord) => {
     if (['proposalId', 'title'].includes(field)) {
       openProposalById(row.proposalId)
     } else if (['votingEndTimeLabel', 'statusLabel', 'optionLabel', 'weight'].includes(field)) {
     }
+  }
+
+  const mutate = () => {
+    mutateAllLSVData()
+    mutateLSVPenaltyData()
   }
 
   return (
@@ -177,7 +194,13 @@ export default function LSVDetail() {
 
           <Hr />
 
-          <LSVPenaltyBoard penalties={allPenalties} penaltyPoint={lsv.penaltyTotal} />
+          <LSVPenaltyBoard
+            lsv={lsv}
+            penalties={allPenalties}
+            penaltyPoint={lsv.penaltyTotal}
+            onConfirm={mutate}
+            onPost={mutate}
+          />
 
           <Hr />
 
@@ -200,7 +223,7 @@ export default function LSVDetail() {
               memo={<VotingOptionsLegend />}
               defaultSortBy="proposalId"
               defaultIsSortASC={false}
-              list={engagementTableList}
+              list={votingTable}
               onCellClick={onCellClick}
               fields={[
                 {

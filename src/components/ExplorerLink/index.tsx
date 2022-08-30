@@ -8,16 +8,18 @@ type ExplorerLinkProps = {
   address?: string
   denom?: string
   validator?: string
+  proposalId?: number
 }
 
-export default function ExplorerLink({ label, short, address, denom, validator }: ExplorerLinkProps) {
+export default function ExplorerLink({ label, short, address, denom, validator, proposalId }: ExplorerLinkProps) {
   const href = useMemo<string>(() => {
     if (address) return `${MINTSCAN_DOMAIN}/crescent/account/${address}`
     if (denom) return `${MINTSCAN_DOMAIN}/crescent/assets`
     if (validator && validator !== 'all') return `${MINTSCAN_DOMAIN}/crescent/validators/${validator}`
     if (validator) return `${MINTSCAN_DOMAIN}/crescent/validators`
+    if (proposalId) return `${MINTSCAN_DOMAIN}/crescent/proposals/${proposalId}`
     return `${MINTSCAN_DOMAIN}/crescent`
-  }, [address, denom, validator])
+  }, [address, denom, validator, proposalId])
 
   return (
     <a

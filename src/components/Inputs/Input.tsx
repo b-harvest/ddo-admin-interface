@@ -30,9 +30,11 @@ export default function Input({
           onChange={({ target }) => onChange(target.value)}
         />
       </div>
-      <div className="TYPO-BODY-XS text-error px-2">
-        {keyword.length === 0 || isValid ? null : <div>{invalidMsg ?? 'The input is not valid'}</div>}
-      </div>
+      {keyword.length === 0 || isValid ? null : (
+        <div className="TYPO-BODY-XS text-error px-2">
+          <div>{invalidMsg ?? 'The input is not valid'}</div>
+        </div>
+      )}
     </div>
   )
 }

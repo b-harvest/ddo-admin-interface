@@ -25,7 +25,7 @@ const useLSV = () => {
   // isBlocksLCDDataLoading
   const { blocksCommitTime } = useLSVBlockProposing()
 
-  const { data: allLSVData, isLoading: allLSVDataLoading } = useAllLSV()
+  const { data: allLSVData, isLoading: allLSVDataLoading, mutate: mutateAllLSVData } = useAllLSV()
   const { data: allLSVVoteData, isLoading: allLSVVoteDataLoading } = useAllLSVVote()
 
   const allLSVTimestamp = useMemo<number | undefined>(
@@ -94,7 +94,7 @@ const useLSV = () => {
     [allLSVDataLoading, allLSVVoteDataLoading]
   )
 
-  return { allLSVTimestamp, allLSVVoteTimestamp, allLSVVote, allLSV, findLSVByAddr, isLoading }
+  return { allLSVTimestamp, allLSVVoteTimestamp, allLSVVote, allLSV, findLSVByAddr, mutateAllLSVData, isLoading }
 }
 
 export default useLSV

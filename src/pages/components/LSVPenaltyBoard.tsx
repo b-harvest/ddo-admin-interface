@@ -1,190 +1,272 @@
-import Card from 'components/Card'
+import ExplorerLink from 'components/ExplorerLink'
+import FoldableCard from 'components/FoldableCard'
 import H3 from 'components/H3'
 import Icon from 'components/Icon'
 import IconButton from 'components/IconButton'
-import Textarea from 'components/Inputs/Textarea'
 import QuestionTooltip from 'components/QuestionTooltip'
-import { WRITABLE_PENALTIES } from 'constants/lsv'
+import StrikeBoard from 'components/StrikeBoard'
+import Tooltip from 'components/Tooltip'
+import {
+  IMMEDIATE_KICKOUT_PENALTIES,
+  LSV_OBSERVATION_DESC_ACTIVITY,
+  LSV_OBSERVATION_DESC_COMMISSION,
+  LSV_OBSERVATION_DESC_ENGAGEMENT,
+  LSV_OBSERVATION_DESC_PERFORMANCE,
+  LSV_OBSERVATION_DESC_RELIABILITY,
+  LSV_OBSERVATION_DESC_STABILITY,
+  LSV_OBSERVATION_DESC_SUSTAINABILITY,
+  PENALTY_TYPE_ICON_MAP,
+  WRITABLE_PENALTIES,
+} from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
-import { ReactNode, useCallback, useState } from 'react'
-import { LSVEventType, Penalty } from 'types/lsv'
+import { useCallback, useMemo, useState } from 'react'
+import { LSV, Penalty, PENALTY_STATUS, PENALTY_TYPE, PenaltyEvent, WritablePenalty } from 'types/lsv'
 
+import LSVPenaltyConfirmModal from './LSVPenaltyConfirmModal'
 import LSVPenaltyItems from './LSVPenaltyItems'
+import LSVWarningPostModal from './LSVPenaltyPostModal'
 
-type PenaltyItem = { label: string; desc: string; events: LSVEventType[] }
+type PenaltyItem = { label: string; desc: string; events: PenaltyEvent[]; type: PENALTY_TYPE }
 const PENALTY_ITEMS: PenaltyItem[] = [
   {
     label: 'Commission',
-    desc: `commission rate higher than 20% over 3 days totally(accumulative)`,
+    desc: LSV_OBSERVATION_DESC_COMMISSION,
     events: ['commssion_changed'],
+    type: PENALTY_TYPE.immediateKickout,
   },
   {
     label: 'Stability',
-    desc: `Block missing percentage over 10% every week`,
+    desc: LSV_OBSERVATION_DESC_STABILITY,
     events: ['block_missing'],
+    type: PENALTY_TYPE.Strike,
   },
   {
     label: 'Sustainability',
-    desc: `Take over 6-hours in succession without block signing`,
+    desc: LSV_OBSERVATION_DESC_SUSTAINABILITY,
     events: ['no_signing'],
+    type: PENALTY_TYPE.Strike,
   },
   {
     label: 'Reliability',
-    desc: `When validator meets 2 items out of 3\n• Binary upgrade in 3 hours (related to software)\n• Emergency response in 12 hours\n• Node config upgrade in 24 hours (related with local setting ex, block time control, node parameter)`,
-    events: ['reliabiity_warning', 'reliability_penalty'],
+    desc: LSV_OBSERVATION_DESC_RELIABILITY,
+    events: ['reliability_warning', 'reliability_penalty'],
+    type: PENALTY_TYPE.Strike,
   },
   {
     label: 'Engagement',
-    desc: `When validator meets 1 item out of 3\n• When the validator does not participate in governance actively, Crescent foundation gives a warning. If the validator does not vote even validator gets a warning\n• If a specific validator’s voting rate is less than 50% since they join LSV\n• When specific validator votes ‘abstain’ habitually in succession`,
+    desc: LSV_OBSERVATION_DESC_ENGAGEMENT,
     events: ['vote_warning', 'vote_penalty'],
+    type: PENALTY_TYPE.Strike,
   },
   {
     label: 'Performance',
-    desc: `When proposing Diff(the actual number of proposing blocks compared with voting power) is less than 90% with 2 months of data`,
-    events: ['bad_performance'],
+    desc: LSV_OBSERVATION_DESC_PERFORMANCE,
+    events: [],
+    type: PENALTY_TYPE.Strike,
   },
   {
     label: 'Activity',
-    desc: `When a specific validator’s Expected TX share(actual handled TX is divided by expected TX) is less than 50% with 2 months of data`,
-    events: [],
+    desc: LSV_OBSERVATION_DESC_ACTIVITY,
+    events: ['bad_performance'],
+    type: PENALTY_TYPE.Strike,
   },
 ]
 
-export default function LSVPenaltyBoard({ penalties, penaltyPoint }: { penalties: Penalty[]; penaltyPoint: number }) {
-  const getPanaltiesByEvents = useCallback(
-    (events: LSVEventType[]) => penalties.filter((penalty) => events.includes(penalty.event)),
+export default function LSVPenaltyBoard({
+  lsv,
+  penalties,
+  penaltyPoint,
+  onConfirm,
+  onPost,
+}: {
+  lsv: LSV
+  penalties: Penalty[]
+  penaltyPoint: number
+  onConfirm?: (penalty: Penalty) => void
+  onPost?: () => void
+}) {
+  const strikePoint = useMemo<number>(() => {
+    const confirmedIKs = penalties.filter(
+      (penalty) => IMMEDIATE_KICKOUT_PENALTIES.includes(penalty.event) && penalty.confirmId
+    )
+    const IK = confirmedIKs.reduce((accm, item) => accm + item.penaltyPoint, 0)
+    return penaltyPoint - IK
+  }, [penalties, penaltyPoint])
+
+  const getPenaltiesByEvents = useCallback(
+    (events: PenaltyEvent[]) => penalties.filter((penalty) => events.includes(penalty.event)),
     [penalties]
   )
 
+  const getPenaltyPointByEvents = useCallback(
+    (events: PenaltyEvent[]) => {
+      const totalPoint = getPenaltiesByEvents(events).reduce((accm, penalty) => {
+        const confirmedPoint = penalty.status === PENALTY_STATUS.Confirmed ? penalty.penaltyPoint : 0
+        return accm + confirmedPoint
+      }, 0)
+
+      return totalPoint
+    },
+    [getPenaltiesByEvents]
+  )
+  // post modal
+  const [postModal, setPostModal] = useState<boolean>(false)
+  const [modalPenaltyToPost, setModalPenaltyToPost] = useState<WritablePenalty | undefined>()
+  const [modalPenaltyItemToPost, setModalPenaltyItemToPost] = useState<string | undefined>()
+
+  const onWriteButtonClick = (item: PenaltyItem, event: WritablePenalty) => {
+    setPostModal(true)
+    setModalPenaltyItemToPost(item.label)
+    setModalPenaltyToPost(event)
+  }
+
+  // confirm modal
+  const [confirmModal, setConfirmModal] = useState<boolean>(false)
+  const [modalPenalty, setModalPenalty] = useState<Penalty | undefined>()
+
+  const onConfirmClick = (penalty: Penalty) => {
+    setModalPenalty(penalty)
+    setConfirmModal(true)
+  }
+
+  const onConfirmModalClose = () => {
+    setConfirmModal(false)
+    if (onConfirm && modalPenalty) onConfirm(modalPenalty)
+    // ... should mutate the swr
+  }
+
   return (
-    <div className="mb-10">
-      <div className="py-8">
-        <H3 title="Penalty Board" className="" />
-        <div className="mt-2">
-          <span className="TYPO-BODY-S mr-2">Current penalty point</span>
-          <span className={`FONT-MONO ${penaltyPoint >= 3 ? 'text-error' : ''}`}>{penaltyPoint}</span>
+    <div className="mb-10" id="penalty-board">
+      {/* title */}
+      <div className="flex justify-between items-start gap-4 py-8">
+        <div className="flex flex-col md:flex-row justify-start items-start md:items-center gap-4 ">
+          <H3 title="Penalty Board" />
         </div>
+        <ExplorerLink proposalId={15} label="Proposal #15" />
       </div>
 
+      {/* strike board */}
+      <div className="flex items-center gap-2 mb-4">
+        <Tooltip content={`${strikePoint} strike confirmed out of 3`}>
+          <StrikeBoard current={strikePoint} max={3} />
+        </Tooltip>
+
+        <Tooltip content={`Immediate kickout will be on when confirmed`}>
+          <StrikeBoard
+            current={penaltyPoint - strikePoint}
+            max={1}
+            iconType="slash"
+            title="Immediate kickout confirmed"
+          />
+        </Tooltip>
+      </div>
+
+      {/* penalty items */}
       <div className="flex flex-col gap-2">
         {PENALTY_ITEMS.map((item) => (
           // overflow-hidden max-h-[24px] hover:max-h-screen transition-all
           <FoldableCard
             key={item.label}
-            folded={<LSVPenaltyItems penalties={getPanaltiesByEvents(item.events)} />}
-            showFoldButton={item.events.length > 0}
+            folded={
+              hasPenalty(getPenaltiesByEvents(item.events)) ? (
+                <LSVPenaltyItems penalties={getPenaltiesByEvents(item.events)} onConfirmClick={onConfirmClick} />
+              ) : null
+            }
+            showFoldButton={hasPenalty(getPenaltiesByEvents(item.events))}
+            defaultShowFolded={hasPenaltyNotConfirmed(getPenaltiesByEvents(item.events))}
           >
-            <div className="flex flex-col md:flex-row justify-between items-stretch gap-1">
+            <div
+              className={`flex flex-row justify-between items-stretch gap-1 ${
+                !hasPenalty(getPenaltiesByEvents(item.events)) ? 'pr-10' : ''
+              }`}
+            >
               <PenaltyField title={item.label} desc={item.desc}></PenaltyField>
 
               <div
-                className={`${FIELD_CSS} grow shrink w-full whitespace-pre-line px-4 mr-4 md:border-r border-grayCRE-300 dark:border-grayCRE-500`}
-                style={{ wordBreak: 'keep-all' }}
+                className={`grow shrink flex gap-4 md:px-4 md:border-r md:border-l border-grayCRE-300 dark:border-grayCRE-500`}
               >
-                {item.desc}
+                {/* confirmed penalty */}
+                <div
+                  className={`${FIELD_CSS} ${
+                    getPenaltyPointByEvents(item.events) > 0 ? '!text-error' : 'invisible'
+                  } w-full flex items-center gap-2 whitespace-pre-line`}
+                  style={{ wordBreak: 'keep-all' }}
+                >
+                  <Icon type={PENALTY_TYPE_ICON_MAP[item.type]} />
+                  {item.type === PENALTY_TYPE.immediateKickout
+                    ? PENALTY_TYPE.immediateKickout
+                    : getPenaltyPointByEvents(item.events)}{' '}
+                  <span className="hidden md:inline">confirmed</span>
+                </div>
+
+                {/* post button */}
+                <PenaltyWriteButton penaltyItem={item} onClick={(event) => onWriteButtonClick(item, event)} />
               </div>
 
-              <PenaltyStatus penalties={getPanaltiesByEvents(item.events)} />
-              {item.events.length === 0 ? (
-                <Icon type="success" className="shrink-0 grow-0 basis-[24px] block w-4 h-4 text-success" />
+              {!hasPenalty(getPenaltiesByEvents(item.events)) ? (
+                <Icon type="success" className="absolute top-5 right-5 block w-4 h-4 text-success" />
               ) : null}
             </div>
           </FoldableCard>
         ))}
       </div>
-    </div>
-  )
-}
 
-function FoldableCard({
-  children,
-  folded,
-  defaultFold = false,
-  showFoldButton = true,
-}: {
-  children: ReactNode
-  folded: JSX.Element | null
-  defaultFold?: boolean
-  showFoldButton?: boolean
-}) {
-  const [showFolded, setShowFolded] = useState<boolean>(defaultFold)
-  const onCardClick = () => {
-    setShowFolded(!showFolded)
-  }
-
-  return (
-    <div>
-      <Card
-        useGlassEffect={true}
-        onClick={onCardClick}
-        className={`cursor-pointer transition-all hover:bg-grayCRE-100 dark:hover:bg-neutral-700 hover:-translate-y-[1px] ${
-          showFolded ? '!bg-grayCRE-100 dark:!bg-neutral-700' : ''
-        }`}
-      >
-        {children}
-        {showFoldButton && (
-          <IconButton type={showFolded ? 'expandless' : 'expandmore'} className="absolute right-4 w-6 h-6" />
-        )}
-      </Card>
-
-      {/* foldable area */}
-      <div
-        className={`flex flex-col items-stretch gap-2 transition-all ${
-          showFolded ? 'visible opacity-100 max-h-screen' : 'invisible opacity-0 max-h-0'
-        }`}
-      >
-        {folded}
-      </div>
+      {/* modals */}
+      {modalPenaltyToPost && modalPenaltyItemToPost ? (
+        <LSVWarningPostModal
+          active={postModal}
+          lsv={lsv}
+          penaltyItemLabel={modalPenaltyItemToPost}
+          event={modalPenaltyToPost}
+          onClose={() => {
+            setPostModal(false)
+            if (onPost) onPost()
+          }}
+        />
+      ) : null}
+      {modalPenalty ? (
+        <LSVPenaltyConfirmModal active={confirmModal} lsv={lsv} penalty={modalPenalty} onClose={onConfirmModalClose} />
+      ) : null}
     </div>
   )
 }
 
 function PenaltyField({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="grow shrink md:grow-0 md:shrink-0 md:basis-[130px] flex justify-start items-start gap-2">
+    <div className="grow-0 shrink-0 basis-[40%] md:basis-[160px] flex justify-start items-start gap-2">
       <div className={FIELD_CSS}>{title}</div>
       <QuestionTooltip desc={desc} />
     </div>
   )
 }
 
-function PenaltyStatus({ penalties }: { penalties: Penalty[] }) {
-  const isSafe = penalties.length === 0
-  const isWritable =
-    WRITABLE_PENALTIES.findIndex((item) => penalties.map((penalty) => penalty.event).includes(item)) > -1
-
-  const [penaltyInput, setPenaltyInput] = useState<string>('')
+function PenaltyWriteButton({
+  penaltyItem,
+  onClick,
+}: {
+  penaltyItem: PenaltyItem
+  onClick: (event: WritablePenalty) => void
+}) {
+  // would be refactored using enum
+  const writableEvent = penaltyItem.events.find((event) => WRITABLE_PENALTIES.includes(event)) as
+    | WritablePenalty
+    | undefined
 
   return (
-    <div className="grow shrink md:grow-0 md:shrink-0 basis-[40%] flex justify-end items-center gap-4">
-      <div className="grow shrink w-full h-full">
-        {isWritable ? (
-          <Textarea
-            placeholder="Describe penalty"
-            keyword={penaltyInput}
-            onChange={setPenaltyInput}
-            fillHeight={true}
-          />
-        ) : null}
-      </div>
-      {/* <div className="grow-0 shrink-0 basis-[100px] flex justify-end px-4">
-        {isSafe ? <Icon type="success" className="flex-0 grow-0 basis-auto text-success w-6 h-6" /> : null}
-      </div> */}
-    </div>
+    <>
+      {writableEvent !== undefined ? (
+        <Tooltip content="Click to post a warning">
+          <IconButton type="plus" className="hover:opacity-40" onClick={() => onClick(writableEvent)} />
+        </Tooltip>
+      ) : null}
+    </>
   )
 }
 
-// function PenaltyStatusIcon({ penalties }: { penalties: Penalty[] }) {
-//   const onClick = () => {
-//     const shouldConfirm = penalties.find((penalty) =>
-//       [PENALTY_STATUS.Penalty, PENALTY_STATUS.Warned].includes(penalty.status)
-//     )
-//     if (shouldConfirm) {
-//       // show confirm modal
-//     }
-//   }
+function hasPenalty(penalties: Penalty[]) {
+  return penalties.length > 0
+}
 
-//   return penalties.length > 0 ? (
-//     <IconButton type={WARNING_STATUS_ICON_TYPE_MAP[penalties[0].status]} className="text-warning" onClick={onClick} />
-//   ) : null
-// }
+function hasPenaltyNotConfirmed(penalties: Penalty[]) {
+  return penalties.findIndex((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed) > -1
+}

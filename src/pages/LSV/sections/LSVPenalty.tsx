@@ -20,7 +20,7 @@ import {
   LSV_OBSERVATION_DESC_RELIABILITY,
   LSV_OBSERVATION_DESC_STABILITY,
   LSV_OBSERVATION_DESC_SUSTAINABILITY,
-} from 'constants/msg'
+} from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
@@ -43,7 +43,7 @@ export default function LSVPenalty({ address, penaltyPoint }: { address: string;
   const evtsBlockMissing = getLSVEvents('block_missing')
   const evtsNoSigning = getLSVEvents('no_signing')
   const evtsBadPerformance = getLSVEvents('bad_performance')
-  const evtsReliabilityWarn = getLSVEvents('reliabiity_warning')
+  const evtsReliabilityWarn = getLSVEvents('reliability_warning')
   const evtsReliabilityPenalty = getLSVEvents('reliability_penalty')
   const evtsVoteWarn = getLSVEvents('vote_warning')
   const evtsVotePenalty = getLSVEvents('vote_penalty')
@@ -51,7 +51,7 @@ export default function LSVPenalty({ address, penaltyPoint }: { address: string;
   const [modal, setModal] = useState<boolean>(false)
   const [isModalLoading, setIsModalLoading] = useState<boolean>(false)
 
-  const [modalSelected, setModalSelected] = useState<'reliabiity_warning' | 'vote_warning'>('reliabiity_warning')
+  const [modalSelected, setModalSelected] = useState<'reliability_warning' | 'vote_warning'>('reliability_warning')
 
   const [modalProposalId, setModalProposalId] = useState<string>('')
   const [modalMemo, setModalMemo] = useState<string>('')
@@ -168,7 +168,7 @@ export default function LSVPenalty({ address, penaltyPoint }: { address: string;
         <div className="space-y-4">
           <SelectTab
             tabItems={[
-              { label: 'Reliability', value: 'reliabiity_warning' },
+              { label: 'Reliability', value: 'reliability_warning' },
               { label: 'Engagement', value: 'vote_warning' },
             ]}
             selectedValue={modalSelected}
@@ -273,7 +273,7 @@ function ValPenaltySection({
                 {getTagByPenaltyPoint(penaltyPointAfterConfirm)}
               </div>
 
-              <Textarea placeholder="Memo" keyword={modalMemo} onChange={setModalMemo} />
+              <Textarea placeholder="Description" keyword={modalMemo} onChange={setModalMemo} />
             </div>
           </Modal>
         </>

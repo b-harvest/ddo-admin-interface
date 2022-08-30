@@ -74,12 +74,12 @@ export default function Modal({
           {children}
           <div className="flex justify-between items-center mt-8">
             <div>
-              <Button size="xs" color="transparent" label="←" onClick={handleClose} isLoading={isLoading} />
+              <Button size="sm" color="transparent" label="←" onClick={handleClose} isLoading={isLoading} />
             </div>
             <div className="min-w-[50%] flex justify-start-end items-center gap-2">
               {onNo ? (
                 <Button
-                  size="xs"
+                  size="sm"
                   color={noButtonColor}
                   label={noButtonLabel ?? 'Discard'}
                   onClick={onNo}
@@ -89,7 +89,7 @@ export default function Modal({
               ) : null}
               {onOk ? (
                 <Button
-                  size="xs"
+                  size="sm"
                   color={okButtonColor}
                   label={okButtonLabel ?? 'Confirm'}
                   onClick={onOk}

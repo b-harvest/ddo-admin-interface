@@ -1,22 +1,45 @@
+import Button from 'components/Button'
 import Card from 'components/Card'
 import CopyHelper from 'components/CopyHelper'
 import Icon from 'components/Icon'
 import IconButton from 'components/IconButton'
-import { WARNING_STATUS_ICON_TYPE_MAP } from 'constants/lsv'
-import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/msg'
+import Tooltip from 'components/Tooltip'
+import {
+  PENALTY_STATUS_ICON_MAP,
+  PENALTY_TYPE_COLOR_MAP,
+  PENALTY_TYPE_ICON_MAP,
+  REF_LINKED_PENALTIES,
+} from 'constants/lsv'
+import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
-import { TIMESTAMP_FORMAT } from 'constants/time'
+import { TIMESTAMP_TO_MIN_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
-import { Penalty } from 'types/lsv'
-import { extractEmailId } from 'utils/text'
+import { useMemo } from 'react'
+import { Penalty, PENALTY_STATUS } from 'types/lsv'
+import { extractEmailId, firstCharToUpperCase } from 'utils/text'
 
-export default function LSVPenaltyItems({ penalties }: { penalties: Penalty[] }) {
+type LSVPenaltyItemsProps = { penalties: Penalty[]; onConfirmClick?: (penalty: Penalty) => void }
+
+export default function LSVPenaltyItems({ penalties, onConfirmClick }: LSVPenaltyItemsProps) {
   return (
     <>
       {penalties.length > 0 ? (
-        <Card useGlassEffect={true} className="!bg-grayCRE-100 dark:!bg-neutral-700 flex flex-col gap-4">
+        <Card
+          useGlassEffect={true}
+          useNarrow={true}
+          className="!bg-grayCRE-100 dark:!bg-neutral-700 flex flex-col gap-x-4 gap-y-4 md:gap-y-2"
+        >
           {penalties.map((penalty, i) => (
-            <LSVPenaltyItem key={penalty.eid} penalty={penalty} isLast={i === penalties.length - 1} />
+            <LSVPenaltyItem
+              key={penalty.eid}
+              penalty={penalty}
+              isLast={i === penalties.length - 1}
+              direction="row"
+              showPostInfo={true}
+              showConfirmButton={true}
+              // eslint-disable-next-line @typescript-eslint/no-empty-function
+              onConfirmClick={onConfirmClick ? () => onConfirmClick(penalty) : () => {}}
+            />
           ))}
         </Card>
       ) : null}
@@ -24,101 +47,206 @@ export default function LSVPenaltyItems({ penalties }: { penalties: Penalty[] })
   )
 }
 
-function LSVPenaltyItem({ penalty, isLast = false }: { penalty: Penalty; isLast: boolean }) {
+type LSVPenaltyItemProps = {
+  penalty: Penalty
+  isLast?: boolean
+  showPostInfo?: boolean
+  showConfirmButton?: boolean
+  onConfirmClick?: () => void
+  proposalId?: number
+  direction?: 'column' | 'row'
+}
+
+export function LSVPenaltyItem({
+  penalty,
+  isLast = false,
+  showPostInfo = false,
+  showConfirmButton = false,
+  onConfirmClick,
+  proposalId,
+  direction = 'column',
+}: LSVPenaltyItemProps) {
   const descs: string[] = penalty.rawJson?.desc?.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR) ?? []
   const refLink = descs.length === 2 ? descs[0] : undefined
   const descRaw = descs[1] ?? penalty.rawJson?.desc
   const desc = descRaw?.length === 0 ? '-' : descRaw
 
+  const isRow = useMemo<boolean>(() => direction === 'row', [direction])
+
   return (
     <ul
-      className={`flex justify-between items-center gap-2 border-grayCRE-300 dark:border-grayCRE-500 ${
-        isLast ? 'pb-0 border-b-0' : 'pb-4 border-b'
-      }`}
+      className={`flex flex-col justify-between items-stretch gap-x-4 gap-y-2 ${
+        isRow ? 'md:flex-row' : ''
+      } border-grayCRE-300 dark:border-grayCRE-500 ${isLast ? 'pb-0 border-b-0' : 'pb-4 md:pb-2 border-b'}`}
     >
-      <LSVPenaltyItemData field="Height" data={penalty.height} type="number" />
+      <div className={`grow shrink basis-auto flex flex-col gap-x-4 gap-y-2 ${isRow ? 'md:flex-row' : ''}`}>
+        <ModularData
+          field="Proposal #"
+          data={penalty.rawJson?.proposalId === 0 ? undefined : penalty.rawJson?.proposalId}
+          type="number"
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[60px]` : ''}
+        />
+        <ModularData
+          field="Commission rate"
+          data={penalty.rawJson?.commision ? (Number(penalty.rawJson.commision) * 100).toFixed(2) : undefined}
+          type="rate"
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+        />
+        <ModularData
+          field="Commission changed date"
+          data={
+            penalty.rawJson?.chagned ? dayjs(penalty.rawJson.chagned * 1000).format(TIMESTAMP_TO_MIN_FORMAT) : undefined
+          }
+          type="date"
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
+        />
+        <ModularData
+          field="Block missing rate"
+          data={penalty.rawJson?.percentage ? (Number(penalty.rawJson.percentage) * 100).toFixed(2) : undefined}
+          type="rate"
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+        />
+        <ModularData
+          field="Missed block"
+          data={penalty.rawJson?.missing_block}
+          type="number"
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
+        />
 
-      <LSVPenaltyItemData
-        field="Commission rate"
-        data={penalty.rawJson?.commision ? Number(penalty.rawJson.commision) * 100 : undefined}
-        type="rate"
-      />
-      <LSVPenaltyItemData
-        field="Commission changed"
-        data={penalty.rawJson?.chagned ? dayjs(penalty.rawJson.chagned * 1000).format(TIMESTAMP_FORMAT) : undefined}
-        type="date"
-      />
-      <LSVPenaltyItemData
-        field="Block missing rate"
-        data={penalty.rawJson?.percentage ? Number(penalty.rawJson.percentage) * 100 : undefined}
-        type="rate"
-      />
-      <LSVPenaltyItemData field="Missded block" data={penalty.rawJson?.missing_block} type="number" />
+        <ModularData
+          field="Last signing height"
+          data={penalty.rawJson?.last_height}
+          type="number"
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+        />
 
-      <LSVPenaltyItemData field="Last signing height" data={penalty.rawJson?.last_height} type="number" />
+        <ModularData
+          field="Height"
+          data={penalty.rawJson?.proposalId ? undefined : penalty.height}
+          type="number"
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[100px]` : ''}
+        />
 
-      <LSVPenaltyItemData
-        field="Reference"
-        data={
-          penalty.event === 'vote_warning' || penalty.event === 'vote_penalty' ? (
-            <IconButton
-              type="copylink"
-              className={`w-6 h-6 ${refLink ? 'hover:text-info' : 'opacity-40 cursor-not-allowed'}`}
-              onClick={() => {
-                if (refLink) window.open(refLink, '_blank')
-              }}
-            />
-          ) : undefined
-        }
-      />
+        <ModularData
+          field="Reference"
+          data={
+            REF_LINKED_PENALTIES.includes(penalty.event) ? (
+              // penalty.event === 'vote_warning' || penalty.event === 'vote_penalty'
+              <IconButton
+                type="copylink"
+                className={`w-6 h-6 ${refLink ? 'hover:text-info' : 'opacity-40 cursor-not-allowed'}`}
+                onClick={() => {
+                  if (refLink) window.open(refLink, '_blank')
+                }}
+              />
+            ) : undefined
+          }
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[100px]` : ''}
+        />
 
-      <LSVPenaltyItemData field="Memo" data={desc} />
-      <LSVPenaltyItemData
-        field={penalty.confirmId ? 'Confirm date' : 'Post date'}
-        data={dayjs(penalty.postTimestamp).format(TIMESTAMP_FORMAT)}
-        type="date"
-      />
-      <LSVPenaltyItemData
-        field={penalty.confirmId ? 'Confirmed by' : 'Posted by'}
-        data={
-          penalty.posterId ? (
-            <CopyHelper toCopy={penalty.posterId} iconPosition="left">
-              {extractEmailId(penalty.posterId)}
-            </CopyHelper>
-          ) : (
-            '-'
-          )
-        }
-      />
-
-      <LSVPenaltyItemData field="Penalty" data={penalty.penaltyPoint} />
-
-      <div className="grow-0 shrink-0 basis-[100px] flex justify-end px-4 text-warning hover:opacity-80">
-        {penalty.confirmId ? (
-          <Icon type="slash" />
-        ) : (
-          <IconButton type={WARNING_STATUS_ICON_TYPE_MAP[penalty.status]} label="confirm" showLabel={true} />
-        )}
+        <ModularData field="Description" data={desc} className="grow shrink" />
+        <ModularData
+          field="Description"
+          data={penalty.dataDesc}
+          className="grow shrink"
+          dataClassName={`${FIELD_CSS} !font-normal !text-[12px]`}
+        />
       </div>
+
+      {showPostInfo && (
+        <div
+          className={`${
+            isRow ? 'md:grow-0 md:shrink-0 md:basis-[320px] md:flex-row' : ''
+          } flex flex-col gap-x-4 gap-y-2`}
+        >
+          <ModularData
+            field={penalty.status === PENALTY_STATUS.Confirmed ? 'Confirm date' : 'Post date'}
+            data={dayjs(penalty.postTimestamp).format(TIMESTAMP_TO_MIN_FORMAT)}
+            type="date"
+            className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
+          />
+          <ModularData
+            field={penalty.status === PENALTY_STATUS.Confirmed ? 'Confirmed by' : 'Posted by'}
+            data={
+              penalty.posterId ? (
+                <CopyHelper toCopy={penalty.posterId} iconPosition="left">
+                  {extractEmailId(penalty.posterId)}
+                </CopyHelper>
+              ) : (
+                <div className={`${FIELD_CSS} !font-normal !text-[12px]`}>Auto</div>
+              )
+            }
+            className="grow shrink"
+          />
+        </div>
+      )}
+
+      <div
+        className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[160px] md:flex-row' : ''} flex flex-col gap-x-4 gap-y-2`}
+      >
+        <ModularData
+          field="Penalty"
+          data={penalty.penaltyPoint}
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[60px]` : ''}
+        />
+
+        <ModularData
+          field="Type"
+          data={
+            <Tooltip content={`${penalty.type} ${penalty.status}`}>
+              <Icon type={PENALTY_TYPE_ICON_MAP[penalty.type]} />
+            </Tooltip>
+          }
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[48px]` : ''}
+          dataClassName={`h-6 flex items-center ${getPenaltyColor(penalty)}`}
+        />
+
+        <ModularData
+          field="Status"
+          data={
+            <Tooltip content={`${penalty.type} ${penalty.status}`}>
+              <Icon type={PENALTY_STATUS_ICON_MAP[penalty.status]} />
+            </Tooltip>
+          }
+          className={isRow ? `md:grow-0 md:shrink-0 md:basis-[48px]` : ''}
+          dataClassName={`h-6 flex items-center ${getPenaltyColor(penalty)}`}
+        />
+      </div>
+
+      {showConfirmButton && (
+        <div className={`${isRow ? `md:grow-0 md:shrink-0 md:basis-[148px] md:pl-8` : ''}`}>
+          <Button
+            size="sm"
+            label={penalty.status === PENALTY_STATUS.NotConfirmed ? 'Confirm' : firstCharToUpperCase(penalty.status)}
+            color={penalty.confirmId ? 'neutral' : 'primary'}
+            disabled={penalty.confirmId !== undefined}
+            isLoading={false}
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            onClick={onConfirmClick ?? (() => {})}
+          />
+        </div>
+      )}
     </ul>
   )
 }
 
-function LSVPenaltyItemData({
+function ModularData({
   field,
   data,
+  className = '',
   dataClassName = '',
   type,
 }: {
   field: string
   data: string | JSX.Element | number | undefined
+  className?: string
   dataClassName?: string
   type?: 'date' | 'rate' | 'number'
 }) {
   return (
     <>
       {data !== undefined ? (
-        <li className="flex flex-col justify-between items-start">
+        <li className={`${className} flex flex-col justify-start items-start`}>
           <div className={`${FIELD_CSS} !font-normal !text-xs`}>{field}</div>
           <div
             className={`${dataClassName} ${type === 'rate' || type === 'number' ? 'FONT-MONO' : ''} ${
@@ -132,4 +260,10 @@ function LSVPenaltyItemData({
       ) : null}
     </>
   )
+}
+
+function getPenaltyColor(penalty: Penalty) {
+  return penalty.status === PENALTY_STATUS.Discarded
+    ? 'text-grayCRE-300 dark:text-grayCRE-400'
+    : PENALTY_TYPE_COLOR_MAP[penalty.type]
 }

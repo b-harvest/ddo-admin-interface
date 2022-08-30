@@ -5,6 +5,7 @@ export type CardMergedSide = 'top' | 'right' | 'bottom' | 'left' | 'right-bottom
 type CardProps = {
   children?: ReactNode
   useGlassEffect?: boolean
+  useNarrow?: boolean
   saturated?: boolean
   className?: string
   merged?: CardMergedSide
@@ -13,6 +14,7 @@ type CardProps = {
 export default function Card({
   children,
   useGlassEffect = false,
+  useNarrow = false,
   saturated = false,
   className = '',
   merged,
@@ -23,9 +25,9 @@ export default function Card({
       {...rest}
       className={`bg-grayCRE-200-o dark:bg-neutral-800/50 ${
         saturated ? (useGlassEffect ? '!bg-white/50 dark:!bg-neutral-900/50' : '!bg-white dark:!bg-neutral-900') : ''
-      } ${useGlassEffect ? 'backdrop-blur-[40px]' : ''} relative flex flex-col p-4 rounded-xl ${getRadiusByMergedSide(
-        merged
-      )} ${className}`}
+      } ${useGlassEffect ? 'backdrop-blur-[40px]' : ''} relative flex flex-col p-4 ${
+        useNarrow ? 'rounded-md' : 'rounded-xl'
+      } ${getRadiusByMergedSide(merged)} ${className}`}
     >
       {children}
     </div>

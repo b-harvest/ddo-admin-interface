@@ -1,8 +1,8 @@
-import { PENALTY_STATUS } from 'constants/lsv'
-import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/msg'
+import { LSV_PENALTY_DATA_DESC_MAP, LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/lsv'
 import { usePenaltiesByLSV } from 'data/useAPI'
 import { useCallback, useMemo } from 'react'
-import { LSVEventType, LSVEventVoteWarn, Penalty, VotePenalty } from 'types/lsv'
+import { PENALTY_STATUS, PENALTY_TYPE } from 'types/lsv'
+import { LSVEventVoteWarn, Penalty, PenaltyEvent, VotePenalty } from 'types/lsv'
 
 const useLSVPenalty = (address: string) => {
   const { data, isLoading, mutate } = usePenaltiesByLSV({ address })
@@ -16,14 +16,15 @@ const useLSVPenalty = (address: string) => {
         const posterId = confirmId ?? regId
         const postTimestamp = (confirmId ? item.confirmTimestamp : item.timestamp) * 1000
 
-        const isWarning = ['vote_warning', 'reliabiity_warning'].includes(item.event)
-        const status = isWarning
-          ? confirmId
-            ? PENALTY_STATUS.WarningConfirmed
-            : PENALTY_STATUS.Warned
-          : confirmId
-          ? PENALTY_STATUS.PenaltyConfirmed
-          : PENALTY_STATUS.Penalty
+        const isWarning = ['vote_warning', 'reliability_warning'].includes(item.event)
+        const type = isWarning
+          ? PENALTY_TYPE.Warning
+          : item.penaltyPoint === 3
+          ? PENALTY_TYPE.immediateKickout
+          : PENALTY_TYPE.Strike
+
+        const status = getPenaltyStatus(item.confirmResult)
+        const dataDesc = LSV_PENALTY_DATA_DESC_MAP[item.event]
 
         return {
           ...item,
@@ -34,14 +35,16 @@ const useLSVPenalty = (address: string) => {
           confirmTimestamp: Number(item.confirmTimestamp) * 1000,
           posterId,
           postTimestamp,
+          type,
           status,
+          dataDesc,
         }
       }) ?? [],
     [data]
   )
 
   const getLSVEvents = useCallback(
-    (event: LSVEventType | LSVEventType[]) => {
+    (event: PenaltyEvent | PenaltyEvent[]) => {
       const filters = Array.isArray(event) ? event : [event]
       return allPenalties.filter((item) => filters.includes(item.event))
     },
@@ -78,30 +81,18 @@ const useLSVPenalty = (address: string) => {
     (proposalId: number) => {
       const penalties = getVotePenaltiesByProposal(proposalId)
 
-      const penaltyConfirmed = penalties.find((item) => item.status === PENALTY_STATUS.PenaltyConfirmed)
-      if (penaltyConfirmed) return penaltyConfirmed
+      const notConfirmed = penalties.find((item) => item.status === PENALTY_STATUS.NotConfirmed)
+      if (notConfirmed) return notConfirmed
 
-      const penaltyPosted = penalties.find((item) => item.status === PENALTY_STATUS.Penalty)
-      if (penaltyPosted) return penaltyPosted
+      const confirmed = penalties.find((item) => item.status === PENALTY_STATUS.Confirmed)
+      if (confirmed) return confirmed
 
-      const warningConfirmed = penalties.find((item) => item.status === PENALTY_STATUS.WarningConfirmed)
-      if (warningConfirmed) return warningConfirmed
-
-      const warningPosted = penalties.find((item) => item.status === PENALTY_STATUS.Warned)
-      if (warningPosted) return warningPosted
+      const discarded = penalties.find((item) => item.status === PENALTY_STATUS.Discarded)
+      if (discarded) return discarded
 
       return undefined
     },
     [getVotePenaltiesByProposal]
-  )
-
-  // to be del
-  const getVotePenaltyRepStatusByProposal = useCallback(
-    (proposalId: number) => {
-      const repPenalty = getRepVotePenaltyByProposal(proposalId)
-      return repPenalty ? repPenalty.status : PENALTY_STATUS.NotYet
-    },
-    [getRepVotePenaltyByProposal]
   )
 
   return {
@@ -110,10 +101,22 @@ const useLSVPenalty = (address: string) => {
     votePenalties,
     getVotePenaltiesByProposal,
     getRepVotePenaltyByProposal,
-    getVotePenaltyRepStatusByProposal,
     isLoading,
     mutate,
   }
 }
 
 export default useLSVPenalty
+
+function getPenaltyStatus(confirmResult: 'y' | 'n' | 'd'): PENALTY_STATUS {
+  switch (confirmResult) {
+    case 'y':
+      return PENALTY_STATUS.Confirmed
+    case 'n':
+      return PENALTY_STATUS.NotConfirmed
+    case 'd':
+      return PENALTY_STATUS.Discarded
+    default:
+      return PENALTY_STATUS.NotConfirmed
+  }
+}

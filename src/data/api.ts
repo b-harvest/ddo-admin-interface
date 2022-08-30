@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { toastError } from 'components/Toast/generator'
 import { handleError } from 'data/useAppSWR'
-import { LSVPenaltyConfirmPost, LSVVoteWarnPost } from 'types/lsv'
+import { LSVPenaltyConfirmPost, LSVReliabilityWarnPost, LSVVoteWarnPost } from 'types/lsv'
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_MAINNET_INFO_API_ENDPOINT,
@@ -26,13 +26,13 @@ const mapPostReturn = async <T>(data: T, post: (data: T) => Promise<AxiosRespons
   return { success: res?.data.result === 'success', message: res?.data.message }
 }
 
-// export const postLSVVoteWarn = (data: LSVVoteWarnPost) =>
+// export const postLSVPenalty = (data: LSVVoteWarnPost) =>
 //   api.post<PostResponseData>(`/a1/post/${data.event_type}`, data.json).catch(catchError)
 
 // export const postLSVPenaltyConfirm = (data: LSVPenaltyConfirmPost) =>
 //   api.post<PostResponseData>(`/a1/post/confirm/${data.eid}`, data.json).catch(catchError)
 
-export const postLSVVoteWarn = (data: LSVVoteWarnPost) =>
+export const postLSVPenalty = (data: LSVVoteWarnPost | LSVReliabilityWarnPost) =>
   mapPostReturn(data, (data) => api.post<PostResponseData>(`/a1/post/${data.event_type}`, data.json).catch(catchError))
 
 export const postLSVPenaltyConfirm = (data: LSVPenaltyConfirmPost) =>

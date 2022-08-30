@@ -2,7 +2,7 @@ export type ButtonColor = 'primary' | 'primary-glow' | 'danger' | 'neutral' | 't
 type ButtonSize = 'xs' | 'sm' | 'md'
 
 type ButtonProps = {
-  onClick: () => void
+  onClick?: () => void
   label: string
   isLoading: boolean
   disabled?: boolean

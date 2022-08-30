@@ -5,7 +5,7 @@ import VotingOptionIcon from 'components/VotingOptionIcon'
 import { SAFE_VOTING_RATE, VOTE_OPTIONS, WARNABLE_VOTE_OPTIONS } from 'constants/lsv'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
-import LSVWarningContent from 'pages/components/LSVWarningContent'
+import LSVPenaltyContent from 'pages/components/LSVPenaltyContent'
 import LSVWarningModal from 'pages/components/LSVWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useMemo, useState } from 'react'
@@ -178,7 +178,7 @@ function LSVWarningTooltip({ lsv, proposalId }: { lsv: LSV; proposalId: number }
     <>
       {isMobile ? null : penalty ? (
         <div className="w-[400px] p-4">
-          <LSVWarningContent title={lsv.alias} proposalId={proposalId} penalty={penalty} />
+          <LSVPenaltyContent title={lsv.alias} proposalId={proposalId} penalty={penalty} />
         </div>
       ) : (
         'Click to post warning'
