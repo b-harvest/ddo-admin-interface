@@ -61,13 +61,13 @@ const PENALTY_ITEMS: PenaltyItem[] = [
   {
     label: 'Performance',
     desc: LSV_OBSERVATION_DESC_PERFORMANCE,
-    events: [],
+    events: ['bad_performance'],
     type: PENALTY_TYPE.Strike,
   },
   {
     label: 'Activity',
     desc: LSV_OBSERVATION_DESC_ACTIVITY,
-    events: ['bad_performance'],
+    events: [],
     type: PENALTY_TYPE.Strike,
   },
 ]
