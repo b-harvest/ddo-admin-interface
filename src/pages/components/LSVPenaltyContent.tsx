@@ -4,7 +4,7 @@ import PostMetaDataLine from 'components/PostMetaDataLine'
 import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_TO_MIN_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
-import { LSVPenaltyItem } from 'pages/components/LSVPenaltyItems'
+import LSVPenaltyItem from 'pages/components/LSVPenaltyItem'
 import { Penalty } from 'types/lsv'
 
 export default function LSVPenaltyContent({

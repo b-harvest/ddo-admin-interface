@@ -1,15 +1,9 @@
 import Button from 'components/Button'
-import Card from 'components/Card'
 import CopyHelper from 'components/CopyHelper'
 import Icon from 'components/Icon'
 import IconButton from 'components/IconButton'
 import Tooltip from 'components/Tooltip'
-import {
-  PENALTY_STATUS_ICON_MAP,
-  PENALTY_TYPE_COLOR_MAP,
-  PENALTY_TYPE_ICON_MAP,
-  REF_LINKED_PENALTIES,
-} from 'constants/lsv'
+import { PENALTY_TYPE_COLOR_MAP, PENALTY_TYPE_ICON_MAP, REF_LINKED_PENALTIES } from 'constants/lsv'
 import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_TO_MIN_FORMAT } from 'constants/time'
@@ -17,35 +11,6 @@ import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { Penalty, PENALTY_STATUS } from 'types/lsv'
 import { extractEmailId, firstCharToUpperCase } from 'utils/text'
-
-type LSVPenaltyItemsProps = { penalties: Penalty[]; onConfirmClick?: (penalty: Penalty) => void }
-
-export default function LSVPenaltyItems({ penalties, onConfirmClick }: LSVPenaltyItemsProps) {
-  return (
-    <>
-      {penalties.length > 0 ? (
-        <Card
-          useGlassEffect={true}
-          useNarrow={true}
-          className="!bg-grayCRE-100 dark:!bg-neutral-700 flex flex-col gap-x-4 gap-y-4 md:gap-y-2"
-        >
-          {penalties.map((penalty, i) => (
-            <LSVPenaltyItem
-              key={penalty.eid}
-              penalty={penalty}
-              isLast={i === penalties.length - 1}
-              direction="row"
-              showPostInfo={true}
-              showConfirmButton={true}
-              // eslint-disable-next-line @typescript-eslint/no-empty-function
-              onConfirmClick={onConfirmClick ? () => onConfirmClick(penalty) : () => {}}
-            />
-          ))}
-        </Card>
-      ) : null}
-    </>
-  )
-}
 
 type LSVPenaltyItemProps = {
   penalty: Penalty
@@ -57,7 +22,7 @@ type LSVPenaltyItemProps = {
   direction?: 'column' | 'row'
 }
 
-export function LSVPenaltyItem({
+export default function LSVPenaltyItem({
   penalty,
   isLast = false,
   showPostInfo = false,
@@ -173,7 +138,7 @@ export function LSVPenaltyItem({
                   {extractEmailId(penalty.posterId)}
                 </CopyHelper>
               ) : (
-                <div className={`${FIELD_CSS} !font-normal !text-[12px]`}>Auto</div>
+                <div className={`!font-normal !text-[12px] ${FIELD_CSS}`}>Auto</div>
               )
             }
             className="grow shrink"
@@ -182,7 +147,7 @@ export function LSVPenaltyItem({
       )}
 
       <div
-        className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[160px] md:flex-row' : ''} flex flex-col gap-x-4 gap-y-2`}
+        className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[120px] md:flex-row' : ''} flex flex-col gap-x-4 gap-y-2`}
       >
         <ModularData
           field="Penalty"
@@ -201,16 +166,16 @@ export function LSVPenaltyItem({
           dataClassName={`h-6 flex items-center ${getPenaltyColor(penalty)}`}
         />
 
-        <ModularData
+        {/* <ModularData
           field="Status"
           data={
-            <Tooltip content={`${penalty.type} ${penalty.status}`}>
+            <Tooltip content={penalty.status}>
               <Icon type={PENALTY_STATUS_ICON_MAP[penalty.status]} />
             </Tooltip>
           }
           className={isRow ? `md:grow-0 md:shrink-0 md:basis-[48px]` : ''}
           dataClassName={`h-6 flex items-center ${getPenaltyColor(penalty)}`}
-        />
+        /> */}
       </div>
 
       {showConfirmButton && (
@@ -245,9 +210,9 @@ function ModularData({
 }) {
   return (
     <>
-      {data !== undefined ? (
+      {data || data === 0 ? (
         <li className={`${className} flex flex-col justify-start items-start`}>
-          <div className={`${FIELD_CSS} !font-normal !text-xs`}>{field}</div>
+          <div className={`!font-normal !text-xs ${FIELD_CSS}`}>{field}</div>
           <div
             className={`${dataClassName} ${type === 'rate' || type === 'number' ? 'FONT-MONO' : ''} ${
               type === 'date' ? 'TYPO-BODY-S' : 'TYPO-BODY-M'

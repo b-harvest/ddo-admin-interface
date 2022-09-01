@@ -24,7 +24,9 @@ export default function StrikeBoard({ current, max, iconType = 'strike', title }
         {strikes.map((strike, i) => (
           <div
             key={`strike-${i}-${strike}`}
-            className={`w-4 h-4 ${strike ? 'bg-error' : 'bg-grayCRE-300 dark:bg-grayCRE-500'} rounded-full`}
+            className={`w-4 h-4 ${
+              current >= max ? 'bg-error' : strike ? 'bg-warning' : 'bg-grayCRE-300 dark:bg-grayCRE-500'
+            } rounded-full`}
           ></div>
         ))}
       </ul>

@@ -1,9 +1,7 @@
+import DynamicList from 'components/DynamicList'
 import ExplorerLink from 'components/ExplorerLink'
-import FoldableCard from 'components/FoldableCard'
 import H3 from 'components/H3'
 import Icon from 'components/Icon'
-import IconButton from 'components/IconButton'
-import QuestionTooltip from 'components/QuestionTooltip'
 import StrikeBoard from 'components/StrikeBoard'
 import Tooltip from 'components/Tooltip'
 import {
@@ -18,13 +16,13 @@ import {
   PENALTY_TYPE_ICON_MAP,
   WRITABLE_PENALTIES,
 } from 'constants/lsv'
-import { FIELD_CSS } from 'constants/style'
 import { useCallback, useMemo, useState } from 'react'
 import { LSV, Penalty, PENALTY_STATUS, PENALTY_TYPE, PenaltyEvent, WritablePenalty } from 'types/lsv'
 
 import LSVPenaltyConfirmModal from './LSVPenaltyConfirmModal'
-import LSVPenaltyItems from './LSVPenaltyItems'
+import LSVPenaltyItem from './LSVPenaltyItem'
 import LSVWarningPostModal from './LSVPenaltyPostModal'
+import { PENALTY_LIST_FIELD_MAP } from './penalty'
 
 type PenaltyItem = { label: string; desc: string; events: PenaltyEvent[]; type: PENALTY_TYPE }
 const PENALTY_ITEMS: PenaltyItem[] = [
@@ -93,31 +91,32 @@ export default function LSVPenaltyBoard({
     return penaltyPoint - IK
   }, [penalties, penaltyPoint])
 
-  const getPenaltiesByEvents = useCallback(
-    (events: PenaltyEvent[]) => penalties.filter((penalty) => events.includes(penalty.event)),
+  const getPenalties = useCallback(
+    (item: PenaltyItem) => penalties.filter((penalty) => item.events.includes(penalty.event)),
     [penalties]
   )
 
-  const getPenaltyPointByEvents = useCallback(
-    (events: PenaltyEvent[]) => {
-      const totalPoint = getPenaltiesByEvents(events).reduce((accm, penalty) => {
-        const confirmedPoint = penalty.status === PENALTY_STATUS.Confirmed ? penalty.penaltyPoint : 0
-        return accm + confirmedPoint
-      }, 0)
-
-      return totalPoint
+  const getPenaltyFields = useCallback(
+    (item: PenaltyItem) => {
+      const penalties = getPenalties(item)
+      const keys: string[] = penalties.length > 0 ? Object.keys(penalties[0]) : []
+      const fields = keys.map((key) => PENALTY_LIST_FIELD_MAP[key]).filter((item) => !!item)
+      return fields
     },
-    [getPenaltiesByEvents]
+    [getPenalties]
   )
-  // post modal
+
   const [postModal, setPostModal] = useState<boolean>(false)
   const [modalPenaltyToPost, setModalPenaltyToPost] = useState<WritablePenalty | undefined>()
   const [modalPenaltyItemToPost, setModalPenaltyItemToPost] = useState<string | undefined>()
 
-  const onWriteButtonClick = (item: PenaltyItem, event: WritablePenalty) => {
-    setPostModal(true)
-    setModalPenaltyItemToPost(item.label)
-    setModalPenaltyToPost(event)
+  const onAddButtonClick = (penaltyItem: PenaltyItem) => {
+    const event = getWritableEvent(penaltyItem)
+    if (event) {
+      setPostModal(true)
+      setModalPenaltyItemToPost(penaltyItem.label)
+      setModalPenaltyToPost(event)
+    }
   }
 
   // confirm modal
@@ -136,17 +135,17 @@ export default function LSVPenaltyBoard({
   }
 
   return (
-    <div className="mb-10" id="penalty-board">
+    <section className="mb-10" id="penalty-board">
       {/* title */}
-      <div className="flex justify-between items-start gap-4 py-8">
+      <header className="flex justify-between items-start gap-4 py-8">
         <div className="flex flex-col md:flex-row justify-start items-start md:items-center gap-4 ">
           <H3 title="Penalty Board" />
         </div>
         <ExplorerLink proposalId={15} label="Proposal #15" />
-      </div>
+      </header>
 
       {/* strike board */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-8">
         <Tooltip content={`${strikePoint} strike confirmed out of 3`}>
           <StrikeBoard current={strikePoint} max={3} />
         </Tooltip>
@@ -162,52 +161,29 @@ export default function LSVPenaltyBoard({
       </div>
 
       {/* penalty items */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-8">
         {PENALTY_ITEMS.map((item) => (
-          // overflow-hidden max-h-[24px] hover:max-h-screen transition-all
-          <FoldableCard
+          <DynamicList
             key={item.label}
-            folded={
-              hasPenalty(getPenaltiesByEvents(item.events)) ? (
-                <LSVPenaltyItems penalties={getPenaltiesByEvents(item.events)} onConfirmClick={onConfirmClick} />
-              ) : null
-            }
-            showFoldButton={hasPenalty(getPenaltiesByEvents(item.events))}
-            defaultShowFolded={hasPenaltyNotConfirmed(getPenaltiesByEvents(item.events))}
-          >
-            <div
-              className={`flex flex-row justify-between items-stretch gap-1 ${
-                !hasPenalty(getPenaltiesByEvents(item.events)) ? 'pr-10' : ''
-              }`}
-            >
-              <PenaltyField title={item.label} desc={item.desc}></PenaltyField>
-
-              <div
-                className={`grow shrink flex gap-4 md:px-4 md:border-r md:border-l border-grayCRE-300 dark:border-grayCRE-500`}
-              >
-                {/* confirmed penalty */}
-                <div
-                  className={`${FIELD_CSS} ${
-                    getPenaltyPointByEvents(item.events) > 0 ? '!text-error' : 'invisible'
-                  } w-full flex items-center gap-2 whitespace-pre-line`}
-                  style={{ wordBreak: 'keep-all' }}
-                >
-                  <Icon type={PENALTY_TYPE_ICON_MAP[item.type]} />
-                  {item.type === PENALTY_TYPE.immediateKickout
-                    ? PENALTY_TYPE.immediateKickout
-                    : getPenaltyPointByEvents(item.events)}{' '}
-                  <span className="hidden md:inline">confirmed</span>
-                </div>
-
-                {/* post button */}
-                <PenaltyWriteButton penaltyItem={item} onClick={(event) => onWriteButtonClick(item, event)} />
-              </div>
-
-              {!hasPenalty(getPenaltiesByEvents(item.events)) ? (
-                <Icon type="success" className="absolute top-5 right-5 block w-4 h-4 text-success" />
-              ) : null}
-            </div>
-          </FoldableCard>
+            allGood={getPenalties(item).length <= 0}
+            title={item.label}
+            titleDesc={item.desc}
+            memo={PenaltyIndicatorIcon(item, getPenalties(item))}
+            onAddButtonClick={getWritableEvent(item) ? () => onAddButtonClick(item) : undefined}
+            addButtonLabel="Click to add a warning"
+            emptyLabel="No penalty"
+            list={getPenalties(item).map((penalty, i) => (
+              <LSVPenaltyItem
+                key={penalty.eid}
+                isLast={i === getPenalties(item).length - 1}
+                penalty={penalty}
+                direction="row"
+                showPostInfo={true}
+                showConfirmButton={true}
+                onConfirmClick={() => onConfirmClick(penalty)}
+              />
+            ))}
+          />
         ))}
       </div>
 
@@ -224,49 +200,45 @@ export default function LSVPenaltyBoard({
           }}
         />
       ) : null}
+
       {modalPenalty ? (
         <LSVPenaltyConfirmModal active={confirmModal} lsv={lsv} penalty={modalPenalty} onClose={onConfirmModalClose} />
       ) : null}
-    </div>
+    </section>
   )
 }
 
-function PenaltyField({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="grow-0 shrink-0 basis-[44%] md:basis-[160px] flex justify-start items-start gap-2">
-      <div className={FIELD_CSS}>{title}</div>
-      <QuestionTooltip desc={desc} />
-    </div>
-  )
-}
-
-function PenaltyWriteButton({
-  penaltyItem,
-  onClick,
-}: {
-  penaltyItem: PenaltyItem
-  onClick: (event: WritablePenalty) => void
-}) {
-  // would be refactored using enum
-  const writableEvent = penaltyItem.events.find((event) => WRITABLE_PENALTIES.includes(event)) as
-    | WritablePenalty
-    | undefined
-
+function PenaltyIndicatorIcon(penaltyItem: PenaltyItem, penalties: Penalty[]) {
   return (
     <>
-      {writableEvent !== undefined ? (
-        <Tooltip content="Click to post a warning">
-          <IconButton type="plus" className="hover:opacity-40" onClick={() => onClick(writableEvent)} />
+      {/* confirmed penalty */}
+      {getPenaltyPointByEvents(penalties) > 0 ? (
+        <Tooltip
+          content={`${
+            penaltyItem.type === PENALTY_TYPE.immediateKickout
+              ? PENALTY_TYPE.immediateKickout
+              : `${getPenaltyPointByEvents(penalties)} strike`
+          } confirmed`}
+        >
+          <div className="flex items-center gap-2 TYPO-BODY-S text-error">
+            <Icon type={PENALTY_TYPE_ICON_MAP[penaltyItem.type]} />
+            {penaltyItem.type !== PENALTY_TYPE.immediateKickout ? getPenaltyPointByEvents(penalties) : null}
+          </div>
         </Tooltip>
       ) : null}
     </>
   )
 }
 
-function hasPenalty(penalties: Penalty[]) {
-  return penalties.length > 0
+function getPenaltyPointByEvents(penalties: Penalty[]) {
+  const totalPoint = penalties.reduce((accm, penalty) => {
+    const confirmedPoint = penalty.status === PENALTY_STATUS.Confirmed ? penalty.penaltyPoint : 0
+    return accm + confirmedPoint
+  }, 0)
+
+  return totalPoint
 }
 
-function hasPenaltyNotConfirmed(penalties: Penalty[]) {
-  return penalties.findIndex((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed) > -1
+function getWritableEvent(penaltyItem): WritablePenalty | undefined {
+  return penaltyItem.events.find((event) => WRITABLE_PENALTIES.includes(event)) as WritablePenalty | undefined
 }

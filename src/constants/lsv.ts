@@ -33,7 +33,7 @@ export const PENALTY_TYPE_ICON_MAP: Record<PENALTY_TYPE, IconType> = {
 
 export const PENALTY_TYPE_COLOR_MAP: Record<PENALTY_TYPE, string> = {
   [PENALTY_TYPE.Warning]: 'text-warning',
-  [PENALTY_TYPE.Strike]: 'text-error',
+  [PENALTY_TYPE.Strike]: 'text-warning',
   [PENALTY_TYPE.immediateKickout]: 'text-error',
 }
 

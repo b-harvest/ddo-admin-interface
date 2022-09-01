@@ -165,7 +165,7 @@ export default function TableList<T>({
                       onClick={() => onFieldClick(field)}
                     >
                       {field.label}
-                      {sortBy === (field.sortValue ?? field.value) ? (
+                      {sortBy && sortBy === (field.sortValue ?? field.value) ? (
                         <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
                       ) : null}
                     </li>
@@ -194,7 +194,7 @@ export default function TableList<T>({
                         onClick={() => onFieldClick(field)}
                       >
                         {mergedFieldLabels[index] ?? ''}
-                        {sortBy === (field.sortValue ?? field.value) ? (
+                        {sortBy && sortBy === (field.sortValue ?? field.value) ? (
                           <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
                         ) : null}
                       </li>

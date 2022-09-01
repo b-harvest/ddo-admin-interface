@@ -130,18 +130,18 @@ export interface LSVEventRawBase {
   regId: string
 }
 
-export type Penalty = Omit<LSVEventRawBase, 'height' | 'confirmTimestamp' | 'regId' | 'confirmId'> & {
+export interface Penalty extends Omit<LSVEventRawBase, 'height' | 'confirmTimestamp' | 'regId' | 'confirmId'> {
   height: number | undefined
   confirmTimestamp: number
   regId: string | undefined
   confirmId: string | undefined
+  rawJson: any
   // custom
   posterId: string | undefined
   postTimestamp: number
   type: PENALTY_TYPE
   status: PENALTY_STATUS
   dataDesc: string | undefined
-  rawJson: any
 }
 
 export type VotePenalty = Omit<Penalty, 'rawJson'> & {

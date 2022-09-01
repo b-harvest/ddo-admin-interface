@@ -28,6 +28,7 @@ const useLSVPenalty = (address: string) => {
 
         return {
           ...item,
+          ...item.rawJson,
           height,
           regId,
           confirmId,
