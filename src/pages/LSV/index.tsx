@@ -6,7 +6,6 @@ import ExplorerLink from 'components/ExplorerLink'
 import H3 from 'components/H3'
 import Hr from 'components/Hr'
 import Icon from 'components/Icon'
-import IconButton from 'components/IconButton'
 // import Icon from 'components/Icon'
 import Indicator from 'components/Indicator'
 import TableList from 'components/TableList'
@@ -25,13 +24,13 @@ import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
-import LSVPenaltyBoard from 'pages/components/LSVPenaltyBoard'
-import LSVWarningModal from 'pages/components/LSVWarningModal'
+import LSVVoteWarningModal from 'pages/components/LSVVoteWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
+import LSVPenaltyBoard from 'pages/LSV/sections/LSVPenaltyBoard'
 import { useMemo } from 'react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { LSV } from 'types/lsv'
+import { LSV, PENALTY_STATUS } from 'types/lsv'
 import type { ProposalStatus } from 'types/proposal'
 import { openProposalById } from 'utils/browser'
 import { openExplorerByHeight } from 'utils/browser'
@@ -110,15 +109,17 @@ export default function LSVDetail() {
           const weight = vote ? new BigNumber(vote.vote.weight) : undefined
 
           const repPenalty = getRepVotePenaltyByProposal(proposalId)
-          const warnLabel = repPenalty ? (
-            <div className={`flex items-center gap-2 pr-2 ${PENALTY_TYPE_COLOR_MAP[repPenalty.type]}`}>
-              <Icon type={PENALTY_TYPE_ICON_MAP[repPenalty.type]} />
-              <IconButton
-                type={PENALTY_STATUS_ICON_MAP[repPenalty.status]}
+          const warnLabel =
+            repPenalty && repPenalty.status !== PENALTY_STATUS.Discarded ? (
+              <button
+                type="button"
+                className={`flex items-center gap-2 pr-2 ${PENALTY_TYPE_COLOR_MAP[repPenalty.type]}`}
                 onClick={() => onWarningButtonClick(proposalId)}
-              />{' '}
-            </div>
-          ) : null
+              >
+                <Icon type={PENALTY_TYPE_ICON_MAP[repPenalty.type]} />
+                <Icon type={PENALTY_STATUS_ICON_MAP[repPenalty.status]} />
+              </button>
+            ) : null
 
           return {
             ...vote?.vote,
@@ -282,11 +283,13 @@ export default function LSVDetail() {
                 },
               ]}
             />
-            <LSVWarningModal active={modal} lsv={lsv} proposalId={modalProposalId} onClose={() => setModal(false)} />
+            <LSVVoteWarningModal
+              active={modal}
+              lsv={lsv}
+              proposalId={modalProposalId}
+              onClose={() => setModal(false)}
+            />
           </section>
-
-          {/* <Hr />
-          <LSVPenalty address={lsv.addr} penaltyPoint={lsv.penaltyTotal} /> */}
         </>
       ) : null}
     </AppPage>

@@ -105,5 +105,7 @@ export interface TableListProps<T extends TableListItem> {
   memo?: string | JSX.Element
   onRowClick?: (item: T) => void
   onCellClick?: (cell: any, field: string, item: T) => void
-  onCellTooltip?: (cell: any, field: string, item: T) => JSX.Element | undefined
+  onCellTooltip?: (cell: any, field: string, item: T) => JSX.Element | string | undefined
+  onFieldClick?: (field: string) => void
+  onFieldTooltip?: (field: string) => JSX.Element | string | undefined
 }

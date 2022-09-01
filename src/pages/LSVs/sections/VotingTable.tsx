@@ -1,16 +1,23 @@
+import Icon from 'components/Icon'
 import TableList from 'components/TableList'
 import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
 import VotingOptionIcon from 'components/VotingOptionIcon'
-import { SAFE_VOTING_RATE, VOTE_OPTIONS, WARNABLE_VOTE_OPTIONS } from 'constants/lsv'
+import {
+  PENALTY_STATUS_ICON_MAP,
+  PENALTY_TYPE_COLOR_MAP,
+  PENALTY_TYPE_ICON_MAP,
+  SAFE_VOTING_RATE,
+  VOTE_OPTIONS,
+  WARNABLE_VOTE_OPTIONS,
+} from 'constants/lsv'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
 import LSVPenaltyContent from 'pages/components/LSVPenaltyContent'
-import LSVWarningModal from 'pages/components/LSVWarningModal'
+import LSVVoteWarningModal from 'pages/components/LSVVoteWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
-import { useMemo, useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import type { LSV, Vote } from 'types/lsv'
+import { useCallback, useMemo, useState } from 'react'
+import { LSV, PENALTY_STATUS, Vote } from 'types/lsv'
 import type { ProposalStatus } from 'types/proposal'
 import { isMobile } from 'utils/userAgent'
 
@@ -45,10 +52,10 @@ export default function VotingTable({
         .map((item) => {
           const vote = item.voteData?.votes.find((vote) => vote.proposalId === proposalId)
           const na = item.lsvStartTimestamp > new Date(proposal.proposal.voting_end_time).getTime()
-          const option = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
-          const optionLabel = <VotingOptionIcon option={option} />
+          const option: VOTE_OPTIONS = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
+          const optionLabel = <WrappedVotingOptionIcon lsv={item} proposalId={proposalId} option={option} />
 
-          return { [item.valOperAddr]: { validator: item, vote, option, optionLabel } }
+          return { [item.addr]: { validator: item, vote, option, optionLabel } }
         })
         .reduce((accm, item) => ({ ...accm, ...item }), {})
 
@@ -68,7 +75,7 @@ export default function VotingTable({
               </span>
             </div>
           ),
-          value: item.valOperAddr,
+          value: item.addr,
           displayValue: 'optionLabel',
           objSortValue: 'option',
           type: 'object',
@@ -86,12 +93,9 @@ export default function VotingTable({
   // warning modal
   const [modal, setModal] = useState<boolean>(false)
   const [modalLSV, setModalLSV] = useState<LSV | undefined>()
-  const [modalProposalId, setModalProposalId] = useState<number | undefined>()
+  const [modalProposalId, setModalProposalId] = useState<number>(0)
 
-  // on cellClick
-  const history = useHistory()
   const onCellClick = (cell: LSVVotingRecord, field: string, row: LSVVotingTableItem) => {
-    // history.push(`/lsv/${cell.validator.valOperAddr}`)
     const warnable = WARNABLE_VOTE_OPTIONS.includes(cell.option)
     if (warnable) {
       setModalLSV(cell.validator)
@@ -101,11 +105,34 @@ export default function VotingTable({
   }
 
   const onCellTooltip = (cell: LSVVotingRecord, field: string, row: LSVVotingTableItem) => {
-    // const lsv = cell.validator
-    // const proposalId = row.proposalId
     const warnable = WARNABLE_VOTE_OPTIONS.includes(cell.option)
-    return warnable ? <LSVWarningTooltip lsv={cell.validator} proposalId={row.proposalId} /> : undefined
+    return warnable ? (
+      <LSVWarningTooltip lsv={cell.validator} proposalId={row.proposalId} option={cell.option} />
+    ) : undefined
   }
+
+  const onFieldClick = useCallback(
+    (field: string) => {
+      const lsv = list.find((lsv) => lsv.addr === field)
+      console.log('lsv', lsv)
+      if (lsv) {
+        setModalLSV(lsv)
+        setModalProposalId(0)
+        setModal(true)
+      }
+    },
+    [list]
+  )
+
+  const onFieldTooltip = useCallback(
+    (field: string) => {
+      const lsv = list.find((lsv) => lsv.addr === field)
+      if (lsv) {
+        return `${lsv.alias} warned? click to post`
+      } else return undefined
+    },
+    [list]
+  )
 
   return (
     <>
@@ -123,6 +150,8 @@ export default function VotingTable({
         defaultIsSortASC={false}
         onCellClick={onCellClick}
         onCellTooltip={onCellTooltip}
+        onFieldClick={onFieldClick}
+        onFieldTooltip={onFieldTooltip}
         fields={[
           {
             label: '#',
@@ -163,25 +192,45 @@ export default function VotingTable({
         </div>
       )}
 
-      {modalLSV && modalProposalId && (
-        <LSVWarningModal active={modal} lsv={modalLSV} proposalId={modalProposalId} onClose={() => setModal(false)} />
+      {modalLSV && (
+        <LSVVoteWarningModal
+          active={modal}
+          lsv={modalLSV}
+          proposalId={modalProposalId}
+          onClose={() => setModal(false)}
+        />
       )}
     </>
   )
 }
 
-function LSVWarningTooltip({ lsv, proposalId }: { lsv: LSV; proposalId: number }) {
+function WrappedVotingOptionIcon({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VOTE_OPTIONS }) {
+  const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
+  const penalty = getRepVotePenaltyByProposal(proposalId)
+  if (penalty && penalty.status !== PENALTY_STATUS.Discarded && option === VOTE_OPTIONS.DidNot) {
+    return (
+      <div className="flex items-center gap-1">
+        <Icon type={PENALTY_TYPE_ICON_MAP[penalty.type]} className={PENALTY_TYPE_COLOR_MAP[penalty.type]} />
+        <Icon type={PENALTY_STATUS_ICON_MAP[penalty.status]} className={PENALTY_TYPE_COLOR_MAP[penalty.type]} />
+      </div>
+    )
+  } else {
+    return <VotingOptionIcon option={option} />
+  }
+}
+
+function LSVWarningTooltip({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VOTE_OPTIONS }) {
   const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
   const penalty = getRepVotePenaltyByProposal(proposalId)
 
   return (
     <>
-      {isMobile ? null : penalty ? (
+      {isMobile ? null : penalty && penalty.status !== PENALTY_STATUS.Discarded && option === VOTE_OPTIONS.DidNot ? (
         <div className="w-[400px] p-4">
           <LSVPenaltyContent title={lsv.alias} proposalId={proposalId} penalty={penalty} />
         </div>
       ) : (
-        'Click to post warning'
+        `Click to post a warning to vote on #${proposalId}`
       )}
     </>
   )

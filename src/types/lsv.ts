@@ -147,8 +147,6 @@ export interface Penalty extends Omit<LSVEventRawBase, 'height' | 'confirmTimest
 export type VotePenalty = Omit<Penalty, 'rawJson'> & {
   event: 'vote_warning' | 'vote_penalty'
   rawJson: LSVEventRawJsonVoteWarn
-  refLink: string | undefined
-  desc: string | undefined
 }
 
 // post
@@ -156,6 +154,7 @@ export type LSVVoteWarnPost = {
   event_type: 'vote_warning'
   json: {
     addr: string
+    link: string
     desc: string
     proposalId: number
   }
@@ -165,6 +164,7 @@ export type LSVReliabilityWarnPost = {
   event_type: 'reliability_warning'
   json: {
     addr: string
+    link: string
     desc: string
   }
 }

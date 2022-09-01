@@ -34,9 +34,9 @@ function getProposalStatusTag(status?: ProposalStatus): JSX.Element | null {
     case 'PROPOSAL_STATUS_DEPOSIT_PERIOD':
       return <Tag status="strong">Deposit</Tag>
     case 'PROPOSAL_STATUS_PASSED':
-      return <Tag status="neutral">Passed</Tag>
+      return <Tag status="neutral">Pass</Tag>
     case 'PROPOSAL_STATUS_REJECTED':
-      return <Tag status="neutral">Rejected</Tag>
+      return <Tag status="neutral">Reject</Tag>
     default:
       return null
   }

@@ -4,7 +4,6 @@ import Icon from 'components/Icon'
 import IconButton from 'components/IconButton'
 import Tooltip from 'components/Tooltip'
 import { PENALTY_TYPE_COLOR_MAP, PENALTY_TYPE_ICON_MAP, REF_LINKED_PENALTIES } from 'constants/lsv'
-import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_TO_MIN_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
@@ -31,11 +30,6 @@ export default function LSVPenaltyItem({
   proposalId,
   direction = 'column',
 }: LSVPenaltyItemProps) {
-  const descs: string[] = penalty.rawJson?.desc?.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR) ?? []
-  const refLink = descs.length === 2 ? descs[0] : undefined
-  const descRaw = descs[1] ?? penalty.rawJson?.desc
-  const desc = descRaw?.length === 0 ? '-' : descRaw
-
   const isRow = useMemo<boolean>(() => direction === 'row', [direction])
 
   return (
@@ -99,9 +93,9 @@ export default function LSVPenaltyItem({
               // penalty.event === 'vote_warning' || penalty.event === 'vote_penalty'
               <IconButton
                 type="copylink"
-                className={`w-6 h-6 ${refLink ? 'hover:text-info' : 'opacity-40 cursor-not-allowed'}`}
+                className={`w-6 h-6 ${penalty.rawJson?.link ? 'hover:text-info' : 'opacity-40 cursor-not-allowed'}`}
                 onClick={() => {
-                  if (refLink) window.open(refLink, '_blank')
+                  if (penalty.rawJson?.link) window.open(penalty.rawJson.link, '_blank')
                 }}
               />
             ) : undefined
@@ -109,7 +103,7 @@ export default function LSVPenaltyItem({
           className={isRow ? `md:grow-0 md:shrink-0 md:basis-[100px]` : ''}
         />
 
-        <ModularData field="Description" data={desc} className="grow shrink" />
+        <ModularData field="Description" data={penalty.rawJson?.desc} className="grow shrink" />
         <ModularData
           field="Description"
           data={penalty.dataDesc}

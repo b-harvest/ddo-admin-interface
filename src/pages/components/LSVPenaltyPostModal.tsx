@@ -3,11 +3,7 @@ import Input from 'components/Inputs/Input'
 import Textarea from 'components/Inputs/Textarea'
 import Modal from 'components/Modal'
 import { toastSuccess } from 'components/Toast/generator'
-import {
-  LSV_OBSERVATION_DESC_ENGAGEMENT,
-  LSV_OBSERVATION_DESC_RELIABILITY,
-  LSV_VOTE_WARN_REFERENCE_SEPERATOR,
-} from 'constants/lsv'
+import { LSV_OBSERVATION_DESC_ENGAGEMENT, LSV_OBSERVATION_DESC_RELIABILITY } from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
 import { postLSVPenalty } from 'data/api'
 import { useMemo, useState } from 'react'
@@ -17,6 +13,7 @@ import { isValidUrl } from 'utils/text'
 type LSVPenaltyPostModalProps = {
   active: boolean
   lsv: LSV
+  proposalId?: number
   penaltyItemLabel: string
   event: WritablePenalty
   onClose: () => void
@@ -25,6 +22,7 @@ type LSVPenaltyPostModalProps = {
 export default function LSVPenaltyPostModal({
   active,
   lsv,
+  proposalId = 0,
   penaltyItemLabel,
   event,
   onClose,
@@ -52,8 +50,9 @@ export default function LSVPenaltyPostModal({
       event_type: 'vote_warning',
       json: {
         addr: lsv.addr,
-        proposalId: 0,
-        desc: `${modalRefLink}${LSV_VOTE_WARN_REFERENCE_SEPERATOR}${modalMemo}`,
+        proposalId,
+        link: modalRefLink,
+        desc: modalMemo,
       },
     }
     return await postLSVPenalty(postData)
@@ -64,7 +63,8 @@ export default function LSVPenaltyPostModal({
       event_type: 'reliability_warning',
       json: {
         addr: lsv.addr,
-        desc: `${modalRefLink}${LSV_VOTE_WARN_REFERENCE_SEPERATOR}${modalMemo}`,
+        link: modalRefLink,
+        desc: modalMemo,
       },
     }
     return await postLSVPenalty(postData)
@@ -88,10 +88,15 @@ export default function LSVPenaltyPostModal({
       okButtonDisabled={saveButtonDisabled}
       onOk={onSaveClick}
     >
-      <H4 title={`${lsv.alias}, \nwarned against ${penaltyItemLabel}?`} className="mb-4" />
-      <p className={`${FIELD_CSS} whitespace-pre-line mb-6`}>
-        {event === 'vote_warning' ? LSV_OBSERVATION_DESC_ENGAGEMENT : LSV_OBSERVATION_DESC_RELIABILITY}
-      </p>
+      <H4
+        title={`${lsv.alias}, \nwarned ${proposalId ? 'to vote on ' + proposalId : 'against ' + penaltyItemLabel}?`}
+        className="mb-4"
+      />
+      {proposalId === 0 ? (
+        <p className={`${FIELD_CSS} whitespace-pre-line mb-6`} style={{ wordBreak: 'keep-all' }}>
+          {event === 'vote_warning' ? LSV_OBSERVATION_DESC_ENGAGEMENT : LSV_OBSERVATION_DESC_RELIABILITY}
+        </p>
+      ) : null}
 
       <div className="space-y-2">
         <Input

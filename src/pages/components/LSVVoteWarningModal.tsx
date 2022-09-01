@@ -1,9 +1,6 @@
-import H4 from 'components/H4'
-import Input from 'components/Inputs/Input'
 import Textarea from 'components/Inputs/Textarea'
 import Modal from 'components/Modal'
 import { toastError, toastSuccess } from 'components/Toast/generator'
-import { LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/lsv'
 import { postLSVPenalty, postLSVPenaltyConfirm } from 'data/api'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import LSVPenaltyContent from 'pages/components/LSVPenaltyContent'
@@ -13,13 +10,16 @@ import { LSV, LSVPenaltyConfirmPost, LSVVoteWarnPost, Penalty, PENALTY_TYPE, Vot
 import { PENALTY_STATUS } from 'types/lsv'
 import { isValidUrl } from 'utils/text'
 
+import LSVPenaltyPostModal from './LSVPenaltyPostModal'
+
 enum ADMIN_ACTION_ON_PENALTY {
   ConfirmWarning = 'Confirm warning',
   ConfirmPenalty = 'Confirm 1 strike',
   SeePenaltyBoard = 'See penalty board',
+  Discard = 'Discard',
 }
 
-export default function LSVWarningModal({
+export default function LSVVoteWarningModal({
   active,
   lsv,
   proposalId,
@@ -66,7 +66,8 @@ export default function LSVWarningModal({
       json: {
         addr: lsv.addr,
         proposalId,
-        desc: `${modalRefLink}${LSV_VOTE_WARN_REFERENCE_SEPERATOR}${modalMemo}`,
+        link: modalRefLink,
+        desc: modalMemo,
       },
     }
 
@@ -82,43 +83,46 @@ export default function LSVWarningModal({
     history.push(`/lsv/${lsv.valOperAddr}`)
   }
 
-  const confirmPenalty = async (penalty: VotePenalty) => {
+  const confirmPenalty = async (penalty: VotePenalty, confirm: boolean) => {
     setIsModalLoading(true)
 
     const postData: LSVPenaltyConfirmPost = {
       eid: penalty.eid,
       json: {
         eid: penalty.eid,
-        result: 'y',
+        result: confirm ? 'y' : 'd',
         msg: confirmMsg,
       },
     }
     const { success, message } = await postLSVPenaltyConfirm(postData)
-    if (success) toastSuccess('Warning saved successfully')
+    if (success) toastSuccess(`${confirm ? 'Confirmed' : 'Discarded'} successfully`)
     else if (!success && message) if (message) toastError(message)
 
     terminate()
   }
 
-  const onConfirmClick = async (penalty: VotePenalty) => {
+  const onConfirmClick = async (penalty: VotePenalty, confirm = true) => {
     const adminAction = getAdminAction(penalty)
 
     if (adminAction === ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard) {
       seePenaltyBoard()
     } else {
-      confirmPenalty(penalty)
+      confirmPenalty(penalty, confirm)
     }
   }
 
   return (
     <>
-      {penalty ? (
+      {penalty && penalty.status !== PENALTY_STATUS.Discarded ? (
         <Modal
           active={active}
           onClose={terminate}
           onOk={() => onConfirmClick(penalty)}
           okButtonLabel={getAdminAction(penalty)}
           okButtonColor={penalty.status === PENALTY_STATUS.NotConfirmed ? 'danger' : 'primary'}
+          onNo={penalty.status === PENALTY_STATUS.NotConfirmed ? () => onConfirmClick(penalty, false) : undefined}
+          noButtonLabel={getAdminAction(penalty, false)}
+          noButtonColor="neutral"
           isLoading={isModalLoading}
         >
           <div className="space-y-4">
@@ -134,41 +138,35 @@ export default function LSVWarningModal({
           </div>
         </Modal>
       ) : (
-        <Modal
+        <LSVPenaltyPostModal
           active={active}
-          onClose={terminate}
-          onOk={onSaveClick}
-          okButtonLabel="Save"
-          okButtonDisabled={saveButtonDisabled}
-          isLoading={isModalLoading}
-        >
-          <H4 title={`${lsv.alias}, \nwarned to vote on #${proposalId}?`} className="mb-4" />
-          <div className="space-y-2">
-            <Input
-              type="text"
-              placeholder="Reference link"
-              keyword={modalRefLink}
-              onChange={setModalRefLink}
-              validate={isValidUrl}
-              invalidMsg="Please fill out with a valid url."
-            />
-            <Textarea placeholder="Description (optional)" keyword={modalMemo} onChange={setModalMemo} />
-          </div>
-        </Modal>
+          lsv={lsv}
+          proposalId={proposalId}
+          penaltyItemLabel="Engagement"
+          event="vote_warning"
+          onClose={() => {
+            mutate()
+            onClose()
+          }}
+        />
       )}
     </>
   )
 }
 
-function getAdminAction(penalty: Penalty) {
+function getAdminAction(penalty: Penalty, confirm = true) {
   if (penalty.type === PENALTY_TYPE.Warning) {
     return penalty.status === PENALTY_STATUS.NotConfirmed
-      ? ADMIN_ACTION_ON_PENALTY.ConfirmWarning
+      ? confirm
+        ? ADMIN_ACTION_ON_PENALTY.ConfirmWarning
+        : ADMIN_ACTION_ON_PENALTY.Discard
       : ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard
   }
   if (penalty.type === PENALTY_TYPE.Strike) {
     return penalty.status === PENALTY_STATUS.NotConfirmed
-      ? ADMIN_ACTION_ON_PENALTY.ConfirmPenalty
+      ? confirm
+        ? ADMIN_ACTION_ON_PENALTY.ConfirmPenalty
+        : ADMIN_ACTION_ON_PENALTY.Discard
       : ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard
   }
   return ADMIN_ACTION_ON_PENALTY.SeePenaltyBoard

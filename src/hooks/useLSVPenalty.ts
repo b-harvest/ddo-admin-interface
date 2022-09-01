@@ -1,4 +1,4 @@
-import { LSV_PENALTY_DATA_DESC_MAP, LSV_VOTE_WARN_REFERENCE_SEPERATOR } from 'constants/lsv'
+import { LSV_PENALTY_DATA_DESC_MAP } from 'constants/lsv'
 import { usePenaltiesByLSV } from 'data/useAPI'
 import { useCallback, useMemo } from 'react'
 import { PENALTY_STATUS, PENALTY_TYPE } from 'types/lsv'
@@ -58,15 +58,13 @@ const useLSVPenalty = (address: string) => {
     const votePenaltyList = getLSVEvents('vote_penalty')
 
     return (voteWarnedList.concat(votePenaltyList) as LSVEventVoteWarn[]).map((item) => {
-      const descs = item.rawJson.desc?.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR)
-      const refLink = descs && descs.length === 2 ? descs[0] : undefined
-      const desc = descs && descs.length === 2 ? descs[1] : descs ? descs[0] : undefined
+      // const descs = item.rawJson.desc?.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR)
+      // const refLink = descs && descs.length === 2 ? descs[0] : undefined
+      // const desc = descs && descs.length === 2 ? descs[1] : descs ? descs[0] : undefined
       // const posterId = item.confirmId ?? item.regId
       // const postTimestamp = item.confirmId ? item.confirmTimestamp : item.timestamp
       return {
         ...item,
-        refLink,
-        desc,
         // posterId,
         // postTimestamp,
       }

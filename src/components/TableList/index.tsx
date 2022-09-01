@@ -50,6 +50,8 @@ export default function TableList<T>({
   onRowClick,
   onCellClick,
   onCellTooltip,
+  onFieldClick,
+  onFieldTooltip,
 }: TableListProps<T>) {
   // fields
   const allMergedList = mergedFields.reduce((accm, list) => accm.concat(list), [])
@@ -78,7 +80,13 @@ export default function TableList<T>({
   const [objSortValue, setObjSortValue] = useState<string | undefined>()
   const [isSortASC, setIsSortASC] = useState<boolean>(defaultIsSortASC ?? IS_SORT_ASC_DEFAULT)
 
-  const onFieldClick = (field: ListField) => handleSorting(field)
+  const handleFieldClick = (field: ListField) => {
+    if (onFieldClick) {
+      onFieldClick(field.value)
+    } else {
+      handleSorting(field)
+    }
+  }
 
   const handleSorting = (field: ListField) => {
     const newSortBy = field.sortValue ?? field.value
@@ -162,12 +170,14 @@ export default function TableList<T>({
                           : 'flex-start',
                       }}
                       className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
-                      onClick={() => onFieldClick(field)}
+                      onClick={() => handleFieldClick(field)}
                     >
-                      {field.label}
-                      {sortBy && sortBy === (field.sortValue ?? field.value) ? (
-                        <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
-                      ) : null}
+                      <Tooltip content={onFieldTooltip ? onFieldTooltip(field.value) : undefined} clickable={true}>
+                        {field.label}
+                        {sortBy && sortBy === (field.sortValue ?? field.value) ? (
+                          <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
+                        ) : null}
+                      </Tooltip>
                     </li>
                   )
                 })}
@@ -191,12 +201,14 @@ export default function TableList<T>({
                             ? 'flex-end'
                             : 'flex-start',
                         }}
-                        onClick={() => onFieldClick(field)}
+                        onClick={() => handleFieldClick(field)}
                       >
-                        {mergedFieldLabels[index] ?? ''}
-                        {sortBy && sortBy === (field.sortValue ?? field.value) ? (
-                          <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
-                        ) : null}
+                        <Tooltip content={onFieldTooltip ? onFieldTooltip(field.value) : undefined} clickable={true}>
+                          {mergedFieldLabels[index] ?? ''}
+                          {sortBy && sortBy === (field.sortValue ?? field.value) ? (
+                            <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
+                          ) : null}
+                        </Tooltip>
                       </li>
                     ) : null
                   )
@@ -296,7 +308,7 @@ function ListItem<T extends TableListItem>({
   nowrap: boolean
   onClick?: (item: T) => void
   onCellClick?: (cell: any, field: string, row: T) => void
-  onCellTooltip?: (cell: any, field: string, row: T) => JSX.Element | undefined
+  onCellTooltip?: (cell: any, field: string, row: T) => JSX.Element | string | undefined
 }) {
   return (
     <li className="relative block w-full">
@@ -308,7 +320,7 @@ function ListItem<T extends TableListItem>({
             ? 'flex-row items-center space-x-2'
             : 'flex-col md:flex-row items-strecth md:items-center space-y-1 md:space-y-0 space-x-0 md:space-x-2'
         } flex  justify-between w-full bg-grayCRE-200 dark:bg-neutral-800 py-3 transition-all hover:bg-grayCRE-100 dark:hover:bg-neutral-700 hover:-translate-y-[1px] ${
-          onClick ? 'cursor-pointer' : ''
+          onClick ? '!cursor-pointer' : ''
         }`}
         onClick={() => {
           if (onClick) onClick(data)
@@ -321,7 +333,9 @@ function ListItem<T extends TableListItem>({
               onClick={() => {
                 if (onCellClick && field.clickable) onCellClick(data[field.value], field.value, data)
               }}
-              className={`${cellClass(field)} flex space-x-2 ${onCellClick && field.clickable ? 'cursor-pointer' : ''}`}
+              className={`${cellClass(field)} flex space-x-2 ${
+                onCellClick && field.clickable ? '!cursor-pointer' : ''
+              }`}
               style={{
                 minWidth: cellMinWidthPx && !field.excludeMinWidth ? `${cellMinWidthPx}px` : '',
                 flexBasis: `${field.widthRatio ?? colWidthRatio}%`,
@@ -337,6 +351,7 @@ function ListItem<T extends TableListItem>({
               }}
             >
               <Tooltip
+                clickable={onCellClick && field.clickable}
                 content={
                   onCellTooltip && field.tooltip ? onCellTooltip(data[field.value], field.value, data) : undefined
                 }
@@ -367,7 +382,7 @@ function ListItem<T extends TableListItem>({
                     if (onCellClick && field.clickable) onCellClick(data[field.value], field.value, data)
                   }}
                   className={`${cellClass(field)} flex space-x-2 ${
-                    onCellClick && field.clickable ? 'cursor-pointer' : ''
+                    onCellClick && field.clickable ? '!cursor-pointer' : ''
                   }`}
                   style={{
                     flexShrink: field.type === 'imgUrl' ? '0' : '1',
@@ -382,6 +397,7 @@ function ListItem<T extends TableListItem>({
                   }}
                 >
                   <Tooltip
+                    clickable={onCellClick && field.clickable}
                     content={
                       onCellTooltip && field.tooltip ? onCellTooltip(data[field.value], field.value, data) : undefined
                     }
@@ -468,13 +484,13 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
   } else if (field.type === 'object' && typeof value === 'object') {
     const display = value[field.displayValue]
     return (
-      <div title={display} className="TYPO-BODY-XS md:TYPO-BODY-S">
+      <div title={typeof display === 'object' ? '' : display} className="TYPO-BODY-XS md:TYPO-BODY-S">
         {display}
       </div>
     )
   } else {
     return (
-      <div title={value} className="TYPO-BODY-XS md:TYPO-BODY-S">
+      <div title={typeof value === 'object' ? '' : value} className="TYPO-BODY-XS md:TYPO-BODY-S">
         {value}
       </div>
     )

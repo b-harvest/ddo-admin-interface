@@ -19,10 +19,9 @@ import {
 import { useCallback, useMemo, useState } from 'react'
 import { LSV, Penalty, PENALTY_STATUS, PENALTY_TYPE, PenaltyEvent, WritablePenalty } from 'types/lsv'
 
-import LSVPenaltyConfirmModal from './LSVPenaltyConfirmModal'
-import LSVPenaltyItem from './LSVPenaltyItem'
-import LSVWarningPostModal from './LSVPenaltyPostModal'
-import { PENALTY_LIST_FIELD_MAP } from './penalty'
+import LSVPenaltyConfirmModal from '../../components/LSVPenaltyConfirmModal'
+import LSVPenaltyItem from '../../components/LSVPenaltyItem'
+import LSVPenaltyPostModal from '../../components/LSVPenaltyPostModal'
 
 type PenaltyItem = { label: string; desc: string; events: PenaltyEvent[]; type: PENALTY_TYPE }
 const PENALTY_ITEMS: PenaltyItem[] = [
@@ -94,16 +93,6 @@ export default function LSVPenaltyBoard({
   const getPenalties = useCallback(
     (item: PenaltyItem) => penalties.filter((penalty) => item.events.includes(penalty.event)),
     [penalties]
-  )
-
-  const getPenaltyFields = useCallback(
-    (item: PenaltyItem) => {
-      const penalties = getPenalties(item)
-      const keys: string[] = penalties.length > 0 ? Object.keys(penalties[0]) : []
-      const fields = keys.map((key) => PENALTY_LIST_FIELD_MAP[key]).filter((item) => !!item)
-      return fields
-    },
-    [getPenalties]
   )
 
   const [postModal, setPostModal] = useState<boolean>(false)
@@ -189,7 +178,7 @@ export default function LSVPenaltyBoard({
 
       {/* modals */}
       {modalPenaltyToPost && modalPenaltyItemToPost ? (
-        <LSVWarningPostModal
+        <LSVPenaltyPostModal
           active={postModal}
           lsv={lsv}
           penaltyItemLabel={modalPenaltyItemToPost}
