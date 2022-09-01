@@ -36,12 +36,12 @@ export const pages: Page[] = [
     pageName: 'LSV Monitoring',
     nav: true,
   },
-  {
-    path: '/dex',
-    label: 'DEX',
-    pageName: 'DEX Management',
-    nav: true,
-  },
+  // {
+  //   path: '/dex',
+  //   label: 'DEX',
+  //   pageName: 'DEX Management',
+  //   nav: true,
+  // },
   {
     path: '/volume',
     label: 'Volume 24h',
