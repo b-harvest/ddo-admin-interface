@@ -16,9 +16,8 @@ export default function EmptyData({
 }) {
   return (
     <Card
-      className={`w-full text-center TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${
-        useNarrow ? 'rounded-md p-2' : 'rounded-lg p-4'
-      }`}
+      className={`w-full text-center TYPO-BODY-S text-grayCRE-400 !font-bold transition-all ${useNarrow ? 'p-2' : ''}`}
+      useNarrow={useNarrow}
       useGlassEffect={useGlassEffect}
     >
       {isLoading ? <LoadingRows rowsCnt={loadingRowsCnt} /> : label}

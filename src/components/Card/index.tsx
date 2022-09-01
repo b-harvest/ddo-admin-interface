@@ -23,11 +23,13 @@ export default function Card({
   return (
     <div
       {...rest}
-      className={`bg-grayCRE-200-o dark:bg-neutral-800/50 ${
-        saturated ? (useGlassEffect ? '!bg-white/50 dark:!bg-neutral-900/50' : '!bg-white dark:!bg-neutral-900') : ''
-      } ${useGlassEffect ? 'backdrop-blur-[40px]' : ''} relative flex flex-col p-4 ${
-        useNarrow ? 'rounded-md' : 'rounded-xl'
-      } ${getRadiusByMergedSide(merged)} ${className}`}
+      className={`bg-grayCRE-200 dark:bg-neutral-800 ${
+        saturated && !useGlassEffect ? '!bg-white dark:!bg-neutral-900' : ''
+      } ${
+        useGlassEffect ? '!bg-grayCRE-200-o dark:!bg-neutral-800/50 backdrop-blur-[40px]' : ''
+      } relative flex flex-col p-4 ${useNarrow ? 'rounded-md' : 'rounded-xl'} ${getRadiusByMergedSide(
+        merged
+      )} ${className}`}
     >
       {children}
     </div>

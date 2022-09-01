@@ -52,7 +52,7 @@ export default function DynamicList({
           {list}
         </Card>
       ) : (
-        <EmptyData label={emptyLabel} />
+        <EmptyData label={emptyLabel} useNarrow={true} useGlassEffect={true} />
       )}
 
       {/* {body !== null && <div className={`flex flex-col items-stretch gap-2 transition-all`}>{body}</div>} */}
