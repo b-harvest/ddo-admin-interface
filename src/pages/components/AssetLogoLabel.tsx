@@ -30,7 +30,7 @@ export default function AssetLogoLabel({
     >
       <div className={`flex justify-start items-center ${isSingleAssetAutoSpaced || hideTicker ? 'w-fit' : 'w-12'}`}>
         {assets.map((asset) => (
-          <div key={asset.ticker} className="flex justify-center items-center w-6 h-6">
+          <div key={asset.ticker} className="flex justify-center items-center w-6 h-6 rounded-full overflow-hidden">
             <img src={asset.logoUrl} alt={asset.ticker} className="w-full object-contain"></img>
           </div>
         ))}
