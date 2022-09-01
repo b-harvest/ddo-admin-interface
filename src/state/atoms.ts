@@ -42,7 +42,7 @@ export const authTokenAtomRef = atom(
   (get) => get(authTokenAtom),
   (_, set, { authToken }: { authToken: string | null }) => {
     set(authTokenAtom, authToken)
-    api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
+    api.defaults.headers.common['Authorization'] = authToken ? `Bearer ${authToken}` : ''
     if (authToken) localStorage.setItem(LOCAL_STORAGE_KEY_AUTH_TOKEN, authToken)
     else localStorage.removeItem(LOCAL_STORAGE_KEY_AUTH_TOKEN)
   }

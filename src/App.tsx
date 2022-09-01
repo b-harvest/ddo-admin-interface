@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.min.css'
 import AppHeader from 'components/AppHeader'
 import BlockHeightPolling from 'components/BlockHeightPolling'
 import GlowBackground from 'components/GlowBackground'
+import Loader from 'components/Loader'
 import TextBand from 'components/TextBand'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
@@ -20,16 +21,21 @@ import Overview from 'pages/Overview'
 import Pair from 'pages/Pair'
 import Pool from 'pages/Pool'
 import SignIn from 'pages/SignIn/index'
+import { isValidUser, setupRefreshToken } from 'pages/SignIn/utils'
 import Token from 'pages/Token'
 import TVL from 'pages/TVL'
 import Volume from 'pages/Volume'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useGoogleLogin } from 'react-google-login'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
-import { chainIdAtomRef, userAtomRef } from 'state/atoms'
+import { authTokenAtomRef, chainIdAtomRef, userAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
+import { GoogleUserProfile } from 'types/user'
 import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
+
+const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
 
 // No interface change
 function Updaters() {
@@ -40,9 +46,50 @@ function Updaters() {
   )
 }
 
+function GoogleAuthCheck({ clientId, onFinished }: { clientId: string; onFinished: () => void }) {
+  const history = useHistory()
+  const redirectTologin = () => history.push('/auth')
+
+  const [, setAuthTokenAtom] = useAtom(authTokenAtomRef)
+  const [, setUserAtom] = useAtom(userAtomRef)
+
+  const removeUser = async () => {
+    setAuthTokenAtom({ authToken: null })
+    setUserAtom({ user: null })
+    redirectTologin()
+  }
+
+  const onSuccess = async (res) => {
+    if (isValidUser(res.profileObj, 'crescent.foundation')) {
+      await setupRefreshToken(res, setAuthTokenAtom)
+
+      setUserAtom({ user: res.profileObj as GoogleUserProfile })
+      setAuthTokenAtom({ authToken: res.getAuthResponse().id_token })
+
+      onFinished()
+    }
+  }
+
+  const onAutoLoadFinished = (signedIn: boolean) => {
+    if (!signedIn) {
+      removeUser()
+      onFinished()
+    }
+  }
+
+  useGoogleLogin({
+    clientId,
+    isSignedIn: true,
+    onSuccess,
+    onAutoLoadFinished,
+  })
+  return <></>
+}
+
 function App() {
-  // user
+  // auth
   const [userAtom] = useAtom(userAtomRef)
+  const [authVerified, setAuthVerified] = useState<boolean>(false)
 
   const { backendBlockHeight, onchainBlockHeight } = useChain()
 
@@ -66,7 +113,6 @@ function App() {
 
   // scroll behavior by route history
   const history = useHistory()
-
   useEffect(() => {
     const unlisten = history.listen(() => {
       window.scrollTo(0, 0)
@@ -77,79 +123,94 @@ function App() {
   }, [history])
 
   return (
-    <div className="App">
-      <Updaters />
-      <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
-        {showAppTopBar && <TextBand label={topBannerLabel} />}
-        {userAtom && (
-          <div
-            className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
-            style={{ zIndex: '1' }}
-          >
-            <BlockHeightPolling
-              onchainBlockHeight={onchainBlockHeight ?? '-'}
-              backendBlockHeight={backendBlockHeight ?? '-'}
-            />
-          </div>
-        )}
-        <AppHeader />
-      </div>
+    <>
+      {clientId ? (
+        <div className="App">
+          <GoogleAuthCheck clientId={clientId} onFinished={() => setAuthVerified(true)} />
+          <Updaters />
+          {authVerified ? (
+            <>
+              <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
+                {showAppTopBar && <TextBand label={topBannerLabel} />}
+                {userAtom && (
+                  <div
+                    className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
+                    style={{ zIndex: '1' }}
+                  >
+                    <BlockHeightPolling
+                      onchainBlockHeight={onchainBlockHeight ?? '-'}
+                      backendBlockHeight={backendBlockHeight ?? '-'}
+                    />
+                  </div>
+                )}
+                <AppHeader />
+              </div>
 
-      <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
-        <div className="absolute top-0 left-0 right-0">
-          <TextBand label={hiddenBarLabel} thin={true} bgColorClass="bg-info" />
+              <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
+                <div className="absolute top-0 left-0 right-0">
+                  <TextBand label={hiddenBarLabel} thin={true} bgColorClass="bg-info" />
+                </div>
+
+                <GlowBackground
+                  style={{
+                    transform: 'translateY(-120vh) translateX(-50vw)',
+                  }}
+                />
+                <GlowBackground
+                  style={{
+                    transform: 'translateY(25vh) translateX(75vw)',
+                  }}
+                />
+
+                <Switch>
+                  <Route exact path="/auth" component={SignIn} />
+
+                  <AuthRoute path="/overview" component={Overview} />
+                  <AuthRoute path="/chain" component={Chain} />
+                  <AuthRoute path="/accounts" component={Accounts} />
+                  <AuthRoute path="/account/:id" component={Account} />
+                  <AuthRoute path="/account" component={Account} />
+                  <AuthRoute path="/lsvs" component={LSVs} />
+                  <AuthRoute path="/lsv/:id" component={LSV} />
+                  <AuthRoute path="/dex" component={DEX} />
+
+                  <AuthRoute path="/volume/:id" component={Volume} />
+                  <AuthRoute path="/tvl/:id" component={TVL} />
+                  <AuthRoute path="/token/:id" component={Token} />
+                  <AuthRoute path="/pair/:id" component={Pair} />
+                  <AuthRoute path="/pool/:id" component={Pool} />
+
+                  <Route>
+                    <Redirect to="/overview" />
+                  </Route>
+                </Switch>
+              </main>
+            </>
+          ) : (
+            <div className="w-screen h-screen">
+              <Loader />
+            </div>
+          )}
+
+          <ToastContainer
+            limit={3}
+            transition={Slide}
+            position="top-right"
+            autoClose={8000}
+            hideProgressBar={false}
+            closeOnClick
+            closeButton={() => <div>𝗫</div>}
+            toastClassName={'bg-white text-black dark:bg-black dark:text-white TYPO-BODY-M text-left'}
+            newestOnTop
+            rtl={false}
+            pauseOnFocusLoss
+            pauseOnHover
+          />
         </div>
-
-        <GlowBackground
-          style={{
-            transform: 'translateY(-120vh) translateX(-50vw)',
-          }}
-        />
-        <GlowBackground
-          style={{
-            transform: 'translateY(25vh) translateX(75vw)',
-          }}
-        />
-
-        <Switch>
-          <Route exact path="/auth" component={SignIn} />
-
-          <AuthRoute path="/overview" component={Overview} />
-          <AuthRoute path="/chain" component={Chain} />
-          <AuthRoute path="/accounts" component={Accounts} />
-          <AuthRoute path="/account/:id" component={Account} />
-          <AuthRoute path="/account" component={Account} />
-          <AuthRoute path="/lsvs" component={LSVs} />
-          <AuthRoute path="/lsv/:id" component={LSV} />
-          <AuthRoute path="/dex" component={DEX} />
-
-          <AuthRoute path="/volume/:id" component={Volume} />
-          <AuthRoute path="/tvl/:id" component={TVL} />
-          <AuthRoute path="/token/:id" component={Token} />
-          <AuthRoute path="/pair/:id" component={Pair} />
-          <AuthRoute path="/pool/:id" component={Pool} />
-
-          <Route>
-            <Redirect to="/overview" />
-          </Route>
-        </Switch>
-      </main>
-
-      <ToastContainer
-        limit={3}
-        transition={Slide}
-        position="top-right"
-        autoClose={8000}
-        hideProgressBar={false}
-        closeOnClick
-        closeButton={() => <div>𝗫</div>}
-        toastClassName={'bg-white text-black dark:bg-black dark:text-white TYPO-BODY-M text-left'}
-        newestOnTop
-        rtl={false}
-        pauseOnFocusLoss
-        pauseOnHover
-      />
-    </div>
+      ) : (
+        'REACT_APP_GOOGLE_AUTH_CLIENT_ID is missing'
+      )}
+    </>
   )
 }
 

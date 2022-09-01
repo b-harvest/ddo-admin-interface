@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai'
 import { Redirect, Route, useLocation } from 'react-router-dom'
-import { userAtomRef } from 'state/atoms'
+import { authTokenAtomRef, userAtomRef } from 'state/atoms'
 
 interface AuthRouteProps {
   component: () => JSX.Element
@@ -9,11 +9,13 @@ interface AuthRouteProps {
 
 export default function AuthRoute({ component, path }: AuthRouteProps) {
   const [userAtom] = useAtom(userAtomRef)
+  const [authTokenAtom] = useAtom(authTokenAtomRef)
+
   const location = useLocation()
 
   return (
     <Route exact path={path} component={component}>
-      {userAtom ? null : (
+      {userAtom && authTokenAtom ? null : (
         <Redirect
           to={{
             pathname: '/auth',
