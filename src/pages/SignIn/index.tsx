@@ -16,7 +16,7 @@ export default function SignIn() {
   return (
     <AppPage className="flex justify-center items-center px-8 pt-[20%]">
       <GlowingCard className="w-full md:w-[60%] max-w-md">
-        <div className="flex flex-col justify-center items-center space-x-4 mb-10">
+        <div className="flex flex-col justify-center items-center gap-4 text-center mb-10">
           <Logo className="h-12 py-2" src={CRESCENT_LOGO_IMG_URL} />
           <h2
             className="inline-flex justify-start items-center TYPO-H2 md:TYPO-H2 dark:text-white"
