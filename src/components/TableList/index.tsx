@@ -172,7 +172,7 @@ export default function TableList<T>({
                       className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                       onClick={() => handleFieldClick(field)}
                     >
-                      <Tooltip content={onFieldTooltip ? onFieldTooltip(field.value) : undefined} clickable={true}>
+                      <Tooltip content={onFieldTooltip ? onFieldTooltip(field.value) : undefined}>
                         {field.label}
                         {sortBy && sortBy === (field.sortValue ?? field.value) ? (
                           <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
@@ -203,7 +203,7 @@ export default function TableList<T>({
                         }}
                         onClick={() => handleFieldClick(field)}
                       >
-                        <Tooltip content={onFieldTooltip ? onFieldTooltip(field.value) : undefined} clickable={true}>
+                        <Tooltip content={onFieldTooltip ? onFieldTooltip(field.value) : undefined}>
                           {mergedFieldLabels[index] ?? ''}
                           {sortBy && sortBy === (field.sortValue ?? field.value) ? (
                             <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
@@ -351,7 +351,6 @@ function ListItem<T extends TableListItem>({
               }}
             >
               <Tooltip
-                clickable={onCellClick && field.clickable}
                 content={
                   onCellTooltip && field.tooltip ? onCellTooltip(data[field.value], field.value, data) : undefined
                 }
@@ -397,7 +396,6 @@ function ListItem<T extends TableListItem>({
                   }}
                 >
                   <Tooltip
-                    clickable={onCellClick && field.clickable}
                     content={
                       onCellTooltip && field.tooltip ? onCellTooltip(data[field.value], field.value, data) : undefined
                     }

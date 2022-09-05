@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { useAirdropClaim, useFarmStaked } from 'data/useAPI'
 import { useBalance } from 'data/useAPI'
-import { willFetch } from 'data/useAppSWR'
 import { useAirdropClaimLCD, useAllFarmRewardsLCD, useFarmPositionLCD, useFarmStakedLCD } from 'data/useLCD'
 import { useBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
@@ -263,7 +262,7 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   // isLoading
   const isLoading = useMemo<boolean>(
     () =>
-      willFetch(address) &&
+      address.length > 0 &&
       (allBalanceDataLoading ||
         allBalanceLCDDataLoading ||
         allStakedDataLoading ||

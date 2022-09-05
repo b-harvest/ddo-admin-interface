@@ -4,24 +4,17 @@ import 'tippy.js/dist/tippy.css'
 import Tippy from '@tippyjs/react'
 import { ReactNode } from 'react'
 
-export default function Tooltip({
-  children,
-  content,
-  clickable = false,
-}: {
-  children: ReactNode
-  content?: string | JSX.Element
-  clickable?: boolean
-}) {
+type TooltipProps = { children: ReactNode; content?: string | JSX.Element }
+
+export default function Tooltip({ children, content }: TooltipProps) {
   return content ? (
     <Tippy
       arrow={false}
       content={content}
-      className="!w-max !max-w-md border border-grayCRE-50 dark:border-grayCRE-400 !bg-white-o dark:!bg-grayCRE-400-o backdrop-blur-[40px] TYPO-BODY-S !text-black dark:!text-white !whitespace-pre-line text-left "
+      className={`!w-max !max-w-md border border-grayCRE-50 dark:border-grayCRE-400 !bg-white-o dark:!bg-grayCRE-400-o backdrop-blur-[40px] TYPO-BODY-S !text-black dark:!text-white !whitespace-pre-line text-left`}
     >
-      <button type="button" className={clickable ? '' : 'cursor-default'}>
-        {children}
-      </button>
+      {/* <button type="button">{children}</button> */}
+      <div>{children}</div>
     </Tippy>
   ) : (
     <>{children}</>

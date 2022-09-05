@@ -38,7 +38,7 @@ import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
 
 const GA_MEASUREMENT_ID = 'G-QRT8FWC124'
-ReactGA.initialize(GA_MEASUREMENT_ID, { debug: true })
+ReactGA.initialize(GA_MEASUREMENT_ID, { debug: false })
 
 function setupGAbyPage(pathname: string, search: string) {
   ReactGA.pageview(pathname + search)
