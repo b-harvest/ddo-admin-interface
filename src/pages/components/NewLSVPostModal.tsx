@@ -57,6 +57,7 @@ export default function NewLSVPostModal({ active, onClose }: NewLSVPostModalProp
       onClose={terminate}
       isLoading={isLoading}
       okButtonLabel="Add LSV"
+      okButtonColor="primary"
       okButtonDisabled={okButtonDisabled}
       onOk={onOk}
     >
