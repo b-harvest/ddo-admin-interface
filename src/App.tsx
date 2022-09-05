@@ -26,14 +26,23 @@ import Token from 'pages/Token'
 import TVL from 'pages/TVL'
 import Volume from 'pages/Volume'
 import { useEffect, useMemo, useState } from 'react'
+import ReactGA from 'react-ga'
 import { useGoogleLogin } from 'react-google-login'
-import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
+import reportWebVitals from 'reportWebVitals'
 import { authTokenAtomRef, chainIdAtomRef, userAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
 import { GoogleUserProfile } from 'types/user'
 import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
+
+const GA_MEASUREMENT_ID = 'G-QRT8FWC124'
+ReactGA.initialize(GA_MEASUREMENT_ID, { debug: true })
+
+function setupGAbyPage(pathname: string, search: string) {
+  ReactGA.pageview(pathname + search)
+}
 
 const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
 
@@ -87,6 +96,9 @@ function GoogleAuthCheck({ clientId, onFinished }: { clientId: string; onFinishe
 }
 
 function App() {
+  const location = useLocation()
+  setupGAbyPage(location.pathname, location.search)
+
   // auth
   const [userAtom] = useAtom(userAtomRef)
   const [authVerified, setAuthVerified] = useState<boolean>(false)
@@ -215,3 +227,8 @@ function App() {
 }
 
 export default App
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals()
