@@ -58,14 +58,12 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   const { data: allBalanceData, isLoading: allBalanceDataLoading }: APIHookReturn<BalanceRaw> = useBalance(
     {
       address,
-      fetch: willFetch(address),
     },
     interval
   )
   const { data: allBalanceLCDData, isLoading: allBalanceLCDDataLoading }: LCDHookReturn<BalanceLCDRaw> = useBalanceLCD(
     {
       address,
-      fetch: willFetch(address),
     },
     interval
   )
@@ -93,7 +91,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   const { data: allStakedData, isLoading: allStakedDataLoading }: APIHookReturn<StakedRaw[]> = useFarmStaked(
     {
       address,
-      fetch: willFetch(address),
     },
     interval
   )
@@ -104,7 +101,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD(
     {
       address,
-      fetch: willFetch(address),
     },
     interval
   )
@@ -113,7 +109,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     useFarmPositionLCD(
       {
         address,
-        fetch: willFetch(address),
       },
       interval
     )
@@ -171,7 +166,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> = useAllFarmRewardsLCD(
     {
       address,
-      fetch: willFetch(address),
     },
     interval
   )
@@ -224,7 +218,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     useAirdropClaim(
       {
         address,
-        fetch: willFetch(address),
       },
       interval
     )
@@ -233,7 +226,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     useAirdropClaimLCD(
       {
         address,
-        fetch: willFetch(address),
       },
       interval
     )

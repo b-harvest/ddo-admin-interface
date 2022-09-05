@@ -54,32 +54,35 @@ export function useAllStakeLive(interval = 0) {
 }
 
 // account data
-export function useBalance({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+export function useBalance({ address }: { address: string }, interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<BalanceRaw> = useAppSWR(`/acc/${address}/balance/all`, {
     interval,
-    fetch,
+    fetch: address.length > 0,
   })
   return returnGenerator({ data, error, mutate })
 }
 
-export function useFarmStaked({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+export function useFarmStaked({ address }: { address: string }, interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<StakedRaw[]> = useAppSWR(`/acc/${address}/farm/staking`, {
     interval,
-    fetch,
+    fetch: address.length > 0,
   })
   return returnGenerator({ data, error, mutate })
 }
 
-export function useAirdropClaim({ address, fetch = true }: { address: string; fetch?: boolean }, interval = 0) {
+export function useAirdropClaim({ address }: { address: string }, interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<AirdropClaimRaw> = useAppSWR(`/acc/${address}/airdrop/claimed`, {
     interval,
-    fetch,
+    fetch: address.length > 0,
   })
   return returnGenerator({ data, error, mutate })
 }
 
 export function useProposals({ address = 'anonymous' }: { address?: string }, interval = 0) {
-  const { data, error, mutate }: ResponseViaSWR<ProposalRaw[]> = useAppSWR(`/acc/${address}/gov`, { interval })
+  const { data, error, mutate }: ResponseViaSWR<ProposalRaw[]> = useAppSWR(`/acc/${address}/gov`, {
+    interval,
+    fetch: address.length > 0,
+  })
   return returnGenerator({ data, error, mutate })
 }
 
@@ -95,7 +98,10 @@ export function useAllLSVVote(interval = 0) {
 }
 
 export function usePenaltiesByLSV({ address }: { address: string }, interval = 0) {
-  const { data, error, mutate }: ResponseViaSWR<LSVEventRaw[]> = useInfoSWR(`/a1/lsv/event/${address}`, { interval })
+  const { data, error, mutate }: ResponseViaSWR<LSVEventRaw[]> = useInfoSWR(`/a1/lsv/event/${address}`, {
+    interval,
+    fetch: address.length > 0,
+  })
   return returnGenerator({ data, error, mutate })
 }
 
