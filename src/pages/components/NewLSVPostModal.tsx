@@ -15,15 +15,13 @@ export default function NewLSVPostModal({ active, onClose }: NewLSVPostModalProp
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [newLSVAlias, setNewLSVAlias] = useState<string>('')
-  const [newLSVAddr, setNewLSVAddr] = useState<string>('')
   const [newLSVValOperAddr, setNewLSVValOperAddr] = useState<string>('')
 
   const okButtonDisabled = useMemo<boolean>(() => {
-    return !(newLSVAddr.length && newLSVValOperAddr.length && newLSVAlias.length)
-  }, [newLSVAddr, newLSVValOperAddr, newLSVAlias])
+    return !(newLSVValOperAddr.length && newLSVAlias.length)
+  }, [newLSVValOperAddr, newLSVAlias])
 
   const resetModalInput = () => {
-    setNewLSVAddr('')
     setNewLSVValOperAddr('')
     setNewLSVAlias('')
   }
@@ -39,7 +37,6 @@ export default function NewLSVPostModal({ active, onClose }: NewLSVPostModalProp
 
     const postData: NewLSVPost = {
       json: {
-        addr: newLSVAddr,
         valoperAddr: newLSVValOperAddr,
         alias: newLSVAlias,
       },
@@ -64,7 +61,6 @@ export default function NewLSVPostModal({ active, onClose }: NewLSVPostModalProp
       <H4 title="Got a new LSV?" className="mb-4" />
       <div className="space-y-2">
         <Input type="text" placeholder="LSV name (Alias)" keyword={newLSVAlias} onChange={setNewLSVAlias} />
-        <Input type="text" placeholder="Address" keyword={newLSVAddr} onChange={setNewLSVAddr} />
         <Input type="text" placeholder="Operator address" keyword={newLSVValOperAddr} onChange={setNewLSVValOperAddr} />
       </div>
     </Modal>

@@ -181,7 +181,6 @@ export type LSVPenaltyConfirmPost = {
 
 export type NewLSVPost = {
   json: {
-    addr: string
     valoperAddr: string
     alias: string
   }
