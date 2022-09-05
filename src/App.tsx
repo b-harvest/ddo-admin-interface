@@ -10,6 +10,7 @@ import TextBand from 'components/TextBand'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
+import { getPageName } from 'pages'
 import Account from 'pages/Account'
 import Accounts from 'pages/Accounts'
 import AuthRoute from 'pages/AuthRoute'
@@ -37,16 +38,30 @@ import { GoogleUserProfile } from 'types/user'
 import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
 
-const GA_MEASUREMENT_ID = 'G-QRT8FWC124'
-ReactGA.initialize(GA_MEASUREMENT_ID, { debug: false })
-
-function setupGAbyPage(pathname: string, search: string) {
-  ReactGA.pageview(pathname + search)
-}
-
 const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
 
-// No interface change
+function Analytics() {
+  const [initialized, setInitialized] = useState<boolean>(false)
+
+  useEffect(() => {
+    const GA_MEASUREMENT_ID = process.env.REACT_APP_GA_MEASUREMENT_ID
+    if (GA_MEASUREMENT_ID) {
+      ReactGA.initialize(GA_MEASUREMENT_ID, { debug: false })
+      setInitialized(true)
+      // reportWebVitals(console.log)
+      // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+      reportWebVitals()
+    } else console.error(`GA_MEASUREMENT_ID cannot be retrieved from env`)
+  }, [])
+
+  const location = useLocation()
+  useEffect(() => {
+    if (initialized) ReactGA.pageview(location.pathname + location.search, [], getPageName(location.pathname))
+  }, [initialized, location])
+
+  return <></>
+}
+
 function Updaters() {
   return (
     <>
@@ -96,9 +111,6 @@ function GoogleAuthCheck({ clientId, onFinished }: { clientId: string; onFinishe
 }
 
 function App() {
-  const location = useLocation()
-  setupGAbyPage(location.pathname, location.search)
-
   // auth
   const [userAtom] = useAtom(userAtomRef)
   const [authVerified, setAuthVerified] = useState<boolean>(false)
@@ -136,99 +148,91 @@ function App() {
 
   return (
     <>
-      {clientId ? (
-        <div className="App">
-          <GoogleAuthCheck clientId={clientId} onFinished={() => setAuthVerified(true)} />
-          <Updaters />
-          {authVerified ? (
-            <>
-              <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
-                {showAppTopBar && <TextBand label={topBannerLabel} />}
-                {userAtom && (
-                  <div
-                    className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
-                    style={{ zIndex: '1' }}
-                  >
-                    <BlockHeightPolling
-                      onchainBlockHeight={onchainBlockHeight ?? '-'}
-                      backendBlockHeight={backendBlockHeight ?? '-'}
-                    />
-                  </div>
-                )}
-                <AppHeader />
+      <div className="App">
+        <Analytics />
+        <Updaters />
+        {clientId ? <GoogleAuthCheck clientId={clientId} onFinished={() => setAuthVerified(true)} /> : null}
+        {authVerified ? (
+          <>
+            <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
+              {showAppTopBar && <TextBand label={topBannerLabel} />}
+              {userAtom && (
+                <div
+                  className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
+                  style={{ zIndex: '1' }}
+                >
+                  <BlockHeightPolling
+                    onchainBlockHeight={onchainBlockHeight ?? '-'}
+                    backendBlockHeight={backendBlockHeight ?? '-'}
+                  />
+                </div>
+              )}
+              <AppHeader />
+            </div>
+
+            <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
+              <div className="absolute top-0 left-0 right-0">
+                <TextBand label={hiddenBarLabel} thin={true} bgColorClass="bg-info" />
               </div>
 
-              <main role="main" className={showAppTopBar ? 'MAIN-TOP-BAR' : 'MAIN'}>
-                <div className="absolute top-0 left-0 right-0">
-                  <TextBand label={hiddenBarLabel} thin={true} bgColorClass="bg-info" />
-                </div>
+              <GlowBackground
+                style={{
+                  transform: 'translateY(-120vh) translateX(-50vw)',
+                }}
+              />
+              <GlowBackground
+                style={{
+                  transform: 'translateY(25vh) translateX(75vw)',
+                }}
+              />
 
-                <GlowBackground
-                  style={{
-                    transform: 'translateY(-120vh) translateX(-50vw)',
-                  }}
-                />
-                <GlowBackground
-                  style={{
-                    transform: 'translateY(25vh) translateX(75vw)',
-                  }}
-                />
+              <Switch>
+                <Route exact path="/auth" component={SignIn} />
 
-                <Switch>
-                  <Route exact path="/auth" component={SignIn} />
+                <AuthRoute path="/overview" component={Overview} />
+                <AuthRoute path="/chain" component={Chain} />
+                <AuthRoute path="/accounts" component={Accounts} />
+                <AuthRoute path="/account/:id" component={Account} />
+                <AuthRoute path="/account" component={Account} />
+                <AuthRoute path="/lsvs" component={LSVs} />
+                <AuthRoute path="/lsv/:id" component={LSV} />
+                <AuthRoute path="/dex" component={DEX} />
 
-                  <AuthRoute path="/overview" component={Overview} />
-                  <AuthRoute path="/chain" component={Chain} />
-                  <AuthRoute path="/accounts" component={Accounts} />
-                  <AuthRoute path="/account/:id" component={Account} />
-                  <AuthRoute path="/account" component={Account} />
-                  <AuthRoute path="/lsvs" component={LSVs} />
-                  <AuthRoute path="/lsv/:id" component={LSV} />
-                  <AuthRoute path="/dex" component={DEX} />
+                <AuthRoute path="/volume/:id" component={Volume} />
+                <AuthRoute path="/tvl/:id" component={TVL} />
+                <AuthRoute path="/token/:id" component={Token} />
+                <AuthRoute path="/pair/:id" component={Pair} />
+                <AuthRoute path="/pool/:id" component={Pool} />
 
-                  <AuthRoute path="/volume/:id" component={Volume} />
-                  <AuthRoute path="/tvl/:id" component={TVL} />
-                  <AuthRoute path="/token/:id" component={Token} />
-                  <AuthRoute path="/pair/:id" component={Pair} />
-                  <AuthRoute path="/pool/:id" component={Pool} />
+                <Route>
+                  <Redirect to="/overview" />
+                </Route>
+              </Switch>
+            </main>
+          </>
+        ) : (
+          <div className="w-screen h-screen" title="Verifying if authorized">
+            <Loader />
+          </div>
+        )}
 
-                  <Route>
-                    <Redirect to="/overview" />
-                  </Route>
-                </Switch>
-              </main>
-            </>
-          ) : (
-            <div className="w-screen h-screen">
-              <Loader />
-            </div>
-          )}
-
-          <ToastContainer
-            limit={3}
-            transition={Slide}
-            position="top-right"
-            autoClose={8000}
-            hideProgressBar={false}
-            closeOnClick
-            closeButton={() => <div>𝗫</div>}
-            toastClassName={'bg-white text-black dark:bg-black dark:text-white TYPO-BODY-M text-left'}
-            newestOnTop
-            rtl={false}
-            pauseOnFocusLoss
-            pauseOnHover
-          />
-        </div>
-      ) : (
-        'REACT_APP_GOOGLE_AUTH_CLIENT_ID is missing'
-      )}
+        <ToastContainer
+          limit={3}
+          transition={Slide}
+          position="top-right"
+          autoClose={8000}
+          hideProgressBar={false}
+          closeOnClick
+          closeButton={() => <div>𝗫</div>}
+          toastClassName={'bg-white text-black dark:bg-black dark:text-white TYPO-BODY-M text-left'}
+          newestOnTop
+          rtl={false}
+          pauseOnFocusLoss
+          pauseOnHover
+        />
+      </div>
     </>
   )
 }
 
 export default App
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()

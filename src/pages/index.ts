@@ -55,30 +55,30 @@ export const pages: Page[] = [
   {
     path: '/token',
     label: 'Token Detail',
-    pageName: 'Token',
+    pageName: 'Token Detail',
   },
   {
     path: '/pair',
     label: 'Pair Detail',
-    pageName: 'Pair',
+    pageName: 'Pair Detail',
   },
   {
     path: '/pool',
     label: 'Pool Detail',
-    pageName: 'Pool',
+    pageName: 'Pool Detail',
   },
   {
     path: '/lsv',
     label: 'LSV Detail',
-    pageName: '',
+    pageName: 'LSV Detail',
   },
 ]
 
 // utils
 export const getPageName = (pathname: string): string => {
   // pathname.split('/')
-  const i = pages.findIndex((page) => page.path === pathname)
-  return i > -1 ? pages[i].pageName : ''
+  const page = pages.find((page) => page.path === pathname)
+  return page?.pageName ?? ''
 }
 
 export const findPage = (pathname: string): Page | undefined => {
