@@ -78,7 +78,9 @@ const useLSV = () => {
         const jailed = item.jailUntilTimestamp !== 0
 
         // block commit time
-        const lastProposingBlock = blocksCommitTime.find((bp) => bp.valHexAddr === item.valHexAddr)
+        const lastProposingBlock = blocksCommitTime.find(
+          (bp) => bp.valHexAddr.toUpperCase() === item.valHexAddr.toUpperCase()
+        )
 
         // vote
         const voteData = allLSVVote.find((lsv) => lsv.addr === item.addr)
