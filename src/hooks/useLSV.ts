@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { VOTE_OPTIONS } from 'constants/lsv'
 import { useAllLSV, useAllLSVVote } from 'data/useAPI'
 import useLSVBlockProposing from 'hooks/useLSVBlockProposing'
 import { useCallback, useMemo } from 'react'
@@ -18,6 +19,21 @@ function getVoteAlias(option: number): string {
       return 'Did not'
     default:
       return '-'
+  }
+}
+
+function getVoteOptionEnum(option: number): VOTE_OPTIONS | undefined {
+  switch (option) {
+    case 1:
+      return VOTE_OPTIONS.Yes
+    case 2:
+      return VOTE_OPTIONS.No
+    case 3:
+      return VOTE_OPTIONS.Veto
+    case 4:
+      return VOTE_OPTIONS.Abstain
+    default:
+      return undefined
   }
 }
 
@@ -42,7 +58,7 @@ const useLSV = () => {
     return (
       allLSVVoteData?.data.map((item) => {
         const votes = item.votes.map((v) => {
-          const option = v.vote.option
+          const option = getVoteOptionEnum(v.vote.option) ?? VOTE_OPTIONS.DidNot
           const optionAlias = getVoteAlias(v.vote.option)
           const weight = Number(v.vote.weight)
           return { ...v, vote: { ...v.vote, option, optionAlias, weight } }

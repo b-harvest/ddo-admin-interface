@@ -19,7 +19,7 @@ import {
   SAFE_VOTING_RATE,
   VOTE_OPTIONS,
 } from 'constants/lsv'
-import { DATE_FORMAT } from 'constants/time'
+import { AN_HOUR, DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
 import useLSVPenalty from 'hooks/useLSVPenalty'
@@ -101,11 +101,12 @@ export default function LSVDetail() {
           const title = proposal.proposal.content.title
           const vote = lsv.voteData?.votes.find((v) => v.proposalId === proposalId)
 
-          const na = lsv.lsvStartTimestamp > new Date(proposal.proposal.voting_end_time).getTime()
-          const option = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
-          const optionLabel = <VotingOptionIcon option={option} />
           const votingEndTime = new Date(proposal.proposal.voting_end_time).getTime()
           const votingEndTimeLabel = dayjs(proposal.proposal.voting_end_time).format(DATE_FORMAT)
+
+          const na = lsv.lsvStartTimestamp + AN_HOUR > votingEndTime // when been over an hour since named as LSV
+          const option = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
+          const optionLabel = <VotingOptionIcon option={option} />
           const weight = vote ? new BigNumber(vote.vote.weight) : undefined
 
           const repPenalty = getRepVotePenaltyByProposal(proposalId)

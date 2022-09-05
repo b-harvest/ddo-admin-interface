@@ -11,6 +11,7 @@ import {
   VOTE_OPTIONS,
   WARNABLE_VOTE_OPTIONS,
 } from 'constants/lsv'
+import { AN_HOUR } from 'constants/time'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
 import LSVPenaltyContent from 'pages/components/LSVPenaltyContent'
@@ -51,7 +52,7 @@ export default function VotingTable({
       const votesByValidator: { [key: string]: LSVVotingRecord } = list
         .map((item) => {
           const vote = item.voteData?.votes.find((vote) => vote.proposalId === proposalId)
-          const na = item.lsvStartTimestamp > new Date(proposal.proposal.voting_end_time).getTime()
+          const na = item.lsvStartTimestamp + AN_HOUR > new Date(proposal.proposal.voting_end_time).getTime()
           const option: VOTE_OPTIONS = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
           const optionLabel = <WrappedVotingOptionIcon lsv={item} proposalId={proposalId} option={option} />
 

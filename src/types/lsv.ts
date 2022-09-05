@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { VOTE_OPTIONS } from 'constants/lsv'
 
 // jail, commission
 export interface LSVRaw {
@@ -31,7 +32,7 @@ export interface LSVVoteRaw {
 }
 
 export type Vote = Omit<VoteRaw, 'vote'> & {
-  vote: { option: number; optionAlias: string; weight: number }
+  vote: { option: VOTE_OPTIONS; optionAlias: string; weight: number }
 }
 
 export type LSVVote = Omit<LSVVoteRaw, 'votes'> & {
