@@ -52,7 +52,7 @@ type LSVVoteRecord = {
 
 export default function LSVDetail() {
   const { id }: { id: string } = useParams()
-  const { findLSVByAddr, mutateAllLSVData } = useLSV()
+  const { findLSVByAddr, mutateAllLSV } = useLSV()
   const lsv = useMemo<LSV | undefined>(() => findLSVByAddr(id), [id, findLSVByAddr])
 
   const blockCommitTime = lsv?.lastProposingBlock ? new BigNumber(lsv.lastProposingBlock.blockCommitTime) : undefined
@@ -146,7 +146,7 @@ export default function LSVDetail() {
   }
 
   const mutate = () => {
-    mutateAllLSVData()
+    mutateAllLSV()
     mutateLSVPenaltyData()
   }
 

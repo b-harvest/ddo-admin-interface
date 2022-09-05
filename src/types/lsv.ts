@@ -178,6 +178,14 @@ export type LSVPenaltyConfirmPost = {
   }
 }
 
+export type NewLSVPost = {
+  json: {
+    addr: string
+    valoperAddr: string
+    alias: string
+  }
+}
+
 // to be del
 export interface LSVEventCommissionChanged extends Penalty {
   event: 'commssion_changed'
