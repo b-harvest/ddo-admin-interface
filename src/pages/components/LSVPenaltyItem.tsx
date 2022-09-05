@@ -119,13 +119,25 @@ export default function LSVPenaltyItem({
           } flex flex-col gap-x-4 gap-y-2`}
         >
           <ModularData
-            field={penalty.status === PENALTY_STATUS.Confirmed ? 'Confirm date' : 'Post date'}
+            field={
+              penalty.status === PENALTY_STATUS.Confirmed
+                ? 'Confirm date'
+                : penalty.status === PENALTY_STATUS.Discarded
+                ? 'Discard date'
+                : 'Post date'
+            }
             data={dayjs(penalty.postTimestamp).format(TIMESTAMP_TO_MIN_FORMAT)}
             type="date"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
           />
           <ModularData
-            field={penalty.status === PENALTY_STATUS.Confirmed ? 'Confirmed by' : 'Posted by'}
+            field={
+              penalty.status === PENALTY_STATUS.Confirmed
+                ? 'Confirmed by'
+                : penalty.status === PENALTY_STATUS.Discarded
+                ? 'Discarded by'
+                : 'Posted by'
+            }
             data={
               penalty.posterId ? (
                 <CopyHelper toCopy={penalty.posterId} iconPosition="left">
