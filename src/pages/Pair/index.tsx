@@ -6,7 +6,6 @@ import Indicator from 'components/Indicator'
 import SelectTab from 'components/SelectTab'
 import TableList from 'components/TableList'
 import TimestampMemo from 'components/TimestampMemo'
-import { useTVLVolUSDUpdate } from 'data/useAPI'
 import useChartData from 'hooks/useChartData'
 import useOrderbook from 'hooks/useOrderbook'
 import usePair from 'hooks/usePair'
@@ -65,8 +64,6 @@ export default function Pair() {
   }, [isPriceForward, pairDetail, price])
 
   // chart
-  useTVLVolUSDUpdate()
-
   const {
     tvlUSDDataTimestamp,
     tvlUSDDataLoading,

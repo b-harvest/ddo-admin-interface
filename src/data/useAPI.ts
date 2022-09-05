@@ -120,12 +120,13 @@ export function useDateWideVolUSD(interval = 0) {
   return returnGenerator({ data, error, mutate })
 }
 
+/** this api will be del since the data is synced every 3 min on server side */
 export function useTVLVolUSDUpdate(interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<undefined> = useInfoSWR('/a1/sync', { interval })
   return returnGenerator({ data, error, mutate })
 }
 
-// metric
+/** metric data */
 export function useAllBlocksFlush(interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<BlocksFlushRaw[]> = useInfoSWR('/a1/metric/flush_ts_diff_nano', {
     interval,

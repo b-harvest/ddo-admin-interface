@@ -1,6 +1,5 @@
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
-import { useTVLVolUSDUpdate } from 'data/useAPI'
 import useAsset from 'hooks/useAsset'
 import useChartData from 'hooks/useChartData'
 import usePair from 'hooks/usePair'
@@ -56,7 +55,6 @@ export default function Overview() {
   const { findPoolByDenom, getAssetTickers } = usePool()
 
   // Charts
-  useTVLVolUSDUpdate()
   const { tvlUSDChartData, volUSDChartData, tvlUSDDataLoading, volUSDDataLoading } = useChartData()
   const { routeTVLByTime, routeVolumeByTime } = usePages()
 
