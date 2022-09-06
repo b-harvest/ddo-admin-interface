@@ -1,3 +1,5 @@
+import { EventCategory, EventName } from 'analytics/constants'
+import googleAnalytics from 'analytics/googleAnalytics'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import { useMemo } from 'react'
@@ -23,7 +25,13 @@ export default function Ranks({
 }) {
   const history = useHistory()
   const handleCellClick = (cell, field: string) => {
-    if (field === 'addr') history.push(`/account/${cell}`)
+    if (field === 'addr') {
+      googleAnalytics.sendEvent({
+        category: EventCategory.ACCOUNT,
+        action: EventName.ACCOUNT_FROM_TOP_50_CLICKED,
+      })
+      history.push(`/account/${cell}`)
+    }
   }
 
   const ranksTableList = useMemo<(RankData & AliasTag)[]>(

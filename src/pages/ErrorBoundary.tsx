@@ -1,6 +1,6 @@
+import GoogleAnalytics from 'analytics/googleAnalytics'
 import { handleError } from 'data/useAppSWR'
 import React, { ErrorInfo, PropsWithChildren } from 'react'
-
 type ErrorBoundaryState = {
   error: Error | null
 }
@@ -34,6 +34,10 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    GoogleAnalytics.sendEvent('error', {
+      description: error.toString() + errorInfo.toString(),
+      fatal: true,
+    })
     handleError(error)
   }
 

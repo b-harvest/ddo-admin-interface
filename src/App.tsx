@@ -2,6 +2,7 @@ import 'App.css'
 // eslint-disable-next-line no-restricted-imports
 import 'react-toastify/dist/ReactToastify.min.css'
 
+import Analytics from 'analytics/Analytics'
 import AppHeader from 'components/AppHeader'
 import BlockHeightPolling from 'components/BlockHeightPolling'
 import GlowBackground from 'components/GlowBackground'
@@ -10,7 +11,6 @@ import TextBand from 'components/TextBand'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
-import { getPageName } from 'pages'
 import Account from 'pages/Account'
 import Accounts from 'pages/Accounts'
 import AuthRoute from 'pages/AuthRoute'
@@ -27,11 +27,9 @@ import Token from 'pages/Token'
 import TVL from 'pages/TVL'
 import Volume from 'pages/Volume'
 import { useEffect, useMemo, useState } from 'react'
-import ReactGA from 'react-ga'
 import { useGoogleLogin } from 'react-google-login'
-import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
-import reportWebVitals from 'reportWebVitals'
 import { authTokenAtomRef, chainIdAtomRef, userAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
 import { GoogleUserProfile } from 'types/user'
@@ -39,28 +37,6 @@ import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
 
 const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
-
-function Analytics() {
-  const [initialized, setInitialized] = useState<boolean>(false)
-
-  useEffect(() => {
-    const GA_MEASUREMENT_ID = process.env.REACT_APP_GA_MEASUREMENT_ID
-    if (GA_MEASUREMENT_ID) {
-      ReactGA.initialize(GA_MEASUREMENT_ID, { debug: false })
-      setInitialized(true)
-      // reportWebVitals(console.log)
-      // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-      reportWebVitals()
-    } else console.error(`GA_MEASUREMENT_ID cannot be retrieved from env`)
-  }, [])
-
-  const location = useLocation()
-  useEffect(() => {
-    if (initialized) ReactGA.pageview(location.pathname + location.search, [], getPageName(location.pathname))
-  }, [initialized, location])
-
-  return <></>
-}
 
 function Updaters() {
   return (
