@@ -24,6 +24,7 @@ import Pool from 'pages/Pool'
 import SignIn from 'pages/SignIn/index'
 import { isValidUser, setupRefreshToken } from 'pages/SignIn/utils'
 import Token from 'pages/Token'
+import TokenLaunch from 'pages/TokenLaunch'
 import TVL from 'pages/TVL'
 import Volume from 'pages/Volume'
 import { useEffect, useMemo, useState } from 'react'
@@ -130,7 +131,7 @@ function App() {
         {clientId ? <GoogleAuthCheck clientId={clientId} onFinished={() => setAuthVerified(true)} /> : null}
         {authVerified ? (
           <>
-            <div className="fixed left-0 right-0 top-0 w-full" style={{ zIndex: '60' }}>
+            <div className="fixed top-0 left-0 right-0 w-full" style={{ zIndex: '60' }}>
               {showAppTopBar && <TextBand label={topBannerLabel} />}
               {userAtom && (
                 <div
@@ -173,6 +174,7 @@ function App() {
                 <AuthRoute path="/lsvs" component={LSVs} />
                 <AuthRoute path="/lsv/:id" component={LSV} />
                 <AuthRoute path="/dex" component={DEX} />
+                <AuthRoute path="/token-launch" component={TokenLaunch} />
 
                 <AuthRoute path="/volume/:id" component={Volume} />
                 <AuthRoute path="/tvl/:id" component={TVL} />
