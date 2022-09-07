@@ -75,6 +75,12 @@ export default function AppSettingWidget() {
       onClick: copyCurrentUrl,
     },
     {
+      label: 'Token Launch',
+      value: 'token launch',
+      iconType: 'rocket',
+      onClick: () => history.push('/token-launch'),
+    },
+    {
       label: 'Log out',
       value: 'logout',
       iconType: 'close',
@@ -89,7 +95,7 @@ export default function AppSettingWidget() {
         tabItems={DARK_MODE_TAB_ITEMS}
         selectedValue={darkModeTabSelectedValue}
         onChange={handleDarkModeSelect}
-        className="border-t border-grayCRE-200 dark:border-grayCRE-400 mt-2"
+        className="mt-2 border-t border-grayCRE-200 dark:border-grayCRE-400"
       />
     </MoreWidget>
   )

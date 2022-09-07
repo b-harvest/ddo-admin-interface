@@ -9,7 +9,7 @@ import {
   AiOutlineLink,
   AiOutlineStrikethrough,
 } from 'react-icons/ai'
-import { BiLinkExternal } from 'react-icons/bi'
+import { BiLinkExternal, BiRocket } from 'react-icons/bi'
 import { BsGithub, BsMedium, BsSlashCircle, BsSlashSquareFill, BsTwitter } from 'react-icons/bs'
 import { CgFileDocument } from 'react-icons/cg'
 import { FaRegBell } from 'react-icons/fa'
@@ -75,6 +75,7 @@ export type IconType =
   | 'loader'
   | 'strike'
   | 'discarded'
+  | 'rocket'
 
 const Icons: { [key: string]: React.ElementType } = {
   close: IoMdClose,
@@ -123,6 +124,7 @@ const Icons: { [key: string]: React.ElementType } = {
   loader: RiLoader4Fill,
   strike: AiOutlineStrikethrough,
   discarded: BsSlashSquareFill,
+  rocket: BiRocket,
 }
 
 interface IconProps {
