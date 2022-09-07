@@ -9,7 +9,7 @@ import { getPageName } from 'pages'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import reportWebVitals from 'reportWebVitals'
-import { chainIdAtomRef } from 'state/atoms'
+import { chainIdAtomRef, userAtomRef } from 'state/atoms'
 import { isDevEnv, isProdEnv } from 'utils/env'
 import { isMobile } from 'utils/userAgent'
 import { Metric } from 'web-vitals'
@@ -20,6 +20,7 @@ const gaClientIdFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_GA_CLIENT_ID)
 export default function Analytics() {
   // setup
   const [initialized, setInitialized] = useState<boolean>(false)
+  const [userAtom] = useAtom(userAtomRef)
 
   useEffect(() => {
     const GA_MEASUREMENT_ID = isProdEnv()
@@ -30,6 +31,8 @@ export default function Analytics() {
       if (isProdEnv()) {
         googleAnalytics.initialize(GA_MEASUREMENT_ID, {
           gaOptions: { storage: 'none', storeGac: false, cliendId: gaClientIdFromLocal ?? undefined },
+          // https://developers.google.com/analytics/devguides/collection/ga4/user-id?platform=websites
+          gtagOptions: { user_id: userAtom ? userAtom.googleId : undefined },
         })
         googleAnalytics.set({
           //   anonymizeIp: true,

@@ -22,9 +22,10 @@ export const isDarkModeAtomRef = atom(
 
 // user (google auth)
 const LOCAL_STORAGE_KEY_USER = `user`
-const userFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_USER)
+const userFromLocalRaw = localStorage.getItem(LOCAL_STORAGE_KEY_USER)
+const userFromLocal: GoogleUserProfile | null = userFromLocalRaw ? JSON.parse(userFromLocalRaw) : null
 
-const userAtom = atom<any>(userFromLocal ? JSON.parse(userFromLocal) : null)
+const userAtom = atom<GoogleUserProfile | null>(userFromLocal)
 export const userAtomRef = atom(
   (get) => get(userAtom),
   (_, set, { user }: { user: GoogleUserProfile | null }) => {
