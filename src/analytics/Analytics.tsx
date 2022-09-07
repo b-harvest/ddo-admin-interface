@@ -28,29 +28,22 @@ export default function Analytics() {
       : process.env.REACT_APP_GA_MEASUREMENT_ID_DEV
 
     if (GA_MEASUREMENT_ID) {
-      if (isProdEnv()) {
-        googleAnalytics.initialize(GA_MEASUREMENT_ID, {
-          gaOptions: { storage: 'none', storeGac: false, cliendId: gaClientIdFromLocal ?? undefined },
-          // https://developers.google.com/analytics/devguides/collection/ga4/user-id?platform=websites
-          gtagOptions: { user_id: userAtom ? userAtom.googleId : undefined },
-        })
-        googleAnalytics.set({
-          //   anonymizeIp: true,
-          customBrowserType: isMobile
-            ? 'web3' in window || 'ethereum' in window
-              ? 'mobileWeb3'
-              : 'mobileRegular'
-            : 'desktop',
-        })
-        setInitialized(true)
-      }
+      googleAnalytics.initialize(GA_MEASUREMENT_ID, {
+        gaOptions: { storage: 'none', storeGac: false, cliendId: gaClientIdFromLocal ?? undefined },
+        // https://developers.google.com/analytics/devguides/collection/ga4/user-id?platform=websites
+        gtagOptions: { debug_mode: isDevEnv(), user_id: userAtom?.googleId },
+      })
 
-      if (isDevEnv()) {
-        googleAnalytics.initialize(GA_MEASUREMENT_ID, {
-          gtagOptions: { debug_mode: true },
-        })
-        setInitialized(true)
-      }
+      setInitialized(true)
+
+      googleAnalytics.set({
+        //   anonymizeIp: true,
+        customBrowserType: isMobile
+          ? 'web3' in window || 'ethereum' in window
+            ? 'mobileWeb3'
+            : 'mobileRegular'
+          : 'desktop',
+      })
 
       googleAnalytics.ga((tracker: any) => {
         if (tracker) {
