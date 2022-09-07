@@ -4,7 +4,7 @@ import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
 import VotingOptionIcon from 'components/VotingOptionIcon'
 import {
-  PENALTY_STATUS_ICON_MAP,
+  // PENALTY_STATUS_ICON_MAP,
   PENALTY_TYPE_COLOR_MAP,
   PENALTY_TYPE_ICON_MAP,
   SAFE_VOTING_RATE,
@@ -208,16 +208,24 @@ export default function VotingTable({
 function WrappedVotingOptionIcon({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VOTE_OPTIONS }) {
   const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
   const penalty = getRepVotePenaltyByProposal(proposalId)
-  if (penalty && penalty.status !== PENALTY_STATUS.Discarded && option === VOTE_OPTIONS.DidNot) {
-    return (
-      <div className="flex items-center gap-1">
-        <Icon type={PENALTY_TYPE_ICON_MAP[penalty.type]} className={PENALTY_TYPE_COLOR_MAP[penalty.type]} />
-        <Icon type={PENALTY_STATUS_ICON_MAP[penalty.status]} className={PENALTY_TYPE_COLOR_MAP[penalty.type]} />
-      </div>
-    )
-  } else {
-    return <VotingOptionIcon option={option} />
-  }
+  const showPenaltyIcon = penalty && penalty.status !== PENALTY_STATUS.Discarded
+
+  return (
+    <div className="relative flex justify-center items-center">
+      <VotingOptionIcon option={option} />
+      {showPenaltyIcon && (
+        <div className="absolute -right-4 flex items-center gap-1">
+          <Icon
+            type={PENALTY_TYPE_ICON_MAP[penalty.type]}
+            className={`${PENALTY_TYPE_COLOR_MAP[penalty.type]} ${
+              penalty.status === PENALTY_STATUS.Confirmed ? 'opacity-50' : ''
+            }`}
+          />
+          {/* <Icon type={PENALTY_STATUS_ICON_MAP[penalty.status]} className={PENALTY_TYPE_COLOR_MAP[penalty.type]} /> */}
+        </div>
+      )}
+    </div>
+  )
 }
 
 function LSVWarningTooltip({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VOTE_OPTIONS }) {

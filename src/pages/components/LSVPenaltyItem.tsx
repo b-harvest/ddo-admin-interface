@@ -39,6 +39,13 @@ export default function LSVPenaltyItem({
       } border-grayCRE-300 dark:border-grayCRE-500 ${isLast ? 'pb-0 border-b-0' : 'pb-4 md:pb-2 border-b'}`}
     >
       <div className={`grow shrink basis-auto flex flex-col gap-x-4 gap-y-2 ${isRow ? 'md:flex-row' : ''}`}>
+        {/* dataDesc content should be fixed by penalty item */}
+        {/* <ModularData
+          field="Description"
+          data={penalty.dataDesc}
+          className="grow shrink"
+          dataClassName={`${FIELD_CSS} !font-normal !text-[12px]`}
+        /> */}
         <ModularData
           field="Proposal #"
           data={penalty.rawJson?.proposalId === 0 ? undefined : penalty.rawJson?.proposalId}
@@ -104,51 +111,68 @@ export default function LSVPenaltyItem({
         />
 
         <ModularData field="Description" data={penalty.rawJson?.desc} className="grow shrink" />
-        <ModularData
-          field="Description"
-          data={penalty.dataDesc}
-          className="grow shrink"
-          dataClassName={`${FIELD_CSS} !font-normal !text-[12px]`}
-        />
       </div>
 
       {showPostInfo && (
         <div
-          className={`${
-            isRow ? 'md:grow-0 md:shrink-0 md:basis-[320px] md:flex-row' : ''
-          } flex flex-col gap-x-4 gap-y-2`}
+          className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[40%] md:flex-row' : ''} flex flex-col gap-x-4 gap-y-2`}
         >
           <ModularData
-            field={
-              penalty.status === PENALTY_STATUS.Confirmed
-                ? 'Confirm date'
-                : penalty.status === PENALTY_STATUS.Discarded
-                ? 'Discard date'
-                : 'Post date'
-            }
-            data={dayjs(penalty.postTimestamp).format(TIMESTAMP_TO_MIN_FORMAT)}
+            field={'Post date'}
+            data={dayjs(penalty.timestamp).format(TIMESTAMP_TO_MIN_FORMAT)}
             type="date"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
           />
           <ModularData
-            field={
-              penalty.status === PENALTY_STATUS.Confirmed
-                ? 'Confirmed by'
-                : penalty.status === PENALTY_STATUS.Discarded
-                ? 'Discarded by'
-                : 'Posted by'
-            }
+            field={'Posted by'}
             data={
-              penalty.posterId ? (
-                <CopyHelper toCopy={penalty.posterId} iconPosition="left">
-                  {extractEmailId(penalty.posterId)}
+              penalty.regId ? (
+                <CopyHelper toCopy={penalty.regId} iconPosition="left">
+                  {extractEmailId(penalty.regId)}
                 </CopyHelper>
               ) : (
                 <div className={`!font-normal !text-[12px] ${FIELD_CSS}`}>Auto</div>
               )
             }
-            className="grow shrink"
+            className={isRow ? `md:grow-0 md:shrink-0 md:basis-[80px]` : ''}
+            dataClassName="whitespace-nowrap"
           />
+          {penalty.status !== PENALTY_STATUS.NotConfirmed ? (
+            <>
+              <ModularData
+                field={
+                  penalty.status === PENALTY_STATUS.Confirmed
+                    ? 'Confirm date'
+                    : penalty.status === PENALTY_STATUS.Discarded
+                    ? 'Discard date'
+                    : 'Post date'
+                }
+                data={dayjs(penalty.confirmTimestamp).format(TIMESTAMP_TO_MIN_FORMAT)}
+                type="date"
+                className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
+              />
+              <ModularData
+                field={
+                  penalty.status === PENALTY_STATUS.Confirmed
+                    ? 'Confirmed by'
+                    : penalty.status === PENALTY_STATUS.Discarded
+                    ? 'Discarded by'
+                    : 'Posted by'
+                }
+                data={
+                  penalty.posterId ? (
+                    <CopyHelper toCopy={penalty.posterId} iconPosition="left">
+                      {extractEmailId(penalty.posterId)}
+                    </CopyHelper>
+                  ) : (
+                    <div className={`!font-normal !text-[12px] ${FIELD_CSS}`}>Auto</div>
+                  )
+                }
+                className={isRow ? `md:grow-0 md:shrink-0 md:basis-[80px]` : ''}
+                dataClassName="whitespace-nowrap"
+              />
+            </>
+          ) : null}
         </div>
       )}
 
@@ -217,7 +241,7 @@ function ModularData({
   return (
     <>
       {data || data === 0 ? (
-        <li className={`${className} flex flex-col justify-start items-start`}>
+        <li className={`${className} flex flex-col justify-start items-start overflow-hidden`}>
           <div className={`!font-normal !text-xs ${FIELD_CSS}`}>{field}</div>
           <div
             className={`${dataClassName} ${type === 'rate' || type === 'number' ? 'FONT-MONO' : ''} ${
