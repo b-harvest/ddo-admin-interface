@@ -188,14 +188,6 @@ export default function VotingTable({
       )}
 
       {modalLSV && (
-        // <LSVPenaltyPostModal
-        //   active={modal}
-        //   lsv={modalLSV}
-        //   proposalId={modalProposalId}
-        //   penaltyItemLabel="Engagement"
-        //   event="vote_warning"
-        //   onClose={() => setModal(false)}
-        // />
         <LSVVoteWarningModal
           active={modal}
           lsv={modalLSV}
