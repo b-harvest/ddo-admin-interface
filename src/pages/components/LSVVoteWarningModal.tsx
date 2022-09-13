@@ -14,11 +14,13 @@ export default function LSVVoteWarningModal({
   lsv,
   proposalId,
   onClose,
+  forcePost = false,
 }: {
   active: boolean
   lsv: LSV
   proposalId: number
   onClose: () => void
+  forcePost?: boolean
 }) {
   const { getRepVotePenaltyByProposal, mutate } = useLSVPenalty(lsv.addr)
   const penalty = useMemo<VotePenalty | undefined>(
@@ -35,7 +37,7 @@ export default function LSVVoteWarningModal({
 
   return (
     <>
-      {penalty ? (
+      {penalty && !forcePost ? (
         <>
           {penalty.status === PENALTY_STATUS.NotConfirmed ? (
             <LSVPenaltyConfirmModal

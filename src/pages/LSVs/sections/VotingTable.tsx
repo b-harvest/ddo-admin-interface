@@ -88,6 +88,7 @@ export default function VotingTable({
   const [modal, setModal] = useState<boolean>(false)
   const [modalLSV, setModalLSV] = useState<LSV | undefined>()
   const [modalProposalId, setModalProposalId] = useState<number>(0)
+  const [forcePost, setForcePost] = useState<boolean>(false)
 
   const onCellClick = (cell: LSVVotingRecord, field: string, row: LSVVotingTableItem) => {
     const warnable = WARNABLE_VOTE_OPTIONS.includes(cell.option)
@@ -108,10 +109,10 @@ export default function VotingTable({
   const onFieldClick = useCallback(
     (field: string) => {
       const lsv = list.find((lsv) => lsv.addr === field)
-      console.log('lsv', lsv)
       if (lsv) {
-        setModalLSV(lsv)
         setModalProposalId(0)
+        setForcePost(true)
+        setModalLSV(lsv)
         setModal(true)
       }
     },
@@ -187,11 +188,23 @@ export default function VotingTable({
       )}
 
       {modalLSV && (
+        // <LSVPenaltyPostModal
+        //   active={modal}
+        //   lsv={modalLSV}
+        //   proposalId={modalProposalId}
+        //   penaltyItemLabel="Engagement"
+        //   event="vote_warning"
+        //   onClose={() => setModal(false)}
+        // />
         <LSVVoteWarningModal
           active={modal}
           lsv={modalLSV}
           proposalId={modalProposalId}
-          onClose={() => setModal(false)}
+          forcePost={forcePost}
+          onClose={() => {
+            setForcePost(false)
+            setModal(false)
+          }}
         />
       )}
     </>
