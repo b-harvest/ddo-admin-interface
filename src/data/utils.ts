@@ -1,11 +1,10 @@
 import axios, { AxiosError } from 'axios'
-import type { APIHookReturn, LCDHookReturn, LCDResponseViaSWR, ResponseViaSWR } from 'types/api'
+import type { APIHookReturn, HandledError, LCDHookReturn, LCDResponseViaSWR, ResponseViaSWR } from 'types/api'
 import { isDevEnv } from 'utils/env'
-export type HandledError = (Error | AxiosError) & { msg: string }
 
 export function handleError(error: Error | AxiosError): HandledError {
   let msg = ''
-  const handledError: HandledError = { ...error, msg }
+  const handledError: HandledError = { error, msg }
 
   if (error) {
     if (axios.isAxiosError(error)) {

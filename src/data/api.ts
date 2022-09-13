@@ -1,3 +1,5 @@
+import { EventCategory, EventName } from 'analytics/constants'
+import googleAnalytics from 'analytics/googleAnalytics'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import bus from 'bus'
 import { EventBusKeys } from 'bus/constants'
@@ -31,10 +33,17 @@ api.interceptors.response.use(
 
 export default api
 
-// Error should be typed
 const catchError = (error: Error | AxiosError): null => {
   const handled = handleError(error)
   toastError(handled.msg)
+
+  const status = axios.isAxiosError(handled.error) ? handled.error.response?.status : 'unknown'
+  const endpoint = axios.isAxiosError(handled.error) ? handled.error.config.url : 'unknown'
+  googleAnalytics.sendEvent(EventName.EXCEPTION_API, {
+    category: EventCategory.EXCEPTION,
+    description: `Endpoint: ${endpoint} / Response code: ${status} / ${handled.msg}`,
+  })
+
   return null
 }
 
