@@ -1,3 +1,5 @@
+import bus from 'bus'
+import { EventBusKeys } from 'bus/constants'
 import type { GoogleUserProfile } from 'types/user'
 
 export const isValidUser = (profileObj: GoogleUserProfile, validHostName: string) => {
@@ -7,8 +9,7 @@ export const isValidUser = (profileObj: GoogleUserProfile, validHostName: string
 }
 
 export const setupRefreshToken = async (res, setAuthTokenAtom: (update: { authToken: string | null }) => void) => {
-  // Timing to renew access token
-  let refreshTiming = (res.tokenObj.expires_in || 3600 - 5 * 60) * 1000
+  let refreshTiming = (res.tokenObj.expires_in ?? 3600 - 5 * 60) * 1000
 
   const refreshToken = async () => {
     const newAuthRes = await res.reloadAuthResponse()
@@ -21,4 +22,8 @@ export const setupRefreshToken = async (res, setAuthTokenAtom: (update: { authTo
 
   // Setup first refresh timer
   await setTimeout(refreshToken, refreshTiming)
+
+  bus.register(EventBusKeys.RESPONSE_401, async () => {
+    await refreshToken()
+  })
 }

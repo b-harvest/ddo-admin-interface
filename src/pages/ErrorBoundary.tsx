@@ -1,5 +1,5 @@
 import GoogleAnalytics from 'analytics/googleAnalytics'
-import { handleError } from 'data/useAppSWR'
+import { handleError } from 'data/utils'
 import React, { ErrorInfo, PropsWithChildren } from 'react'
 type ErrorBoundaryState = {
   error: Error | null

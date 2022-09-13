@@ -1,5 +1,6 @@
-import useAppSWR, { lcdReturnGenerator } from 'data/useAppSWR'
+import useAppSWR from 'data/useAppSWR'
 import useCosmosSWR from 'data/useCosmosSWR'
+import { lcdReturnGenerator } from 'data/utils'
 import type {
   AirdropClaimLCDRaw,
   BalanceLCDRaw,
