@@ -22,7 +22,7 @@ type LSVVotingRecord = {
   optionLabel: JSX.Element
 }
 
-type LSVVotingTableItem = { proposalId: number; status: ProposalStatus; statusLabel: JSX.Element | null } & {
+type LSVVotingTableItem = { proposalId: number; pStatus: ProposalStatus; statusLabel: JSX.Element | null } & {
   [key: string]: LSVVotingRecord
 }
 
@@ -40,7 +40,7 @@ export default function VotingTable({
   const allLSVVotingTableList = useMemo<LSVVotingTableItem[]>(() => {
     return allProposals.map((proposal) => {
       const proposalId = proposal.proposalId
-      const status = proposal.proposal.status
+      const pStatus = proposal.proposal.status
       const statusLabel = getStatusTagByProposal(proposal.proposalId)
       const votesByValidator: { [key: string]: LSVVotingRecord } = list
         .map((item) => {
@@ -53,7 +53,7 @@ export default function VotingTable({
         })
         .reduce((accm, item) => ({ ...accm, ...item }), {})
 
-      return { proposalId, status, statusLabel, ...votesByValidator } as LSVVotingTableItem
+      return { proposalId, pStatus, statusLabel, ...votesByValidator } as LSVVotingTableItem
     })
   }, [list, allProposals, getStatusTagByProposal])
 
@@ -157,7 +157,7 @@ export default function VotingTable({
           {
             label: '',
             value: 'statusLabel',
-            sortValue: 'status',
+            sortValue: 'pStatus',
             type: 'html',
             widthRatio: 5,
             align: 'left',

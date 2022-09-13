@@ -32,7 +32,7 @@ import { abbrOver } from 'utils/text'
 
 type LSVVoteRecord = {
   proposalId: number
-  status: ProposalStatus
+  pStatus: ProposalStatus
   statusLabel: JSX.Element | null
   title: string
   optionLabel: JSX.Element | null
@@ -52,26 +52,26 @@ export default function LSVDetail() {
   const blockCommitTime = lsv?.lastProposingBlock ? new BigNumber(lsv.lastProposingBlock.blockCommitTime) : undefined
   const proposingBlockHeight = lsv?.lastProposingBlock?.height ?? '-'
 
-  const jailedTag = lsv?.jailed ? <Tag status="error">Jailed</Tag> : null
-  const commissionTag = lsv?.commission && lsv.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
-  const lowVotingTag =
-    lsv?.votingRate && lsv.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
-  const slowBlockTimeTag =
-    blockCommitTime && blockCommitTime.isGreaterThan(5000) ? (
-      <Tag status="warning">Block commit time {'>'} 5s</Tag>
-    ) : null
+  // const jailedTag = lsv?.jailed ? <Tag status="error">Jailed</Tag> : null
+  // const commissionTag = lsv?.commission && lsv.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
+  // const lowVotingTag =
+  //   lsv?.votingRate && lsv.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
+  // const slowBlockTimeTag =
+  //   blockCommitTime && blockCommitTime.isGreaterThan(5000) ? (
+  //     <Tag status="warning">Block commit time {'>'} 5s</Tag>
+  //   ) : null
 
-  const statusTag =
-    jailedTag || commissionTag || lowVotingTag || slowBlockTimeTag ? (
-      <div className="flex flex-col md:flex-row items-start gap-y-1 md:gap-x-1">
-        {jailedTag}
-        {commissionTag}
-        {lowVotingTag}
-        {slowBlockTimeTag}
-      </div>
-    ) : (
-      <Tag status="success">Good</Tag>
-    )
+  // const statusTag =
+  //   jailedTag || commissionTag || lowVotingTag || slowBlockTimeTag ? (
+  //     <div className="flex flex-col md:flex-row items-start gap-y-1 md:gap-x-1">
+  //       {jailedTag}
+  //       {commissionTag}
+  //       {lowVotingTag}
+  //       {slowBlockTimeTag}
+  //     </div>
+  //   ) : (
+  //     <Tag status="success">Good</Tag>
+  //   )
 
   // voting history
   const { allPenalties, getRepVotePenaltyByProposal, mutate: mutateLSVPenaltyData } = useLSVPenalty(lsv?.addr ?? '')
@@ -90,7 +90,7 @@ export default function LSVDetail() {
     return lsv
       ? allProposals.map((proposal) => {
           const proposalId = Number(proposal.proposalId)
-          const status = proposal.proposal.status
+          const pStatus = proposal.proposal.status
           const statusLabel = getStatusTagByProposal(proposal.proposalId)
           const title = proposal.proposal.content.title
           const vote = lsv.voteData?.votes.find((v) => v.proposalId === proposalId)
@@ -117,7 +117,7 @@ export default function LSVDetail() {
           return {
             ...vote?.vote,
             proposalId,
-            status,
+            pStatus,
             statusLabel,
             title,
             option,
@@ -150,7 +150,7 @@ export default function LSVDetail() {
           <header className="flex justify-between items-start md:items-center gap-x-2 mb-2">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-y-2 md:gap-x-3">
               <H3 title={`${lsv.alias}`} />
-              {statusTag}
+              {/* {statusTag} */}
             </div>
             <ExplorerLink validator={lsv.addr} />
           </header>
@@ -203,7 +203,7 @@ export default function LSVDetail() {
             <H3 title="Voting" />
             <div className="mt-2 mb-4">
               <span className="TYPO-BODY-S mr-2">Participated</span>
-              <span title={lsv.addr} className="FONT-MONO">
+              <span title={lsv.addr} className={`FONT-MONO ${lsv.votingRate < SAFE_VOTING_RATE ? 'text-warning' : ''}`}>
                 {new BigNumber(lsv.votingRate).decimalPlaces(2, BigNumber.ROUND_DOWN).toFormat()}%{' '}
                 {lsv.voteData ? `(${lsv.voteData.voteCnt}/${lsv.voteData.mustVoteCnt})` : null}
               </span>
@@ -245,7 +245,7 @@ export default function LSVDetail() {
                 {
                   label: '',
                   value: 'statusLabel',
-                  sortValue: 'status',
+                  sortValue: 'pStatus',
                   type: 'html',
                   widthRatio: 5,
                   align: 'left',

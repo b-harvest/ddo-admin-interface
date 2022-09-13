@@ -1,11 +1,13 @@
 import BigNumber from 'bignumber.js'
 import TableList from 'components/TableList'
-import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
+import Tooltip from 'components/Tooltip'
 import { SAFE_VOTING_RATE } from 'constants/lsv'
+import useLSVPenalty from 'hooks/useLSVPenalty'
+import LSVPenaltyIcon from 'pages/components/LSVPenaltyIcon'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import type { LSV } from 'types/lsv'
+import { LSV, Penalty, PENALTY_STATUS, PENALTY_TYPE } from 'types/lsv'
 
 type LSVAdditional = {
   blockCommitTime: BigNumber | undefined
@@ -32,26 +34,7 @@ export default function LSVList({
       const blockCommitTimeLabel = blockCommitTime?.toFormat() ?? '-'
 
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
-
-      const jailedTag = item.jailed ? <Tag status="error">Jailed</Tag> : null
-      const commissionTag = item.commission > 20 ? <Tag status="error">Commission {'>'} 20%</Tag> : null
-      const lowVotingTag = item.votingRate < SAFE_VOTING_RATE ? <Tag status="warning">Low voting rate</Tag> : null
-      const slowBlockTimeTag =
-        blockCommitTime && blockCommitTime.isGreaterThan(5000) ? (
-          <Tag status="warning">Block commit time {'>'} 5s</Tag>
-        ) : null
-
-      const statusTag =
-        jailedTag || commissionTag || lowVotingTag || slowBlockTimeTag ? (
-          <div className="flex flex-col justify-end items-end gap-y-1">
-            {jailedTag}
-            {commissionTag}
-            {lowVotingTag}
-            {/* {slowBlockTimeTag} */}
-          </div>
-        ) : (
-          <Tag status="success">Good</Tag>
-        )
+      const statusTag = <LSVStatusIcon lsv={item} />
 
       return {
         ...item,
@@ -93,6 +76,8 @@ export default function LSVList({
           label: 'Jail time',
           value: 'jailUntilTimestamp',
           type: 'number',
+          gt: 0,
+          gtCSS: 'text-error',
           widthRatio: 2,
           responsive: true,
           assertThoughResponsive: true,
@@ -101,6 +86,8 @@ export default function LSVList({
           label: 'Commission',
           value: 'commission',
           type: 'change',
+          gt: 20,
+          gtCSS: 'text-error',
           neutral: true,
           widthRatio: 2,
           responsive: true,
@@ -110,6 +97,8 @@ export default function LSVList({
           label: 'Missed blocks',
           value: 'missingBlockCounter',
           type: 'number',
+          gt: 0,
+          gtCSS: 'text-warning',
           widthRatio: 2,
           responsive: true,
           assertThoughResponsive: true,
@@ -130,6 +119,9 @@ export default function LSVList({
           value: 'votingRate',
           type: 'change',
           neutral: true,
+          lt: SAFE_VOTING_RATE,
+          ltCSS: 'text-warning',
+          toFixedFallback: 0,
           widthRatio: 2,
           responsive: true,
           assertThoughResponsive: true,
@@ -145,14 +137,50 @@ export default function LSVList({
           assertThoughResponsive: true,
         },
         {
-          label: 'Status',
+          label: 'Penalty status',
           value: 'statusTag',
-          sortValue: 'kickout',
           type: 'html',
           align: 'right',
+          widthRatio: 4,
           responsive: true,
         },
       ]}
     />
+  )
+}
+
+function LSVStatusIcon({ lsv }: { lsv: LSV }) {
+  const { allPenalties } = useLSVPenalty(lsv.addr)
+  const notConfirmedPenalties = useMemo<Penalty[]>(
+    () => allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed),
+    [allPenalties]
+  )
+
+  const notConfirmedRepPenalty = useMemo<Penalty | undefined>(() => {
+    const penalty = allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed)
+    const im = penalty.find((penalty) => penalty.type === PENALTY_TYPE.immediateKickout)
+    const strike = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Strike)
+    const warning = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Warning)
+    return im ?? strike ?? warning
+  }, [allPenalties])
+
+  const confirmedRepPenalty = useMemo<Penalty | undefined>(() => {
+    const penalty = allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.Confirmed)
+    const im = penalty.find((penalty) => penalty.type === PENALTY_TYPE.immediateKickout)
+    const strike = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Strike)
+    const warning = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Warning)
+    return im ?? strike ?? warning
+  }, [allPenalties])
+
+  return (
+    <div className="pr-6">
+      {notConfirmedRepPenalty ? (
+        <Tooltip content={`${notConfirmedPenalties.length} not confirmed`}>
+          <LSVPenaltyIcon key={notConfirmedRepPenalty.eid} penalty={notConfirmedRepPenalty} />
+        </Tooltip>
+      ) : confirmedRepPenalty ? (
+        <LSVPenaltyIcon key={confirmedRepPenalty.eid} penalty={confirmedRepPenalty} />
+      ) : null}
+    </div>
   )
 }

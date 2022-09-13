@@ -70,4 +70,5 @@ export const LSV_PENALTY_DATA_DESC_MAP: Record<PenaltyEvent, string | undefined>
   vote_warning: undefined,
   reliability_penalty: undefined,
   vote_penalty: undefined,
+  lsv_registered: undefined,
 }
