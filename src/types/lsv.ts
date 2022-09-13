@@ -145,7 +145,12 @@ export interface Penalty extends Omit<LSVEventRawBase, 'height' | 'confirmTimest
   dataDesc: string | undefined
 }
 
-export type VotePenalty = Omit<Penalty, 'rawJson'> & {
+// export type VotePenalty = Omit<Penalty, 'rawJson'> & {
+//   event: 'vote_warning' | 'vote_penalty'
+//   rawJson: LSVEventRawJsonVoteWarn
+// }
+
+export interface VotePenalty extends Penalty {
   event: 'vote_warning' | 'vote_penalty'
   rawJson: LSVEventRawJsonVoteWarn
 }

@@ -17,7 +17,7 @@ export function handleError(error: Error | AxiosError): HandledError {
         console.log('Res status : ', error.response.status)
         if (isDevEnv()) console.log('Res headers : ', error.response.headers)
 
-        msg = `Error occured - ${error.response.data?.message ?? error.response.data ?? 'Unknown error'}`
+        msg = `Error occured \n${error.response.data?.message ?? error.response.data ?? 'Unknown error'}`
       } else if (error.request) {
         // request sent, but no response, `error.request` is XMLHttpRequest instance
         if (isDevEnv()) console.log('Request was : ', error.request)

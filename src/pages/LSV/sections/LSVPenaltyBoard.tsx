@@ -167,7 +167,7 @@ export default function LSVPenaltyBoard({
                 isLast={i === getPenalties(item).length - 1}
                 penalty={penalty}
                 direction="row"
-                showPostInfo={true}
+                defaultExpanded={false}
                 showConfirmButton={true}
                 onConfirmClick={() => onConfirmClick(penalty)}
               />

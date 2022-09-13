@@ -1,20 +1,13 @@
-import Icon from 'components/Icon'
 import TableList from 'components/TableList'
 import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
 import VotingOptionIcon from 'components/VotingOptionIcon'
-import {
-  // PENALTY_STATUS_ICON_MAP,
-  PENALTY_TYPE_COLOR_MAP,
-  PENALTY_TYPE_ICON_MAP,
-  SAFE_VOTING_RATE,
-  VOTE_OPTIONS,
-  WARNABLE_VOTE_OPTIONS,
-} from 'constants/lsv'
+import { SAFE_VOTING_RATE, VOTE_OPTIONS, WARNABLE_VOTE_OPTIONS } from 'constants/lsv'
 import { AN_HOUR } from 'constants/time'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
 import LSVPenaltyContent from 'pages/components/LSVPenaltyContent'
+import LSVPenaltyIcon from 'pages/components/LSVPenaltyIcon'
 import LSVVoteWarningModal from 'pages/components/LSVVoteWarningModal'
 import VotingOptionsLegend from 'pages/components/VotingOptionsLegend'
 import { useCallback, useMemo, useState } from 'react'
@@ -208,22 +201,15 @@ export default function VotingTable({
 function WrappedVotingOptionIcon({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VOTE_OPTIONS }) {
   const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
   const penalty = getRepVotePenaltyByProposal(proposalId)
-  const showPenaltyIcon = penalty && penalty.status !== PENALTY_STATUS.Discarded
 
   return (
     <div className="relative flex justify-center items-center">
       <VotingOptionIcon option={option} />
-      {showPenaltyIcon && (
+      {penalty ? (
         <div className="absolute -right-4 flex items-center gap-1">
-          <Icon
-            type={PENALTY_TYPE_ICON_MAP[penalty.type]}
-            className={`${PENALTY_TYPE_COLOR_MAP[penalty.type]} ${
-              penalty.status === PENALTY_STATUS.Confirmed ? 'opacity-50' : ''
-            }`}
-          />
-          {/* <Icon type={PENALTY_STATUS_ICON_MAP[penalty.status]} className={PENALTY_TYPE_COLOR_MAP[penalty.type]} /> */}
+          <LSVPenaltyIcon penalty={penalty} />
         </div>
-      )}
+      ) : null}
     </div>
   )
 }
