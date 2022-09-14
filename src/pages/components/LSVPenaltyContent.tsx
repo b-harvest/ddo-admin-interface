@@ -20,7 +20,7 @@ export default function LSVPenaltyContent({
           <H4 title={title} className="" />
         </header>
 
-        <LSVPenaltyItem proposalId={proposalId} penalty={penalty} isLast={true} defaultExpanded={true} />
+        <LSVPenaltyItem proposalId={proposalId} penalty={penalty} />
 
         {penalty.status !== PENALTY_STATUS.NotConfirmed ? (
           <div className="mt-4 pt-4 border-t border-grayCRE-200 dark:border-grayCRE-500">

@@ -17,6 +17,7 @@ import {
 } from 'constants/lsv'
 import { useCallback, useMemo, useState } from 'react'
 import { LSV, Penalty, PENALTY_STATUS, PENALTY_TYPE, PenaltyEvent, WritablePenalty } from 'types/lsv'
+import { isMobile } from 'utils/userAgent'
 
 import LSVPenaltyConfirmModal from '../../components/LSVPenaltyConfirmModal'
 import LSVPenaltyItem from '../../components/LSVPenaltyItem'
@@ -152,15 +153,20 @@ export default function LSVPenaltyBoard({
             addButtonLabel="Click to add a warning"
             emptyLabel="No penalty"
             list={getPenalties(item).map((penalty, i) => (
-              <LSVPenaltyItem
+              <div
                 key={penalty.eid}
-                isLast={i === getPenalties(item).length - 1}
-                penalty={penalty}
-                direction="row"
-                defaultExpanded={false}
-                showConfirmButton={true}
-                onConfirmClick={() => onConfirmClick(penalty)}
-              />
+                className={`border-grayCRE-200 dark:border-neutral-800 ${
+                  i === getPenalties(item).length - 1 ? 'pb-0 border-b-0' : 'pb-4 md:pb-2 border-b'
+                }`}
+              >
+                <LSVPenaltyItem
+                  penalty={penalty}
+                  hideField={!isMobile && i > 0}
+                  direction="row"
+                  showConfirmButton={true}
+                  onConfirmClick={() => onConfirmClick(penalty)}
+                />
+              </div>
             ))}
           />
         ))}

@@ -15,6 +15,7 @@ type DynamicListProps = {
   addButtonLabel?: string
   list: JSX.Element[]
   emptyLabel?: string
+  cardClassName?: string
 }
 
 export default function DynamicList({
@@ -26,6 +27,7 @@ export default function DynamicList({
   addButtonLabel = 'Click to add',
   list,
   emptyLabel,
+  cardClassName = '',
 }: DynamicListProps) {
   return (
     <section>
@@ -48,7 +50,11 @@ export default function DynamicList({
       </header>
 
       {list.length > 0 ? (
-        <Card useGlassEffect={true} useNarrow={true} className="flex flex-col gap-x-4 gap-y-4 md:gap-y-2">
+        <Card
+          useGlassEffect={true}
+          useNarrow={true}
+          className={`${cardClassName} flex flex-col gap-x-4 gap-y-4 md:gap-y-2`}
+        >
           {list}
         </Card>
       ) : (

@@ -12,51 +12,56 @@ import { extractEmailId, firstCharToUpperCase } from 'utils/text'
 import LSVPenaltyIcon from './LSVPenaltyIcon'
 import LSVPenaltyMetaData from './LSVPenaltyMetaData'
 
+const DISCARDED_FONT_CSS = '!text-grayCRE-300 dark:!text-grayCRE-400'
+
 type LSVPenaltyItemProps = {
   penalty: Penalty
-  isLast?: boolean
-  expandable?: boolean
-  defaultExpanded?: boolean
   showConfirmButton?: boolean
   onConfirmClick?: () => void
   proposalId?: number
   direction?: 'column' | 'row'
+  hideField?: boolean
 }
 
 export default function LSVPenaltyItem({
   penalty,
-  isLast = false,
-  expandable = false,
-  defaultExpanded = true,
   showConfirmButton = false,
   onConfirmClick,
   proposalId,
   direction = 'column',
+  hideField = false,
 }: LSVPenaltyItemProps) {
   const isRow = useMemo<boolean>(() => direction === 'row', [direction])
+  const isDiscarded = useMemo<boolean>(() => penalty.status === PENALTY_STATUS.Discarded, [penalty])
+  const dataHeightCSS = useMemo<string>(() => (showConfirmButton ? 'h-10 flex items-center ' : ''), [showConfirmButton])
 
   return (
     <div
       className={`flex flex-col justify-between items-stretch gap-y-2 ${
-        isRow ? 'md:flex-row md:gap-x-4' : ''
-      } border-grayCRE-300 dark:border-grayCRE-500 ${isLast ? 'pb-0 border-b-0' : 'pb-4 md:pb-2 border-b'}`}
+        isRow ? 'md:flex-row md:items-end md:gap-x-4' : ''
+      } ${isDiscarded ? DISCARDED_FONT_CSS : ''}`}
     >
       <ul className={`grow shrink flex flex-col justify-between gap-x-4 gap-y-2 ${isRow ? 'md:flex-row' : ''}`}>
         <div className={`grow shrink flex flex-col gap-x-4 gap-y-2 ${isRow ? 'md:flex-row' : ''}`}>
           <ModularData
             field="Proposal #"
+            hideField={hideField}
             data={penalty.rawJson?.proposalId === 0 ? undefined : penalty.rawJson?.proposalId}
             type="number"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+            dataClassName={dataHeightCSS}
           />
           <ModularData
             field="Commission rate"
+            hideField={hideField}
             data={penalty.rawJson?.commision ? (Number(penalty.rawJson.commision) * 100).toFixed(2) : undefined}
             type="rate"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+            dataClassName={dataHeightCSS}
           />
           <ModularData
             field="Commission changed date"
+            hideField={hideField}
             data={
               penalty.rawJson?.chagned
                 ? dayjs(penalty.rawJson.chagned * 1000).format(TIMESTAMP_TO_MIN_FORMAT)
@@ -64,36 +69,46 @@ export default function LSVPenaltyItem({
             }
             type="date"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
+            dataClassName={dataHeightCSS}
           />
           <ModularData
             field="Block missing rate"
+            hideField={hideField}
             data={penalty.rawJson?.percentage ? (Number(penalty.rawJson.percentage) * 100).toFixed(2) : undefined}
             type="rate"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+            dataClassName={dataHeightCSS}
           />
           <ModularData
             field="Missed block"
+            hideField={hideField}
             data={penalty.rawJson?.missing_block}
             type="number"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[160px]` : ''}
+            dataClassName={dataHeightCSS}
           />
 
           <ModularData
             field="Last signing height"
+            hideField={hideField}
             data={penalty.rawJson?.last_height}
             type="number"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+            dataClassName={dataHeightCSS}
           />
 
           <ModularData
             field="Height"
+            hideField={hideField}
             data={penalty.rawJson?.proposalId ? undefined : penalty.height}
             type="number"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+            dataClassName={dataHeightCSS}
           />
 
           <ModularData
             field="Reference"
+            hideField={hideField}
             data={
               REF_LINKED_PENALTIES.includes(penalty.event) ? (
                 // penalty.event === 'vote_warning' || penalty.event === 'vote_penalty'
@@ -107,20 +122,24 @@ export default function LSVPenaltyItem({
               ) : undefined
             }
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
+            dataClassName={dataHeightCSS}
           />
 
           <ModularData
             field={penalty.rawJson?.desc && penalty.rawJson.desc.length > 0 ? 'Description' : 'No'}
+            hideField={hideField}
             data={penalty.rawJson?.desc}
             className="grow shrink"
+            dataClassName={dataHeightCSS}
           />
 
           {/* dataDesc content should be fixed by penalty item */}
           <ModularData
             field="Description"
+            hideField={hideField}
             data={penalty.dataDesc}
             className="grow shrink"
-            dataClassName={`${FIELD_CSS} !font-normal !text-[12px]`}
+            dataClassName={`${FIELD_CSS} !font-normal !text-[12px] ${dataHeightCSS}`}
           />
         </div>
 
@@ -131,38 +150,50 @@ export default function LSVPenaltyItem({
         >
           <ModularData
             field="Post date"
+            hideField={hideField}
             data={dayjs(penalty.timestamp).format(TIMESTAMP_TO_MIN_FORMAT)}
             type="date"
-            className={isRow ? `md:grow-0 md:shrink-0 md:basis-[148px]` : ''}
+            className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[148px]' : ''}`}
+            dataClassName={dataHeightCSS}
           />
 
           <ModularData
             field="Posted by"
+            hideField={hideField}
             data={penalty.regId ? extractEmailId(penalty.regId) : 'auto'}
-            className={isRow ? `md:grow-0 md:shrink-0 md:basis-[100px]` : ''}
+            className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[100px]' : ''}`}
+            dataClassName={dataHeightCSS}
           />
 
           <ModularData
             field="Penalty"
+            hideField={hideField}
             data={penalty.penaltyPoint}
-            className={isRow ? `md:grow-0 md:shrink-0 md:basis-[60px]` : ''}
+            className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[60px]' : ''}`}
+            dataClassName={dataHeightCSS}
           />
 
           <ModularData
             field="Type"
+            hideField={hideField}
             data={
               <Tooltip content={`${penalty.type} ${penalty.status}`}>
                 <LSVPenaltyIcon penalty={penalty} ignoreDiscarded={false} />
               </Tooltip>
             }
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[48px]` : ''}
-            dataClassName={`h-6 flex items-center ${getPenaltyColor(penalty)}`}
+            dataClassName={`h-6 flex items-center ${dataHeightCSS}`}
           />
+          {/* ${getPenaltyColor(penalty)} */}
         </div>
       </ul>
 
       {showConfirmButton && (
-        <div className={`${isRow ? `md:grow-0 md:shrink-0 md:basis-[120px] md:ml-8` : ''}`}>
+        <div
+          className={`${isRow ? `md:grow-0 md:shrink-0 md:basis-[120px] md:ml-8` : ''} ${
+            isDiscarded ? 'opacity-40' : ''
+          }`}
+        >
           <Tooltip
             content={
               penalty.status !== PENALTY_STATUS.NotConfirmed ? <LSVPenaltyMetaData penalty={penalty} /> : undefined
@@ -186,12 +217,14 @@ export default function LSVPenaltyItem({
 
 function ModularData({
   field,
+  hideField = false,
   data,
   className = '',
   dataClassName = '',
   type,
 }: {
   field: string
+  hideField?: boolean
   data: string | JSX.Element | number | undefined
   className?: string
   dataClassName?: string
@@ -200,8 +233,8 @@ function ModularData({
   return (
     <>
       {data || data === 0 ? (
-        <li className={`${className} flex flex-col justify-start items-start overflow-hidden`}>
-          <div className={`!font-normal !text-xs ${FIELD_CSS} whitespace-pre`}>{field}</div>
+        <li className={`${className} flex flex-col justify-center items-start overflow-hidden`}>
+          {hideField || <div className={`!font-normal !text-xs ${FIELD_CSS} whitespace-pre`}>{field}</div>}
           <div
             className={`${dataClassName} ${type === 'rate' || type === 'number' ? 'FONT-MONO' : ''} ${
               type === 'date' ? 'TYPO-BODY-S' : 'TYPO-BODY-M'
