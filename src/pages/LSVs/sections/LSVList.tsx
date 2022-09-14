@@ -176,11 +176,13 @@ function LSVStatusIcon({ lsv }: { lsv: LSV }) {
   return (
     <div className="pr-6">
       {notConfirmedRepPenalty ? (
-        <Tooltip content={`${notConfirmedPenalties.length} not confirmed`}>
+        <Tooltip content={`${notConfirmedPenalties.length} not confirmed. \nClick to see all penalties.`}>
           <LSVPenaltyIcon key={notConfirmedRepPenalty.eid} penalty={notConfirmedRepPenalty} />
         </Tooltip>
       ) : confirmedRepPenalty ? (
-        <LSVPenaltyIcon key={confirmedRepPenalty.eid} penalty={confirmedRepPenalty} />
+        <Tooltip content="Click to see all penalties.">
+          <LSVPenaltyIcon key={confirmedRepPenalty.eid} penalty={confirmedRepPenalty} />
+        </Tooltip>
       ) : (
         <Icon type="success" className="text-success" />
       )}
