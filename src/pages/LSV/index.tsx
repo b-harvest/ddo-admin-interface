@@ -41,7 +41,8 @@ type LSVVoteRecord = {
   weight?: BigNumber | undefined
   votingEndTime: number
   votingEndTimeLabel: string
-  warnLabel: JSX.Element | null
+  hasPenalty: boolean
+  penaltyLabel: JSX.Element | null
 }
 
 export default function LSVDetail() {
@@ -104,7 +105,8 @@ export default function LSVDetail() {
           const weight = vote ? new BigNumber(vote.vote.weight) : undefined
 
           const repPenalty = getRepVotePenaltyByProposal(proposalId)
-          const warnLabel = repPenalty ? (
+          const hasPenalty = repPenalty ? true : false
+          const penaltyLabel = repPenalty ? (
             <button
               type="button"
               className={`flex items-center gap-2 pr-4 ${PENALTY_TYPE_COLOR_MAP[repPenalty.type]}`}
@@ -125,7 +127,8 @@ export default function LSVDetail() {
             votingEndTime,
             votingEndTimeLabel,
             weight,
-            warnLabel,
+            hasPenalty,
+            penaltyLabel,
           }
         })
       : []
@@ -268,8 +271,9 @@ export default function LSVDetail() {
                   clickable: true,
                 },
                 {
-                  label: 'Warning',
-                  value: 'warnLabel',
+                  label: 'Penalty',
+                  value: 'penaltyLabel',
+                  sortValue: 'hasPenalty',
                   type: 'html',
                   align: 'right',
                   widthRatio: 6,
