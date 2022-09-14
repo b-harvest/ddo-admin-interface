@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import Icon from 'components/Icon'
 import TableList from 'components/TableList'
 import TimestampMemo from 'components/TimestampMemo'
 import Tooltip from 'components/Tooltip'
@@ -180,7 +181,9 @@ function LSVStatusIcon({ lsv }: { lsv: LSV }) {
         </Tooltip>
       ) : confirmedRepPenalty ? (
         <LSVPenaltyIcon key={confirmedRepPenalty.eid} penalty={confirmedRepPenalty} />
-      ) : null}
+      ) : (
+        <Icon type="success" className="text-success" />
+      )}
     </div>
   )
 }
