@@ -1,3 +1,4 @@
+import Checkbox from 'components/Checkbox'
 import DynamicList from 'components/DynamicList'
 import ExplorerLink from 'components/ExplorerLink'
 import H3 from 'components/H3'
@@ -86,6 +87,12 @@ export default function LSVPenaltyBoard({
   const strikePoint = useMemo<number>(() => getConfirmedStrikePoint(penalties), [penalties])
   const imPoint = useMemo<number>(() => getConfirmedImPoint(penalties), [penalties])
 
+  const DEFAULT_SHOW_DISCARDED = true
+  const [showDiscarded, setShowDiscarded] = useState<boolean>(DEFAULT_SHOW_DISCARDED)
+  const onShowDiscardedChange = (checked: boolean) => {
+    setShowDiscarded(checked)
+  }
+
   const getPenalties = useCallback(
     (item: PenaltyItem) => penalties.filter((penalty) => item.events.includes(penalty.event)),
     [penalties]
@@ -122,22 +129,25 @@ export default function LSVPenaltyBoard({
   return (
     <section className="mb-10" id="penalty-board">
       {/* title */}
-      <header className="flex justify-between items-start gap-4 py-8">
-        <div className="flex flex-col md:flex-row justify-start items-start md:items-center gap-4 ">
-          <H3 title="Penalty Board" />
+      <header className="flex flex-col md:flex-row justify-start items-start md:items-center gap-4 py-8">
+        <H3 title="Penalty Board" />
+        <div className="flex items-center gap-2">
+          <Tooltip content={`${strikePoint} strike confirmed out of 3`}>
+            <StrikeBoard current={strikePoint} max={3} />
+          </Tooltip>
+
+          <Tooltip content={`Immediate kickout will be on when confirmed`}>
+            <StrikeBoard current={imPoint} max={1} iconType="slash" title="Immediate kickout confirmed" />
+          </Tooltip>
         </div>
-        <ExplorerLink proposalId={15} label="Proposal #15" />
       </header>
 
-      {/* strike board */}
-      <div className="flex items-center gap-2 mb-8">
-        <Tooltip content={`${strikePoint} strike confirmed out of 3`}>
-          <StrikeBoard current={strikePoint} max={3} />
-        </Tooltip>
-
-        <Tooltip content={`Immediate kickout will be on when confirmed`}>
-          <StrikeBoard current={imPoint} max={1} iconType="slash" title="Immediate kickout confirmed" />
-        </Tooltip>
+      <div className="w-full flex justify-start md:justify-end mb-4 md:mb-0">
+        <Checkbox
+          defaultChecked={DEFAULT_SHOW_DISCARDED}
+          label="Show discarded penalties"
+          onChange={onShowDiscardedChange}
+        />
       </div>
 
       {/* penalty items */}
@@ -152,24 +162,30 @@ export default function LSVPenaltyBoard({
             onAddButtonClick={getWritableEvent(item) ? () => onAddButtonClick(item) : undefined}
             addButtonLabel="Click to add a warning"
             emptyLabel="No penalty"
-            list={getPenalties(item).map((penalty, i) => (
-              <div
-                key={penalty.eid}
-                className={`border-grayCRE-200 dark:border-neutral-800 ${
-                  i === getPenalties(item).length - 1 ? 'pb-0 border-b-0' : 'pb-4 md:pb-2 border-b'
-                }`}
-              >
-                <LSVPenaltyItem
-                  penalty={penalty}
-                  hideField={!isMobile && i > 0}
-                  direction="row"
-                  showConfirmButton={true}
-                  onConfirmClick={() => onConfirmClick(penalty)}
-                />
-              </div>
-            ))}
+            list={getPenalties(item)
+              .filter((penalty) => (showDiscarded ? true : penalty.status !== PENALTY_STATUS.Discarded))
+              .map((penalty, i) => (
+                <div
+                  key={penalty.eid}
+                  className={`border-grayCRE-200 dark:border-neutral-800 ${
+                    i === getPenalties(item).length - 1 ? 'pb-0 border-b-0' : 'pb-4 md:pb-2 border-b'
+                  }`}
+                >
+                  <LSVPenaltyItem
+                    penalty={penalty}
+                    hideField={!isMobile && i > 0}
+                    direction="row"
+                    showConfirmButton={true}
+                    onConfirmClick={() => onConfirmClick(penalty)}
+                  />
+                </div>
+              ))}
           />
         ))}
+      </div>
+
+      <div className="w-full flex justify-end mt-8">
+        <ExplorerLink proposalId={15} label="Proposal #15" />
       </div>
 
       {/* modals */}
