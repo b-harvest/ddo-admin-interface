@@ -5,7 +5,6 @@ import Icon from 'components/Icon'
 import StrikeBoard from 'components/StrikeBoard'
 import Tooltip from 'components/Tooltip'
 import {
-  IMMEDIATE_KICKOUT_PENALTIES,
   LSV_OBSERVATION_DESC_ACTIVITY,
   LSV_OBSERVATION_DESC_COMMISSION,
   LSV_OBSERVATION_DESC_ENGAGEMENT,
@@ -24,6 +23,7 @@ import LSVPenaltyItem from '../../components/LSVPenaltyItem'
 import LSVPenaltyPostModal from '../../components/LSVPenaltyPostModal'
 
 type PenaltyItem = { label: string; desc: string; events: PenaltyEvent[]; type: PENALTY_TYPE }
+
 const PENALTY_ITEMS: PenaltyItem[] = [
   {
     label: 'Commission',
@@ -82,13 +82,8 @@ export default function LSVPenaltyBoard({
   onConfirm?: (penalty: Penalty) => void
   onPost?: () => void
 }) {
-  const strikePoint = useMemo<number>(() => {
-    const confirmedIKs = penalties.filter(
-      (penalty) => IMMEDIATE_KICKOUT_PENALTIES.includes(penalty.event) && penalty.confirmId
-    )
-    const IK = confirmedIKs.reduce((accm, item) => accm + item.penaltyPoint, 0)
-    return penaltyPoint - IK
-  }, [penalties, penaltyPoint])
+  const strikePoint = useMemo<number>(() => getConfirmedStrikePoint(penalties), [penalties])
+  const imPoint = useMemo<number>(() => getConfirmedImPoint(penalties), [penalties])
 
   const getPenalties = useCallback(
     (item: PenaltyItem) => penalties.filter((penalty) => item.events.includes(penalty.event)),
@@ -140,12 +135,7 @@ export default function LSVPenaltyBoard({
         </Tooltip>
 
         <Tooltip content={`Immediate kickout will be on when confirmed`}>
-          <StrikeBoard
-            current={penaltyPoint - strikePoint}
-            max={1}
-            iconType="slash"
-            title="Immediate kickout confirmed"
-          />
+          <StrikeBoard current={imPoint} max={1} iconType="slash" title="Immediate kickout confirmed" />
         </Tooltip>
       </div>
 
@@ -157,7 +147,7 @@ export default function LSVPenaltyBoard({
             allGood={getPenalties(item).length <= 0}
             title={item.label}
             titleDesc={item.desc}
-            memo={PenaltyIndicatorIcon(item, getPenalties(item))}
+            memo={<ConfirmedPenaltySummary penalties={getPenalties(item)} />}
             onAddButtonClick={getWritableEvent(item) ? () => onAddButtonClick(item) : undefined}
             addButtonLabel="Click to add a warning"
             emptyLabel="No penalty"
@@ -197,39 +187,42 @@ export default function LSVPenaltyBoard({
   )
 }
 
-function PenaltyIndicatorIcon(penaltyItem: PenaltyItem, penalties: Penalty[]) {
+function ConfirmedPenaltySummary({ penalties }: { penalties: Penalty[] }) {
+  const strikePoint = useMemo<number>(() => getConfirmedStrikePoint(penalties), [penalties])
+  const imPoint = useMemo<number>(() => getConfirmedImPoint(penalties), [penalties])
+
   return (
     <>
       {/* confirmed penalty */}
-      {getPenaltyPointByEvents(penalties) > 0 ? (
-        <Tooltip
-          content={`${
-            penaltyItem.type === PENALTY_TYPE.immediateKickout
-              ? PENALTY_TYPE.immediateKickout
-              : `${getPenaltyPointByEvents(penalties)} strike`
-          } confirmed`}
-        >
-          <div
-            className={`flex items-center gap-2 TYPO-BODY-S ${
-              penaltyItem.type === PENALTY_TYPE.immediateKickout ? 'text-error' : 'text-warning'
-            }`}
-          >
-            <Icon type={PENALTY_TYPE_ICON_MAP[penaltyItem.type]} />
-            {penaltyItem.type !== PENALTY_TYPE.immediateKickout ? getPenaltyPointByEvents(penalties) : null}
-          </div>
-        </Tooltip>
+      {strikePoint > 0 || imPoint > 0 ? (
+        <div className={`flex items-center gap-1 TYPO-BODY-XS ${imPoint > 0 ? 'text-error' : 'text-warning'}`}>
+          <Icon
+            type={
+              imPoint > 0
+                ? PENALTY_TYPE_ICON_MAP[PENALTY_TYPE.immediateKickout]
+                : PENALTY_TYPE_ICON_MAP[PENALTY_TYPE.Strike]
+            }
+          />
+          <span>{imPoint > 0 ? 'Immediate kickout' : strikePoint}</span>
+          <span>confirmed</span>
+        </div>
       ) : null}
     </>
   )
 }
 
-function getPenaltyPointByEvents(penalties: Penalty[]) {
-  const totalPoint = penalties.reduce((accm, penalty) => {
-    const confirmedPoint = penalty.status === PENALTY_STATUS.Confirmed ? penalty.penaltyPoint : 0
-    return accm + confirmedPoint
-  }, 0)
+function getConfirmedStrikePoint(penalties: Penalty[]) {
+  const strikes = penalties.filter(
+    (penalty) => penalty.type === PENALTY_TYPE.Strike && penalty.status === PENALTY_STATUS.Confirmed
+  )
+  return strikes.reduce((accm, penalty) => accm + penalty.penaltyPoint, 0)
+}
 
-  return totalPoint
+function getConfirmedImPoint(penalties: Penalty[]) {
+  const ims = penalties.filter(
+    (penalty) => penalty.type === PENALTY_TYPE.immediateKickout && penalty.status === PENALTY_STATUS.Confirmed
+  )
+  return ims.reduce((accm, penalty) => accm + penalty.penaltyPoint, 0)
 }
 
 function getWritableEvent(penaltyItem): WritablePenalty | undefined {
