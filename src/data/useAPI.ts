@@ -1,5 +1,6 @@
-import useAppSWR, { returnGenerator } from 'data/useAppSWR'
+import useAppSWR from 'data/useAppSWR'
 import useInfoSWR from 'data/useInfoSWR'
+import { returnGenerator } from 'data/utils'
 import type { AirdropClaimRaw, BalanceRaw, StakedRaw } from 'types/account'
 import type { AccountRankRaw, TVLUSDByDateRaw, VolUSDByDateRaw } from 'types/accounts'
 import type { ResponseViaSWR } from 'types/api'

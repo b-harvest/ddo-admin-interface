@@ -69,8 +69,8 @@ export default function Analytics() {
   // chain change
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   useEffect(() => {
-    googleAnalytics.set({ cd1: chainIdAtom }) // custom dimension 1
-  }, [chainIdAtom])
+    if (initialized) googleAnalytics.set({ cd1: chainIdAtom }) // custom dimension 1
+  }, [initialized, chainIdAtom])
 
   return <></>
 }

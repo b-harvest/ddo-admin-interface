@@ -22,7 +22,7 @@ import { abbrOver } from 'utils/text'
 const IS_SORT_ASC_DEFAULT = false
 const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S whitespace-pre`
 
-export default function TableList<T>({
+export default function TableList<T extends TableListItem>({
   title,
   isLoading = false,
   list,
@@ -445,7 +445,7 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
     )
   } else if (field.type === 'change' && typeof value === 'number') {
     const absValue = Math.abs(value)
-    const changeValue = absValue === 0 ? '0' : absValue < 0.01 ? '<0.01' : absValue.toFixed(2)
+    const changeValue = absValue === 0 ? '0' : absValue < 0.01 ? '<0.01' : absValue.toFixed(field.toFixedFallback ?? 2)
 
     const direction = value > 0 ? '+' : value < 0 ? '-' : null
     const CSSByDirection = field.strong
@@ -457,8 +457,18 @@ function ListItemCell({ data, field }: { data: TableListItem; field: ListField }
       : direction === '-'
       ? 'text-error'
       : ''
+
+    const isGt = field.gt !== undefined && absValue > field.gt
+    const isLt = field.lt !== undefined && absValue < field.lt
+    const isEt = field.et !== undefined && absValue === field.et
+
     return (
-      <div title={`${value}%`} className={`FONT-MONO TYPO-BODY-XS md:TYPO-BODY-S ${CSSByDirection}`}>
+      <div
+        title={`${value}%`}
+        className={`FONT-MONO TYPO-BODY-XS md:TYPO-BODY-S ${isGt ? field.gtCSS : ''} ${isLt ? field.ltCSS : ''} ${
+          isEt ? field.etCSS : ''
+        } ${CSSByDirection}`}
+      >
         {!field.neutral && direction}
         {changeValue}%
       </div>

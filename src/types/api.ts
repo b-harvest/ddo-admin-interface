@@ -31,15 +31,17 @@ export interface LCDResponseViaSWR<T> {
 }
 
 // useAPI return
+export type HandledError = { error: Error | AxiosError; msg: string }
+
 export interface APIHookReturn<T> {
   data: APIResponse<T>
-  error: Error | AxiosError
+  error: HandledError
   isLoading: boolean
   mutate: SWRBoundMutate<T>
 }
 
 export interface LCDHookReturn<T> {
   data: T
-  error: Error | AxiosError
+  error: HandledError
   isLoading: boolean
 }

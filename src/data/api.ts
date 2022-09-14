@@ -1,18 +1,49 @@
+import { EventCategory, EventName } from 'analytics/constants'
+import googleAnalytics from 'analytics/googleAnalytics'
 import axios, { AxiosError, AxiosResponse } from 'axios'
+import bus from 'bus'
+import { EventBusKeys } from 'bus/constants'
 import { toastError } from 'components/Toast/generator'
-import { handleError } from 'data/useAppSWR'
+import { handleError } from 'data/utils'
 import { LSVPenaltyConfirmPost, LSVReliabilityWarnPost, LSVVoteWarnPost, NewLSVPost } from 'types/lsv'
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_MAINNET_INFO_API_ENDPOINT,
 })
 
+const RETRY_MAX = 1
+let retry = 0
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (axios.isAxiosError(error) && retry < RETRY_MAX) {
+      if (error.response?.status === 401) {
+        // try revalidate JWT
+        await bus.dispatch(EventBusKeys.RESPONSE_401)
+        retry += 1
+        return new Promise((resolve) => {
+          resolve(axios(error.config))
+        })
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export default api
 
-// Error should be typed
 const catchError = (error: Error | AxiosError): null => {
   const handled = handleError(error)
   toastError(handled.msg)
+
+  const status = axios.isAxiosError(handled.error) ? handled.error.response?.status : 'unknown'
+  const endpoint = axios.isAxiosError(handled.error) ? handled.error.config.url : 'unknown'
+  googleAnalytics.sendEvent(EventName.EXCEPTION_API, {
+    category: EventCategory.EXCEPTION,
+    description: `Endpoint: ${endpoint} / Response code: ${status} / ${handled.msg}`,
+  })
+
   return null
 }
 

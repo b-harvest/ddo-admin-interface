@@ -1,11 +1,8 @@
-import CopyHelper from 'components/CopyHelper'
 import H4 from 'components/H4'
-import PostMetaDataLine from 'components/PostMetaDataLine'
-import { FIELD_CSS } from 'constants/style'
-import { TIMESTAMP_TO_MIN_FORMAT } from 'constants/time'
-import dayjs from 'dayjs'
 import LSVPenaltyItem from 'pages/components/LSVPenaltyItem'
-import { Penalty } from 'types/lsv'
+import { Penalty, PENALTY_STATUS } from 'types/lsv'
+
+import LSVPenaltyMetaData from './LSVPenaltyMetaData'
 
 export default function LSVPenaltyContent({
   title,
@@ -20,33 +17,16 @@ export default function LSVPenaltyContent({
     <>
       <section>
         <header className="flex justify-start items-center gap-2 mb-4">
-          {/* <Icon type={PENALTY_TYPE_ICON_MAP[penalty.type]} className="TYPO-BODY-M" /> */}
           <H4 title={title} className="" />
         </header>
 
-        <LSVPenaltyItem proposalId={proposalId} penalty={penalty} isLast={true} />
+        <LSVPenaltyItem proposalId={proposalId} penalty={penalty} isLast={true} defaultExpanded={true} />
 
-        <div className={`${FIELD_CSS} !font-normal w-full mt-4`}>
-          <PostMetaDataLine
-            field={penalty.confirmId ? 'Confirm date' : 'Post date'}
-            value={dayjs(penalty.postTimestamp).format(TIMESTAMP_TO_MIN_FORMAT)}
-          />
-          <PostMetaDataLine
-            field={penalty.confirmId ? 'Confirmed by' : 'Posted by'}
-            value={
-              penalty.posterId ? (
-                <CopyHelper toCopy={penalty.posterId} iconPosition="left">
-                  {penalty.posterId}
-                </CopyHelper>
-              ) : (
-                'auto'
-              )
-            }
-          />
-          {penalty.confirmId ? (
-            <PostMetaDataLine field="Comment" value={penalty.confirmMsg.length ? penalty.confirmMsg : '-'} />
-          ) : null}
-        </div>
+        {penalty.status !== PENALTY_STATUS.NotConfirmed ? (
+          <div className="mt-4 pt-4 border-t border-grayCRE-200 dark:border-grayCRE-500">
+            <LSVPenaltyMetaData penalty={penalty} />
+          </div>
+        ) : null}
       </section>
     </>
   )

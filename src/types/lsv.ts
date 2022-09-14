@@ -115,6 +115,7 @@ export type PenaltyEvent =
   | 'vote_warning'
   | 'reliability_penalty'
   | 'vote_penalty'
+  | 'lsv_registered'
 
 export type WritablePenalty = 'vote_warning' | 'reliability_warning'
 
@@ -145,7 +146,12 @@ export interface Penalty extends Omit<LSVEventRawBase, 'height' | 'confirmTimest
   dataDesc: string | undefined
 }
 
-export type VotePenalty = Omit<Penalty, 'rawJson'> & {
+// export type VotePenalty = Omit<Penalty, 'rawJson'> & {
+//   event: 'vote_warning' | 'vote_penalty'
+//   rawJson: LSVEventRawJsonVoteWarn
+// }
+
+export interface VotePenalty extends Penalty {
   event: 'vote_warning' | 'vote_penalty'
   rawJson: LSVEventRawJsonVoteWarn
 }
@@ -223,6 +229,15 @@ export interface LSVEventVoteWarn extends Penalty {
   status: PENALTY_STATUS
 }
 
+export interface LSVEventRegister extends Penalty {
+  event: 'lsv_registered'
+  rawJson: {
+    addr?: string
+    alias: string
+    valoperAddr: string
+  }
+}
+
 // to be del...
 export type LSVEventRaw =
   | LSVEventCommissionChanged
@@ -232,5 +247,6 @@ export type LSVEventRaw =
   | LSVEventBadPerformance
   | LSVEventReliabilityWarn
   | LSVEventVoteWarn
+  | LSVEventRegister
 
 export type LSVEvent = LSVEventRaw

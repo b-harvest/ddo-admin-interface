@@ -9,38 +9,40 @@ const useLSVPenalty = (address: string) => {
 
   const allPenalties = useMemo<Penalty[]>(
     () =>
-      data?.data.map((item) => {
-        const height = item.height ? item.height : undefined
-        const regId = item.regId !== 'n' ? item.regId : undefined
-        const confirmId = item.confirmId !== 'n' ? item.confirmId : undefined
-        const posterId = confirmId ?? regId
-        const postTimestamp = (confirmId ? item.confirmTimestamp : item.timestamp) * 1000
+      data?.data
+        .filter((item) => item.event !== 'lsv_registered')
+        .map((item) => {
+          const height = item.height ? item.height : undefined
+          const regId = item.regId !== 'n' ? item.regId : undefined
+          const confirmId = item.confirmId !== 'n' ? item.confirmId : undefined
+          const posterId = confirmId ?? regId
+          const postTimestamp = (confirmId ? item.confirmTimestamp : item.timestamp) * 1000
 
-        const isWarning = ['vote_warning', 'reliability_warning'].includes(item.event)
-        const type = isWarning
-          ? PENALTY_TYPE.Warning
-          : item.penaltyPoint === 3
-          ? PENALTY_TYPE.immediateKickout
-          : PENALTY_TYPE.Strike
+          const isWarning = ['vote_warning', 'reliability_warning'].includes(item.event)
+          const type = isWarning
+            ? PENALTY_TYPE.Warning
+            : item.penaltyPoint === 3
+            ? PENALTY_TYPE.immediateKickout
+            : PENALTY_TYPE.Strike
 
-        const status = getPenaltyStatus(item.confirmResult)
-        const dataDesc = LSV_PENALTY_DATA_DESC_MAP[item.event]
+          const status = getPenaltyStatus(item.confirmResult)
+          const dataDesc = LSV_PENALTY_DATA_DESC_MAP[item.event]
 
-        return {
-          ...item,
-          ...item.rawJson,
-          height,
-          regId,
-          confirmId,
-          timestamp: item.timestamp * 1000,
-          confirmTimestamp: Number(item.confirmTimestamp) * 1000,
-          posterId,
-          postTimestamp,
-          type,
-          status,
-          dataDesc,
-        }
-      }) ?? [],
+          return {
+            ...item,
+            ...item.rawJson,
+            height,
+            regId,
+            confirmId,
+            timestamp: item.timestamp * 1000,
+            confirmTimestamp: Number(item.confirmTimestamp) * 1000,
+            posterId,
+            postTimestamp,
+            type,
+            status,
+            dataDesc,
+          }
+        }) ?? [],
     [data]
   )
 

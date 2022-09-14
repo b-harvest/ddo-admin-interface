@@ -167,7 +167,7 @@ export default function LSVPenaltyBoard({
                 isLast={i === getPenalties(item).length - 1}
                 penalty={penalty}
                 direction="row"
-                showPostInfo={true}
+                defaultExpanded={false}
                 showConfirmButton={true}
                 onConfirmClick={() => onConfirmClick(penalty)}
               />
@@ -209,7 +209,11 @@ function PenaltyIndicatorIcon(penaltyItem: PenaltyItem, penalties: Penalty[]) {
               : `${getPenaltyPointByEvents(penalties)} strike`
           } confirmed`}
         >
-          <div className="flex items-center gap-2 TYPO-BODY-S text-error">
+          <div
+            className={`flex items-center gap-2 TYPO-BODY-S ${
+              penaltyItem.type === PENALTY_TYPE.immediateKickout ? 'text-error' : 'text-warning'
+            }`}
+          >
             <Icon type={PENALTY_TYPE_ICON_MAP[penaltyItem.type]} />
             {penaltyItem.type !== PENALTY_TYPE.immediateKickout ? getPenaltyPointByEvents(penalties) : null}
           </div>

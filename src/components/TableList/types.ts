@@ -38,8 +38,15 @@ export interface ListFieldUSD extends Omit<ListFieldHTML, 'type'> {
 
 export interface ListFieldChange extends Omit<ListFieldHTML, 'type'> {
   type: 'change'
+  toFixedFallback?: number
   neutral?: boolean
   strong?: boolean
+  gt?: number
+  gtCSS?: string
+  lt?: number
+  ltCSS?: string
+  et?: number
+  etCSS?: string
 }
 
 export interface ListFieldObj extends Omit<ListFieldHTML, 'type'> {
