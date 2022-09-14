@@ -58,19 +58,7 @@ const useLSVPenalty = (address: string) => {
   const votePenalties = useMemo<VotePenalty[]>(() => {
     const voteWarnedList = getLSVEvents('vote_warning')
     const votePenaltyList = getLSVEvents('vote_penalty')
-
-    return (voteWarnedList.concat(votePenaltyList) as LSVEventVoteWarn[]).map((item) => {
-      // const descs = item.rawJson.desc?.split(LSV_VOTE_WARN_REFERENCE_SEPERATOR)
-      // const refLink = descs && descs.length === 2 ? descs[0] : undefined
-      // const desc = descs && descs.length === 2 ? descs[1] : descs ? descs[0] : undefined
-      // const posterId = item.confirmId ?? item.regId
-      // const postTimestamp = item.confirmId ? item.confirmTimestamp : item.timestamp
-      return {
-        ...item,
-        // posterId,
-        // postTimestamp,
-      }
-    })
+    return voteWarnedList.concat(votePenaltyList) as LSVEventVoteWarn[]
   }, [getLSVEvents])
 
   const getVotePenaltiesByProposal = useCallback(
@@ -80,16 +68,37 @@ const useLSVPenalty = (address: string) => {
 
   const getRepVotePenaltyByProposal = useCallback(
     (proposalId: number) => {
-      const penalties = getVotePenaltiesByProposal(proposalId)
+      const votePenalties = getVotePenaltiesByProposal(proposalId)
 
-      const notConfirmed = penalties.find((item) => item.status === PENALTY_STATUS.NotConfirmed)
-      if (notConfirmed) return notConfirmed
+      const getNotConfirmed = (penalties: VotePenalty[]) =>
+        penalties.find((item) => item.status === PENALTY_STATUS.NotConfirmed)
+      const getConfirmed = (penalties: VotePenalty[]) =>
+        penalties.find((item) => item.status === PENALTY_STATUS.Confirmed)
+      const getDiscarded = (penalties: VotePenalty[]) =>
+        penalties.find((item) => item.status === PENALTY_STATUS.Discarded)
 
-      const confirmed = penalties.find((item) => item.status === PENALTY_STATUS.Confirmed)
-      if (confirmed) return confirmed
+      const strikes = votePenalties.filter((item) => item.type === PENALTY_TYPE.Strike)
+      const warnings = votePenalties.filter((item) => item.type === PENALTY_TYPE.Warning)
 
-      const discarded = penalties.find((item) => item.status === PENALTY_STATUS.Discarded)
-      if (discarded) return discarded
+      if (strikes.length) {
+        const notConfirmed = getNotConfirmed(strikes)
+        if (notConfirmed) return notConfirmed
+
+        const confirmed = getConfirmed(strikes)
+        if (confirmed) return confirmed
+
+        const discarded = getDiscarded(strikes)
+        if (discarded) return discarded
+      } else if (warnings.length) {
+        const notConfirmed = getNotConfirmed(warnings)
+        if (notConfirmed) return notConfirmed
+
+        const confirmed = getConfirmed(warnings)
+        if (confirmed) return confirmed
+
+        const discarded = getDiscarded(warnings)
+        if (discarded) return discarded
+      }
 
       return undefined
     },
