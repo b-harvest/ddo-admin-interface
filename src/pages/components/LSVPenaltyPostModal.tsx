@@ -31,7 +31,10 @@ export default function LSVPenaltyPostModal({
 
   const [modalRefLink, setModalRefLink] = useState<string>('')
   const [modalMemo, setModalMemo] = useState<string>('')
-  const saveButtonDisabled = useMemo<boolean>(() => !isValidUrl(modalRefLink), [modalRefLink])
+  const saveButtonDisabled = useMemo<boolean>(
+    () => !(isValidUrl(modalRefLink) && (event === 'vote_warning' || modalMemo.length > 0)),
+    [modalRefLink, event, modalMemo]
+  )
 
   const resetModalInput = () => {
     setModalRefLink('')
@@ -107,7 +110,11 @@ export default function LSVPenaltyPostModal({
           validate={isValidUrl}
           invalidMsg="Please fill out with a valid url."
         />
-        <Textarea placeholder="Description (optional)" keyword={modalMemo} onChange={setModalMemo} />
+        <Textarea
+          placeholder={`Description ${event === 'vote_warning' ? '(optional)' : ''}`}
+          keyword={modalMemo}
+          onChange={setModalMemo}
+        />
       </div>
     </Modal>
   )
