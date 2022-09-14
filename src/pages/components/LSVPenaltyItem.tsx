@@ -1,4 +1,5 @@
 import Button from 'components/Button'
+import CopyHelper from 'components/CopyHelper'
 import IconButton from 'components/IconButton'
 import Tooltip from 'components/Tooltip'
 import { PENALTY_TYPE_COLOR_MAP, REF_LINKED_PENALTIES } from 'constants/lsv'
@@ -46,10 +47,10 @@ export default function LSVPenaltyItem({
           <ModularData
             field="Proposal #"
             hideField={hideField}
-            data={penalty.rawJson?.proposalId === 0 ? undefined : penalty.rawJson?.proposalId}
+            data={penalty.rawJson?.proposalId === 0 ? '-' : penalty.rawJson?.proposalId}
             type="number"
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
-            dataClassName={dataHeightCSS}
+            dataClassName={`${dataHeightCSS} ${penalty.rawJson?.proposalId === 0 ? FIELD_CSS : ''}`}
           />
           <ModularData
             field="Commission rate"
@@ -114,7 +115,7 @@ export default function LSVPenaltyItem({
                 // penalty.event === 'vote_warning' || penalty.event === 'vote_penalty'
                 <IconButton
                   type="copylink"
-                  className={`w-6 h-6 ${penalty.rawJson?.link ? 'hover:text-info' : 'opacity-40 cursor-not-allowed'}`}
+                  className={`w-6 h-6 ${penalty.rawJson?.link ? 'hover:text-info' : 'opacity-40 cursor-default'}`}
                   onClick={() => {
                     if (penalty.rawJson?.link) window.open(penalty.rawJson.link, '_blank')
                   }}
@@ -126,7 +127,7 @@ export default function LSVPenaltyItem({
           />
 
           <ModularData
-            field={penalty.rawJson?.desc && penalty.rawJson.desc.length > 0 ? 'Description' : 'No'}
+            field="Description"
             hideField={hideField}
             data={penalty.rawJson?.desc}
             className="grow shrink"
@@ -160,7 +161,15 @@ export default function LSVPenaltyItem({
           <ModularData
             field="Posted by"
             hideField={hideField}
-            data={penalty.regId ? extractEmailId(penalty.regId) : 'auto'}
+            data={
+              penalty.regId ? (
+                <CopyHelper toCopy={penalty.regId} iconPosition="left">
+                  {extractEmailId(penalty.regId)}
+                </CopyHelper>
+              ) : (
+                <div className={FIELD_CSS}>auto</div>
+              )
+            }
             className={`${isRow ? 'md:grow-0 md:shrink-0 md:basis-[100px]' : ''}`}
             dataClassName={dataHeightCSS}
           />
@@ -232,7 +241,7 @@ function ModularData({
 }) {
   return (
     <>
-      {data || data === 0 ? (
+      {data !== undefined ? (
         <li className={`${className} flex flex-col justify-center items-start overflow-hidden`}>
           {hideField || <div className={`!font-normal !text-xs ${FIELD_CSS} whitespace-pre`}>{field}</div>}
           <div
