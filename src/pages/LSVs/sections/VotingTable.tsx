@@ -2,7 +2,7 @@ import TableList from 'components/TableList'
 import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
 import VotingOptionIcon from 'components/VotingOptionIcon'
-import { SAFE_VOTING_RATE, VOTE_OPTIONS, WARNABLE_VOTE_OPTIONS } from 'constants/lsv'
+import { SAFE_VOTING_RATE, VoteOptions, WARNABLE_VOTE_OPTIONS } from 'constants/lsv'
 import { AN_HOUR } from 'constants/time'
 import useLSVPenalty from 'hooks/useLSVPenalty'
 import useProposal from 'hooks/useProposal'
@@ -46,7 +46,7 @@ export default function VotingTable({
         .map((item) => {
           const vote = item.voteData?.votes.find((vote) => vote.proposalId === proposalId)
           const na = item.lsvStartTimestamp + AN_HOUR > new Date(proposal.proposal.voting_end_time).getTime()
-          const option: VOTE_OPTIONS = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
+          const option: VoteOptions = na ? VoteOptions.NA : vote?.vote.option ?? VoteOptions.DIDNOT
           const optionLabel = <WrappedVotingOptionIcon lsv={item} proposalId={proposalId} option={option} />
 
           return { [item.addr]: { validator: item, vote, option, optionLabel } }
@@ -203,7 +203,7 @@ export default function VotingTable({
   )
 }
 
-function WrappedVotingOptionIcon({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VOTE_OPTIONS }) {
+function WrappedVotingOptionIcon({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VoteOptions }) {
   const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
   const penalty = getRepVotePenaltyByProposal(proposalId)
 
@@ -219,13 +219,13 @@ function WrappedVotingOptionIcon({ lsv, proposalId, option }: { lsv: LSV; propos
   )
 }
 
-function LSVWarningTooltip({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VOTE_OPTIONS }) {
+function LSVWarningTooltip({ lsv, proposalId, option }: { lsv: LSV; proposalId: number; option: VoteOptions }) {
   const { getRepVotePenaltyByProposal } = useLSVPenalty(lsv.addr)
   const penalty = getRepVotePenaltyByProposal(proposalId)
 
   return (
     <>
-      {isMobile ? null : penalty && penalty.status !== PENALTY_STATUS.Discarded && option === VOTE_OPTIONS.DidNot ? (
+      {isMobile ? null : penalty && penalty.status !== PENALTY_STATUS.Discarded && option === VoteOptions.DIDNOT ? (
         <div className="w-[400px] p-4">
           <LSVPenaltyContent title={lsv.alias} proposalId={proposalId} penalty={penalty} />
         </div>

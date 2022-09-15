@@ -1,22 +1,22 @@
 import type { IconType } from 'components/Icon'
 import Icon from 'components/Icon'
-import { VOTE_OPTIONS } from 'constants/lsv'
+import { VoteOptions } from 'constants/lsv'
 import { useMemo } from 'react'
 
-export default function VotingOptionIcon({ option }: { option?: VOTE_OPTIONS }) {
+export default function VotingOptionIcon({ option }: { option?: VoteOptions }) {
   const iconColor = useMemo<string>(() => {
     switch (option) {
-      case VOTE_OPTIONS.NA:
+      case VoteOptions.NA:
         return 'text-grayCRE-300 dark:text-grayCRE-400'
-      case VOTE_OPTIONS.Yes:
+      case VoteOptions.YES:
         return 'text-grayCRE-300 dark:text-grayCRE-200'
-      case VOTE_OPTIONS.No:
+      case VoteOptions.NO:
         return 'text-pinkCRE'
-      case VOTE_OPTIONS.Veto:
+      case VoteOptions.VETO:
         return 'text-pinkCRE'
-      case VOTE_OPTIONS.Abstain:
+      case VoteOptions.ABSTAIN:
         return 'text-warning'
-      case VOTE_OPTIONS.DidNot:
+      case VoteOptions.DIDNOT:
         return 'text-error'
       default:
         return 'text-grayCRE-300 dark:text-grayCRE-400'
@@ -25,17 +25,17 @@ export default function VotingOptionIcon({ option }: { option?: VOTE_OPTIONS }) 
 
   const iconTitle = useMemo<string>(() => {
     switch (option) {
-      case VOTE_OPTIONS.NA:
+      case VoteOptions.NA:
         return '-'
-      case VOTE_OPTIONS.Yes:
+      case VoteOptions.YES:
         return 'Yes'
-      case VOTE_OPTIONS.No:
+      case VoteOptions.NO:
         return 'No' // no
-      case VOTE_OPTIONS.Veto:
+      case VoteOptions.VETO:
         return 'No with veto' // no w/ veto
-      case VOTE_OPTIONS.Abstain:
+      case VoteOptions.ABSTAIN:
         return 'Abstain' // abstain
-      case VOTE_OPTIONS.DidNot:
+      case VoteOptions.DIDNOT:
         return 'Did not vote' // didn't vote
       default:
         return '-'
@@ -44,17 +44,17 @@ export default function VotingOptionIcon({ option }: { option?: VOTE_OPTIONS }) 
 
   const iconType = useMemo<IconType>(() => {
     switch (option) {
-      case VOTE_OPTIONS.NA:
+      case VoteOptions.NA:
         return 'hyphen'
-      case VOTE_OPTIONS.Yes:
+      case VoteOptions.YES:
         return 'like' // yes
-      case VOTE_OPTIONS.No:
-        return 'dislike' // no
-      case VOTE_OPTIONS.Veto:
-        return 'filldislike' // no w/ veto
-      case VOTE_OPTIONS.Abstain:
+      case VoteOptions.ABSTAIN:
         return 'abstain' // abstain
-      case VOTE_OPTIONS.DidNot:
+      case VoteOptions.NO:
+        return 'dislike' // no
+      case VoteOptions.VETO:
+        return 'filldislike' // no w/ veto
+      case VoteOptions.DIDNOT:
         return 'close' // didn't vote
       default:
         return 'hyphen'

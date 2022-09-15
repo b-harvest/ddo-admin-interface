@@ -4,16 +4,16 @@ import { PENALTY_STATUS, PENALTY_TYPE, PenaltyEvent } from 'types/lsv'
 // vote-specific
 export const SAFE_VOTING_RATE = 80
 
-export enum VOTE_OPTIONS {
+export enum VoteOptions {
   NA = 0,
-  Yes = 1,
-  No = 2,
-  Veto = 3,
-  Abstain = 4,
-  DidNot = 5,
+  YES = 1,
+  ABSTAIN = 2,
+  NO = 3,
+  VETO = 4,
+  DIDNOT = 5,
 }
 
-export const WARNABLE_VOTE_OPTIONS = [VOTE_OPTIONS.DidNot, VOTE_OPTIONS.Abstain]
+export const WARNABLE_VOTE_OPTIONS = [VoteOptions.DIDNOT]
 
 // penalty
 export const IMMEDIATE_KICKOUT_PENALTIES: PenaltyEvent[] = ['commssion_changed']

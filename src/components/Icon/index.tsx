@@ -13,7 +13,7 @@ import { BiLinkExternal, BiRocket } from 'react-icons/bi'
 import { BsGithub, BsMedium, BsSlashCircle, BsSlashSquareFill, BsTwitter } from 'react-icons/bs'
 import { CgFileDocument } from 'react-icons/cg'
 import { FaRegBell } from 'react-icons/fa'
-import { FaAdn, FaBan, FaRegCheckCircle, FaTelegramPlane } from 'react-icons/fa'
+import { FaBan, FaRegCheckCircle, FaTelegramPlane } from 'react-icons/fa'
 import { FiBookOpen } from 'react-icons/fi'
 import { GiReceiveMoney, GiToken } from 'react-icons/gi'
 import { GiHamburgerMenu } from 'react-icons/gi'
@@ -22,8 +22,7 @@ import { ImCheckboxChecked, ImCheckboxUnchecked } from 'react-icons/im'
 import { IoIosMore, IoMdArrowRoundForward, IoMdClose } from 'react-icons/io'
 import { IoMdArrowBack } from 'react-icons/io'
 import { MdExpandLess, MdExpandMore, MdOutlineContentCopy, MdOutlineSearch } from 'react-icons/md'
-import { MdAccessTime } from 'react-icons/md'
-import { MdCalendarToday } from 'react-icons/md'
+import { MdAccessTime, MdCalendarToday, MdOutlineHdrAuto } from 'react-icons/md'
 import { RiArrowLeftRightLine, RiLoader4Fill, RiZzzLine } from 'react-icons/ri'
 import { RiQuestionLine } from 'react-icons/ri'
 import { SiDiscord, SiGitbook, SiHiveBlockchain } from 'react-icons/si'
@@ -116,7 +115,7 @@ const Icons: { [key: string]: React.ElementType } = {
   like: AiOutlineLike,
   dislike: AiOutlineDislike,
   filldislike: AiFillDislike,
-  abstain: FaAdn,
+  abstain: MdOutlineHdrAuto,
   hyphen: HiOutlineMinusSm,
   exclamation: AiOutlineExclamation,
   question: RiQuestionLine,

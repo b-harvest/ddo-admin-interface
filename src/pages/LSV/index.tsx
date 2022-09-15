@@ -11,7 +11,7 @@ import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
 import VotingOptionIcon from 'components/VotingOptionIcon'
-import { PENALTY_TYPE_COLOR_MAP, SAFE_VOTING_RATE, VOTE_OPTIONS } from 'constants/lsv'
+import { PENALTY_TYPE_COLOR_MAP, SAFE_VOTING_RATE, VoteOptions } from 'constants/lsv'
 import { AN_HOUR, DATE_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
 import useLSV from 'hooks/useLSV'
@@ -100,7 +100,7 @@ export default function LSVDetail() {
           const votingEndTimeLabel = dayjs(proposal.proposal.voting_end_time).format(DATE_FORMAT)
 
           const na = lsv.lsvStartTimestamp + AN_HOUR > votingEndTime // when been over an hour since named as LSV
-          const option = na ? VOTE_OPTIONS.NA : vote?.vote.option ?? VOTE_OPTIONS.DidNot
+          const option = na ? VoteOptions.NA : vote?.vote.option ?? VoteOptions.DIDNOT
           const optionLabel = <VotingOptionIcon option={option} />
           const weight = vote ? new BigNumber(vote.vote.weight) : undefined
 

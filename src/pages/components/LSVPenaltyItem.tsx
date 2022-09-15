@@ -2,7 +2,7 @@ import Button from 'components/Button'
 import CopyHelper from 'components/CopyHelper'
 import IconButton from 'components/IconButton'
 import Tooltip from 'components/Tooltip'
-import { PENALTY_TYPE_COLOR_MAP, REF_LINKED_PENALTIES } from 'constants/lsv'
+import { REF_LINKED_PENALTIES } from 'constants/lsv'
 import { FIELD_CSS } from 'constants/style'
 import { TIMESTAMP_TO_MIN_FORMAT } from 'constants/time'
 import dayjs from 'dayjs'
@@ -194,7 +194,6 @@ export default function LSVPenaltyItem({
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[48px]` : ''}
             dataClassName={`h-6 flex items-center ${dataHeightCSS}`}
           />
-          {/* ${getPenaltyColor(penalty)} */}
         </div>
       </ul>
 
@@ -257,10 +256,4 @@ function ModularData({
       ) : null}
     </>
   )
-}
-
-function getPenaltyColor(penalty: Penalty) {
-  return penalty.status === PENALTY_STATUS.Discarded
-    ? 'text-grayCRE-300 dark:text-grayCRE-400'
-    : PENALTY_TYPE_COLOR_MAP[penalty.type]
 }
