@@ -112,14 +112,15 @@ export default function LSVPenaltyItem({
             hideField={hideField}
             data={
               REF_LINKED_PENALTIES.includes(penalty.event) ? (
-                // penalty.event === 'vote_warning' || penalty.event === 'vote_penalty'
-                <IconButton
-                  type="copylink"
-                  className={`w-6 h-6 ${penalty.rawJson?.link ? 'hover:text-info' : 'opacity-40 cursor-default'}`}
-                  onClick={() => {
-                    if (penalty.rawJson?.link) window.open(penalty.rawJson.link, '_blank')
-                  }}
-                />
+                <Tooltip content={penalty.rawJson?.link ?? undefined}>
+                  <IconButton
+                    type="copylink"
+                    className={`w-6 h-6 ${penalty.rawJson?.link ? 'hover:text-info' : 'opacity-40 cursor-default'}`}
+                    onClick={() => {
+                      if (penalty.rawJson?.link) window.open(penalty.rawJson.link, '_blank')
+                    }}
+                  />
+                </Tooltip>
               ) : undefined
             }
             className={isRow ? `md:grow-0 md:shrink-0 md:basis-[120px]` : ''}
