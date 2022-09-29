@@ -4,11 +4,9 @@ import TableList from 'components/TableList'
 import TimestampMemo from 'components/TimestampMemo'
 import Tooltip from 'components/Tooltip'
 import { SAFE_VOTING_RATE } from 'constants/lsv'
-import useLSVPenalty from 'hooks/useLSVPenalty'
-import LSVPenaltyIcon from 'pages/components/LSVPenaltyIcon'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { LSV, Penalty, PENALTY_STATUS, PENALTY_TYPE } from 'types/lsv'
+import { LSV } from 'types/lsv'
 
 type LSVAdditional = {
   blockCommitTime: BigNumber | undefined
@@ -35,7 +33,7 @@ export default function LSVList({
       const blockCommitTimeLabel = blockCommitTime?.toFormat() ?? '-'
 
       const aliasLabel = <div className="TYPO-BODY-S !font-bold">{item.alias}</div>
-      const statusTag = <LSVStatusIcon lsv={item} />
+      const statusTag = <LSVPenaltyStatus lsv={item} />
 
       return {
         ...item,
@@ -71,7 +69,7 @@ export default function LSVList({
           value: 'aliasLabel',
           sortValue: 'alias',
           type: 'html',
-          widthRatio: 10,
+          widthRatio: 4,
         },
         {
           label: 'Jail time',
@@ -128,7 +126,7 @@ export default function LSVList({
           assertThoughResponsive: true,
         },
         {
-          label: 'Penalty',
+          label: 'Penalty point',
           value: 'penaltyTotal',
           type: 'number',
           gt: 2,
@@ -138,11 +136,12 @@ export default function LSVList({
           assertThoughResponsive: true,
         },
         {
-          label: 'Penalty status',
+          label: 'Unconfirmed penalties',
           value: 'statusTag',
+          sortValue: 'eventToConfirm',
           type: 'html',
           align: 'right',
-          widthRatio: 4,
+          widthRatio: 5,
           responsive: true,
         },
       ]}
@@ -150,42 +149,74 @@ export default function LSVList({
   )
 }
 
-function LSVStatusIcon({ lsv }: { lsv: LSV }) {
-  const { allPenalties } = useLSVPenalty(lsv.addr)
-  const notConfirmedPenalties = useMemo<Penalty[]>(
-    () => allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed),
-    [allPenalties]
+function LSVPenaltyStatus({ lsv }: { lsv: LSV }) {
+  const no = useMemo<boolean>(() => lsv.eventTotal === 0 && lsv.eventToConfirm === 0, [lsv])
+
+  const className = useMemo<string>(
+    () => (no ? `text-success opacity-50` : lsv.eventToConfirm > 0 ? `text-warning` : `text-warning opacity-50`),
+    [lsv, no]
   )
 
-  const notConfirmedRepPenalty = useMemo<Penalty | undefined>(() => {
-    const penalty = allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed)
-    const im = penalty.find((penalty) => penalty.type === PENALTY_TYPE.immediateKickout)
-    const strike = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Strike)
-    const warning = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Warning)
-    return im ?? strike ?? warning
-  }, [allPenalties])
-
-  const confirmedRepPenalty = useMemo<Penalty | undefined>(() => {
-    const penalty = allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.Confirmed)
-    const im = penalty.find((penalty) => penalty.type === PENALTY_TYPE.immediateKickout)
-    const strike = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Strike)
-    const warning = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Warning)
-    return im ?? strike ?? warning
-  }, [allPenalties])
+  const tooltip = useMemo<string>(
+    () =>
+      no
+        ? `No penalty`
+        : lsv.eventToConfirm > 0
+        ? `${lsv.eventToConfirm} unconfirmed out of ${lsv.eventTotal} penalty ${
+            lsv.eventTotal > 1 ? 'events' : 'event'
+          }`
+        : `All confirmed (${lsv.eventTotal} ${lsv.eventTotal > 1 ? 'penalties' : 'penalty'})`,
+    [lsv, no]
+  )
 
   return (
     <div className="pr-6">
-      {notConfirmedRepPenalty ? (
-        <Tooltip content={`${notConfirmedPenalties.length} not confirmed. \nClick to see all penalties.`}>
-          <LSVPenaltyIcon key={notConfirmedRepPenalty.eid} penalty={notConfirmedRepPenalty} />
-        </Tooltip>
-      ) : confirmedRepPenalty ? (
-        <Tooltip content="Click to see all penalties.">
-          <LSVPenaltyIcon key={confirmedRepPenalty.eid} penalty={confirmedRepPenalty} />
-        </Tooltip>
-      ) : (
-        <Icon type="success" className="text-success" />
-      )}
+      <Tooltip content={tooltip}>
+        <div className={`flex items-center gap-2 ${className}`}>
+          {no && <Icon type="success" />}
+          <span className="FONT-MONO">{!no && `${lsv.eventToConfirm}/${lsv.eventTotal}`}</span>
+        </div>
+      </Tooltip>
     </div>
   )
 }
+
+// function LSVStatusIcon({ lsv }: { lsv: LSV }) {
+//   const { allPenalties } = useLSVPenalty(lsv.addr)
+//   const notConfirmedPenalties = useMemo<Penalty[]>(
+//     () => allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed),
+//     [allPenalties]
+//   )
+
+//   const notConfirmedRepPenalty = useMemo<Penalty | undefined>(() => {
+//     const penalty = allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.NotConfirmed)
+//     const im = penalty.find((penalty) => penalty.type === PENALTY_TYPE.immediateKickout)
+//     const strike = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Strike)
+//     const warning = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Warning)
+//     return im ?? strike ?? warning
+//   }, [allPenalties])
+
+//   const confirmedRepPenalty = useMemo<Penalty | undefined>(() => {
+//     const penalty = allPenalties.filter((penalty) => penalty.status === PENALTY_STATUS.Confirmed)
+//     const im = penalty.find((penalty) => penalty.type === PENALTY_TYPE.immediateKickout)
+//     const strike = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Strike)
+//     const warning = penalty.find((penalty) => penalty.type === PENALTY_TYPE.Warning)
+//     return im ?? strike ?? warning
+//   }, [allPenalties])
+
+//   return (
+//     <div className="pr-6">
+//       {notConfirmedRepPenalty ? (
+//         <Tooltip content={`${notConfirmedPenalties.length} not confirmed. \nClick to see all penalties.`}>
+//           <LSVPenaltyIcon key={notConfirmedRepPenalty.eid} penalty={notConfirmedRepPenalty} />
+//         </Tooltip>
+//       ) : confirmedRepPenalty ? (
+//         <Tooltip content="Click to see all penalties.">
+//           <LSVPenaltyIcon key={confirmedRepPenalty.eid} penalty={confirmedRepPenalty} />
+//         </Tooltip>
+//       ) : (
+//         <Icon type="success" className="text-success" />
+//       )}
+//     </div>
+//   )
+// }

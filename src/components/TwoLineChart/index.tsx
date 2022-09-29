@@ -87,7 +87,7 @@ export default function TwoLineChart({
 
   const handleClick = useCallback(
     (props: CategoricalChartState) => {
-      if (onClick) onClick(props.activeLabel as number | undefined)
+      if (onClick) onClick(props?.activeLabel as number | undefined)
     },
     [onClick]
   )

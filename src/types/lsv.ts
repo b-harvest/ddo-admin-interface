@@ -16,6 +16,8 @@ export interface LSVRaw {
   alias: string
   commission: string
   penaltyTotal: number
+  eventTotal: number
+  eventToConfirm: number
 }
 
 // vote

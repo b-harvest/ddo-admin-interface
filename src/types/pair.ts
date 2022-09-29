@@ -50,6 +50,7 @@ export type PairLive = Omit<
 > & {
   lastPrice: BigNumber
   predPrice: BigNumber
+  diffExpo: number
   high_24: BigNumber
   low_24: BigNumber
   vol_24: BigNumber

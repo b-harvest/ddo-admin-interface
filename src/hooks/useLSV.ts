@@ -84,7 +84,7 @@ const useLSV = () => {
 
         // vote
         const voteData = allLSVVote.find((lsv) => lsv.addr === item.addr)
-        const votingRate = voteData ? (voteData.voteCnt / voteData.mustVoteCnt) * 100 : 0
+        const votingRate = voteData?.mustVoteCnt ? (voteData.voteCnt / voteData.mustVoteCnt) * 100 : 100
 
         return {
           ...item,

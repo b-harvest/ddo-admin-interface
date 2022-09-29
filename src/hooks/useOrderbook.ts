@@ -24,11 +24,12 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
     const pair = orderbooksByPairLCDData?.pairs[0]
     if (!pair) return undefined
 
+    const baseExpo = pairDetail?.baseAsset.exponent ?? 0
+
     return {
       pair_id: Number(pair.pair_id),
       base_price: new BigNumber(pair.base_price),
       order_books: pair.order_books.map((orderbook) => {
-        const baseExpo = pairDetail?.baseAsset.exponent ?? 0
         return {
           price_unit: new BigNumber(orderbook.price_unit),
           buys: orderbook.buys.map((buy) => retypeOrder(buy, baseExpo)),
@@ -38,7 +39,10 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
     }
   }, [orderbooksByPairLCDData, pairDetail])
 
-  const orderbookLastPrice = useMemo<BigNumber | undefined>(() => allOrderbooks?.base_price, [allOrderbooks])
+  const orderbookLastPrice = useMemo<BigNumber | undefined>(
+    () => allOrderbooks?.base_price.multipliedBy(10 ** (pairDetail?.diffExpo ?? 0)),
+    [allOrderbooks, pairDetail]
+  )
 
   const depthChartData = useMemo<{ sells: DepthByPrice[]; buys: DepthByPrice[] }>(() => {
     const buys =
@@ -67,11 +71,13 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
       .dp(0, BigNumber.ROUND_UP)
       .toNumber()
 
+    const diffExpo = pairDetail?.diffExpo ?? 0
+
     return {
-      buys: mapDepthChartList(buys, priceUnit, tickCnt, buyStartTick, 'buy'),
-      sells: mapDepthChartList(sells, priceUnit, tickCnt, sellStartTick, 'sell'),
+      buys: mapDepthChartList(buys, priceUnit, tickCnt, buyStartTick, diffExpo, 'buy'),
+      sells: mapDepthChartList(sells, priceUnit, tickCnt, sellStartTick, diffExpo, 'sell'),
     }
-  }, [allOrderbooks, priceUnit])
+  }, [allOrderbooks, priceUnit, pairDetail])
 
   const getDepthCost = useCallback(
     (depth: number) => {
@@ -95,7 +101,13 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
 
       const upperDepthCost = upperBoundOrders.reduce((total, orders) => {
         const cost = orders.reduce(
-          (accm, order) => accm.plus(order.user_order_amount.plus(order.pool_order_amount).multipliedBy(order.price)),
+          (accm, order) =>
+            accm.plus(
+              order.user_order_amount
+                .plus(order.pool_order_amount)
+                .multipliedBy(order.price)
+                .multipliedBy(10 ** (pairDetail?.diffExpo ?? 0))
+            ),
           new BigNumber(0)
         )
         return total.plus(cost)
@@ -103,7 +115,13 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
 
       const lowerDepthCost = lowerBoundOrders.reduce((total, orders) => {
         const cost = orders.reduce(
-          (accm, order) => accm.plus(order.user_order_amount.plus(order.pool_order_amount).multipliedBy(order.price)),
+          (accm, order) =>
+            accm.plus(
+              order.user_order_amount
+                .plus(order.pool_order_amount)
+                .multipliedBy(order.price)
+                .multipliedBy(10 ** (pairDetail?.diffExpo ?? 0))
+            ),
           new BigNumber(0)
         )
         return total.plus(cost)
@@ -114,8 +132,8 @@ const useOrderbook = (pairDetail?: PairDetail, priceUnitPowers = 1, numTicks = 1
       const lowerDepthCostUSD = lowerDepthCost.multipliedBy(quotePriceOracle)
 
       return {
-        upperBoundPrice,
-        lowerBoundPrice,
+        upperBoundPrice: upperBoundPrice.multipliedBy(10 ** (pairDetail?.diffExpo ?? 0)),
+        lowerBoundPrice: lowerBoundPrice.multipliedBy(10 ** (pairDetail?.diffExpo ?? 0)),
         upperDepthCost,
         lowerDepthCost,
         upperDepthCostUSD,
@@ -143,6 +161,7 @@ function mapDepthChartList(
   priceUnit: BigNumber,
   tickCnt: number,
   startTick: BigNumber,
+  diffExpo: number,
   type: 'sell' | 'buy'
 ): DepthByPrice[] {
   const isSell = type === 'sell'
@@ -178,13 +197,17 @@ function mapDepthChartList(
 
   const depth = drafts.map((item, index) => {
     const prevs: BigNumber[] = []
-    for (let i = 0; i < index; i += 1) prevs.push(drafts[i].amount.multipliedBy(drafts[i].price))
+    for (let i = 0; i < index; i += 1)
+      prevs.push(drafts[i].amount.multipliedBy(drafts[i].price).multipliedBy(10 ** diffExpo))
 
     const prevDepth = prevs.reduce((accm, prev) => accm.plus(prev), new BigNumber(0))
-    const currDepth = item.amount.multipliedBy(item.price).plus(prevDepth)
+    const currDepth = item.amount
+      .multipliedBy(item.price)
+      .multipliedBy(10 ** diffExpo)
+      .plus(prevDepth)
 
     return {
-      price: item.price,
+      price: item.price.multipliedBy(10 ** diffExpo),
       depth: currDepth,
     }
   })

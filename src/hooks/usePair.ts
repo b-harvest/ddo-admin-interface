@@ -10,7 +10,7 @@ const usePair = () => {
   const [allPairLiveAtom] = useAtom(allPairLiveAtomRef)
   const { allAsset, findAssetByDenom } = useAsset()
 
-  const allPairLive = useMemo(() => {
+  const allPairLive = useMemo<PairLive[]>(() => {
     return allPairLiveAtom.map((pair) => {
       const baseExpo = findAssetByDenom(pair.baseDenom)?.exponent ?? 0
       const quoteExpo = findAssetByDenom(pair.quoteDenom)?.exponent ?? 0
@@ -20,6 +20,7 @@ const usePair = () => {
         ...pair,
         lastPrice: new BigNumber(pair.lastPrice).multipliedBy(10 ** diffExpo),
         predPrice: new BigNumber(pair.predPrice).multipliedBy(10 ** diffExpo),
+        diffExpo,
         high_24: new BigNumber(pair.high_24),
         low_24: new BigNumber(pair.low_24),
         vol_24: new BigNumber(pair.vol_24),
