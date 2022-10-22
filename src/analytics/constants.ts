@@ -8,10 +8,15 @@ export enum EventCategory {
 }
 
 export enum EventName {
+  USER_IDENTIFIED = 'User identified',
+  CHAIN_CHANGED = 'Chain changed',
   ERROR_BOUNDARY = 'Error boundary',
   EXCEPTION_API = 'API call failed',
-  LSV_ADD_MODAL_OPENED = 'LSV Add modal opened',
-  LSV_VALIDATORS_EXPLORER_LINK_CLICKED = 'Validators explorer link clicked',
+  LSVS_VOTING_TABLE_FIELD_CLICKED = 'LSVs voting table field clicked',
+  LSVS_VOTING_TABLE_CELL_CLICKED = 'LSVs voting table cell clicked',
+  LSVS_VOTING_TABLE_SEARCHED = 'LSVs voting table searched',
+  LSVS_TABLE_SEARCHED = 'LSVs lsv list table searched',
+  ADD_LSV_BUTTON_CLICKED = 'Button clicked - Add LSV',
   ACCOUNT_FROM_TOP_50_CLICKED = 'Account from top 50 clicked',
 }
 

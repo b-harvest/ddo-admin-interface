@@ -115,4 +115,5 @@ export interface TableListProps<T extends TableListItem> {
   onCellTooltip?: (cell: any, field: string, item: T) => JSX.Element | string | undefined
   onFieldClick?: (field: string) => void
   onFieldTooltip?: (field: string) => JSX.Element | string | undefined
+  onSearch?: (keyword: string) => void
 }

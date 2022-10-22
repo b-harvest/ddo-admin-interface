@@ -1,5 +1,6 @@
 import { EventName } from 'analytics/constants'
 import GoogleAnalytics from 'analytics/googleAnalytics'
+import mixpanel from 'analytics/mixpanel'
 import { handleError } from 'data/utils'
 import React, { ErrorInfo, PropsWithChildren } from 'react'
 type ErrorBoundaryState = {
@@ -35,10 +36,13 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    GoogleAnalytics.sendEvent(EventName.ERROR_BOUNDARY, {
+    const details = {
       description: error.toString() + errorInfo.toString(),
       fatal: true,
-    })
+    }
+    GoogleAnalytics.sendEvent(EventName.ERROR_BOUNDARY, details)
+    mixpanel.track(EventName.ERROR_BOUNDARY, details)
+
     handleError(error)
   }
 

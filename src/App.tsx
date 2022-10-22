@@ -3,6 +3,8 @@ import 'App.css'
 import 'react-toastify/dist/ReactToastify.min.css'
 
 import Analytics from 'analytics/Analytics'
+import { EventName } from 'analytics/constants'
+import mixpanel from 'analytics/mixpanel'
 import AppHeader from 'components/AppHeader'
 import BlockHeightPolling from 'components/BlockHeightPolling'
 import GlowBackground from 'components/GlowBackground'
@@ -61,13 +63,19 @@ function GoogleAuthCheck({ clientId, onFinished }: { clientId: string; onFinishe
   }
 
   const onSuccess = async (res) => {
-    if (isValidUser(res.profileObj, 'crescent.foundation')) {
+    const profile: GoogleUserProfile = res.profileObj
+
+    if (isValidUser(profile, 'crescent.foundation')) {
       await setupRefreshToken(res, setAuthTokenAtom)
 
-      setUserAtom({ user: res.profileObj as GoogleUserProfile })
+      setUserAtom({ user: profile })
       setAuthTokenAtom({ authToken: res.getAuthResponse().id_token })
 
       onFinished()
+
+      /** @summary mixpanel user identification */
+      mixpanel.track(EventName.USER_IDENTIFIED, { profile })
+      await mixpanel.identify(profile)
     }
   }
 

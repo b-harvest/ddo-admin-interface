@@ -1,3 +1,5 @@
+import { EventName } from 'analytics/constants'
+import mixpanel from 'analytics/mixpanel'
 import AppPage from 'components/AppPage'
 import Button from 'components/Button'
 import CommonwealthLink from 'components/CommonwealthLink'
@@ -19,7 +21,10 @@ export default function LSVs() {
     setAddLSVModal(false)
   }
 
-  const onAddLSVClick = () => setAddLSVModal(true)
+  const onAddLSVClick = () => {
+    mixpanel.track(EventName.ADD_LSV_BUTTON_CLICKED)
+    setAddLSVModal(true)
+  }
 
   return (
     <AppPage>

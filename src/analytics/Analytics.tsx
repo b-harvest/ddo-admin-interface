@@ -2,8 +2,9 @@ import 'App.css'
 // eslint-disable-next-line no-restricted-imports
 import 'react-toastify/dist/ReactToastify.min.css'
 
-import { EventCategory } from 'analytics/constants'
+import { EventCategory, EventName } from 'analytics/constants'
 import googleAnalytics from 'analytics/googleAnalytics'
+import mixpanel from 'analytics/mixpanel'
 import { useAtom } from 'jotai'
 import { getPageName } from 'pages'
 import { useEffect, useState } from 'react'
@@ -21,6 +22,8 @@ export default function Analytics() {
   // setup
   const [initialized, setInitialized] = useState<boolean>(false)
   const [userAtom] = useAtom(userAtomRef)
+
+  const [mixpanelInitialized, setMixpanelInitialized] = useState<boolean>(false)
 
   useEffect(() => {
     const GA_MEASUREMENT_ID = isProdEnv()
@@ -58,6 +61,16 @@ export default function Analytics() {
     } else {
       console.error(`GA_MEASUREMENT_ID cannot be retrieved from env`)
     }
+
+    /** @summary Mixpanel setup */
+    const mixpanelToken = process.env.REACT_APP_MIXPANEL_TOKEN
+
+    if (mixpanelToken) {
+      mixpanel.initialize(mixpanelToken, { debug: true })
+      setMixpanelInitialized(true)
+    } else {
+      console.error(`MIXPANEL_TOKEN cannot be retrieved from env`)
+    }
   }, [])
 
   // pageview
@@ -72,11 +85,16 @@ export default function Analytics() {
     if (initialized) googleAnalytics.set({ cd1: chainIdAtom }) // custom dimension 1
   }, [initialized, chainIdAtom])
 
+  useEffect(() => {
+    if (mixpanelInitialized) mixpanel.track(EventName.CHAIN_CHANGED, { chainId: chainIdAtom })
+  }, [mixpanelInitialized, chainIdAtom])
+
   return <></>
 }
 
 function reportWebVitalsToGA({ name, id, delta, entries }: Metric) {
   if (isDevEnv()) console.log(`${name}(${id}): ${delta}`, entries)
+
   googleAnalytics.gaCommandSendTiming(
     EventCategory.WEB_VITALS,
     name,

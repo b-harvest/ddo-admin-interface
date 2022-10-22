@@ -1,5 +1,6 @@
 import { EventCategory, EventName } from 'analytics/constants'
 import googleAnalytics from 'analytics/googleAnalytics'
+import mixpanel from 'analytics/mixpanel'
 import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import { useMemo } from 'react'
@@ -30,6 +31,10 @@ export default function Ranks({
         category: EventCategory.ACCOUNT,
         action: EventName.ACCOUNT_FROM_TOP_50_CLICKED,
       })
+      mixpanel.track(EventName.ACCOUNT_FROM_TOP_50_CLICKED, {
+        cell,
+      })
+
       history.push(`/account/${cell}`)
     }
   }

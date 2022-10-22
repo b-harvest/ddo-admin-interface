@@ -1,3 +1,5 @@
+import { EventName } from 'analytics/constants'
+import mixpanel from 'analytics/mixpanel'
 import BigNumber from 'bignumber.js'
 import Icon from 'components/Icon'
 import TableList from 'components/TableList'
@@ -51,6 +53,8 @@ export default function LSVList({
     history.push(`/lsv/${item.valOperAddr}`)
   }
 
+  const onSearch = (keyword: string) => mixpanel.track(EventName.LSVS_TABLE_SEARCHED, { keyword })
+
   return (
     <TableList<LSV & LSVAdditional>
       title="All LSV"
@@ -63,6 +67,7 @@ export default function LSVList({
       defaultSortBy={'kickout'}
       defaultIsSortASC={false}
       onRowClick={onRowClick}
+      onSearch={onSearch}
       fields={[
         {
           label: 'Validator',

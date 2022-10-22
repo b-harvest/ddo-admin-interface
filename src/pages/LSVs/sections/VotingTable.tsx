@@ -1,3 +1,5 @@
+import { EventName } from 'analytics/constants'
+import mixpanel from 'analytics/mixpanel'
 import TableList from 'components/TableList'
 import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
@@ -92,6 +94,11 @@ export default function VotingTable({
 
   const onCellClick = (cell: LSVVotingRecord, field: string, row: LSVVotingTableItem) => {
     const warnable = WARNABLE_VOTE_OPTIONS.includes(cell.option)
+
+    mixpanel.track(EventName.LSVS_VOTING_TABLE_CELL_CLICKED, {
+      warnable,
+    })
+
     if (warnable) {
       setModalLSV(cell.validator)
       setModalProposalId(row.proposalId)
@@ -109,6 +116,11 @@ export default function VotingTable({
   const onFieldClick = useCallback(
     (field: string) => {
       const lsv = list.find((lsv) => lsv.addr === field)
+
+      mixpanel.track(EventName.LSVS_VOTING_TABLE_FIELD_CLICKED, {
+        lsv: lsv?.alias ?? 'Did not worked - No LSV',
+      })
+
       if (lsv) {
         setModalProposalId(0)
         setForcePost(true)
@@ -129,6 +141,12 @@ export default function VotingTable({
     [list]
   )
 
+  const onSearch = (keyword: string) => {
+    mixpanel.track(EventName.LSVS_VOTING_TABLE_SEARCHED, {
+      keyword,
+    })
+  }
+
   return (
     <>
       <TableList<LSVVotingTableItem>
@@ -147,6 +165,7 @@ export default function VotingTable({
         onCellTooltip={onCellTooltip}
         onFieldClick={onFieldClick}
         onFieldTooltip={onFieldTooltip}
+        onSearch={onSearch}
         fields={[
           {
             label: '#',
