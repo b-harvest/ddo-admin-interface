@@ -2,7 +2,6 @@ import { EventName } from 'analytics/constants'
 import { setProfile } from 'analytics/mixpanelApi'
 import Mixpanel, { Callback, Config, Dict, RequestOptions } from 'mixpanel-browser'
 import type { GoogleUserProfile } from 'types/user'
-import { isProdEnv } from 'utils/env'
 
 let $token: string
 
@@ -16,15 +15,13 @@ const identify = async (profile: GoogleUserProfile) => {
   Mixpanel.identify(id)
   //   await Mixpanel.register_once(profile)
 
-  if (isProdEnv()) {
-    await setProfile([
-      {
-        $token,
-        $distinct_id: id,
-        $set: profile,
-      },
-    ])
-  }
+  await setProfile([
+    {
+      $token,
+      $distinct_id: id,
+      $set: profile,
+    },
+  ])
 }
 
 const track = (
