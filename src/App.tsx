@@ -74,8 +74,8 @@ function GoogleAuthCheck({ clientId, onFinished }: { clientId: string; onFinishe
       onFinished()
 
       /** @summary mixpanel user identification */
+      mixpanel.identify(profile)
       mixpanel.track(EventName.USER_IDENTIFIED, { profile })
-      await mixpanel.identify(profile)
     }
   }
 

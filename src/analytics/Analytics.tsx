@@ -66,7 +66,7 @@ export default function Analytics() {
     const mixpanelToken = process.env.REACT_APP_MIXPANEL_TOKEN
 
     if (mixpanelToken) {
-      mixpanel.initialize(mixpanelToken, { debug: true })
+      mixpanel.initialize(mixpanelToken, { api_host: 'https://api.mixpanel.com', debug: isDevEnv() })
       setMixpanelInitialized(true)
     } else {
       console.error(`MIXPANEL_TOKEN cannot be retrieved from env`)
