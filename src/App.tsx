@@ -3,8 +3,6 @@ import 'App.css'
 import 'react-toastify/dist/ReactToastify.min.css'
 
 import Analytics from 'analytics/Analytics'
-import { EventName } from 'analytics/constants'
-import mixpanel from 'analytics/mixpanel'
 import AppHeader from 'components/AppHeader'
 import BlockHeightPolling from 'components/BlockHeightPolling'
 import GlowBackground from 'components/GlowBackground'
@@ -12,6 +10,7 @@ import Loader from 'components/Loader'
 import TextBand from 'components/TextBand'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
+import useUserAuth from 'hooks/useUserAuth'
 import { useAtom } from 'jotai'
 import Account from 'pages/Account'
 import Accounts from 'pages/Accounts'
@@ -24,7 +23,6 @@ import Overview from 'pages/Overview'
 import Pair from 'pages/Pair'
 import Pool from 'pages/Pool'
 import SignIn from 'pages/SignIn/index'
-import { isValidUser, setupRefreshToken } from 'pages/SignIn/utils'
 import Token from 'pages/Token'
 import TokenLaunch from 'pages/TokenLaunch'
 import TVL from 'pages/TVL'
@@ -35,7 +33,6 @@ import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
 import { authTokenAtomRef, chainIdAtomRef, userAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
-import { GoogleUserProfile } from 'types/user'
 import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
 
@@ -49,7 +46,19 @@ function Updaters() {
   )
 }
 
-function GoogleAuthCheck({ clientId, onFinished }: { clientId: string; onFinished: () => void }) {
+function GoogleAuthCheck({
+  clientId,
+  onComplete,
+  onRejected,
+}: {
+  clientId: string
+  onComplete: () => void
+  onRejected?: () => void
+}) {
+  const { onAuthSuccess } = useUserAuth({ onComplete, onRejected })
+
+  const onSuccess = async (res) => onAuthSuccess(res)
+
   const history = useHistory()
   const redirectTologin = () => history.push('/auth')
 
@@ -62,27 +71,10 @@ function GoogleAuthCheck({ clientId, onFinished }: { clientId: string; onFinishe
     redirectTologin()
   }
 
-  const onSuccess = async (res) => {
-    const profile: GoogleUserProfile = res.profileObj
-
-    if (isValidUser(profile, 'crescent.foundation')) {
-      await setupRefreshToken(res, setAuthTokenAtom)
-
-      setUserAtom({ user: profile })
-      setAuthTokenAtom({ authToken: res.getAuthResponse().id_token })
-
-      /** @summary mixpanel user identification */
-      mixpanel.identify(profile)
-      mixpanel.track(EventName.USER_IDENTIFIED, { profile })
-
-      onFinished()
-    }
-  }
-
   const onAutoLoadFinished = (signedIn: boolean) => {
     if (!signedIn) {
       removeUser()
-      onFinished()
+      onComplete()
     }
   }
 
@@ -137,7 +129,7 @@ function App() {
       <div className="App">
         <Analytics />
         <Updaters />
-        {clientId ? <GoogleAuthCheck clientId={clientId} onFinished={() => setAuthVerified(true)} /> : null}
+        {clientId ? <GoogleAuthCheck clientId={clientId} onComplete={() => setAuthVerified(true)} /> : null}
         {authVerified ? (
           <>
             <div className="fixed top-0 left-0 right-0 w-full" style={{ zIndex: '60' }}>
