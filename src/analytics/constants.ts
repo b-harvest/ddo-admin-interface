@@ -9,6 +9,7 @@ export enum EventCategory {
 
 export enum EventName {
   USER_IDENTIFIED = 'User identified',
+  PAGE_VIEWED = 'Page viewed',
   CHAIN_CHANGED = 'Chain changed',
   ERROR_BOUNDARY = 'Error boundary',
   EXCEPTION_API = 'API call failed',

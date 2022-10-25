@@ -15,7 +15,7 @@ import type {
 } from 'components/TableList/types'
 import Tag from 'components/Tag'
 import Tooltip from 'components/Tooltip'
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import type { AlertStatus } from 'types/alert'
 import { formatUSDAmount } from 'utils/amount'
 import { abbrOver } from 'utils/text'
@@ -76,10 +76,13 @@ export default function TableList<T extends TableListItem>({
   // table search keyword
   const [searchKeyword, setSearchKeyword] = useState<string>('')
 
-  useEffect(() => {
-    if (onSearch) onSearch(searchKeyword)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchKeyword])
+  const onSearchInputChange = useCallback(
+    (newKeyword: string) => {
+      setSearchKeyword(newKeyword)
+      if (onSearch) onSearch(newKeyword)
+    },
+    [onSearch]
+  )
 
   // table sorting setting
   const [sortBy, setSortBy] = useState<string | undefined>(defaultSortBy)
@@ -142,7 +145,7 @@ export default function TableList<T extends TableListItem>({
           )}
           {useSearch && (
             <div>
-              <SearchInput keyword={searchKeyword} onChange={setSearchKeyword} />{' '}
+              <SearchInput keyword={searchKeyword} onChange={onSearchInputChange} />{' '}
             </div>
           )}
         </div>

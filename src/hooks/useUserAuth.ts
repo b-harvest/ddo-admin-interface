@@ -1,4 +1,3 @@
-import { EventName } from 'analytics/constants'
 import mixpanel from 'analytics/mixpanel'
 import { useAtom } from 'jotai'
 import { isValidUser, setupRefreshToken } from 'pages/SignIn/utils'
@@ -22,7 +21,6 @@ const useUserAuth = ({ onComplete, onRejected }: { onComplete: () => void; onRej
 
         /** @summary mixpanel user identification */
         mixpanel.identify(profile)
-        mixpanel.track(EventName.USER_IDENTIFIED, { profile })
 
         onComplete()
       } else {

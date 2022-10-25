@@ -1,47 +1,34 @@
 import { Listbox } from '@headlessui/react'
+import { EventName } from 'analytics/constants'
+import mixpanel from 'analytics/mixpanel'
 import Icon from 'components/Icon'
-import { CHAIN_IDS } from 'constants/chain'
+import { CHAIN_IDS as ChainIds } from 'constants/chain'
 import { useAtom } from 'jotai'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { ChainId, chainIdAtomRef } from 'state/atoms'
 
-interface ChainOption {
-  chainId: ChainId
-  label: string
+// const CHAINS = [ChainIds.MAINNET, ChainIds.MOONCAT]
+
+const CHAIN_LABELS: { [key in ChainIds]: string } = {
+  [ChainIds.MAINNET]: 'Mainnet',
+  [ChainIds.MOONCAT]: 'Testnet',
 }
 
-const CHAINS: ChainOption[] = [
-  { chainId: CHAIN_IDS.MAINNET, label: 'Mainnet' },
-  { chainId: CHAIN_IDS.MOONCAT, label: 'Testnet' },
-]
-
 export default function AppChainListBox() {
-  // chain state
   const [chainIdAtom, setChainIdAtom] = useAtom(chainIdAtomRef)
 
-  const [chainIndex, setChainIndex] = useState<number>(0)
-
-  const onChange = (index: number) => {
-    const chainId = CHAINS[index].chainId
+  const onChange = (chainId: ChainIds) => {
     setChainIdAtom({ chainId })
-  }
-
-  const colorBodyByChain = (chainId: ChainId) => {
-    if (chainId === CHAIN_IDS.MOONCAT) {
-      document.body.classList.add('testnet')
-    } else {
-      document.body.classList.remove('testnet')
-    }
+    mixpanel.track(EventName.CHAIN_CHANGED, { chainId })
   }
 
   useEffect(() => {
     colorBodyByChain(chainIdAtom)
-    setChainIndex(CHAINS.findIndex((item) => item.chainId === chainIdAtom))
   }, [chainIdAtom])
 
   return (
     <div className="relative w-full max-w-[160px]">
-      <Listbox value={chainIndex} onChange={onChange}>
+      <Listbox value={chainIdAtom} onChange={onChange}>
         <Listbox.Button
           className={({ open }) =>
             `w-full rounded-lg bg-grayCRE-200 text-left text-grayCRE-400 px-4 py-2 outline-0 transition-all hover:bg-grayCRE-200 ${
@@ -54,7 +41,7 @@ export default function AppChainListBox() {
               <div className="flex justify-between items-center space-x-4">
                 <div className="grow shrink">
                   <div className="flex items-center overflow-hidden TYPO-BODY-S !leading-[1.25rem] !font-bold whitespace-nowrap md:!leading-[1.5rem]">
-                    {CHAINS[chainIndex].label}
+                    {CHAIN_LABELS[chainIdAtom]}
                   </div>
                 </div>
                 <div className="grow-0 shrink-0">
@@ -69,10 +56,10 @@ export default function AppChainListBox() {
           className={`absolute w-full rounded-lg rounded-t-none bg-white border-2 border-t-0 border-grayCRE-100 max-h-48 overflow-y-auto outline-0 transition-all dark:bg-black dark:border-neutral-600`}
           style={{ zIndex: '1' }}
         >
-          {CHAINS.map((chain: ChainOption, index) => (
+          {Object.values(ChainIds).map((chainId: ChainIds, index) => (
             <Listbox.Option
               key={index}
-              value={index}
+              value={chainId}
               className={({ active }) =>
                 `TYPO-BODY-XS text-grayCRE-500 dark:text-grayCRE-400 cursor-pointer px-4 py-2 outline-0 md:TYPO-BODY-S ${
                   active ? 'bg-grayCRE-100 dark:bg-grayCRE-400-o dark:!text-grayCRE-200' : ''
@@ -80,7 +67,7 @@ export default function AppChainListBox() {
               }
             >
               <div className="flex">
-                <div> {chain.label}</div>
+                <div> {CHAIN_LABELS[chainId]}</div>
               </div>
             </Listbox.Option>
           ))}
@@ -88,4 +75,12 @@ export default function AppChainListBox() {
       </Listbox>
     </div>
   )
+}
+
+function colorBodyByChain(chainId: ChainId) {
+  if (chainId === ChainIds.MOONCAT) {
+    document.body.classList.add('testnet')
+  } else {
+    document.body.classList.remove('testnet')
+  }
 }

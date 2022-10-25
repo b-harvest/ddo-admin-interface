@@ -67,7 +67,6 @@ export default function Analytics() {
 
     if (mixpanelToken) {
       mixpanel.initialize(mixpanelToken, { api_host: 'https://api.mixpanel.com', debug: isDevEnv() })
-      setMixpanelInitialized(true)
     } else {
       console.error(`MIXPANEL_TOKEN cannot be retrieved from env`)
     }
@@ -79,15 +78,19 @@ export default function Analytics() {
     if (initialized) googleAnalytics.pageview(location.pathname + location.search, [], getPageName(location.pathname))
   }, [initialized, location])
 
+  useEffect(() => {
+    if (mixpanelInitialized)
+      mixpanel.track(EventName.PAGE_VIEWED, {
+        pathname: location.pathname + location.search,
+        pageName: getPageName(location.pathname),
+      })
+  }, [mixpanelInitialized, location])
+
   // chain change
   const [chainIdAtom] = useAtom(chainIdAtomRef)
   useEffect(() => {
     if (initialized) googleAnalytics.set({ cd1: chainIdAtom }) // custom dimension 1
   }, [initialized, chainIdAtom])
-
-  useEffect(() => {
-    if (mixpanelInitialized) mixpanel.track(EventName.CHAIN_CHANGED, { chainId: chainIdAtom })
-  }, [mixpanelInitialized, chainIdAtom])
 
   return <></>
 }
