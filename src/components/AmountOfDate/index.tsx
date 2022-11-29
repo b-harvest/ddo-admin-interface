@@ -8,7 +8,6 @@ export default function AmountOfDate({
   valueCSS,
   dateLabel,
   light = true,
-  currencySymbol = '$',
   className = '',
   hideAbbr = false,
 }: {
@@ -17,19 +16,19 @@ export default function AmountOfDate({
   valueCSS?: string
   dateLabel: string
   light?: boolean
-  currencySymbol?: string
   className?: string
   hideAbbr?: boolean
 }) {
   return (
     <Indicator title={title} label={dateLabel} className={className} light={light}>
       <div className={`TYPO-BODY-XL !font-black FONT-MONO ${valueCSS}`}>
-        {formatUSDAmount({ value, mantissa: 0, currencySymbol })}
+        {formatUSDAmount({ value, mantissa: 0 })}
         {hideAbbr ? null : (
           <span className="hidden ml-2 md:inline-block">{`(${formatUSDAmount({
             value,
-            currencySymbol,
-            abbr: true,
+            compact: true,
+            semiequate: true,
+            noCurrencySymbol: true,
           })})`}</span>
         )}
       </div>

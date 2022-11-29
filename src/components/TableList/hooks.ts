@@ -2,7 +2,8 @@ import { FilterRadioGroupOption } from 'components/FilterRadioGroup'
 import type { TableListItem, TableListProps } from 'components/TableList/types'
 import { useMemo } from 'react'
 
-type MatchedListParams<T> = Pick<TableListProps<T>, 'list'> & {
+type MatchedListParams<T extends TableListItem> = {
+  list: TableListProps<T>['list']
   searchKeyword: string
   sortBy?: string
   objSortValue?: string

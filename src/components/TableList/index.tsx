@@ -17,7 +17,7 @@ import Tag from 'components/Tag'
 import Tooltip from 'components/Tooltip'
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import type { AlertStatus } from 'types/alert'
-import { formatUSDAmount } from 'utils/amount'
+import { formatAmount } from 'utils/amount'
 import { abbrOver } from 'utils/text'
 const IS_SORT_ASC_DEFAULT = false
 const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S whitespace-pre`
@@ -559,19 +559,9 @@ export function bignumberToFormat({
   exponent?: number
   field: ListFieldBignumber | ListFieldUSD
 }): string {
-  const exp = exponent ?? field.toFixedFallback ?? 0
-
-  let leastVal = '<0.'
-  for (let i = 0; i < exp - 1; i += 1) {
-    leastVal += '0'
-  }
-  leastVal += '1'
-
-  return field.type === 'usd'
-    ? formatUSDAmount({ value, mantissa: field.toFixedFallback ?? 0 })
-    : value.isZero()
-    ? '0'
-    : value.isLessThan(1 / 10 ** exp)
-    ? leastVal
-    : value.dp(exp, BigNumber.ROUND_DOWN).toFormat()
+  return formatAmount({
+    value,
+    mantissa: (field.type === 'usd' ? undefined : exponent) ?? field.toFixedFallback ?? 0,
+    currency: field.type === 'usd' ? 'USD' : undefined,
+  })
 }

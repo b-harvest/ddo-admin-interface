@@ -1,37 +1,54 @@
 import BigNumber from 'bignumber.js'
-import numbro from 'numbro'
+
+/** @description currency list; https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml */
+export const formatAmount = ({
+  value,
+  mantissa = 2,
+  currency,
+  compact = false,
+  semiequate = false,
+}: {
+  value: BigNumber | undefined
+  mantissa?: number
+  currency?: string
+  compact?: boolean
+  semiequate?: boolean
+}) => {
+  if (value === undefined) return '-'
+
+  const formatter = new Intl.NumberFormat('en', {
+    style: currency === undefined ? 'decimal' : 'currency',
+    currency,
+    notation: compact ? 'compact' : 'standard',
+    compactDisplay: 'short',
+    // @ts-ignore
+    trailingZeroDisplay: 'stripIfInteger',
+    maximumFractionDigits: mantissa,
+    minimumFractionDigits: mantissa,
+  })
+
+  const number = value.dp(mantissa, BigNumber.ROUND_DOWN).toNumber()
+  const formattedValue = formatter.format(number).toLowerCase()
+
+  const currencySymbol = currency === undefined ? '' : formattedValue.charAt(0)
+  const min = new BigNumber(1).shiftedBy(-mantissa)
+  const formattedMin = `<${currencySymbol}${min.toFormat(mantissa)}`
+
+  return `${semiequate ? '≈' : ''}${!value.isZero() && value.lt(min) ? formattedMin : formattedValue}`
+}
 
 export const formatUSDAmount = ({
   value,
   mantissa = 2,
-  currencySymbol = '$',
-  abbr = false,
+  compact = false,
+  semiequate = false,
+  noCurrencySymbol = false,
 }: {
   value?: BigNumber
   mantissa?: number
-  currencySymbol?: string
-  abbr?: boolean
+  compact?: boolean
+  semiequate?: boolean
+  noCurrencySymbol?: boolean
 }) => {
-  const prefix = currencySymbol ?? ''
-  if (value === undefined) return '-'
-  if (value.isZero()) return `${prefix}0`
-  if (value.isLessThan(0.01)) return `<${prefix}0.01`
-  if (value.isLessThan(1) && mantissa === 0) mantissa = 2
-
-  if (abbr) {
-    const number = value.dp(mantissa, BigNumber.ROUND_DOWN).toNumber()
-    return numbro(number).formatCurrency({
-      average: true,
-      mantissa: number > 1000 ? 2 : mantissa,
-      abbreviations: {
-        billion: 'b',
-        million: 'm',
-        thousand: 'k',
-      },
-      prefix: '',
-      currencySymbol: '≈',
-    })
-  }
-
-  return `${prefix}${value.toFormat(mantissa, BigNumber.ROUND_HALF_UP)}`
+  return formatAmount({ value, mantissa, currency: noCurrencySymbol ? undefined : 'USD', compact, semiequate })
 }
