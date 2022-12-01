@@ -10,7 +10,6 @@ import Loader from 'components/Loader'
 import TextBand from 'components/TextBand'
 import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
-import useUserAuth from 'hooks/useUserAuth'
 import { useAtom } from 'jotai'
 import Account from 'pages/Account'
 import Accounts from 'pages/Accounts'
@@ -28,15 +27,13 @@ import TokenLaunch from 'pages/TokenLaunch'
 import TVL from 'pages/TVL'
 import Volume from 'pages/Volume'
 import { useEffect, useMemo, useState } from 'react'
-import { useGoogleLogin } from 'react-google-login'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
 import { Slide, ToastContainer } from 'react-toastify'
-import { authTokenAtomRef, chainIdAtomRef, userAtomRef } from 'state/atoms'
+import { authTokenAtomRef, chainIdAtomRef } from 'state/atoms'
 import StateUpdater from 'state/StateUpdater'
 import { formatUSDAmount } from 'utils/amount'
 import { isTestnet } from 'utils/chain'
-
-const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
+import { isJwtExpired } from 'utils/jwt'
 
 function Updaters() {
   return (
@@ -46,74 +43,8 @@ function Updaters() {
   )
 }
 
-function GoogleAuthCheck({
-  clientId,
-  onComplete,
-  onRejected,
-}: {
-  clientId: string
-  onComplete: () => void
-  onRejected?: () => void
-}) {
-  const { onAuthSuccess } = useUserAuth({ onComplete, onRejected })
-
-  const onSuccess = async (res) => onAuthSuccess(res)
-
-  const history = useHistory()
-  const redirectTologin = () => history.push('/auth')
-
-  const [, setAuthTokenAtom] = useAtom(authTokenAtomRef)
-  const [, setUserAtom] = useAtom(userAtomRef)
-
-  const removeUser = async () => {
-    setAuthTokenAtom({ authToken: null })
-    setUserAtom({ user: null })
-    redirectTologin()
-  }
-
-  const onAutoLoadFinished = (signedIn: boolean) => {
-    if (!signedIn) {
-      removeUser()
-      onComplete()
-    }
-  }
-
-  useGoogleLogin({
-    clientId,
-    isSignedIn: true,
-    onSuccess,
-    onAutoLoadFinished,
-  })
-
-  return <></>
-}
-
 function App() {
-  // auth
-  const [userAtom] = useAtom(userAtomRef)
-  const [authVerified, setAuthVerified] = useState<boolean>(false)
-
-  const { backendBlockHeight, onchainBlockHeight } = useChain()
-
-  // chain
-  const [chainIdAtom] = useAtom(chainIdAtomRef)
-  const isOnTestnet = isTestnet(chainIdAtom)
-  const topBannerLabel = isOnTestnet ? `Testnet - ${chainIdAtom}` : `Mainnet`
-
-  // app top bar
-  const showAppTopBar = useMemo(() => userAtom && isOnTestnet, [userAtom, isOnTestnet])
-
-  // hidden bar for standalone mode
-  const { cre } = useAsset()
-  const hiddenBarLabel = useMemo(
-    () =>
-      cre?.live?.priceOracle
-        ? `The last known price of CRE is ${formatUSDAmount({ value: cre?.live?.priceOracle })}`
-        : `Visit app.crescent.network for DEX`,
-    [cre]
-  )
-
-  // scroll behavior by route history
+  /** @summary scroll behavior by route history */
   const history = useHistory()
   useEffect(() => {
     const unlisten = history.listen(() => {
@@ -124,17 +55,51 @@ function App() {
     }
   }, [history])
 
+  /** @summary google auth */
+  const [authTokenAtom, setAuthTokenAtom] = useAtom(authTokenAtomRef)
+  const [authChecked, setAuthChecked] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (!authChecked) {
+      if (authTokenAtom !== null && isJwtExpired(authTokenAtom)) {
+        setAuthTokenAtom({ authToken: null })
+      }
+      setAuthChecked(true)
+    }
+  }, [])
+
+  /** @summary block height */
+  const { backendBlockHeight, onchainBlockHeight } = useChain()
+
+  /** @summary chain */
+  const [chainIdAtom] = useAtom(chainIdAtomRef)
+  const isOnTestnet = isTestnet(chainIdAtom)
+  const topBannerLabel = isOnTestnet ? `Testnet - ${chainIdAtom}` : `Mainnet`
+
+  /** @summary app top bar */
+  const showAppTopBar = useMemo(() => authTokenAtom && isOnTestnet, [authTokenAtom, isOnTestnet])
+
+  /** @summary hidden bar for standalone mode */
+  const { cre } = useAsset()
+  const hiddenBarLabel = useMemo(
+    () =>
+      cre?.live?.priceOracle
+        ? `The last known price of CRE is ${formatUSDAmount({ value: cre?.live?.priceOracle })}`
+        : `Visit app.crescent.network for DEX`,
+    [cre]
+  )
+
   return (
     <>
       <div className="App">
         <Analytics />
         <Updaters />
-        {clientId ? <GoogleAuthCheck clientId={clientId} onComplete={() => setAuthVerified(true)} /> : null}
-        {authVerified ? (
+
+        {authChecked ? (
           <>
             <div className="fixed top-0 left-0 right-0 w-full" style={{ zIndex: '60' }}>
               {showAppTopBar && <TextBand label={topBannerLabel} />}
-              {userAtom && (
+              {authTokenAtom && (
                 <div
                   className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
                   style={{ zIndex: '1' }}
@@ -166,6 +131,7 @@ function App() {
 
               <Switch>
                 <Route exact path="/auth" component={SignIn} />
+                {/* <Route exact path="/google-sign-in" component={GoogleSignIn} /> */}
 
                 <AuthRoute path="/overview" component={Overview} />
                 <AuthRoute path="/chain" component={Chain} />

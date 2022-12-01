@@ -1,11 +1,11 @@
 import Button from 'components/Button'
 import { toastError } from 'components/Toast/generator'
-import useUserAuth from 'hooks/useUserAuth'
+import useUserAuth from 'hooks/useUserAuthLegacy'
 import { useState } from 'react'
 // import { GoogleLogin } from 'react-google-login'
 import { useGoogleLogin } from 'react-google-login'
 
-export default function GoogleSignInButton({
+export default function GoogleSignInButtonLegacy({
   clientId,
   label,
   onComplete,

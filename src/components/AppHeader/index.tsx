@@ -5,11 +5,11 @@ import NavigationTab from 'components/NavigationTab'
 import { CRESCENT_LOGO_IMG_URL } from 'constants/resources'
 import { useAtom } from 'jotai'
 import { NavLink } from 'react-router-dom'
-import { userAtomRef } from 'state/atoms'
+import { authTokenAtomRef } from 'state/atoms'
 import { vibrate } from 'utils/hardware'
 
 export default function Header() {
-  const [userAtom] = useAtom(userAtomRef)
+  const [authTokenAtom] = useAtom(authTokenAtomRef)
 
   return (
     <header
@@ -20,11 +20,11 @@ export default function Header() {
           <Logo className="h-10 py-2" src={CRESCENT_LOGO_IMG_URL} />
           <h1 className="hidden justify-start items-center TYPO-H2 md:inline-flex md:TYPO-H1 dark:text-white">Admin</h1>
         </NavLink>
-        {userAtom && <NavigationTab onClick={() => vibrate(200)} />}
+        {authTokenAtom && <NavigationTab onClick={() => vibrate(200)} />}
       </div>
 
       <div className="grow-0 shrink-0 flex justify-end items-center space-x-1">
-        {userAtom && <AppChainListBox />}
+        {authTokenAtom && <AppChainListBox />}
         <AppSettingWidget />
       </div>
     </header>

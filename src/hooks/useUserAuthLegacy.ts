@@ -2,11 +2,11 @@ import mixpanel from 'analytics/mixpanel'
 import { useAtom } from 'jotai'
 import { isValidUser, setupRefreshToken } from 'pages/SignIn/utils'
 import { useCallback } from 'react'
-import { authTokenAtomRef, userAtomRef } from 'state/atoms'
+import { authTokenAtomRef } from 'state/atoms'
 import { GoogleUserProfile } from 'types/user'
 
 const useUserAuth = ({ onComplete, onRejected }: { onComplete: () => void; onRejected?: () => void }) => {
-  const [, setUserAtom] = useAtom(userAtomRef)
+  // const [, setUserAtom] = useAtom(userAtomRef)
   const [, setAuthTokenAtom] = useAtom(authTokenAtomRef)
 
   const onAuthSuccess = useCallback(
@@ -16,7 +16,7 @@ const useUserAuth = ({ onComplete, onRejected }: { onComplete: () => void; onRej
       if (isValidUser(profile, 'crescent.foundation')) {
         await setupRefreshToken(res, setAuthTokenAtom)
 
-        setUserAtom({ user: profile as GoogleUserProfile })
+        // setUserAtom({ user: profile as GoogleUserProfile })
         setAuthTokenAtom({ authToken: res.getAuthResponse().id_token })
 
         /** @summary mixpanel user identification */
@@ -27,7 +27,7 @@ const useUserAuth = ({ onComplete, onRejected }: { onComplete: () => void; onRej
         if (onRejected) onRejected()
       }
     },
-    [onComplete, onRejected, setAuthTokenAtom, setUserAtom]
+    [onComplete, onRejected, setAuthTokenAtom]
   )
 
   return {

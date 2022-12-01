@@ -5,13 +5,12 @@ import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
 import type { BlockLCD, ChainInfo, ChainLive } from 'types/chain'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
-import type { GoogleUserProfile } from 'types/user'
 
 // darkmode
 const LOCAL_STORAGE_KEY_IS_DARK_MODE = `is-dark-mode`
 const isDarkModeFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_IS_DARK_MODE)
 
-const isDarkModeAtom = atom<boolean>(isDarkModeFromLocal === 'true')
+const isDarkModeAtom = atom<boolean>((isDarkModeFromLocal ?? 'true') === 'true')
 export const isDarkModeAtomRef = atom(
   (get) => get(isDarkModeAtom),
   (_, set, { isDarkMode }: { isDarkMode: boolean }) => {
@@ -20,21 +19,7 @@ export const isDarkModeAtomRef = atom(
   }
 )
 
-// user (google auth)
-const LOCAL_STORAGE_KEY_USER = `user`
-const userFromLocalRaw = localStorage.getItem(LOCAL_STORAGE_KEY_USER)
-const userFromLocal: GoogleUserProfile | null = userFromLocalRaw ? JSON.parse(userFromLocalRaw) : null
-
-const userAtom = atom<GoogleUserProfile | null>(userFromLocal)
-export const userAtomRef = atom(
-  (get) => get(userAtom),
-  (_, set, { user }: { user: GoogleUserProfile | null }) => {
-    set(userAtom, user)
-    if (user) localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(user))
-    else localStorage.removeItem(LOCAL_STORAGE_KEY_USER)
-  }
-)
-
+//   const jwt = jose.decodeJwt(credentialResponse.credential)
 const LOCAL_STORAGE_KEY_AUTH_TOKEN = `authToken`
 const authTokenFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_AUTH_TOKEN)
 

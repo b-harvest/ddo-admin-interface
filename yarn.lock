@@ -3086,6 +3086,11 @@
     tiny-warning "^1.0.3"
     tslib "^2.3.0"
 
+"@react-oauth/google@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@react-oauth/google/-/google-0.5.0.tgz#1c8aff6b6914a61ba3df505cdb126026db2e3cad"
+  integrity sha512-3bS+DmKjynzdn3dwdNFdiIybRTOhF2siVI+gjSZrsYI52oWKVqb8mkxsV3YbU/EnL/c5g9zBinGcbzTNUHq/eg==
+
 "@rollup/plugin-babel@^5.2.0":
   version "5.3.1"
   resolved "https://registry.yarnpkg.com/@rollup/plugin-babel/-/plugin-babel-5.3.1.tgz#04bc0608f4aa4b2e4b1aebf284344d0f68fda283"
@@ -8382,6 +8387,11 @@ jest@^27.4.3:
     "@jest/core" "^27.5.1"
     import-local "^3.0.2"
     jest-cli "^27.5.1"
+
+jose@^4.11.1:
+  version "4.11.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.11.1.tgz#8f7443549befe5bddcf4bae664a9cbc1a62da4fa"
+  integrity sha512-YRv4Tk/Wlug8qicwqFNFVEZSdbROCHRAC6qu/i0dyNKr5JQdoa2pIGoS04lLO/jXQX7Z9omoNewYIVIxqZBd9Q==
 
 jotai@^1.7.2:
   version "1.7.7"

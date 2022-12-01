@@ -1,14 +1,23 @@
 import { EventName } from 'analytics/constants'
 import Mixpanel, { Callback, Config, Dict, RequestOptions } from 'mixpanel-browser'
-import type { GoogleUserProfile } from 'types/user'
+import type { GoogleUserProfile, UserProfile } from 'types/user'
 
 const initialize = (token: string, config?: Partial<Config> | undefined) => {
   Mixpanel.init(token, config)
 }
 
+/** @todo remove legacy (old google signin response) */
 const identify = (profile: GoogleUserProfile) => {
   const id = profile.email
 
+  Mixpanel.identify(id)
+  Mixpanel.register_once({
+    ...profile,
+  })
+}
+
+const identifyUser = (profile: UserProfile) => {
+  const id = profile.email
   Mixpanel.identify(id)
   Mixpanel.register_once({
     ...profile,
@@ -27,6 +36,7 @@ const track = (
 const mixpanel = {
   initialize,
   identify,
+  identifyUser,
   track,
 }
 

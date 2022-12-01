@@ -1,12 +1,12 @@
-import useSignOut from 'components/AppSettingWidget/useSignOut'
 import { useCopyClipboard } from 'components/CopyHelper/hooks'
 import SelectTab from 'components/SelectTab'
 import MoreWidget, { PopoverPanelItem } from 'components/Widgets/MoreWidget'
 import { CRESCENT_ADMIN_DOMAIN } from 'constants/url'
+import useGoogleSignOut from 'hooks/useGoogleSignOut'
 import { useAtom } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
-import { isDarkModeAtomRef, userAtomRef } from 'state/atoms'
+import { authTokenAtomRef, isDarkModeAtomRef } from 'state/atoms'
 
 type DarkModeType = 'dark' | 'light'
 
@@ -20,7 +20,6 @@ const DARK_MODE_TAB_ITEMS: { label: string; value: DarkModeType }[] = [
     value: 'dark',
   },
 ]
-const clientId = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID
 
 export default function AppSettingWidget() {
   // dark mode
@@ -41,11 +40,11 @@ export default function AppSettingWidget() {
   }, [isDarkModeAtom])
 
   // auth
-  const [userAtom] = useAtom(userAtomRef)
+  const [authTokenAtom] = useAtom(authTokenAtomRef)
 
   const history = useHistory()
   const goToSignIn = () => history.push('/auth')
-  const { signOut } = useSignOut({ clientId, onComplete: goToSignIn })
+  const { signOut } = useGoogleSignOut({ onComplete: goToSignIn })
 
   // copy url
   const location = useLocation()
@@ -89,7 +88,7 @@ export default function AppSettingWidget() {
   ]
 
   return (
-    <MoreWidget panelItems={settingsWidgetPanelItems} excludedItems={userAtom ? [] : ['logout']}>
+    <MoreWidget panelItems={settingsWidgetPanelItems} excludedItems={authTokenAtom ? [] : ['logout']}>
       <SelectTab<DarkModeType>
         label="Theme"
         tabItems={DARK_MODE_TAB_ITEMS}
