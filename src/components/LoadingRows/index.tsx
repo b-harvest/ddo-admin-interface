@@ -5,7 +5,7 @@ import { isNthChild } from 'utils/css'
 
 export default function LoadingRows({ rowsCnt }: { rowsCnt: number }) {
   const rows = useMemo<number[]>(() => {
-    return new Array(rowsCnt).fill(0)
+    return new Array(rowsCnt < 0 || Number.isNaN(rowsCnt) ? 0 : rowsCnt).fill(0)
   }, [rowsCnt])
 
   const [isDarkModeAtom] = useAtom(isDarkModeAtomRef)
@@ -16,7 +16,9 @@ export default function LoadingRows({ rowsCnt }: { rowsCnt: number }) {
         <div
           key={index}
           className={`rounded-xl h-[2.4em] animate-loading-bg ${
-            isNthChild(index + 1, 4, 1)
+            rowsCnt === 1
+              ? 'col-span-3'
+              : isNthChild(index + 1, 4, 1)
               ? 'col-start-1 col-end-3'
               : isNthChild(index + 1, 4, 0)
               ? 'col-start-3 col-end-4'
