@@ -19,7 +19,6 @@ export const isDarkModeAtomRef = atom(
   }
 )
 
-//   const jwt = jose.decodeJwt(credentialResponse.credential)
 const LOCAL_STORAGE_KEY_AUTH_TOKEN = `authToken`
 const authTokenFromLocal = localStorage.getItem(LOCAL_STORAGE_KEY_AUTH_TOKEN)
 
