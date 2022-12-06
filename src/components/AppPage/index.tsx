@@ -6,14 +6,12 @@ export default function AppPage({ children, className = '' }: { children: ReactN
 
   return (
     <div
-      className={`${className} relative flex justify-center px-4 pt-[2rem] pb-[calc(2.5rem+8px+4rem)] overflow-hidden md:px-12`}
+      className={`${className} relative w-full max-w-[90rem] m-auto px-4 pt-[2rem] pb-[calc(2.5rem+8px+4rem)] overflow-hidden md:px-12`}
     >
-      <div className="w-full max-w-[90rem]">
-        <h2 className="block TYPO-H2 text-black text-left mb-8 dark:text-white" style={{ wordBreak: 'keep-all' }}>
-          {page?.showPageName && page?.pageName}
-        </h2>
-        {children}
-      </div>
+      <h2 className="block TYPO-H2 text-black text-left mb-8 dark:text-white" style={{ wordBreak: 'keep-all' }}>
+        {page?.showPageName && page?.pageName}
+      </h2>
+      {children}
     </div>
   )
 }

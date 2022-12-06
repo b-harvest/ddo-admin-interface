@@ -36,27 +36,25 @@ export default function SignIn() {
   }, [])
 
   return (
-    <AppPage className="flex px-8 pt-[20%]">
-      <div className="flex justify-center items-center">
-        <GlowingCard className="w-full md:w-[28rem]">
-          <div id={SIGN_IN_CARD_DOM_ID}>
-            <div className="flex flex-col justify-center items-center gap-4 text-center mb-10">
-              <Logo className="h-12 py-2" src={CRESCENT_LOGO_IMG_URL} />
-              <h2
-                className="inline-flex justify-start items-center TYPO-H2 md:TYPO-H2 dark:text-white"
-                style={{ wordBreak: 'keep-all' }}
-              >
-                Welcome back, <br />
-                are you Admin?
-              </h2>
-            </div>
-
-            <div className="w-full flex justify-center">
-              <GoogleLogInButton onComplete={goToHome} onFail={toast3rdPartyCookieAllow} />
-            </div>
+    <AppPage>
+      <GlowingCard className="w-full md:w-[28rem] mt-[20vh] m-auto">
+        <div id={SIGN_IN_CARD_DOM_ID}>
+          <div className="flex flex-col justify-center items-center gap-4 text-center mb-10">
+            <Logo className="h-12 py-2" src={CRESCENT_LOGO_IMG_URL} />
+            <h2
+              className="inline-flex justify-start items-center TYPO-H2 md:TYPO-H2 dark:text-white"
+              style={{ wordBreak: 'keep-all' }}
+            >
+              Welcome back, <br />
+              are you Admin?
+            </h2>
           </div>
-        </GlowingCard>
-      </div>
+
+          <div className="w-full flex justify-center">
+            <GoogleLogInButton onComplete={goToHome} onFail={toast3rdPartyCookieAllow} />
+          </div>
+        </div>
+      </GlowingCard>
     </AppPage>
   )
 }
