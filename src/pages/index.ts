@@ -42,12 +42,6 @@ export const pages: Page[] = [
     showPageName: true,
     nav: true,
   },
-  // {
-  //   path: '/dex',
-  //   label: 'DEX',
-  //   pageName: 'DEX Management',
-  //   nav: true,
-  // },
   {
     path: '/volume',
     label: 'Volume 24h',
@@ -83,6 +77,12 @@ export const pages: Page[] = [
     label: 'LSV Detail',
     pageName: 'LSV Detail',
     showPageName: false,
+  },
+  {
+    path: '/token-launch',
+    label: 'Token Launch',
+    pageName: 'Set Tokens',
+    showPageName: true,
   },
 ]
 

@@ -1,18 +1,16 @@
+import AppPage from 'components/AppPage'
+
 export default function TokenLaunch() {
   return (
-    <main className="undefined relative px-4 pt-[2rem] pb-[calc(2.5rem+8px+4rem)] overflow-hidden md:px-12">
-      <TokenLaunchSubTitle title={'Set Tokens'} />
+    <AppPage>
       <div className="flex space-x-3">
         <SetTokenCard tokenType="Base" info={{ ticker: 'bCRE', denom: 'bcre', precision: 6 }} />
         <SetTokenCard tokenType="Quote" info={{ ticker: 'BLD', denom: 'ibc/icecream', precision: 18 }} />
       </div>
-    </main>
+    </AppPage>
   )
 }
 
-const TokenLaunchSubTitle = ({ title }: { title: string }) => {
-  return <h2 className="block mb-8 text-left text-black TYPO-H2 dark:text-white">{title}</h2>
-}
 const SetTokenCard = ({
   tokenType,
   info,
