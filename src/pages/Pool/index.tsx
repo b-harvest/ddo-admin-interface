@@ -9,7 +9,7 @@ import PieChart from 'components/PieChart'
 import Range from 'components/Range'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
-import { INFO, PINK_CRE, WHITE } from 'constants/style'
+import { PINK_CRE, WHITE } from 'constants/style'
 import useChartData from 'hooks/useChartData'
 import usePool from 'hooks/usePool'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
@@ -22,7 +22,6 @@ import { formatUSDAmount } from 'utils/amount'
 
 enum FARMING_STATUS {
   Staked = 'Staked',
-  Queued = 'Queued',
   Unfarmed = 'Unfarmed',
 }
 
@@ -73,16 +72,10 @@ export default function Pool() {
   //   () => poolDetail?.totalStakedAmount.multipliedBy(poolDetail?.priceOracle ?? 0),
   //   [poolDetail]
   // )
-  // const farmQueueddUSD = useMemo<BigNumber | undefined>(
-  //   () => poolDetail?.totalQueuedAmount.multipliedBy(poolDetail?.priceOracle ?? 0),
-  //   [poolDetail]
-  // )
+
   const unfarmedUSD = useMemo<BigNumber | undefined>(() => {
     if (!poolDetail) return undefined
-    return poolDetail.totalSupplyAmount
-      .minus(poolDetail.totalStakedAmount)
-      .minus(poolDetail.totalQueuedAmount)
-      .multipliedBy(poolDetail.priceOracle)
+    return poolDetail.totalSupplyAmount.minus(poolDetail.totalStakedAmount).multipliedBy(poolDetail.priceOracle)
   }, [poolDetail])
 
   // const totalSupplyUSD = useMemo<BigNumber | undefined>(
@@ -94,19 +87,16 @@ export default function Pool() {
   const farmPieChartData = useMemo<PieChartEntry[]>(() => {
     if (!poolDetail) return []
     const staked = poolDetail.totalStakedAmount
-    const queued = poolDetail.totalQueuedAmount
-    const unfarmed = poolDetail.totalSupplyAmount.minus(staked).minus(queued)
+    const unfarmed = poolDetail.totalSupplyAmount.minus(staked)
 
     return [
       { type: 'Staked', value: staked.toNumber() },
-      { type: 'Queued', value: queued.toNumber() },
       { type: 'Unfarmed', value: unfarmed.toNumber() },
     ]
   }, [poolDetail])
 
   const farmChartColorMap = {
-    Staked: INFO,
-    Queued: PINK_CRE,
+    Staked: PINK_CRE,
     Unfarmed: WHITE,
   }
 
@@ -117,10 +107,8 @@ export default function Pool() {
     switch (farmStatusHover) {
       case FARMING_STATUS.Staked:
         return poolDetail.totalStakedAmount
-      case FARMING_STATUS.Queued:
-        return poolDetail.totalQueuedAmount
       case FARMING_STATUS.Unfarmed:
-        return poolDetail.totalSupplyAmount.minus(poolDetail.totalStakedAmount).minus(poolDetail.totalQueuedAmount)
+        return poolDetail.totalSupplyAmount.minus(poolDetail.totalStakedAmount)
       default:
         return poolDetail.totalStakedAmount
     }
@@ -216,14 +204,6 @@ export default function Pool() {
                     <div className="flex items-center gap-x-3 FONT-MONO">
                       {formatUSDAmount({ value: poolDetail.farmStakedUSD, mantissa: 2 })}
                       <Tag status="info">{poolDetail.farmStakedRate}%</Tag>
-                    </div>
-                  </Indicator>
-                </Card>
-                <Card useGlassEffect={true} className={`grow shrink basis-[30%]`}>
-                  <Indicator title="Queued" light={true} className="TYPO-BODY-L !font-bold">
-                    <div className="flex items-center gap-x-3 FONT-MONO">
-                      {formatUSDAmount({ value: poolDetail.farmQueuedUSD, mantissa: 2 })}
-                      <Tag status="pink">{poolDetail.farmQueuedRate}%</Tag>
                     </div>
                   </Indicator>
                 </Card>

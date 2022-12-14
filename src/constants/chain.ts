@@ -3,7 +3,7 @@ export const TESTNET_CHAIN_NAME = 'mooncat'
 
 export enum CHAIN_IDS {
   MAINNET = 'crescent-1',
-  MOONCAT = 'mooncat-1-1',
+  MOONCAT = 'mooncat-2-external',
 }
 
 export const CHAIN_NAMES_MAP = {

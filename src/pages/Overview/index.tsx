@@ -1,5 +1,6 @@
 import AppPage from 'components/AppPage'
 import TableList from 'components/TableList'
+import { TokenTypes } from 'constants/asset'
 import useAsset from 'hooks/useAsset'
 import useChartData from 'hooks/useChartData'
 import usePair from 'hooks/usePair'
@@ -19,12 +20,16 @@ import VolumeChart from '../components/VolumeChart'
 // filtering
 const TOKEN_TABLE_FILTERS = [
   {
-    value: 'loop-non',
     label: 'Non-pool',
+    value: TokenTypes.NORMAL,
   },
   {
-    value: 'loop',
     label: 'Pool Token',
+    value: TokenTypes.POOL,
+  },
+  {
+    label: 'LF Token',
+    value: TokenTypes.LF,
   },
 ]
 
@@ -68,13 +73,12 @@ export default function Overview() {
         const priceOracle = item.isPoolToken ? poolDetail?.priceOracle : item.live?.priceOracle
 
         const farmStakedUSD = poolDetail?.totalStakedAmount.multipliedBy(priceOracle ?? 0)
-        const farmQueuedUSD = poolDetail?.totalQueuedAmount.multipliedBy(priceOracle ?? 0)
         const totalSupplyUSD = poolDetail?.totalSupplyAmount.multipliedBy(priceOracle ?? 0)
 
         const vol24USD = getVol24USDbyDenom(item.denom)
-        const tvlUSD = item.isPoolToken ? farmStakedUSD?.plus(farmQueuedUSD ?? 0) : getTVLUSDbyDenom(item.denom)
+        const tvlUSD = item.isPoolToken ? farmStakedUSD : getTVLUSDbyDenom(item.denom)
 
-        const filter = [item.denom.includes('pool') ? TOKEN_TABLE_FILTERS[1].value : TOKEN_TABLE_FILTERS[0].value]
+        const filter = [TOKEN_TABLE_FILTERS.map((f) => f.value).find((value) => value === item.tokenType)]
 
         return {
           ...item,
@@ -83,7 +87,6 @@ export default function Overview() {
           vol24USD,
           tvlUSD,
           farmStakedUSD,
-          farmQueuedUSD,
           totalSupplyUSD,
           filter,
         }
@@ -99,12 +102,8 @@ export default function Overview() {
     const tooltip = row.isPoolToken ? (
       <>
         <div className="flex justify-between items-center gap-x-4">
-          <span>Farm staked</span>{' '}
+          <span>Farmed</span>{' '}
           <span className="FONT-MONO">{formatUSDAmount({ value: row.farmStakedUSD, mantissa: 2 })}</span>
-        </div>
-        <div className="flex justify-between items-center gap-x-4">
-          <span>Queued</span>
-          <span className="FONT-MONO">{formatUSDAmount({ value: row.farmQueuedUSD, mantissa: 2 })}</span>
         </div>
       </>
     ) : undefined

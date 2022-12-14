@@ -37,10 +37,8 @@ export default function Token() {
     const tvlUSD = getTVLUSDbyDenom(asset.denom)
 
     const farmStakedUSD = poolDetail?.farmStakedUSD
-    const farmQueuedUSD = poolDetail?.farmQueuedUSD
     const totalSupplyUSD = poolDetail?.totalSupplyUSD
     const farmStakedRate = poolDetail?.farmStakedRate
-    const farmQueuedRate = poolDetail?.farmQueuedRate
     const unfarmedRate = poolDetail?.unfarmedRate
 
     return {
@@ -49,10 +47,8 @@ export default function Token() {
       vol24USD,
       tvlUSD,
       farmStakedUSD,
-      farmQueuedUSD,
       totalSupplyUSD,
       farmStakedRate,
-      farmQueuedRate,
       unfarmedRate,
     }
   }, [asset, findPoolByDenom, getTVLUSDbyDenom, getVol24USDbyDenom])
@@ -96,14 +92,6 @@ export default function Token() {
                     <div className="flex items-center gap-x-3 FONT-MONO">
                       {formatUSDAmount({ value: assetDetail.farmStakedUSD, mantissa: 2 })}
                       <Tag status="info">{assetDetail.farmStakedRate}%</Tag>
-                    </div>
-                  </Indicator>
-                </Card>
-                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
-                  <Indicator title="Total value queued" light={true} className="TYPO-BODY-L !font-bold">
-                    <div className="flex items-center gap-x-3 FONT-MONO">
-                      {formatUSDAmount({ value: assetDetail.farmQueuedUSD, mantissa: 2 })}
-                      <Tag status="pink">{assetDetail.farmQueuedRate}%</Tag>
                     </div>
                   </Indicator>
                 </Card>

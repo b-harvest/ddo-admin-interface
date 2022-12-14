@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
-import { useAirdropClaim, useFarmStaked } from 'data/useAPI'
+import { useAirdropClaim, useLpFarmStaking } from 'data/useAPI'
 import { useBalance } from 'data/useAPI'
-import { useAirdropClaimLCD, useAllFarmRewardsLCD, useFarmPositionLCD, useFarmStakedLCD } from 'data/useLCD'
+import { useAirdropClaimLCD, useAllLpFarmPositionLCD, useAllLpFarmRewardsLCD } from 'data/useLCD'
 import { useBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useCallback, useMemo } from 'react'
@@ -13,16 +13,11 @@ import type {
   Balance,
   BalanceLCDRaw,
   BalanceRaw,
-  FarmPositionLCDRaw,
-  FarmRewardLCDMainnetRaw,
-  FarmRewardsLCDRaw,
-  HarvestableStaked,
-  HarvestableStakedRaw,
-  Staked,
-  StakedByPoolLCD,
-  StakedLCDMainnetRaw,
-  StakedLCDRaw,
-  StakedRaw,
+  LpFarmPositionsLCDRaw,
+  LpFarmRewardRaw,
+  LpFarmRewardsLCDRaw,
+  LpFarmStaking,
+  LpFarmStakingRaw,
   TokenAmountSet,
   TokenAmountSetRaw,
 } from 'types/account'
@@ -86,83 +81,19 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     [allBalanceLCDData, getBigNumberedAmountSet]
   )
 
-  // * staked amount
-  const { data: allStakedData, isLoading: allStakedDataLoading }: APIHookReturn<StakedRaw[]> = useFarmStaked(
-    {
-      address,
-    },
-    interval
-  )
-
-  const {
-    data: allStakedLCDData,
-    isLoading: allStakedLCDDataLoading,
-  }: LCDHookReturn<StakedLCDMainnetRaw | StakedLCDRaw> = useFarmStakedLCD(
-    {
-      address,
-    },
-    interval
-  )
-
-  const { data: farmPositionLCDData, isLoading: farmPositionLCDDataLoading }: LCDHookReturn<FarmPositionLCDRaw> =
-    useFarmPositionLCD(
+  /** @summary replace above from v3 */
+  const { data: allLpFarmStakingData, isLoading: allLpFarmStakingDataLoading }: APIHookReturn<LpFarmStakingRaw[]> =
+    useLpFarmStaking(
       {
         address,
       },
       interval
     )
 
-  // backend
-  const allStakedDataTimestamp = useMemo(() => (allStakedData?.curTimestamp ?? 0) * 1000, [allStakedData])
-
-  const allStaked = useMemo(() => {
-    return (
-      (allStakedData?.data.map((item) => {
-        const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
-
-        return {
-          ...item,
-          queuedAmount: new BigNumber(item.queuedAmount).dividedBy(10 ** exponent),
-          stakedAmount: new BigNumber(item.stakedAmount).dividedBy(10 ** exponent),
-          harvestable: item.harvestable.map((har: HarvestableStakedRaw) => {
-            const rewardExponent = findAssetByDenom(har.rewardDenom)?.exponent ?? 0
-
-            return {
-              rewardDenom: har.rewardDenom,
-              rewardAmount: new BigNumber(har.rewardAmount).dividedBy(10 ** rewardExponent),
-            } as HarvestableStaked
-          }),
-        }
-      }) as Staked[]) ?? ([] as Staked[])
-    )
-  }, [allStakedData, findAssetByDenom])
-
-  // onchain
-  const allStakedLCD = useMemo(() => {
-    return (
-      ((allStakedLCDData as StakedLCDRaw)?.stakings.map((item) => {
-        const exponent = findAssetByDenom(item.staking_coin_denom)?.exponent ?? 0
-        return { denom: item.staking_coin_denom, amount: new BigNumber(item.amount).dividedBy(10 ** exponent) }
-      }) as StakedByPoolLCD[]) ?? []
-    )
-  }, [allStakedLCDData, findAssetByDenom])
-
-  const farmPositionLCD = useMemo(() => {
-    const staked_coins = farmPositionLCDData?.staked_coins.map(getBigNumberedAmountSet) ?? []
-    const queued_coins = farmPositionLCDData?.queued_coins.map(getBigNumberedAmountSet) ?? []
-    const rewards = farmPositionLCDData?.rewards.map(getBigNumberedAmountSet) ?? []
-    return {
-      staked_coins,
-      queued_coins,
-      rewards,
-    }
-  }, [farmPositionLCDData, getBigNumberedAmountSet])
-
-  // * rewards by pool
   const {
-    data: allFarmRewardsLCDData,
-    isLoading: allFarmRewardsLCDDataLoading,
-  }: LCDHookReturn<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> = useAllFarmRewardsLCD(
+    data: allLpFarmPositionsLCDData,
+    isLoading: allLpFarmPositionsLCDDataLoading,
+  }: LCDHookReturn<LpFarmPositionsLCDRaw> = useAllLpFarmPositionLCD(
     {
       address,
     },
@@ -170,11 +101,57 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   )
 
   // backend
-  const allFarmRewardsDataTimestamp = allStakedDataTimestamp
+  const allLpFarmStakingDataTimestamp = useMemo(
+    () => (allLpFarmStakingData?.curTimestamp ?? 0) * 1000,
+    [allLpFarmStakingData]
+  )
+
+  const allLpFarmStaking = useMemo<LpFarmStaking[]>(() => {
+    return (
+      allLpFarmStakingData?.data.map((item) => {
+        const exponent = findAssetByDenom(item.denom)?.exponent ?? 0
+
+        return {
+          denom: item.denom,
+          stakedAmount: new BigNumber(item.stakedAmount).dividedBy(10 ** exponent),
+          harvestable: item.harvestable.map((har: LpFarmRewardRaw) => {
+            const rewardExponent = findAssetByDenom(har.rewardDenom)?.exponent ?? 0
+            return {
+              rewardDenom: har.rewardDenom,
+              rewardAmount: new BigNumber(har.rewardAmount).dividedBy(10 ** rewardExponent),
+            }
+          }),
+        }
+      }) ?? []
+    )
+  }, [allLpFarmStakingData, findAssetByDenom])
+
+  // onchain
+  const allLpFarmPositionsLCD = useMemo<TokenAmountSet[]>(
+    () =>
+      allLpFarmPositionsLCDData?.positions.map((item) =>
+        getBigNumberedAmountSet({ denom: item.denom, amount: item.farming_amount })
+      ) ?? [],
+    [allLpFarmPositionsLCDData?.positions, getBigNumberedAmountSet]
+  )
+
+  // * rewards by pool
+  const {
+    data: allLpFarmRewardsLCDData,
+    isLoading: allLpFarmRewardsLCDDataLoading,
+  }: LCDHookReturn<LpFarmRewardsLCDRaw> = useAllLpFarmRewardsLCD(
+    {
+      address,
+    },
+    interval
+  )
+
+  // backend
+  const allFarmRewardsDataTimestamp = allLpFarmStakingDataTimestamp
 
   const allFarmRewardsByToken = useMemo(() => {
     const allRewards =
-      allStaked?.reduce((accm: (TokenAmountSet & { poolDenom: string })[], pool) => {
+      allLpFarmStaking?.reduce((accm: (TokenAmountSet & { poolDenom: string })[], pool) => {
         return accm.concat(
           pool.harvestable?.map((item) => ({
             poolDenom: pool.denom,
@@ -185,32 +162,24 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
       }, []) ?? []
 
     return getTokenWideFarmRewards(allRewards)
-  }, [allStaked])
+  }, [allLpFarmStaking])
 
   // onchain
-  const allFarmRewardsByTokenLCD = useMemo(() => {
-    // if (isOnTestnet) {
-    const allRewards =
-      (allFarmRewardsLCDData as FarmRewardsLCDRaw)?.rewards.reduce(
-        (accm: (TokenAmountSet & { poolDenom: string })[], item) => {
-          const rewards = item.rewards.map((re) => {
-            const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
-            return {
-              poolDenom: item.staking_coin_denom,
-              denom: re.denom,
-              amount: new BigNumber(re.amount).dividedBy(10 ** exponent),
-            }
-          })
-          return accm.concat(rewards)
-        },
-        []
-      ) ?? []
-    return getTokenWideFarmRewards(allRewards)
-  }, [
-    // isOnTestnet,
-    allFarmRewardsLCDData,
-    findAssetByDenom,
-  ])
+  // const allFarmRewardsByTokenLCD = useMemo(() => {
+  //   const allRewards =
+  //     allLpFarmRewardsLCDData?.rewards.reduce((accm: (TokenAmountSet & { poolDenom: undefined })[], item) => {
+  //       const rewards = item.rewards.map((re) => {
+  //         const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
+  //         return {
+  //           poolDenom: undefined,
+  //           denom: re.denom,
+  //           amount: new BigNumber(re.amount).dividedBy(10 ** exponent),
+  //         }
+  //       })
+  //       return accm.concat(rewards)
+  //     }, []) ?? []
+  //   return getTokenWideFarmRewards(allRewards)
+  // }, [allLpFarmRewardsLCDData, findAssetByDenom])
 
   // * airdrop claim
   const { data: airdropClaimData, isLoading: airdropClaimDataLoading }: APIHookReturn<AirdropClaimRaw> =
@@ -265,21 +234,19 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
       address.length > 0 &&
       (allBalanceDataLoading ||
         allBalanceLCDDataLoading ||
-        allStakedDataLoading ||
-        allStakedLCDDataLoading ||
-        farmPositionLCDDataLoading ||
-        allFarmRewardsLCDDataLoading ||
-        allFarmRewardsLCDDataLoading ||
+        allLpFarmStakingDataLoading ||
+        allLpFarmPositionsLCDDataLoading ||
+        allLpFarmRewardsLCDDataLoading ||
+        allLpFarmRewardsLCDDataLoading ||
         airdropClaimDataLoading ||
         airdropClaimLCDDataLoading),
     [
       address,
       allBalanceDataLoading,
       allBalanceLCDDataLoading,
-      allStakedDataLoading,
-      allStakedLCDDataLoading,
-      farmPositionLCDDataLoading,
-      allFarmRewardsLCDDataLoading,
+      allLpFarmStakingDataLoading,
+      allLpFarmPositionsLCDDataLoading,
+      allLpFarmRewardsLCDDataLoading,
       airdropClaimDataLoading,
       airdropClaimLCDDataLoading,
     ]
@@ -289,13 +256,12 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     allBalanceTimestamp,
     allBalance,
     allBalanceLCD,
-    farmPositionLCD,
-    allStakedDataTimestamp,
-    allStaked,
-    allStakedLCD,
+    allLpFarmPositionsLCD,
+    allLpFarmStakingDataTimestamp,
+    allLpFarmStaking,
     allFarmRewardsDataTimestamp,
     allFarmRewardsByToken,
-    allFarmRewardsByTokenLCD,
+    // allFarmRewardsByTokenLCD,
     airdropClaimDataTimestamp,
     airdropClaim,
     airdropClaimLCD,

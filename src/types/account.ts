@@ -1,6 +1,11 @@
 import BigNumber from 'bignumber.js'
 
 // * common subset for LCD response
+export interface Pagination {
+  next_key: any
+  total: string
+}
+
 export interface TokenAmountSetRaw {
   readonly denom: string
   readonly amount: string
@@ -17,7 +22,7 @@ export type TokenAmountSet = Omit<TokenAmountSetRaw, 'amount'> & {
 // rpc rest
 export interface BalanceLCDRaw {
   readonly balances: TokenAmountSetRaw[]
-  pagination: { next_key: any; total: string }
+  pagination: Pagination
 }
 
 // backend
@@ -55,24 +60,29 @@ export type StakedByPoolLCD = Omit<StakedByPoolLCDRaw, 'staking_coin_denom' | 'a
 
 export interface StakedLCDRaw {
   readonly stakings: StakedByPoolLCDRaw[]
-  pagination: { next_key: any; total: string }
+  pagination: Pagination
 }
 
 export type StakedLCD = { readonly stakings: StakedByPoolLCD[] }
 
 // backend
-export interface HarvestableStakedRaw {
+export interface LpFarmRewardRaw {
   rewardDenom: string
   rewardAmount: number
 }
 
-export type HarvestableStaked = Omit<HarvestableStakedRaw, 'rewardAmount'> & { rewardAmount: BigNumber }
+export interface LpFarmReward {
+  rewardDenom: string
+  rewardAmount: BigNumber
+}
+
+export type HarvestableStaked = Omit<LpFarmRewardRaw, 'rewardAmount'> & { rewardAmount: BigNumber }
 
 export interface StakedRaw {
   readonly denom: string
   readonly queuedAmount: string
   readonly stakedAmount: string
-  readonly harvestable: HarvestableStakedRaw[]
+  readonly harvestable: LpFarmRewardRaw[]
   readonly unharvest: any[]
 }
 
@@ -89,12 +99,37 @@ export interface FarmPositionLCDRaw {
   readonly rewards: TokenAmountSetRaw[]
 }
 
+/** @summary replace above from v3 */
+export interface LpFarmStakingRaw {
+  readonly denom: string
+  readonly stakedAmount: string
+  readonly harvestable: LpFarmRewardRaw[]
+}
+
+export type LpFarmStaking = Omit<LpFarmStakingRaw, 'stakedAmount' | 'harvestable'> & {
+  readonly stakedAmount: BigNumber
+  readonly harvestable: LpFarmReward[]
+}
+
+export interface LpFarmPositionLCDRaw {
+  readonly farmer: string
+  readonly denom: string
+  readonly farming_amount: string
+  readonly previous_period: string
+  readonly starting_block_height: string
+}
+
+export interface LpFarmPositionsLCDRaw {
+  positions: LpFarmPositionLCDRaw[]
+  pagination: Pagination
+}
+
 // * farm reward
 // mainnet rpc
-export interface FarmRewardLCDMainnetRaw {
+export interface LpFarmRewardsLCDRaw {
   readonly rewards: TokenAmountSetRaw[]
 }
-export type FarmRewardLCDMainnet = Omit<FarmRewardLCDMainnetRaw, 'rewards'> & {
+export type FarmRewardLCDMainnet = Omit<LpFarmRewardsLCDRaw, 'rewards'> & {
   readonly rewards: TokenAmountSet[]
 }
 
@@ -104,12 +139,7 @@ export interface FarmRewardLCDRaw {
   readonly rewards: TokenAmountSetRaw[]
 }
 
-export interface FarmRewardsLCDRaw {
-  pagination: { next_key: any; total: string }
-  readonly rewards: FarmRewardLCDRaw[]
-}
-
-export type FarmRewardsLCD = {
+export type LpFarmRewardsLCD = {
   readonly rewards: TokenAmountSet[]
 }
 

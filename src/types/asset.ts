@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { TokenTypes } from 'constants/asset'
 
 // info
 export interface AssetInfoRaw {
@@ -9,6 +10,7 @@ export interface AssetInfoRaw {
   readonly baseDenom: string
   readonly chainId: string
   readonly exponent: number
+  readonly chains?: string
 }
 
 export type AssetInfo = AssetInfoRaw
@@ -28,6 +30,7 @@ export type AssetLive = Omit<AssetLiveRaw, 'priceOracle'> & {
 export type Asset = AssetInfo & {
   live?: Omit<AssetLive, 'denom'>
   isPoolToken: boolean
+  tokenType: TokenTypes
 }
 
 // util type
@@ -41,9 +44,7 @@ export interface AssetDetail extends Asset {
   vol24USD: BigNumber | undefined
   tvlUSD: BigNumber | undefined
   farmStakedUSD: BigNumber | undefined
-  farmQueuedUSD: BigNumber | undefined
   totalSupplyUSD: BigNumber | undefined
   farmStakedRate?: number
-  farmQueuedRate?: number
   unfarmedRate?: number
 }

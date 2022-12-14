@@ -5,7 +5,7 @@ import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allPoolLiveAtomRef } from 'state/atoms'
 import type { Asset, AssetTicker } from 'types/asset'
-import type { PoolDetail, PoolLive } from 'types/pool'
+import type { PoolDetail, PoolLive, ReservedToken } from 'types/pool'
 
 import useAsset from './useAsset'
 import usePair from './usePair'
@@ -27,7 +27,6 @@ const usePool = () => {
       return {
         ...pool,
         totalStakedAmount: new BigNumber(pool.totalStakedAmount).div(10 ** POOL_TOKEN_EXPONENT),
-        totalQueuedAmount: new BigNumber(pool.totalQueuedAmount).div(10 ** POOL_TOKEN_EXPONENT),
         totalSupplyAmount: new BigNumber(pool.totalSupplyAmount).div(10 ** POOL_TOKEN_EXPONENT),
         priceOracle: new BigNumber(pool.priceOracle).multipliedBy(10 ** POOL_TOKEN_EXPONENT),
         // apr: new BigNumber(pool.apr),
@@ -54,13 +53,26 @@ const usePool = () => {
     return allPoolLive
       .map((pool) => {
         const pair = findPairById(pool.pairId)
+        if (pair === undefined) return undefined
 
-        const reserved = pool.reserved.sort((a, _) => (a.denom === pair?.baseDenom ? -1 : 1)) // base, quote
-        const base = reserved[0]
-        const quote = reserved[1]
+        /** @todo array length type guard */
+        const pairDenoms: [string, string] = [pair.baseDenom, pair.quoteDenom]
+        const poolReserves = pairDenoms.map<ReservedToken>((denom) => {
+          const reserve = pool.reserved.find((reserve) => reserve.denom === denom)
+          return (
+            reserve ?? {
+              denom,
+              amount: new BigNumber(0),
+              priceOracle: new BigNumber(0),
+            }
+          )
+        }) as [ReservedToken, ReservedToken]
 
-        const xRatio = base.amount.div(quote.amount)
-        const yRatio = quote.amount.div(base.amount)
+        const base = poolReserves[0]
+        const quote = poolReserves[1]
+
+        const xRatio = quote.amount.isZero() ? new BigNumber(1) : base.amount.div(quote.amount)
+        const yRatio = base.amount.isZero() ? new BigNumber(1) : quote.amount.div(base.amount)
 
         const tvlUSD = pool.reserved.reduce((accm, item) => {
           return accm.plus(item.amount.multipliedBy(item.priceOracle))
@@ -79,7 +91,6 @@ const usePool = () => {
           : new BigNumber(liquidStakeAPR)
 
         const farmStakedUSD = pool.totalStakedAmount.multipliedBy(pool.priceOracle)
-        const farmQueuedUSD = pool.totalQueuedAmount.multipliedBy(pool.priceOracle)
         const totalSupplyUSD = pool.totalSupplyAmount.multipliedBy(pool.priceOracle)
 
         const farmStakedRate = pool.totalStakedAmount
@@ -87,17 +98,12 @@ const usePool = () => {
           .multipliedBy(100)
           .dp(1, BigNumber.ROUND_HALF_UP)
           .toNumber()
-        const farmQueuedRate = pool.totalQueuedAmount
-          .div(pool.totalSupplyAmount)
-          .multipliedBy(100)
-          .dp(1, BigNumber.ROUND_HALF_UP)
-          .toNumber()
-        const unfarmedRate = 100 - (farmStakedRate + farmQueuedRate)
+        const unfarmedRate = 100 - farmStakedRate
 
         return {
           ...pool,
           pair,
-          reserved,
+          poolReserves,
           xRatio,
           yRatio,
           tvlUSD,
@@ -105,10 +111,8 @@ const usePool = () => {
           bcreUSDRatio,
           bcreApr,
           farmStakedUSD,
-          farmQueuedUSD,
           totalSupplyUSD,
           farmStakedRate,
-          farmQueuedRate,
           unfarmedRate,
         }
       })
@@ -140,7 +144,7 @@ const usePool = () => {
 
 export default usePool
 
-// type guard
-function isPoolDetail(pool: PoolDetail | any): pool is PoolDetail {
-  return !!pool.pair
+/** @summary type guard */
+function isPoolDetail(pool: PoolDetail | undefined): pool is PoolDetail {
+  return !!pool
 }

@@ -35,9 +35,15 @@ export const authTokenAtomRef = atom(
 
 // chaiIdAtom (persisting in localStorage)
 export type ChainId = CHAIN_IDS
-const LOCAL_STORAGE_KEY_CHAIN_ID = `chain-id`
+export const LOCAL_STORAGE_KEY_CHAIN_ID = `chain-id`
 
-const chaiIdAtom = atom<ChainId>((localStorage.getItem(LOCAL_STORAGE_KEY_CHAIN_ID) as CHAIN_IDS) ?? CHAIN_IDS.MAINNET)
+const isValidChainId = (Object.values(CHAIN_IDS) as string[]).includes(
+  localStorage.getItem(LOCAL_STORAGE_KEY_CHAIN_ID) ?? ''
+)
+
+const chaiIdAtom = atom<ChainId>(
+  isValidChainId ? (localStorage.getItem(LOCAL_STORAGE_KEY_CHAIN_ID) as CHAIN_IDS) : CHAIN_IDS.MAINNET
+)
 export const chainIdAtomRef = atom(
   (get) => get(chaiIdAtom),
   (_, set, { chainId }: { chainId: ChainId }) => {

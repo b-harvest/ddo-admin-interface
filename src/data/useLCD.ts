@@ -1,15 +1,7 @@
 import useAppSWR from 'data/useAppSWR'
 import useCosmosSWR from 'data/useCosmosSWR'
 import { lcdReturnGenerator } from 'data/utils'
-import type {
-  AirdropClaimLCDRaw,
-  BalanceLCDRaw,
-  FarmPositionLCDRaw,
-  FarmRewardLCDMainnetRaw,
-  FarmRewardsLCDRaw,
-  StakedLCDMainnetRaw,
-  StakedLCDRaw,
-} from 'types/account'
+import type { AirdropClaimLCDRaw, BalanceLCDRaw, LpFarmPositionsLCDRaw, LpFarmRewardsLCDRaw } from 'types/account'
 import type { LCDResponseViaSWR } from 'types/api'
 import type { BlockLCD } from 'types/block'
 import { OrderbooksByPairLCDRaw } from 'types/orderbook'
@@ -26,9 +18,46 @@ export function useBalanceLCD({ address }: { address: string }, interval = 0) {
   return lcdReturnGenerator({ data, error })
 }
 
-export function useAllFarmRewardsLCD({ address }: { address: string }, interval = 0) {
-  const { data, error }: LCDResponseViaSWR<FarmRewardLCDMainnetRaw | FarmRewardsLCDRaw> = useAppSWR(
-    `/crescent/farming/v1beta1/rewards/${address}`,
+// export function useAllFarmRewardsLCD({ address }: { address: string }, interval = 0) {
+//   const { data, error }: LCDResponseViaSWR<LpFarmRewardsLCD> = useAppSWR(
+//     `/crescent/farming/v1beta1/rewards/${address}`,
+//     {
+//       interval,
+//       type: 'rpc-rest',
+//       fetch: address.length > 0,
+//     }
+//   )
+//   return lcdReturnGenerator({ data, error })
+// }
+
+// export function useFarmStakedLCD({ address }: { address: string }, interval = 0) {
+//   const { data, error }: LCDResponseViaSWR<StakedLCDMainnetRaw | StakedLCDRaw> = useAppSWR(
+//     `/crescent/farming/v1beta1/stakings/${address}`,
+//     {
+//       interval,
+//       type: 'rpc-rest',
+//       fetch: address.length > 0,
+//     }
+//   )
+//   return lcdReturnGenerator({ data, error })
+// }
+
+// export function useFarmPositionLCD({ address }: { address: string }, interval = 0) {
+//   const { data, error }: LCDResponseViaSWR<FarmPositionLCDRaw> = useAppSWR(
+//     `/crescent/farming/v1beta1/positions/${address}`,
+//     {
+//       interval,
+//       type: 'rpc-rest',
+//       fetch: address.length > 0,
+//     }
+//   )
+//   return lcdReturnGenerator({ data, error })
+// }
+
+/** @summary replace above 3 api */
+export function useAllLpFarmRewardsLCD({ address }: { address: string }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<LpFarmRewardsLCDRaw> = useAppSWR(
+    `/crescent/lpfarm/v1beta1/rewards/${address}`,
     {
       interval,
       type: 'rpc-rest',
@@ -38,21 +67,9 @@ export function useAllFarmRewardsLCD({ address }: { address: string }, interval 
   return lcdReturnGenerator({ data, error })
 }
 
-export function useFarmStakedLCD({ address }: { address: string }, interval = 0) {
-  const { data, error }: LCDResponseViaSWR<StakedLCDMainnetRaw | StakedLCDRaw> = useAppSWR(
-    `/crescent/farming/v1beta1/stakings/${address}`,
-    {
-      interval,
-      type: 'rpc-rest',
-      fetch: address.length > 0,
-    }
-  )
-  return lcdReturnGenerator({ data, error })
-}
-
-export function useFarmPositionLCD({ address }: { address: string }, interval = 0) {
-  const { data, error }: LCDResponseViaSWR<FarmPositionLCDRaw> = useAppSWR(
-    `/crescent/farming/v1beta1/positions/${address}`,
+export function useAllLpFarmPositionLCD({ address }: { address: string }, interval = 0) {
+  const { data, error }: LCDResponseViaSWR<LpFarmPositionsLCDRaw> = useAppSWR(
+    `/crescent/lpfarm/v1beta1/positions/${address}`,
     {
       interval,
       type: 'rpc-rest',

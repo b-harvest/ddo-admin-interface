@@ -4,6 +4,7 @@ import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allAssetInfoAtomRef, allAssetLiveAtomRef } from 'state/atoms'
 import type { Asset, AssetLive } from 'types/asset'
+import { getTokenType } from 'utils/asset'
 
 const useAsset = () => {
   const [allAssetLiveAtom] = useAtom(allAssetLiveAtomRef)
@@ -19,7 +20,7 @@ const useAsset = () => {
     })) as AssetLive[]
   }, [allAssetLiveAtom])
 
-  const allAsset = useMemo(() => {
+  const allAsset = useMemo<Asset[]>(() => {
     return allAssetInfoAtom.map((assetInfo) => {
       const live = allAssetLive.find((item) => item.denom === assetInfo.denom)
 
@@ -28,8 +29,9 @@ const useAsset = () => {
         exponent: isPoolToken(assetInfo.denom) ? POOL_TOKEN_EXPONENT : assetInfo.exponent,
         live,
         isPoolToken: isPoolToken(assetInfo.denom),
+        tokenType: getTokenType(assetInfo),
       }
-    }) as Asset[]
+    })
   }, [allAssetInfoAtom, allAssetLive, isPoolToken])
 
   const findAssetByDenom = useCallback(

@@ -20,7 +20,6 @@ export interface PoolLiveRaw {
   poolDenom: string
   pairId: number
   totalStakedAmount: string
-  totalQueuedAmount: string
   totalSupplyAmount: string
   priceOracle: number
   apr: number
@@ -43,7 +42,6 @@ export type ReservedToken = Pick<ReservedTokenRaw, 'denom'> & {
 
 export type PoolLive = Pick<PoolLiveRaw, 'poolId' | 'poolDenom' | 'pairId' | 'poolType' | 'apr'> & {
   totalStakedAmount: BigNumber
-  totalQueuedAmount: BigNumber
   totalSupplyAmount: BigNumber
   priceOracle: BigNumber
   minPrice: BigNumber
@@ -56,6 +54,7 @@ export type PoolLive = Pick<PoolLiveRaw, 'poolId' | 'poolDenom' | 'pairId' | 'po
 
 export interface PoolDetail extends PoolLive {
   pair: PairDetail
+  poolReserves: [ReservedToken, ReservedToken]
   xRatio: BigNumber
   yRatio: BigNumber
   tvlUSD: BigNumber
@@ -63,9 +62,7 @@ export interface PoolDetail extends PoolLive {
   bcreUSDRatio: BigNumber
   bcreApr: BigNumber
   farmStakedUSD: BigNumber
-  farmQueuedUSD: BigNumber
   totalSupplyUSD: BigNumber
   farmStakedRate: number
-  farmQueuedRate: number
   unfarmedRate: number
 }
