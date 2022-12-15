@@ -32,16 +32,15 @@ export default function PoolsTable({
 
   // All pools
   const poolTableList = useMemo<PoolTableItem[]>(() => {
-    const denom = byAsset?.denom
     const pairId = byPair?.pairId
 
     return allPools
       .filter(
         (pool) =>
-          !denom ||
-          (byAsset?.isPoolToken
-            ? pool.poolDenom === denom
-            : [pool.pair.baseDenom, pool.pair.quoteDenom].includes(denom))
+          byAsset === undefined ||
+          (byAsset.originPoolDenom
+            ? pool.poolDenom === byAsset.originPoolDenom
+            : [pool.pair.baseDenom, pool.pair.quoteDenom].includes(byAsset.denom))
       )
       .filter((pool) => !pairId || pool.pairId === pairId)
       .map((pool) => {

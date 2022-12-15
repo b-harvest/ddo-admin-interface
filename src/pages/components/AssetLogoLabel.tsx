@@ -1,3 +1,4 @@
+import { TokenTypes } from 'constants/asset'
 import type { AssetTicker } from 'types/asset'
 
 type AssetLogoLabelTextSize = 'sm' | 'md' | 'lg'
@@ -9,6 +10,7 @@ interface AssetLogoLabelProps {
   hideTicker?: boolean
   nowrap?: boolean
   textSize?: AssetLogoLabelTextSize
+  tokenType?: TokenTypes
 }
 
 export default function AssetLogoLabel({
@@ -18,8 +20,12 @@ export default function AssetLogoLabel({
   hideTicker = false,
   nowrap = false,
   textSize = 'sm',
+  tokenType,
 }: AssetLogoLabelProps) {
-  const title = assets.reduce((accm, asset) => `${accm}${accm.length ? '/' : ''}${asset.ticker}`, '')
+  const title =
+    assets.length > 0 ? assets.reduce((accm, asset) => `${accm}${accm.length ? '/' : ''}${asset.ticker}`, '') : '-'
+
+  const isLFToken = tokenType === TokenTypes.LF
 
   return (
     <div
@@ -28,7 +34,14 @@ export default function AssetLogoLabel({
       } md:flex-row justify-start md:items-center md:space-y-0 md:space-x-2 text-black dark:text-white`}
       title={title}
     >
-      <div className={`flex justify-start items-center ${isSingleAssetAutoSpaced || hideTicker ? 'w-fit' : 'w-12'}`}>
+      <div
+        className={`flex justify-start items-center rounded-full overflow-hidden ${
+          isSingleAssetAutoSpaced || hideTicker ? 'w-fit' : 'w-12'
+        } ${isLFToken && assets.length === 2 ? 'bg-LF p-[1px]' : ''}`}
+      >
+        {assets.length < 1 && (
+          <div className="w-6 h-6 rounded-full overflow-hidden bg-grayCRE-50 dark:bg-neutral-900"></div>
+        )}
         {assets.map((asset) => (
           <div key={asset.ticker} className="flex justify-center items-center w-6 h-6 rounded-full overflow-hidden">
             <img src={asset.logoUrl} alt={asset.ticker} className="w-full object-contain"></img>

@@ -28,16 +28,15 @@ export default function PairsTable({
   const { allPair } = usePair()
 
   const pairTableList = useMemo<(PairDetail & PairAdditional)[]>(() => {
-    const denom = byAsset?.denom
     const pairId = byPool?.pairId
 
     return allPair
       .filter(
         (pair) =>
-          !denom ||
-          (byAsset?.isPoolToken
-            ? pair.pools.map((pool) => pool.poolDenom).includes(denom)
-            : [pair.baseDenom, pair.quoteDenom].includes(denom))
+          byAsset === undefined ||
+          (byAsset.originPoolDenom
+            ? pair.pools.map((pool) => pool.poolDenom).includes(byAsset.originPoolDenom)
+            : [pair.baseDenom, pair.quoteDenom].includes(byAsset.denom ?? ''))
       )
       .filter((pair) => !pairId || pair.pairId === pairId)
       .map((pair) => {

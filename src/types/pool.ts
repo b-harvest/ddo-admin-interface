@@ -65,4 +65,5 @@ export interface PoolDetail extends PoolLive {
   totalSupplyUSD: BigNumber
   farmStakedRate: number
   unfarmedRate: number
+  poolTokenExponent: number
 }

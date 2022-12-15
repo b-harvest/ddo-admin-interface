@@ -3,6 +3,7 @@ import TableList from 'components/TableList'
 import { TokenTypes } from 'constants/asset'
 import useAsset from 'hooks/useAsset'
 import useChartData from 'hooks/useChartData'
+import useLiquidFarm from 'hooks/useLiquidFarm'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
@@ -58,25 +59,31 @@ export default function Overview() {
   const { allAsset } = useAsset()
   const { findPoolFromPairsByDenom, getTVLUSDbyDenom, getVol24USDbyDenom } = usePair()
   const { findPoolByDenom, getAssetTickers } = usePool()
+  const { findLiquidFarmByDenom } = useLiquidFarm()
 
   // Charts
   const { tvlUSDChartData, volUSDChartData, tvlUSDDataLoading, volUSDDataLoading } = useChartData()
   const { routeTVLByTime, routeVolumeByTime } = usePages()
 
-  // All Tokens
+  /** @todo move to useAsset hook; be cautious about infinite calling loop b/w hooks */
   const tokenTableList = useMemo<AssetDetail[]>(() => {
     return allAsset
       .filter((item) => (item.isPoolToken ? findPoolFromPairsByDenom(item.denom) : true))
       .map((item) => {
-        const asset = AssetLogoLabel({ assets: getAssetTickers(item) })
+        const asset = AssetLogoLabel({ assets: getAssetTickers(item), tokenType: item.tokenType })
         const poolDetail = findPoolByDenom(item.denom)
-        const priceOracle = item.isPoolToken ? poolDetail?.priceOracle : item.live?.priceOracle
+        const priceOracle =
+          item.tokenType === TokenTypes.POOL
+            ? poolDetail?.priceOracle
+            : item.tokenType === TokenTypes.LF
+            ? findLiquidFarmByDenom(item.denom)?.priceOracle
+            : item.live?.priceOracle
 
         const farmStakedUSD = poolDetail?.totalStakedAmount.multipliedBy(priceOracle ?? 0)
         const totalSupplyUSD = poolDetail?.totalSupplyAmount.multipliedBy(priceOracle ?? 0)
 
         const vol24USD = getVol24USDbyDenom(item.denom)
-        const tvlUSD = item.isPoolToken ? farmStakedUSD : getTVLUSDbyDenom(item.denom)
+        const tvlUSD = item.tokenType === TokenTypes.POOL ? farmStakedUSD : getTVLUSDbyDenom(item.denom)
 
         const matchedFilterValue =
           item.tokenType === TokenTypes.NATIVE
@@ -95,7 +102,15 @@ export default function Overview() {
           filter,
         }
       })
-  }, [findPoolFromPairsByDenom, allAsset, getTVLUSDbyDenom, getVol24USDbyDenom, findPoolByDenom, getAssetTickers])
+  }, [
+    findPoolFromPairsByDenom,
+    allAsset,
+    getTVLUSDbyDenom,
+    getVol24USDbyDenom,
+    findPoolByDenom,
+    getAssetTickers,
+    findLiquidFarmByDenom,
+  ])
 
   const handleTokenListRowClick = (row: AssetDetail) => {
     const denom = row.denom.split('/').join('-')

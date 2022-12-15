@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
-import { POOL_TOKEN_EXPONENT } from 'constants/asset'
+import { POOL_TOKEN_EXPONENT, TokenTypes } from 'constants/asset'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { allAssetInfoAtomRef, allAssetLiveAtomRef } from 'state/atoms'
 import type { Asset, AssetLive } from 'types/asset'
-import { getTokenType } from 'utils/asset'
+import { getOriginPoolDenom, getTokenType } from 'utils/asset'
 
 const useAsset = () => {
   const [allAssetLiveAtom] = useAtom(allAssetLiveAtomRef)
@@ -23,13 +23,16 @@ const useAsset = () => {
   const allAsset = useMemo<Asset[]>(() => {
     return allAssetInfoAtom.map((assetInfo) => {
       const live = allAssetLive.find((item) => item.denom === assetInfo.denom)
+      const tokenType = getTokenType(assetInfo)
+      const originPoolDenom = getOriginPoolDenom(assetInfo, tokenType)
 
       return {
         ...assetInfo,
         exponent: isPoolToken(assetInfo.denom) ? POOL_TOKEN_EXPONENT : assetInfo.exponent,
         live,
-        isPoolToken: isPoolToken(assetInfo.denom),
-        tokenType: getTokenType(assetInfo),
+        isPoolToken: tokenType === TokenTypes.POOL,
+        tokenType,
+        originPoolDenom,
       }
     })
   }, [allAssetInfoAtom, allAssetLive, isPoolToken])

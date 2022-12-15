@@ -31,6 +31,7 @@ export type Asset = AssetInfo & {
   live?: Omit<AssetLive, 'denom'>
   isPoolToken: boolean
   tokenType: TokenTypes
+  originPoolDenom: string | undefined
 }
 
 // util type

@@ -8,6 +8,7 @@ import {
   useAllPairInfo,
   useAllPairLive,
   useAllPoolLive,
+  useFetchAllLiquidFarmLive,
 } from 'data/useAPI'
 import { useBlockLCD } from 'data/useLCD'
 import { useAtom } from 'jotai'
@@ -17,6 +18,7 @@ import {
   allAssetLiveAtomRef,
   allChainInfoAtomRef,
   allChainLiveAtomRef,
+  allLiquidFarmLiveAtomRef,
   allPairInfoAtomRef,
   allPairLiveAtomRef,
   allPoolLiveAtomRef,
@@ -25,6 +27,7 @@ import {
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
 import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
 import type { BlockLCD, ChainInfo, ChainLive } from 'types/chain'
+import { LiquidFarmLiveRaw } from 'types/liquidFarm'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
@@ -60,6 +63,15 @@ export default function StateUpdater(): null {
   const [, setAllPoolLiveAtom] = useAtom(allPoolLiveAtomRef)
   const { data: allPoolLiveData, isLoading: allPoolLiveIsLoading }: APIHookReturn<PoolLiveRaw[]> =
     useAllPoolLive(COMMON_FETCHING_INTERVAL)
+
+  /** all liquidfarm live */
+  const [, setAllLiquidFarmLiveAtom] = useAtom(allLiquidFarmLiveAtomRef)
+  const { data: allLiquidFarmLiveData }: APIHookReturn<LiquidFarmLiveRaw[]> =
+    useFetchAllLiquidFarmLive(COMMON_FETCHING_INTERVAL)
+
+  useEffect(() => {
+    if (allLiquidFarmLiveData) setAllLiquidFarmLiveAtom(allLiquidFarmLiveData.data ?? [])
+  }, [allLiquidFarmLiveData, setAllLiquidFarmLiveAtom])
 
   useEffect(() => {
     if (allChainInfoData && allChainLiveData) {

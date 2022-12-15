@@ -99,6 +99,7 @@ const usePool = () => {
           .dp(1, BigNumber.ROUND_HALF_UP)
           .toNumber()
         const unfarmedRate = 100 - farmStakedRate
+        const poolTokenExponent = findAssetByDenom(pool.poolDenom)?.exponent ?? 12
 
         return {
           ...pool,
@@ -114,6 +115,7 @@ const usePool = () => {
           totalSupplyUSD,
           farmStakedRate,
           unfarmedRate,
+          poolTokenExponent,
         }
       })
       .filter(isPoolDetail)
@@ -122,9 +124,9 @@ const usePool = () => {
   const findPoolByDenom = useCallback((denom: string) => allPools.find((pool) => pool.poolDenom === denom), [allPools])
   const findPoolById = useCallback((poolId: number) => allPools.find((pool) => pool.poolId === poolId), [allPools])
 
-  const getPoolAssets = useCallback<(denom: string) => [AssetTicker, AssetTicker] | null>(
-    (denom: string) => {
-      const pool = findPoolByDenom(denom)
+  const getPairAssets = useCallback<(poolDenom: string) => [AssetTicker, AssetTicker] | null>(
+    (poolDenom: string) => {
+      const pool = findPoolByDenom(poolDenom)
       const base = pool?.pair.baseAsset
       const quote = pool?.pair.quoteAsset
       return base && quote ? [base, quote] : null
@@ -134,9 +136,11 @@ const usePool = () => {
 
   const getAssetTickers = useCallback<(item: Asset) => AssetTicker[]>(
     (item: Asset) => {
-      return item.isPoolToken ? getPoolAssets(item.denom) ?? [] : [{ logoUrl: item.logoUrl, ticker: item.ticker }]
+      return item.originPoolDenom
+        ? getPairAssets(item.originPoolDenom) ?? []
+        : [{ logoUrl: item.logoUrl, ticker: item.ticker }]
     },
-    [getPoolAssets]
+    [getPairAssets]
   )
 
   return { allPoolLive, allPools, findPoolByDenom, findPoolById, getAssetTickers }

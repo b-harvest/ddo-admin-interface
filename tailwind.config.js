@@ -36,6 +36,8 @@ module.exports = {
         'grayCRE-400-o': 'rgba(102, 102, 102, 0.3)',
         'grayCRE-500-o': 'rgba(51, 51, 51, 0.3)',
         'grayCRE-600-o': 'rgba(34, 34, 34, 0.3)',
+        // feature colors
+        LF: '#00ADF0',
         // semantic colors
         success: '#30B50A',
         'success-light': 'rgba(234, 250, 230, 1)',

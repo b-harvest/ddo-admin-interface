@@ -7,6 +7,7 @@ import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { BlockEventIndicatorsRaw, BlocksEventsRaw, BlocksFlushRaw } from 'types/block'
 import type { ChainInfo, ChainLive } from 'types/chain'
+import { LiquidFarmLiveRaw } from 'types/liquidFarm'
 import type { LiquidStakeRaw } from 'types/liquidStake'
 import type { LSVEventRaw, LSVRaw, LSVVoteRaw } from 'types/lsv'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
@@ -51,6 +52,11 @@ export function useAllPoolLive(interval = 0) {
 
 export function useAllStakeLive(interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<LiquidStakeRaw> = useAppSWR('/stake/live', { interval })
+  return returnGenerator({ data, error, mutate })
+}
+
+export function useFetchAllLiquidFarmLive(interval = 0) {
+  const { data, error, mutate }: ResponseViaSWR<LiquidFarmLiveRaw[]> = useAppSWR('/liquidfarm/live', { interval })
   return returnGenerator({ data, error, mutate })
 }
 

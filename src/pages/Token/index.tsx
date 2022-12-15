@@ -5,7 +5,9 @@ import ExplorerLink from 'components/ExplorerLink'
 import Indicator from 'components/Indicator'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
+import { TokenTypes } from 'constants/asset'
 import useAsset from 'hooks/useAsset'
+import useLiquidFarm from 'hooks/useLiquidFarm'
 import usePair from 'hooks/usePair'
 import usePool from 'hooks/usePool'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
@@ -14,7 +16,8 @@ import PoolsTable from 'pages/components/PoolsTable'
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import type { AssetDetail } from 'types/asset'
-import { formatUSDAmount } from 'utils/amount'
+import { LiquidFarmDetail } from 'types/liquidFarm'
+import { formatAmount, formatUSDAmount } from 'utils/amount'
 import { abbrOver } from 'utils/text'
 
 export default function Token() {
@@ -66,6 +69,12 @@ export default function Token() {
     [asset, getAssetTickers]
   )
 
+  const { findLiquidFarmByDenom } = useLiquidFarm()
+  const liquidFarm = useMemo<LiquidFarmDetail | undefined>(
+    () => (assetDetail ? findLiquidFarmByDenom(assetDetail.denom) : undefined),
+    [assetDetail?.denom]
+  )
+
   return (
     <AppPage>
       {assetDetail ? (
@@ -85,7 +94,7 @@ export default function Token() {
           </header>
 
           <section className="flex flex-col md:flex-row items-stretch md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-2">
-            {assetDetail.isPoolToken ? (
+            {assetDetail.tokenType === TokenTypes.POOL ? (
               <>
                 <Card useGlassEffect={true} className="grow shrink basis-[30%]">
                   <Indicator title="Total value farm-staked" light={true} className="TYPO-BODY-L !font-bold">
@@ -100,6 +109,29 @@ export default function Token() {
                     <div className="flex items-center gap-x-3 FONT-MONO">
                       {formatUSDAmount({ value: assetDetail.totalSupplyUSD, mantissa: 2 })}
                       <Tag status="white">{assetDetail.unfarmedRate?.toFixed(1)}% unfarmed</Tag>
+                    </div>
+                  </Indicator>
+                </Card>
+              </>
+            ) : assetDetail.tokenType === TokenTypes.LF ? (
+              <>
+                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
+                  <Indicator title="Mint rate per pool token" light={true} className="TYPO-BODY-L !font-bold">
+                    <div className="flex items-center gap-x-3 FONT-MONO">
+                      {formatAmount({
+                        value: liquidFarm?.mintAmountPerPoolToken,
+                        mantissa: liquidFarm?.pool.poolTokenExponent,
+                      })}
+                    </div>
+                  </Indicator>
+                </Card>
+                <Card useGlassEffect={true} className="grow shrink basis-[30%]">
+                  <Indicator title="Burn rate per LF token" light={true} className="TYPO-BODY-L !font-bold">
+                    <div className="flex items-center gap-x-3 FONT-MONO">
+                      {formatAmount({
+                        value: liquidFarm?.receiveAmountPerLfToken,
+                        mantissa: liquidFarm?.lfTokenExponent,
+                      })}
                     </div>
                   </Indicator>
                 </Card>
@@ -130,8 +162,14 @@ export default function Token() {
           </section>
 
           <section className="space-y-20">
-            <PairsTable byAsset={assetDetail} title={assetDetail.isPoolToken ? 'Pair' : 'Pairs'} />
-            <PoolsTable byAsset={assetDetail} title={assetDetail.isPoolToken ? 'Pool' : 'Pools'} />
+            <PairsTable
+              byAsset={assetDetail}
+              title={[TokenTypes.POOL, TokenTypes.LF].includes(assetDetail.tokenType) ? 'Pair' : 'Pairs'}
+            />
+            <PoolsTable
+              byAsset={assetDetail}
+              title={[TokenTypes.POOL, TokenTypes.LF].includes(assetDetail.tokenType) ? 'Pool' : 'Pools'}
+            />
           </section>
         </>
       ) : null}

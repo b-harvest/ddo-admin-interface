@@ -24,7 +24,7 @@ export const formatAmount = ({
     // @ts-ignore
     trailingZeroDisplay: 'stripIfInteger',
     maximumFractionDigits: mantissa,
-    minimumFractionDigits: mantissa,
+    // minimumFractionDigits: mantissa,
   })
 
   const number = value.dp(mantissa, BigNumber.ROUND_DOWN).toNumber()

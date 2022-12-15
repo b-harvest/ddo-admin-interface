@@ -3,6 +3,7 @@ import api from 'data/api'
 import { atom } from 'jotai'
 import type { AssetInfoRaw, AssetLiveRaw } from 'types/asset'
 import type { BlockLCD, ChainInfo, ChainLive } from 'types/chain'
+import { LiquidFarmLiveRaw } from 'types/liquidFarm'
 import type { PairInfoRaw, PairLiveRaw } from 'types/pair'
 import type { PoolLiveRaw } from 'types/pool'
 
@@ -64,6 +65,8 @@ export const allPairInfoAtomRef = atom<PairInfoRaw[]>([])
 export const allPairLiveAtomRef = atom<PairLiveRaw[]>([])
 
 export const allPoolLiveAtomRef = atom<PoolLiveRaw[]>([])
+
+export const allLiquidFarmLiveAtomRef = atom<LiquidFarmLiveRaw[]>([])
 
 // balanceAtom
 export const balanceAtom = atom(undefined)
