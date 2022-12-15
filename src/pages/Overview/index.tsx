@@ -78,7 +78,11 @@ export default function Overview() {
         const vol24USD = getVol24USDbyDenom(item.denom)
         const tvlUSD = item.isPoolToken ? farmStakedUSD : getTVLUSDbyDenom(item.denom)
 
-        const filter = [TOKEN_TABLE_FILTERS.map((f) => f.value).find((value) => value === item.tokenType)]
+        const matchedFilterValue =
+          item.tokenType === TokenTypes.NATIVE
+            ? TokenTypes.NORMAL
+            : TOKEN_TABLE_FILTERS.map((f) => f.value).find((value) => value === item.tokenType)
+        const filter = [matchedFilterValue]
 
         return {
           ...item,
