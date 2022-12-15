@@ -63,14 +63,6 @@ export function useBalance({ address }: { address: string }, interval = 0) {
   return returnGenerator({ data, error, mutate })
 }
 
-// export function useFarmStaked({ address }: { address: string }, interval = 0) {
-//   const { data, error, mutate }: ResponseViaSWR<StakedRaw[]> = useAppSWR(`/acc/${address}/farm/staking`, {
-//     interval,
-//     fetch: address.length > 0,
-//   })
-//   return returnGenerator({ data, error, mutate })
-// }
-
 /** @summary replace the above from v3 */
 export function useLpFarmStaking({ address }: { address: string }, interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<LpFarmStakingRaw[]> = useAppSWR(`/acc/${address}/lpfarm/staking`, {

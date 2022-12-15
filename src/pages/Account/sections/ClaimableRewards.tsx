@@ -5,14 +5,22 @@ import TableList, { bignumberToFormat } from 'components/TableList'
 import type { ListFieldBignumber } from 'components/TableList/types'
 import Tag from 'components/Tag'
 import TimestampMemo from 'components/TimestampMemo'
+import AccountDataRewardsLCDFetcher from 'data/AccountDataRewardsLCDFetcher'
 import useAsset from 'hooks/useAsset'
 import usePool from 'hooks/usePool'
 import AccountDataAlertArea from 'pages/Account/components/AccountDataAlertArea'
 import AssetLogoLabel from 'pages/components/AssetLogoLabel'
-import { useMemo } from 'react'
-import type { TokenAmountSet } from 'types/account'
+import { useMemo, useState } from 'react'
+import type { LpFarmRewardsLCDRaw, TokenAmountSet } from 'types/account'
 import { AlertStatus } from 'types/alert'
+import { getTokenWideFarmRewards } from 'utils/rewards'
 import { isTimeDiffFromNowMoreThan } from 'utils/time'
+
+type TokenWideFarmRewards = {
+  [key: string]: (TokenAmountSet & {
+    poolDenom: string
+  })[]
+}
 
 export default function ClaimableRewards({
   significantTimeGap,
@@ -20,27 +28,50 @@ export default function ClaimableRewards({
   backendData,
   onchainData,
   isLoading = true,
+  address,
 }: {
   significantTimeGap: number
   backendTimestamp: number
-  backendData: {
-    [key: string]: (TokenAmountSet & {
-      poolDenom: string
-    })[]
-  }
-  onchainData: {
-    [key: string]: (TokenAmountSet & {
-      poolDenom: string
-    })[]
-  }
+  backendData: TokenWideFarmRewards
+  onchainData: TokenAmountSet[]
   isLoading: boolean
+  address: string
 }) {
   const { findAssetByDenom } = useAsset()
   const { findPoolByDenom, getAssetTickers } = usePool()
 
+  /** @summary onchain data fetching by poolDenom */
+  const [onchainDataWithRewards, setOnchainDataWithRewards] = useState<
+    (TokenAmountSet & {
+      poolDenom: string
+    })[]
+  >([])
+
+  const onchainDataForDisplay = useMemo<TokenWideFarmRewards>(
+    () => getTokenWideFarmRewards(onchainDataWithRewards),
+    [onchainDataWithRewards]
+  )
+
+  const onFetched = (data: LpFarmRewardsLCDRaw, poolDenom) => {
+    const oldData = onchainDataWithRewards.filter((reward) => reward.poolDenom !== poolDenom)
+
+    const newData = data?.rewards.map((reward) => {
+      const assetInfo = findAssetByDenom(reward.denom)
+      return {
+        denom: reward.denom,
+        amount: new BigNumber(reward.amount).shiftedBy(-(assetInfo?.exponent ?? 0)),
+        poolDenom,
+      }
+    })
+
+    const mergedData = [...oldData, ...newData].sort((a, b) => a.poolDenom.localeCompare(b.poolDenom))
+    setOnchainDataWithRewards(mergedData)
+  }
+
+  /** @summary table data */
   const rewardsListByToken = useMemo<any[][]>(() => {
-    return Object.keys(onchainData).map((denom) => {
-      const onchainList = onchainData[denom]
+    return Object.keys(onchainDataForDisplay).map((denom) => {
+      const onchainList = onchainDataForDisplay[denom]
       const backendList = backendData[denom] ?? []
 
       const onchainTotal = onchainList.reduce((accm, item) => accm.plus(item.amount), new BigNumber(0))
@@ -75,7 +106,11 @@ export default function ClaimableRewards({
           : undefined
 
         const totalDesc = TableTotalDesc({ amount: backendTotal, tag: 'Back-end' })
-        const totalStatus: AlertStatus | undefined = onchainTotal.isEqualTo(backendTotal) ? undefined : 'error'
+        const totalStatus: AlertStatus | undefined = onchainTotal
+          .dp(rewardsAsset?.exponent ?? 6, BigNumber.ROUND_DOWN)
+          .eq(backendTotal.dp(rewardsAsset?.exponent ?? 6, BigNumber.ROUND_DOWN))
+          ? undefined
+          : 'error'
 
         return {
           onchainRewardsAmount,
@@ -90,7 +125,7 @@ export default function ClaimableRewards({
         }
       })
     })
-  }, [onchainData, backendData, findAssetByDenom, getAssetTickers, findPoolByDenom])
+  }, [onchainDataForDisplay, backendData, findAssetByDenom, getAssetTickers, findPoolByDenom])
 
   const hasDiff = useMemo<boolean>(
     () => rewardsListByToken.findIndex((listByToken) => listByToken[0] && listByToken[0].totalStatus === 'error') > -1,
@@ -107,6 +142,17 @@ export default function ClaimableRewards({
 
   return (
     <FoldableSection label="Claimable Rewards" defaultIsOpen={true}>
+      {/* dummy Node to fetch via swr depending on onchainData; https://swr.vercel.app/docs/pagination#infinite-loading */}
+      {onchainData.map((position) => (
+        <AccountDataRewardsLCDFetcher
+          key={position.denom}
+          address={address}
+          poolDenom={position.denom}
+          interval={5000}
+          onFetched={onFetched}
+        />
+      ))}
+
       {isLoading ? (
         <EmptyData isLoading={true} />
       ) : (

@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom'
 import { chainIdAtomRef } from 'state/atoms'
 
 import AirdropClaim from './AirdropClaim'
+import ClaimableRewards from './ClaimableRewards'
 import FarmStakedAmount from './FarmStakedAmount'
 import TokenBalance from './TokenBalance'
 
@@ -21,11 +22,9 @@ export default function AccountData({ address }: { address: string }) {
     allBalanceLCD,
     allLpFarmStakingDataTimestamp,
     allLpFarmStaking,
-    // farmPositionLCD,
     allLpFarmPositionsLCD,
     allFarmRewardsDataTimestamp,
     allFarmRewardsByToken,
-    // allFarmRewardsByTokenLCD,
     airdropClaimDataTimestamp,
     airdropClaim,
     airdropClaimLCD,
@@ -61,14 +60,15 @@ export default function AccountData({ address }: { address: string }) {
         significantTimeGap={significantTimeGap}
       />
       <Hr />
-      {/* <ClaimableRewards
+      <ClaimableRewards
         isLoading={showLoader}
         backendTimestamp={allFarmRewardsDataTimestamp}
         backendData={allFarmRewardsByToken}
-        onchainData={allFarmRewardsByTokenLCD}
+        onchainData={allLpFarmPositionsLCD}
         significantTimeGap={significantTimeGap}
+        address={address}
       />
-      <Hr /> */}
+      <Hr />
       <AirdropClaim
         isLoading={showLoader}
         backendTimestamp={airdropClaimDataTimestamp}

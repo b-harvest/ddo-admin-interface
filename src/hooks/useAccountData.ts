@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { useAirdropClaim, useLpFarmStaking } from 'data/useAPI'
 import { useBalance } from 'data/useAPI'
-import { useAirdropClaimLCD, useAllLpFarmPositionLCD, useAllLpFarmRewardsLCD } from 'data/useLCD'
+import { useAirdropClaimLCD, useAllLpFarmPositionLCD } from 'data/useLCD'
 import { useBalanceLCD } from 'data/useLCD'
 import useAsset from 'hooks/useAsset'
 import { useCallback, useMemo } from 'react'
@@ -15,14 +15,13 @@ import type {
   BalanceRaw,
   LpFarmPositionsLCDRaw,
   LpFarmRewardRaw,
-  LpFarmRewardsLCDRaw,
   LpFarmStaking,
   LpFarmStakingRaw,
   TokenAmountSet,
   TokenAmountSetRaw,
 } from 'types/account'
-// import type { Balance } from 'types/account'
 import type { APIHookReturn, LCDHookReturn } from 'types/api'
+import { getTokenWideFarmRewards } from 'utils/rewards'
 
 const useAccountData = ({ address, interval = 0 }: { address: string; interval?: number }) => {
   const { findAssetByDenom } = useAsset()
@@ -136,15 +135,15 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
   )
 
   // * rewards by pool
-  const {
-    data: allLpFarmRewardsLCDData,
-    isLoading: allLpFarmRewardsLCDDataLoading,
-  }: LCDHookReturn<LpFarmRewardsLCDRaw> = useAllLpFarmRewardsLCD(
-    {
-      address,
-    },
-    interval
-  )
+  // const {
+  //   data: allLpFarmRewardsLCDData,
+  //   isLoading: allLpFarmRewardsLCDDataLoading,
+  // }: LCDHookReturn<LpFarmRewardsLCDRaw> = useAllLpFarmRewardsLCD(
+  //   {
+  //     address,
+  //   },
+  //   interval
+  // )
 
   // backend
   const allFarmRewardsDataTimestamp = allLpFarmStakingDataTimestamp
@@ -163,23 +162,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 
     return getTokenWideFarmRewards(allRewards)
   }, [allLpFarmStaking])
-
-  // onchain
-  // const allFarmRewardsByTokenLCD = useMemo(() => {
-  //   const allRewards =
-  //     allLpFarmRewardsLCDData?.rewards.reduce((accm: (TokenAmountSet & { poolDenom: undefined })[], item) => {
-  //       const rewards = item.rewards.map((re) => {
-  //         const exponent = findAssetByDenom(re.denom)?.exponent ?? 0
-  //         return {
-  //           poolDenom: undefined,
-  //           denom: re.denom,
-  //           amount: new BigNumber(re.amount).dividedBy(10 ** exponent),
-  //         }
-  //       })
-  //       return accm.concat(rewards)
-  //     }, []) ?? []
-  //   return getTokenWideFarmRewards(allRewards)
-  // }, [allLpFarmRewardsLCDData, findAssetByDenom])
 
   // * airdrop claim
   const { data: airdropClaimData, isLoading: airdropClaimDataLoading }: APIHookReturn<AirdropClaimRaw> =
@@ -236,8 +218,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
         allBalanceLCDDataLoading ||
         allLpFarmStakingDataLoading ||
         allLpFarmPositionsLCDDataLoading ||
-        allLpFarmRewardsLCDDataLoading ||
-        allLpFarmRewardsLCDDataLoading ||
         airdropClaimDataLoading ||
         airdropClaimLCDDataLoading),
     [
@@ -246,7 +226,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
       allBalanceLCDDataLoading,
       allLpFarmStakingDataLoading,
       allLpFarmPositionsLCDDataLoading,
-      allLpFarmRewardsLCDDataLoading,
       airdropClaimDataLoading,
       airdropClaimLCDDataLoading,
     ]
@@ -261,7 +240,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
     allLpFarmStaking,
     allFarmRewardsDataTimestamp,
     allFarmRewardsByToken,
-    // allFarmRewardsByTokenLCD,
     airdropClaimDataTimestamp,
     airdropClaim,
     airdropClaimLCD,
@@ -270,16 +248,6 @@ const useAccountData = ({ address, interval = 0 }: { address: string; interval?:
 }
 
 export default useAccountData
-
-function getTokenWideFarmRewards(allRewards: (TokenAmountSet & { poolDenom: string })[]) {
-  const tokenWideRewards: { [key: string]: (TokenAmountSet & { poolDenom: string })[] } = {}
-  allRewards.forEach((item) => {
-    const key = tokenWideRewards[item.denom]
-    if (key) tokenWideRewards[item.denom].push(item)
-    else tokenWideRewards[item.denom] = [item]
-  })
-  return tokenWideRewards
-}
 
 function parseAmountSetToBigNumber(item: TokenAmountSetRaw, exponent: number): TokenAmountSet {
   return {

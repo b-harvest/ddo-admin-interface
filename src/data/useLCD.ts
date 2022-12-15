@@ -67,6 +67,21 @@ export function useAllLpFarmRewardsLCD({ address }: { address: string }, interva
   return lcdReturnGenerator({ data, error })
 }
 
+export function useFetchLpFarmRewardsByPoolLCD(
+  { address, poolDenom }: { address: string; poolDenom: string },
+  interval = 0
+) {
+  const { data, error }: LCDResponseViaSWR<LpFarmRewardsLCDRaw> = useAppSWR(
+    `/crescent/lpfarm/v1beta1/rewards/${address}/${poolDenom}`,
+    {
+      interval,
+      type: 'rpc-rest',
+      fetch: address.length > 0,
+    }
+  )
+  return lcdReturnGenerator({ data, error })
+}
+
 export function useAllLpFarmPositionLCD({ address }: { address: string }, interval = 0) {
   const { data, error }: LCDResponseViaSWR<LpFarmPositionsLCDRaw> = useAppSWR(
     `/crescent/lpfarm/v1beta1/positions/${address}`,
