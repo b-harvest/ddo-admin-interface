@@ -1,5 +1,6 @@
 import { EventName } from 'analytics/constants'
 import mixpanel from 'analytics/mixpanel'
+import H3 from 'components/H3'
 import TableList from 'components/TableList'
 import type { ListFieldObj } from 'components/TableList/types'
 import Toggler from 'components/Toggler'
@@ -39,6 +40,8 @@ export default function VotingTable({
 }) {
   const { allProposals, getStatusTagByProposal } = useProposal()
 
+  const [isTableFitMode, setIsTableFitMode] = useState<boolean>(isMobile ? false : true)
+
   const allLSVVotingTableList = useMemo<LSVVotingTableItem[]>(() => {
     return allProposals.map((proposal) => {
       const proposalId = proposal.proposalId
@@ -64,9 +67,9 @@ export default function VotingTable({
       list.map((item) => {
         return {
           label: (
-            <div className="flex flex-col items-center">
-              <span>{item.alias}</span>
-              <span className={item.votingRate < SAFE_VOTING_RATE ? 'text-error' : ''}>
+            <div className={`flex flex-col px-2 ${isTableFitMode ? 'items-start' : 'items-center'}`}>
+              <span className={`truncate ${isTableFitMode ? 'max-w-[72px]' : ''}`}>{item.alias}</span>
+              <span className={`w-full flex justify-center ${item.votingRate < SAFE_VOTING_RATE ? 'text-error' : ''}`}>
                 {item.votingRate.toFixed(0)}%
               </span>
             </div>
@@ -83,8 +86,6 @@ export default function VotingTable({
       }),
     [list]
   )
-
-  const [isTableFitMode, setIsTableFitMode] = useState<boolean>(isMobile ? false : true)
 
   // warning modal
   const [modal, setModal] = useState<boolean>(false)
@@ -135,7 +136,7 @@ export default function VotingTable({
     (field: string) => {
       const lsv = list.find((lsv) => lsv.addr === field)
       if (lsv) {
-        return `${lsv.alias} warned? click to post`
+        return `${lsv.alias} \nClick to post warning`
       } else return undefined
     },
     [list]
@@ -149,12 +150,35 @@ export default function VotingTable({
 
   return (
     <>
+      <div className="flex justify-between items-center mb-2">
+        <H3 title="Governance Participation" />
+        {!isMobile && (
+          <div className="flex items-center justify-end gap-x-2">
+            <Toggler<boolean>
+              onChange={setIsTableFitMode}
+              className="w-max flex items-center justify-end gap-x-2"
+              label="Table mode"
+              tabItems={[
+                {
+                  label: 'to Scrollable',
+                  value: true,
+                },
+                {
+                  label: 'to Screen-fit',
+                  value: false,
+                },
+              ]}
+            />
+          </div>
+        )}
+      </div>
       <TableList<LSVVotingTableItem>
         title="Governance Participation"
+        showTitle={false}
         isLoading={isLoading}
         nowrap={true}
         overflow={!isTableFitMode}
-        cellMinWidthPx={isTableFitMode ? 0 : 130}
+        cellMinWidthPx={isTableFitMode ? 40 : 130}
         useSearch={true}
         useNarrow={true}
         memo={<VotingOptionsLegend />}
@@ -170,7 +194,7 @@ export default function VotingTable({
           {
             label: '#',
             value: 'proposalId',
-            widthRatio: 1,
+            widthRatio: 2,
             clickable: true,
             excludeMinWidth: true,
           },
@@ -179,32 +203,13 @@ export default function VotingTable({
             value: 'statusLabel',
             sortValue: 'pStatus',
             type: 'html',
-            widthRatio: 5,
+            widthRatio: isTableFitMode ? 5 : 1,
             align: 'left',
             clickable: true,
           },
           ...tableFields,
         ]}
       />
-      {isMobile ? null : (
-        <div className="flex items-center justify-end gap-x-2 mt-4">
-          <Toggler<boolean>
-            onChange={setIsTableFitMode}
-            className="w-max flex items-center justify-end gap-x-2"
-            label="Table mode"
-            tabItems={[
-              {
-                label: 'Scrollable',
-                value: true,
-              },
-              {
-                label: 'Screen-fit',
-                value: false,
-              },
-            ]}
-          />
-        </div>
-      )}
 
       {modalLSV && (
         <LSVVoteWarningModal
