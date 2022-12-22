@@ -74,6 +74,7 @@ export default function Ranks({
         {
           label: 'Address',
           value: 'addr',
+          widthRatio: 45,
           clickable: true,
         },
         {
@@ -81,7 +82,7 @@ export default function Ranks({
           value: 'aliasTag',
           sortValue: 'alias',
           type: 'html',
-          widthRatio: 10,
+          widthRatio: 16,
         },
         {
           label: 'Last change block',
