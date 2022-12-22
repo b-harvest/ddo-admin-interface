@@ -20,7 +20,7 @@ import type { AlertStatus } from 'types/alert'
 import { formatAmount } from 'utils/amount'
 import { abbrOver } from 'utils/text'
 const IS_SORT_ASC_DEFAULT = false
-const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S whitespace-pre`
+const FIELD_CSS_CLASS = `grow shrink justify-start items-center TYPO-BODY-XS text-grayCRE-400 dark:text-grayCRE-300 !font-medium cursor-pointer md:flex md:TYPO-BODY-S whitespace-pre overflow-hidden`
 
 export default function TableList<T extends TableListItem>({
   title,
@@ -181,7 +181,10 @@ export default function TableList<T extends TableListItem>({
                       className={`${field.responsive ? 'hidden' : 'flex'} ${FIELD_CSS_CLASS}`}
                       onClick={() => handleFieldClick(field)}
                     >
-                      <Tooltip content={onFieldTooltip ? onFieldTooltip(field.value) : undefined}>
+                      <Tooltip
+                        wrapperClassName="w-full"
+                        content={onFieldTooltip ? onFieldTooltip(field.value) : undefined}
+                      >
                         {field.label}
                         {sortBy && sortBy === (field.sortValue ?? field.value) ? (
                           <span className="ml-2">{isSortASC ? '↓' : '↑'}</span>
