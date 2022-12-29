@@ -1,6 +1,6 @@
 # vo-admin-interface
 
 ```
-npm install. 
+npm install
 npm start
 ```
