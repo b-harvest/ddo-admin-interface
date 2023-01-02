@@ -17,3 +17,6 @@ export const LSV_COSMOSTATION_LOGO_URL =
 export const LSV_IMPERATOR_LOGO_URL = 'https://imperator.co/Logo.png'
 
 export const LSV_PROVALIDATOR_LOGO_URL = 'https://provalidator.com/wp-content/uploads/2020/12/fab-1-150x150.png'
+
+/* VO */
+export const BHARVEST_LOGO_IMG_URL = 'https://bharvest.io/_nuxt/img/logo-text-white.c939973.png'

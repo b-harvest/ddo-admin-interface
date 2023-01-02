@@ -2,9 +2,9 @@ import 'App.css'
 // eslint-disable-next-line no-restricted-imports
 import 'react-toastify/dist/ReactToastify.min.css'
 
-import Analytics from 'analytics/Analytics'
+//import Analytics from 'analytics/Analytics'
 import AppHeader from 'components/AppHeader'
-import BlockHeightPolling from 'components/BlockHeightPolling'
+// import BlockHeightPolling from 'components/BlockHeightPolling'
 import GlowBackground from 'components/GlowBackground'
 import Loader from 'components/Loader'
 import TextBand from 'components/TextBand'
@@ -12,13 +12,15 @@ import useAsset from 'hooks/useAsset'
 import useChain from 'hooks/useChain'
 import { useAtom } from 'jotai'
 import Account from 'pages/Account'
-import Accounts from 'pages/Accounts'
+// import Accounts from 'pages/Accounts'
+import Accounts from 'pages/Vo/Accounts'
 import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
 import DEX from 'pages/DEX'
 import LSV from 'pages/LSV'
 import LSVs from 'pages/LSVs'
-import Overview from 'pages/Overview'
+//import Overview from 'pages/Overview'
+import Overview from 'pages/Vo/Overview'
 import Pair from 'pages/Pair'
 import Pool from 'pages/Pool'
 import SignIn from 'pages/SignIn/index'
@@ -92,14 +94,15 @@ function App() {
   return (
     <>
       <div className="App">
-        <Analytics />
+        {/* <Analytics /> */}
         <Updaters />
 
         {authChecked ? (
           <>
             <div className="fixed top-0 left-0 right-0 w-full" style={{ zIndex: '60' }}>
-              {showAppTopBar && <TextBand label={topBannerLabel} />}
-              {authTokenAtom && (
+              {/* 체인명 보여주는 빨간색 탭 */}
+              {/* {showAppTopBar && <TextBand label={topBannerLabel} />} */}
+              {/* {authTokenAtom && (
                 <div
                   className="flex justify-end bg-white dark:bg-black md:!bg-transparent px-4 py-1 md:py-0 relative md:absolute md:right-4 md:-bottom-8"
                   style={{ zIndex: '1' }}
@@ -109,7 +112,7 @@ function App() {
                     backendBlockHeight={backendBlockHeight ?? '-'}
                   />
                 </div>
-              )}
+              )} */}
               <AppHeader />
             </div>
 
@@ -133,9 +136,9 @@ function App() {
                 <Route exact path="/auth" component={SignIn} />
                 {/* <Route exact path="/google-sign-in" component={GoogleSignIn} /> */}
 
-                <AuthRoute path="/overview" component={Overview} />
+                <AuthRoute path="/vo/overview" component={Overview} />
                 <AuthRoute path="/chain" component={Chain} />
-                <AuthRoute path="/accounts" component={Accounts} />
+                <AuthRoute path="/vo/accounts" component={Accounts} />
                 <AuthRoute path="/account/:id" component={Account} />
                 <AuthRoute path="/account" component={Account} />
                 <AuthRoute path="/lsvs" component={LSVs} />
@@ -150,7 +153,7 @@ function App() {
                 <AuthRoute path="/pool/:id" component={Pool} />
 
                 <Route>
-                  <Redirect to="/overview" />
+                  <Redirect to="/vo/overview" />
                 </Route>
               </Switch>
             </main>

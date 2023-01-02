@@ -214,7 +214,6 @@ export default function LSVPenaltyItem({
               color={penalty.confirmId ? 'neutral' : 'primary'}
               disabled={penalty.status !== PENALTY_STATUS.NotConfirmed}
               isLoading={false}
-              // eslint-disable-next-line @typescript-eslint/no-empty-function
               onClick={onConfirmClick ?? (() => {})}
             />
           </Tooltip>

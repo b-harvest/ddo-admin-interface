@@ -18,6 +18,9 @@ const onScriptLoadError = () => {
   console.log('onScriptLoadError')
 }
 
+console.log(process.env)
+console.log(`client_id: ${process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID}`)
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider>

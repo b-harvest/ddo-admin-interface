@@ -7,8 +7,19 @@ import { DataType, getBaseUrl } from './utils'
 // import type { AlertStatus } from 'types/alert'
 
 // should throw error to get returned as error from useSWR hook
-const fetcher = (url: string) => axios.get(url).then((res) => res.data)
-
+const fetcher = async (url: string) => {
+  try {
+    // if (url.startsWith('https://testnet-endpoint.crescent.network:1317')) {
+    //   url = url.split('https://testnet-endpoint.crescent.network:1317')[1]
+    // }
+    //console.log(` 헤헷 ${url}`)
+    const res = await axios.get(url)
+    return res.data
+  } catch (e) {
+    console.log('[ERROR] fetcher', e)
+    return null
+  }
+}
 export default function useAppSWR(
   url: string,
   {

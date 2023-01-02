@@ -9,7 +9,7 @@ export function handleError(error: Error | AxiosError): HandledError {
 
   if (error) {
     if (axios.isAxiosError(error)) {
-      console.group()
+      //console.group()
 
       if (error.response) {
         // request sent, but the server responded out of the range of 2xx status code.
@@ -20,15 +20,19 @@ export function handleError(error: Error | AxiosError): HandledError {
         msg = `Error occured \n${error.response.data?.message ?? error.response.data ?? 'Unknown error'}`
       } else if (error.request) {
         // request sent, but no response, `error.request` is XMLHttpRequest instance
-        if (isDevEnv()) console.log('Request was : ', error.request)
+        if (isDevEnv()) {
+          //console.log('Request was : ', error.request)
+        }
 
         msg = `Server is not responding currently.`
       } else {
         // request has some problems and occurs error
-        console.log('Error msg : ', error.message)
+        //console.log('Error msg : ', error.message)
         msg = `Invalid request`
       }
-      if (isDevEnv()) console.log('Error config : ', error.config)
+      if (isDevEnv()) {
+        //console.log('Error config : ', error.config)
+      }
 
       console.groupEnd()
     }

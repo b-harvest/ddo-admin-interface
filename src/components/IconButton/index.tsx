@@ -13,7 +13,6 @@ export default function IconButton({
   type,
   label = `${type}`,
   showLabel = false,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClick = () => {},
   className = '',
   iconClassName = '',

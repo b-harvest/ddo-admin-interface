@@ -28,7 +28,9 @@ export default function useInfoSWR(
   }
 ) {
   const [chainIdAtom] = useAtom(chainIdAtomRef)
-  const baseUrl = getBaseUrl({ chainId: chainIdAtom })
+  //console.log(`chainIdAtom: ${chainIdAtom}`)
+  //const baseUrl = getBaseUrl({ chainId: chainIdAtom })
+  const baseUrl = process.env.REACT_APP_VO_API_ENDPOINT
 
   const { data, error, mutate } = useSWR(baseUrl && fetch ? `${baseUrl}${url}` : null, fetcher, {
     refreshInterval: interval,

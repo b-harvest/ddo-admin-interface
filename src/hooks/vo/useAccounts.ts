@@ -1,41 +1,44 @@
 import BigNumber from 'bignumber.js'
-import { useAllAccountsRank } from 'data/useAPI'
+import { useAllAccounts } from 'data/vo/useAPI'
 import { useCallback, useMemo } from 'react'
 
 const useAccounts = () => {
-  const { data: allAccountsRankData, isLoading } = useAllAccountsRank()
-  console.log('useAllAccountsRank')
-  console.log(allAccountsRankData)
+  const { data: allAccountsData, isLoading } = useAllAccounts()
+  console.log('hooks -> vo -> useAccounts.ts')
+  console.log(allAccountsData?.data)
 
   // rankTypes
   const rankTypes = useMemo<string[]>(
-    () => allAccountsRankData?.data.map((item) => item.rankType) ?? [],
-    [allAccountsRankData]
+    // () => allAccountsData?.data.map((item) => item.chain) ?? [],
+    () => allAccountsData?.data.map((item) => item.rankType) ?? [],
+    [allAccountsData]
   )
 
   // get ranks
   const getRanks = useCallback(
     (rankType: string) => {
-      const ranksData = allAccountsRankData?.data.find((item) => item.rankType === rankType)
+      const ranksData = allAccountsData?.data.find((item) => item.rankType === rankType)
       const ranks =
         ranksData?.rankData.map((item, index) => ({
           ...item,
           usd: new BigNumber(item.usd),
+          //usd: "$" + item.usd,
           rank: index + 1,
         })) ?? []
       const timestamp = ranksData ? ranksData.updateTimestamp * 1000 : undefined
+      console.log(ranks)
       return {
         ranks,
         timestamp,
       }
     },
-    [allAccountsRankData]
+    [allAccountsData]
   )
 
   // farm ranks
   // const farmRanksData = useMemo<AccountRankRaw | undefined>(
-  //   () => allAccountsRankData?.data.find((item) => item.rankType === 'farming'),
-  //   [allAccountsRankData]
+  //   () => allAccountsData?.data.find((item) => item.rankType === 'farming'),
+  //   [allAccountsData]
   // )
 
   // const farmRanks = useMemo<RankData[]>(() => {
@@ -55,8 +58,8 @@ const useAccounts = () => {
 
   // // balance ranks
   // const balanceRanksData = useMemo<AccountRankRaw | undefined>(
-  //   () => allAccountsRankData?.data.find((item) => item.rankType === 'balance'),
-  //   [allAccountsRankData]
+  //   () => allAccountsData?.data.find((item) => item.rankType === 'balance'),
+  //   [allAccountsData]
   // )
 
   // const balanceRanks = useMemo<RankData[]>(() => {
@@ -76,7 +79,7 @@ const useAccounts = () => {
 
   // // total ranks
   // const totalRanksData = useMemo<AccountRankRaw | undefined>(
-  //   () => allAccountsRankData?.data.find((item) => item.rankType === 'total'),
+  //   () => allAccountsData?.data.find((item) => item.rankType === 'total'),
   //   [allAccountsRankData]
   // )
 

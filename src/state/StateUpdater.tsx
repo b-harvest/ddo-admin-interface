@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { COMMON_FETCHING_INTERVAL } from 'constants/chain'
 import {
   useAllAssetInfo,
