@@ -6,6 +6,7 @@ import usePages from 'pages/hooks/usePages'
 import { useEffect, useMemo, useState } from 'react'
 import type { AccountsData } from 'types/vo/accounts'
 import { firstCharToUpperCase } from 'utils/text'
+import { CSVLink, CSVDownload } from "react-csv";
 
 //import Ranks from '../components/Ranks'
 import Lists from '../components/Lists'
@@ -61,8 +62,29 @@ export default function OperatingAccounts() {
     setShowLoader(isLoading)
   }, [isLoading])
 
+  const csvHeaders = [
+    { label: "Rank", key: "rank" },
+    { label: "Code", key: "code" },
+    { label: "Chain", key: "chain" },
+    { label: "Address", key: "address" },
+  ];
+  
+  const csvData = ranks
+  
   return (
+    
     <>
+      <CSVLink 
+        data={csvData} 
+        headers={csvHeaders} 
+        filename={'vo_accounts_' + (new Date().toISOString() + '.csv')}
+        onClick={() => {
+          console.log("링크 클릭함");
+        }}
+        >
+        CSV Download
+      </CSVLink>
+
       <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-4">
         <H3 title={` ${ranks.length ? ranks.length : ''}`} />
         <div className="grow shrink md:grow-0 md:shrink-0">
