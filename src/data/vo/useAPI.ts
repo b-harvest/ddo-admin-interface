@@ -4,6 +4,7 @@ import { returnGenerator } from 'data/utils'
 import type { AirdropClaimRaw, BalanceRaw, LpFarmStakingRaw } from 'types/account'
 import type { TestRaw } from 'types/vo/accounts'
 import type { BalancesListRaw } from 'types/vo/balances'
+import type { TxsListRaw } from 'types/vo/txs'
 import type { ResponseViaSWR } from 'types/api'
 import type { AssetInfo, AssetLiveRaw } from 'types/asset'
 import type { BlockEventIndicatorsRaw, BlocksEventsRaw, BlocksFlushRaw } from 'types/block'
@@ -28,6 +29,11 @@ export function useAllBalancesList(interval = 0) {
   const { data, error, mutate }: ResponseViaSWR<BalancesListRaw[]> = useInfoSWR('/balances', { interval })
   console.log('data -> vo -> useAPI -> useAllBalancesList')
   console.log(data)
+  return returnGenerator({ data, error, mutate })
+}
+
+export function useAllTxsList(interval = 0) {
+  const { data, error, mutate }: ResponseViaSWR<TxsListRaw[]> = useInfoSWR('/txs', { interval })
   return returnGenerator({ data, error, mutate })
 }
 

@@ -5,13 +5,13 @@ import TableList from 'components/TableList'
 import Tag from 'components/Tag'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import type { BalancesData } from 'types/vo/balances'
+import type { TxsListData } from 'types/vo/txs'
 
 type AliasTag = {
   aliasTag: JSX.Element | null
 }
 
-export default function Lists({
+export default function TxsLists({
   title,
   resData,
   memo,
@@ -19,7 +19,7 @@ export default function Lists({
   isLoading,
 }: {
   title: string
-  resData: BalancesData[]
+  resData: TxsListData[]
   // memo: JSX.Element
   memo: JSX.Element
   //amountLabel?: string
@@ -40,7 +40,7 @@ export default function Lists({
     }
   }
 
-  const ranksTableList = useMemo<(BalancesData & AliasTag)[]>(
+  const ranksTableList = useMemo<(TxsListData & AliasTag)[]>(
     () =>
       resData.map((rank) => {
         const aliasTag = rank ? <Tag status="info">{rank}</Tag> : null
@@ -54,7 +54,7 @@ export default function Lists({
   console.log('여기까진 오냐?')
 
   return (
-    <TableList<BalancesData>
+    <TableList<TxsListData>
       title={title}
       isLoading={isLoading}
       showTitle={false}
@@ -77,13 +77,13 @@ export default function Lists({
         {
           label: 'Chain',
           value: 'chain',
-          widthRatio: 7,
+          widthRatio: 2,
           clickable: true,
         },
         {
-          label: 'Code',
-          value: 'code',
-          widthRatio: 7,
+          label: 'WalletCode',
+          value: 'walletCode',
+          widthRatio: 2,
           clickable: true,
         },
         // {
@@ -96,7 +96,7 @@ export default function Lists({
           label: 'Height',
           value: 'height',
           type: 'number',
-          widthRatio: 10,
+          widthRatio: 5,
           clickable: true,
         },
         // {
@@ -106,15 +106,27 @@ export default function Lists({
         //   clickable: true,
         // },
         {
-          label: 'Symbol',
-          value: 'symbol',
+          label: 'TxHash',
+          value: 'txHash',
+          widthRatio: 25,
+          clickable: true,
+        },
+        {
+          label: 'Action',
+          value: 'action',
           widthRatio: 10,
           clickable: true,
         },
         {
-          label: 'Unit',
-          value: 'amountUnit',
-          widthRatio: 5,
+          label: 'FromAddress',
+          value: 'fromAddressShort',
+          widthRatio: 10,
+          clickable: true,
+        },
+        {
+          label: 'ToAddress',
+          value: 'toAddressShort',
+          widthRatio: 10,
           clickable: true,
         },
         {
@@ -126,18 +138,22 @@ export default function Lists({
           clickable: true,
         },
         {
-          label: 'Variation',
-          value: 'variationBig',
-          type: 'bignumber',
-          toFixedFallback: 6,
-          widthRatio: 10,
+          label: 'Denom',
+          value: 'denom',
+          widthRatio: 2,
           clickable: true,
         },
         {
-          label: 'USD',
-          value: 'inUsd',
-          type: 'usd',
-          widthRatio: 10,
+          label: 'InOut',
+          value: 'inOut',
+          type: 'number',
+          widthRatio: 2,
+          clickable: true,
+        },
+        {
+          label: 'Timestamp',
+          value: 'timestamp',
+          widthRatio: 6,
           clickable: true,
         },
         // {

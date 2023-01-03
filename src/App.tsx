@@ -14,6 +14,7 @@ import Account from 'pages/Account'
 // import Accounts from 'pages/Accounts'
 import Accounts from 'pages/Vo/Accounts'
 import Balances from 'pages/Vo/Balances'
+import Txs from 'pages/Vo/Txs'
 import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
 import DEX from 'pages/DEX'
@@ -137,9 +138,12 @@ function App() {
                 {/* <Route exact path="/google-sign-in" component={GoogleSignIn} /> */}
 
                 <AuthRoute path="/vo/overview" component={Overview} />
-                <AuthRoute path="/chain" component={Chain} />
                 <AuthRoute path="/vo/accounts" component={Accounts} />
                 <AuthRoute path="/vo/balances" component={Balances} />
+                <AuthRoute path="/vo/txs" component={Txs} />
+                
+
+                <AuthRoute path="/chain" component={Chain} />
                 <AuthRoute path="/account/:id" component={Account} />
                 <AuthRoute path="/account" component={Account} />
                 <AuthRoute path="/lsvs" component={LSVs} />
