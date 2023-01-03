@@ -53,7 +53,9 @@ const useGoogleSignIn = ({
         setupTokenExpiry(credential)
         setAuthTokenAtom({ authToken: credential })
         /** @summary mixpanel user identification */
-        mixpanel.identifyUser(getUserProfile(credential))
+        console.log(getUserProfile(credential))
+        //TODO: jihon
+        //mixpanel.identifyUser(getUserProfile(credential))
         onComplete()
       } else {
         onError()

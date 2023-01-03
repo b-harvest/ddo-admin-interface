@@ -12,7 +12,6 @@ const fetcher = async (url: string) => {
     // if (url.startsWith('https://testnet-endpoint.crescent.network:1317')) {
     //   url = url.split('https://testnet-endpoint.crescent.network:1317')[1]
     // }
-    //console.log(` 헤헷 ${url}`)
     const res = await axios.get(url)
     return res.data
   } catch (e) {

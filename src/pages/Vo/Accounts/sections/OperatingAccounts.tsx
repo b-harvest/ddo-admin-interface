@@ -67,6 +67,8 @@ export default function OperatingAccounts() {
     { label: "Code", key: "code" },
     { label: "Chain", key: "chain" },
     { label: "Address", key: "address" },
+    { label: "Purpose", key: "purpose" },
+    { label: "Balance (USD)", key: "usd" },
   ];
   
   const csvData = ranks

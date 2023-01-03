@@ -1,8 +1,7 @@
 import 'App.css'
-// eslint-disable-next-line no-restricted-imports
 import 'react-toastify/dist/ReactToastify.min.css'
 
-//import Analytics from 'analytics/Analytics'
+import Analytics from 'analytics/Analytics'
 import AppHeader from 'components/AppHeader'
 // import BlockHeightPolling from 'components/BlockHeightPolling'
 import GlowBackground from 'components/GlowBackground'
@@ -14,6 +13,7 @@ import { useAtom } from 'jotai'
 import Account from 'pages/Account'
 // import Accounts from 'pages/Accounts'
 import Accounts from 'pages/Vo/Accounts'
+import Balances from 'pages/Vo/Balances'
 import AuthRoute from 'pages/AuthRoute'
 import Chain from 'pages/Chain'
 import DEX from 'pages/DEX'
@@ -139,6 +139,7 @@ function App() {
                 <AuthRoute path="/vo/overview" component={Overview} />
                 <AuthRoute path="/chain" component={Chain} />
                 <AuthRoute path="/vo/accounts" component={Accounts} />
+                <AuthRoute path="/vo/balances" component={Balances} />
                 <AuthRoute path="/account/:id" component={Account} />
                 <AuthRoute path="/account" component={Account} />
                 <AuthRoute path="/lsvs" component={LSVs} />

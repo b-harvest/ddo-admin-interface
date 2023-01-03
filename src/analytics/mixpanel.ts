@@ -18,7 +18,9 @@ const identify = (profile: GoogleUserProfile) => {
 
 const identifyUser = (profile: UserProfile) => {
   const id = profile.email
+  console.log(id)
   Mixpanel.identify(id)
+  console.log(id)
   Mixpanel.register_once({
     ...profile,
   })

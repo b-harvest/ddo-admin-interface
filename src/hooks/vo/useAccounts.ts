@@ -17,6 +17,9 @@ const useAccounts = () => {
   // get ranks
   const getRanks = useCallback(
     (rankType: string) => {
+      if(rankType === 'total') {
+        rankType = allAccountsData?.data[0].rankType
+      }
       const ranksData = allAccountsData?.data.find((item) => item.rankType === rankType)
       const ranks =
         ranksData?.rankData.map((item, index) => ({

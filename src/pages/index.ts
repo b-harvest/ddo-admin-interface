@@ -21,6 +21,13 @@ export const pages: Page[] = [
     showPageName: true,
     nav: true,
   },
+  {
+    path: '/vo/balances',
+    label: 'Balances',
+    pageName: 'VO Balances',
+    showPageName: true,
+    nav: true,
+  },
   // {
   //   path: '/chain',
   //   label: 'Chain',
