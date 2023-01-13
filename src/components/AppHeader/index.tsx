@@ -18,7 +18,7 @@ export default function Header() {
       <div className="grow shrink flex justify-start items-center space-x-6">
         <NavLink to="/" className="grow-0 shrink-0 flex justify-start items-center space-x-2">
           <Logo className="h-10 py-2" src={BHARVEST_LOGO_IMG_URL} />
-          <h1 className="hidden justify-start items-center TYPO-H2 md:inline-flex md:TYPO-H1 dark:text-white">VO</h1>
+          <h1 className="hidden justify-start items-center TYPO-H2 md:inline-flex md:TYPO-H1 dark:text-white">DDO</h1>
         </NavLink>
         {authTokenAtom && <NavigationTab onClick={() => vibrate(200)} />}
       </div>

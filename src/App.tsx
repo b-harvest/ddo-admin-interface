@@ -28,6 +28,9 @@ import SignIn from 'pages/SignIn/index'
 import Token from 'pages/Token'
 import TokenLaunch from 'pages/TokenLaunch'
 import TVL from 'pages/TVL'
+import Validators from 'pages/Vo/Validators'
+import Votes from 'pages/Vo/Votes'
+import Proposals from 'pages/Vo/Proposals'
 import Volume from 'pages/Volume'
 import { useEffect, useMemo, useState } from 'react'
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom'
@@ -141,6 +144,9 @@ function App() {
                 <AuthRoute path="/vo/accounts" component={Accounts} />
                 <AuthRoute path="/vo/balances" component={Balances} />
                 <AuthRoute path="/vo/txs" component={Txs} />
+                <AuthRoute path="/vo/validators" component={Validators} />
+                <AuthRoute path="/vo/votes" component={Votes} />
+                <AuthRoute path="/vo/proposals" component={Proposals} />
                 
 
                 <AuthRoute path="/chain" component={Chain} />
